@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft,
@@ -28,6 +27,9 @@ import {
 } from 'lucide-react';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
 import * as XLSX from 'xlsx';
+import Navigation from '@/components/Navigation';
+import LocationSearch from '@/components/LocationSearch';
+import { useLocationStore } from '@/store/locationStore';
 
 // Weather API Service
 class WeatherService {
@@ -143,7 +145,16 @@ interface StatisticsSummary {
 }
 
 const Statistics = () => {
-  const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null);
+  const { selectedLocation: storeLocation } = useLocationStore();
+  const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(
+    storeLocation ? {
+      id: 0,
+      name: storeLocation.name,
+      lat: storeLocation.lat,
+      lng: storeLocation.lng,
+      type: 'custom'
+    } : null
+  );
   const [dateRange, setDateRange] = useState<'7' | '15' | '30' | 'custom'>('7');
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
@@ -167,6 +178,16 @@ const Statistics = () => {
     { id: 7, name: 'Parque Eólico Rio do Fogo', lat: -5.3757, lng: -37.3439, type: 'wind' },
     { id: 8, name: 'Complexo Solar Pirapora', lat: -17.3406, lng: -44.9361, type: 'solar' }
   ];
+
+  const handleLocationSelect = (location: { lat: number; lng: number; name: string }) => {
+    setSelectedLocation({
+      id: 0,
+      name: location.name,
+      lat: location.lat,
+      lng: location.lng,
+      type: 'custom'
+    });
+  };
 
   const parameters = [
     { id: 'temperature', name: 'Temperatura', icon: Thermometer, unit: '°C', color: '#ef4444' },
@@ -336,60 +357,47 @@ const Statistics = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
-      {/* Header */}
-      <header className="bg-white/95 backdrop-blur-md border-b border-emerald-100 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Link
-              to="/dashboard"
-              className="flex items-center space-x-2 text-emerald-600 hover:text-emerald-700 transition-colors"
+    <>
+      <Navigation />
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 pt-16">
+        <div className="max-w-7xl mx-auto p-6">
+          {/* Header with Export Button */}
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h1 className="text-3xl font-bold text-slate-900">Análise Estatística</h1>
+              <p className="text-slate-600 mt-1">Dados climáticos detalhados para análise de viabilidade</p>
+            </div>
+            <button
+              onClick={exportToExcel}
+              disabled={!historicalData.length || exporting}
+              className="flex items-center space-x-2 bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <ArrowLeft className="w-5 h-5" />
-              <span>Voltar ao Dashboard</span>
-            </Link>
-            <h1 className="text-2xl font-bold text-slate-900">Análise Estatística</h1>
+              <FileSpreadsheet className="w-5 h-5" />
+              <span>{exporting ? 'Exportando...' : 'Exportar Excel'}</span>
+            </button>
           </div>
 
-          <button
-            onClick={exportToExcel}
-            disabled={!historicalData.length || exporting}
-            className="flex items-center space-x-2 bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <FileSpreadsheet className="w-5 h-5" />
-            <span>{exporting ? 'Exportando...' : 'Exportar Excel'}</span>
-          </button>
-        </div>
-      </header>
+          {/* Filters Section */}
+          <div className="bg-white rounded-xl shadow-lg border border-emerald-100 p-6 mb-6">
+            <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
+              <Filter className="w-5 h-5 mr-2 text-emerald-600" />
+              Filtros de Análise
+            </h2>
 
-      <div className="max-w-7xl mx-auto p-6">
-        {/* Filters Section */}
-        <div className="bg-white rounded-xl shadow-lg border border-emerald-100 p-6 mb-6">
-          <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
-            <Filter className="w-5 h-5 mr-2 text-emerald-600" />
-            Filtros de Análise
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Location Selection */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Localização
-              </label>
-              <select
-                value={selectedLocation?.id || ''}
-                onChange={(e) => setSelectedLocation(locations.find(l => l.id === parseInt(e.target.value)) || null)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              >
-                <option value="">Selecione uma localização</option>
-                {locations.map(location => (
-                  <option key={location.id} value={location.id}>
-                    {location.name} ({location.type})
-                  </option>
-                ))}
-              </select>
+            <div className="grid grid-cols-1 gap-6 mb-6">
+              {/* Location Search */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Localização
+                </label>
+                <LocationSearch
+                  onLocationSelect={handleLocationSelect}
+                  initialLocation={selectedLocation ? { lat: selectedLocation.lat, lng: selectedLocation.lng, name: selectedLocation.name } : undefined}
+                />
+              </div>
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Date Range */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -597,6 +605,7 @@ const Statistics = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 

@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { 
   Sun, 
   Wind, 
@@ -12,11 +13,16 @@ import {
   Droplet,
   Zap,
   BarChart3,
-  FileText
+  FileText,
+  ArrowRight
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import Navigation from '@/components/Navigation';
+import LocationSearch from '@/components/LocationSearch';
+import { useLocationStore } from '@/store/locationStore';
 
 interface AnalysisPeriod {
   years: number;
@@ -28,7 +34,21 @@ interface AnalysisPeriod {
 }
 
 const FeasibilityAnalysis = () => {
-  const [selectedLocation] = useState({ lat: -23.5505, lng: -46.6333, name: 'São Paulo' });
+  const { selectedLocation, setSelectedLocation } = useLocationStore();
+  const [localLocation, setLocalLocation] = useState(
+    selectedLocation || { lat: -23.5505, lng: -46.6333, name: 'São Paulo, SP' }
+  );
+
+  useEffect(() => {
+    if (selectedLocation) {
+      setLocalLocation(selectedLocation);
+    }
+  }, [selectedLocation]);
+
+  const handleLocationSelect = (location: { lat: number; lng: number; name: string }) => {
+    setLocalLocation(location);
+    setSelectedLocation(location);
+  };
 
   const analysisPeriods: AnalysisPeriod[] = [
     {
@@ -116,28 +136,50 @@ const FeasibilityAnalysis = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/30 pt-20 pb-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <div className="flex items-center space-x-3 mb-4">
-            <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl">
-              <BarChart3 className="w-8 h-8 text-white" />
+    <>
+      <Navigation />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/30 pt-20 pb-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-6">
+              <div className="flex items-center space-x-3">
+                <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl">
+                  <BarChart3 className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-4xl font-bold text-slate-900">
+                    Análise de Viabilidade para Hidrogênio Verde
+                  </h1>
+                  <p className="text-slate-600 mt-1">
+                    Local: {localLocation.name} | Coordenadas: {localLocation.lat.toFixed(4)}, {localLocation.lng.toFixed(4)}
+                  </p>
+                </div>
+              </div>
             </div>
-            <div>
-              <h1 className="text-4xl font-bold text-slate-900">
-                Análise de Viabilidade para Hidrogênio Verde
-              </h1>
-              <p className="text-slate-600 mt-1">
-                Local: {selectedLocation.name} | Coordenadas: {selectedLocation.lat.toFixed(4)}, {selectedLocation.lng.toFixed(4)}
-              </p>
-            </div>
-          </div>
-        </motion.div>
+
+            {/* Location Search */}
+            <Card className="p-6 bg-white/80 backdrop-blur-sm border-emerald-200">
+              <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+                <div className="flex-1 w-full">
+                  <LocationSearch
+                    onLocationSelect={handleLocationSelect}
+                    initialLocation={localLocation}
+                  />
+                </div>
+                <Link to="/statistics">
+                  <Button className="bg-emerald-600 hover:bg-emerald-700 whitespace-nowrap">
+                    <span>Ver Estatísticas Detalhadas</span>
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              </div>
+            </Card>
+          </motion.div>
 
         {/* Potencial Energético */}
         <motion.div
@@ -339,8 +381,9 @@ const FeasibilityAnalysis = () => {
             </div>
           </Card>
         </motion.div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
