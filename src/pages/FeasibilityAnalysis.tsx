@@ -47,30 +47,119 @@ const FeasibilityAnalysis = () => {
     setSelectedLocation(location);
   };
 
+  // Função para calcular dados baseados na localização
+  const calculateLocationData = (lat: number, lng: number) => {
+    // Determinar região do Brasil baseada na latitude
+    // Nordeste: lat > -18 (maior potencial solar e eólico)
+    // Norte: lat > -5 (alto solar, médio eólico)
+    // Centro-Oeste: -5 >= lat >= -18 (alto solar, baixo eólico)
+    // Sudeste: -18 >= lat >= -25 (médio solar e eólico)
+    // Sul: lat < -25 (baixo solar, alto eólico)
+    
+    let solarBase = 4.0;
+    let windBase = 5.0;
+    let environmentalImpact = 'Moderado';
+    let environmentalStatus = 'warning';
+    let biodiversity = 'Moderada';
+    let biodiversityStatus = 'warning';
+    let slope = '12°';
+    let slopeStatus = 'success';
+    let waterResources = 'Adequado';
+    let waterStatus = 'success';
+
+    // Nordeste (maior potencial para H2 Verde)
+    if (lat > -18 && lat < -2) {
+      solarBase = 5.8;
+      windBase = 8.5;
+      environmentalImpact = 'Baixo';
+      environmentalStatus = 'success';
+      waterResources = 'Moderado';
+      waterStatus = 'warning';
+    }
+    // Norte
+    else if (lat >= -2) {
+      solarBase = 5.2;
+      windBase = 4.5;
+      environmentalImpact = 'Alto';
+      environmentalStatus = 'error';
+      biodiversity = 'Alta';
+      biodiversityStatus = 'error';
+      waterResources = 'Abundante';
+      waterStatus = 'success';
+    }
+    // Centro-Oeste
+    else if (lat >= -18 && lat < -5 && lng > -55) {
+      solarBase = 5.5;
+      windBase = 4.2;
+      environmentalImpact = 'Moderado';
+      environmentalStatus = 'warning';
+      slope = '8°';
+    }
+    // Sudeste
+    else if (lat >= -25 && lat < -18) {
+      solarBase = 4.8;
+      windBase = 5.5;
+      environmentalImpact = 'Baixo';
+      environmentalStatus = 'success';
+      waterResources = 'Bom';
+      waterStatus = 'success';
+    }
+    // Sul
+    else if (lat < -25) {
+      solarBase = 4.2;
+      windBase = 7.8;
+      environmentalImpact = 'Baixo';
+      environmentalStatus = 'success';
+      biodiversity = 'Baixa';
+      biodiversityStatus = 'success';
+      slope = '15°';
+      slopeStatus = 'warning';
+    }
+
+    // Variação baseada na longitude (proximidade com o litoral)
+    const coastalBonus = lng > -45 ? 0.3 : 0;
+    windBase += coastalBonus;
+
+    return {
+      solarBase,
+      windBase,
+      environmentalImpact,
+      environmentalStatus,
+      biodiversity,
+      biodiversityStatus,
+      slope,
+      slopeStatus,
+      waterResources,
+      waterStatus
+    };
+  };
+
+  const locationData = calculateLocationData(localLocation.lat, localLocation.lng);
+
   const analysisPeriods: AnalysisPeriod[] = [
     {
       years: 1,
-      solarPotential: 4.5,
-      windPotential: 6.2,
-      hydrogenProduction: 120,
-      investment: 2500000,
-      roi: 8.5
+      solarPotential: Number(locationData.solarBase.toFixed(1)),
+      windPotential: Number(locationData.windBase.toFixed(1)),
+      hydrogenProduction: Math.round(locationData.solarBase * locationData.windBase * 8),
+      investment: Math.round(locationData.solarBase * locationData.windBase * 150000),
+      roi: Number(((locationData.solarBase + locationData.windBase) * 0.6).toFixed(1))
     },
     {
       years: 3,
-      solarPotential: 4.7,
-      windPotential: 6.5,
-      hydrogenProduction: 380,
-      investment: 7200000,
-      roi: 15.2
+      solarPotential: Number((locationData.solarBase + 0.2).toFixed(1)),
+      windPotential: Number((locationData.windBase + 0.3).toFixed(1)),
+      hydrogenProduction: Math.round(locationData.solarBase * locationData.windBase * 25),
+      investment: Math.round(locationData.solarBase * locationData.windBase * 450000),
+      roi: Number(((locationData.solarBase + locationData.windBase) * 1.1).toFixed(1))
     },
     {
       years: 5,
-      solarPotential: 4.9,
-      windPotential: 6.8,
-      hydrogenProduction: 680,
-      investment: 11500000,
-      roi: 22.8
+      solarPotential: Number((locationData.solarBase + 0.4).toFixed(1)),
+      windPotential: Number((locationData.windBase + 0.5).toFixed(1)),
+      hydrogenProduction: Math.round(locationData.solarBase * locationData.windBase * 45),
+      investment: Math.round(locationData.solarBase * locationData.windBase * 720000),
+      roi: Number(((locationData.solarBase + locationData.windBase) * 1.7).toFixed(1))
     }
   ];
 
@@ -78,30 +167,36 @@ const FeasibilityAnalysis = () => {
     {
       icon: TreePine,
       title: 'Impacto Ambiental',
-      value: 'Baixo',
-      status: 'success',
-      description: 'Área com baixo impacto em vegetação nativa'
+      value: locationData.environmentalImpact,
+      status: locationData.environmentalStatus,
+      description: `Área com ${locationData.environmentalImpact.toLowerCase()} impacto em vegetação nativa`
     },
     {
       icon: Activity,
       title: 'Biodiversidade',
-      value: 'Moderada',
-      status: 'warning',
-      description: 'Presença de espécies sensíveis requer avaliação'
+      value: locationData.biodiversity,
+      status: locationData.biodiversityStatus,
+      description: locationData.biodiversity === 'Alta' 
+        ? 'Alta biodiversidade requer estudos ambientais detalhados'
+        : locationData.biodiversity === 'Moderada'
+        ? 'Presença de espécies sensíveis requer avaliação'
+        : 'Baixa sensibilidade ambiental na região'
     },
     {
       icon: Mountain,
       title: 'Declividade',
-      value: '12°',
-      status: 'success',
-      description: 'Topografia adequada para instalação'
+      value: locationData.slope,
+      status: locationData.slopeStatus,
+      description: locationData.slopeStatus === 'success' 
+        ? 'Topografia adequada para instalação' 
+        : 'Topografia requer planejamento especial'
     },
     {
       icon: Droplet,
       title: 'Recursos Hídricos',
-      value: 'Adequado',
-      status: 'success',
-      description: 'Disponibilidade hídrica suficiente'
+      value: locationData.waterResources,
+      status: locationData.waterStatus,
+      description: `Disponibilidade hídrica ${locationData.waterResources.toLowerCase()} para o projeto`
     }
   ];
 
