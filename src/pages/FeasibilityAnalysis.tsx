@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
 import { 
   Sun, 
   Wind, 
@@ -13,13 +12,11 @@ import {
   Droplet,
   Zap,
   BarChart3,
-  FileText,
-  ArrowRight
+  FileText
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import Navigation from '@/components/Navigation';
 import LocationSearch from '@/components/LocationSearch';
 import { useLocationStore } from '@/store/locationStore';
@@ -164,20 +161,10 @@ const FeasibilityAnalysis = () => {
 
             {/* Location Search */}
             <Card className="p-6 bg-white/80 backdrop-blur-sm border-emerald-200">
-              <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
-                <div className="flex-1 w-full">
-                  <LocationSearch
-                    onLocationSelect={handleLocationSelect}
-                    initialLocation={localLocation}
-                  />
-                </div>
-                <Link to="/statistics">
-                  <Button className="bg-emerald-600 hover:bg-emerald-700 whitespace-nowrap">
-                    <span>Ver Estatísticas Detalhadas</span>
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </Link>
-              </div>
+              <LocationSearch
+                onLocationSelect={handleLocationSelect}
+                initialLocation={localLocation}
+              />
             </Card>
           </motion.div>
 
