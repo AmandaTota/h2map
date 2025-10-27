@@ -35,6 +35,8 @@ const FeasibilityAnalysis = () => {
   const [localLocation, setLocalLocation] = useState(
     selectedLocation || { lat: -23.5505, lng: -46.6333, name: 'São Paulo, SP' }
   );
+  const [analysisStarted, setAnalysisStarted] = useState(false);
+  const [analyzedLocation, setAnalyzedLocation] = useState(localLocation);
 
   useEffect(() => {
     if (selectedLocation) {
@@ -47,7 +49,12 @@ const FeasibilityAnalysis = () => {
     setSelectedLocation(location);
   };
 
-  // Função para calcular dados baseados na localização
+  const handleStartAnalysis = () => {
+    setAnalyzedLocation(localLocation);
+    setAnalysisStarted(true);
+  };
+
+  // Função para calcular dados baseados na localização analisada
   const calculateLocationData = (lat: number, lng: number) => {
     // Determinar região do Brasil baseada na latitude
     // Nordeste: lat > -18 (maior potencial solar e eólico)
@@ -134,7 +141,7 @@ const FeasibilityAnalysis = () => {
     };
   };
 
-  const locationData = calculateLocationData(localLocation.lat, localLocation.lng);
+  const locationData = calculateLocationData(analyzedLocation.lat, analyzedLocation.lng);
 
   const analysisPeriods: AnalysisPeriod[] = [
     {
@@ -256,12 +263,45 @@ const FeasibilityAnalysis = () => {
 
             {/* Location Search */}
             <Card className="p-6 bg-white/80 backdrop-blur-sm border-emerald-200">
-              <LocationSearch
-                onLocationSelect={handleLocationSelect}
-                initialLocation={localLocation}
-              />
+              <div className="flex flex-col md:flex-row gap-4 items-end">
+                <div className="flex-1">
+                  <LocationSearch
+                    onLocationSelect={handleLocationSelect}
+                    initialLocation={localLocation}
+                  />
+                </div>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleStartAnalysis}
+                  className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all flex items-center space-x-2"
+                >
+                  <BarChart3 className="w-5 h-5" />
+                  <span>Iniciar Análise</span>
+                </motion.button>
+              </div>
             </Card>
           </motion.div>
+
+          {!analysisStarted ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-center py-20"
+            >
+              <Card className="p-12 bg-white/80 backdrop-blur-sm border-emerald-200">
+                <BarChart3 className="w-16 h-16 text-emerald-600 mx-auto mb-4" />
+                <h3 className="text-2xl font-bold text-slate-900 mb-2">
+                  Selecione uma localização e inicie a análise
+                </h3>
+                <p className="text-slate-600">
+                  Escolha uma cidade no campo acima e clique em "Iniciar Análise" para visualizar o potencial de hidrogênio verde da região.
+                </p>
+              </Card>
+            </motion.div>
+          ) : (
+            <>
 
         {/* Potencial Energético */}
         <motion.div
@@ -463,6 +503,8 @@ const FeasibilityAnalysis = () => {
             </div>
           </Card>
         </motion.div>
+        </>
+        )}
         </div>
       </div>
     </>
