@@ -84,95 +84,75 @@ const FeasibilityAnalysis = () => {
   const fetchWeatherData = async (lat: number, lng: number) => {
     try {
       const endDate = new Date();
-      const startDate = subDays(endDate, 365); // 1 year of data
+      const startDate = subDays(endDate, 365); // 1 year of historical data
       
       const startDateStr = format(startDate, 'yyyy-MM-dd');
       const endDateStr = format(endDate, 'yyyy-MM-dd');
       
-      // Use a default INMET station code (in production, find nearest station)
-      const stationCode = 'A001';
-      
-      const { data, error } = await supabase.functions.invoke('fetch-inmet-data', {
+      const { data, error } = await supabase.functions.invoke('fetch-weather-data', {
         body: {
-          stationCode,
+          lat,
+          lon: lng,
           startDate: startDateStr,
           endDate: endDateStr,
         },
       });
 
       if (error) {
-        console.error('Error fetching INMET data:', error);
+        console.error('Error fetching OpenWeatherMap data:', error);
+        toast.warning('Não foi possível carregar dados reais. Usando estimativas regionais.');
         return;
       }
 
-      if (data?.data && Array.isArray(data.data) && data.data.length > 0) {
-        // Calculate averages from real data
-        const inmetData = data.data;
-        const validData = inmetData.filter((item: any) => item && typeof item === 'object');
+      if (data?.averages) {
+        const avgData = data.averages;
         
-        if (validData.length === 0) {
-          console.log('No valid INMET data available');
-          return;
-        }
-
-        const avgTemp = validData.reduce((sum: number, item: any) => {
-          const temp = parseFloat(item.TEM_INS || item.temperatura_bulbo_hora || 0);
-          return sum + (isNaN(temp) ? 0 : temp);
-        }, 0) / validData.length;
-
-        const avgSolar = validData.reduce((sum: number, item: any) => {
-          const solar = parseFloat(item.RAD_GLO || item.radiacao_global || 0);
-          return sum + (isNaN(solar) ? 0 : solar);
-        }, 0) / validData.length;
-
-        const avgWind = validData.reduce((sum: number, item: any) => {
-          const wind = parseFloat(item.VEN_VEL || item.vento_velocidade || 0);
-          return sum + (isNaN(wind) ? 0 : wind);
-        }, 0) / validData.length;
-
-        const avgHumidity = validData.reduce((sum: number, item: any) => {
-          const humidity = parseFloat(item.UMD_INS || item.umidade_rel_max || 0);
-          return sum + (isNaN(humidity) ? 0 : humidity);
-        }, 0) / validData.length;
-
-        const avgPressure = validData.reduce((sum: number, item: any) => {
-          const pressure = parseFloat(item.PRE_INS || item.pressao_atm_max || 0);
-          return sum + (isNaN(pressure) ? 0 : pressure);
-        }, 0) / validData.length;
-
-        const totalRain = validData.reduce((sum: number, item: any) => {
-          const rain = parseFloat(item.CHUVA || item.precipitacao_total || 0);
-          return sum + (isNaN(rain) ? 0 : rain);
-        }, 0);
-
+        // Convert OpenWeatherMap data to our format
+        // Solar irradiance estimate based on cloud cover (inverted relationship)
+        const solarIrradiance = (100 - avgData.cloudCover) * 10; // Approximate W/m²
+        
         setWeatherData({
-          avgTemperature: avgTemp,
-          avgSolarIrradiance: avgSolar,
-          avgWindSpeed: avgWind,
-          avgHumidity,
-          avgPressure,
-          totalRainfall: totalRain,
-          dataPoints: validData.length,
+          avgTemperature: avgData.temperature,
+          avgSolarIrradiance: solarIrradiance,
+          avgWindSpeed: avgData.windSpeed,
+          avgHumidity: avgData.humidity,
+          avgPressure: avgData.pressure,
+          totalRainfall: avgData.totalPrecipitation,
+          dataPoints: data.daysAnalyzed,
         });
 
-        toast.success('Dados climáticos reais carregados com sucesso!');
+        toast.success(`Dados climáticos reais de ${data.daysAnalyzed} dias carregados com sucesso!`);
       } else {
-        console.log('No INMET data available, using estimates');
+        console.log('No weather data available, using estimates');
+        toast.warning('Usando estimativas regionais para análise.');
       }
     } catch (error) {
       console.error('Error in fetchWeatherData:', error);
+      toast.error('Erro ao buscar dados. Usando estimativas regionais.');
       throw error;
     }
   };
 
   // Função para calcular dados baseados na localização analisada
   const calculateLocationData = (lat: number, lng: number) => {
-    // Se temos dados reais do INMET, usar eles
-    let solarBase = weatherData?.avgSolarIrradiance 
-      ? weatherData.avgSolarIrradiance / 200 // Convert W/m² to approximate kWh/m²/day
-      : 4.0;
+    // Se temos dados reais do OpenWeatherMap, usar eles com prioridade
+    let solarBase = 4.0; // default
+    let windBase = 5.0; // default
     
-    let windBase = weatherData?.avgWindSpeed || 5.0;
+    if (weatherData) {
+      // Convert solar irradiance (W/m²) to kWh/m²/day
+      // Assuming average 5 hours of peak sunlight per day
+      solarBase = (weatherData.avgSolarIrradiance * 5) / 1000;
+      windBase = weatherData.avgWindSpeed;
+      
+      console.log('Using real weather data:', {
+        temperature: weatherData.avgTemperature,
+        solarIrradiance: weatherData.avgSolarIrradiance,
+        windSpeed: weatherData.avgWindSpeed,
+        calculatedSolarBase: solarBase,
+        calculatedWindBase: windBase
+      });
+    }
     let environmentalImpact = 'Moderado';
     let environmentalStatus = 'warning';
     let biodiversity = 'Moderada';
@@ -259,7 +239,11 @@ const FeasibilityAnalysis = () => {
       years: 1,
       solarPotential: Number(locationData.solarBase.toFixed(1)),
       windPotential: Number(locationData.windBase.toFixed(1)),
-      hydrogenProduction: Math.round(locationData.solarBase * locationData.windBase * 8),
+      // Produção de H2 baseada em energia disponível (kg/dia)
+      // Fórmula: (Solar kWh/m²/day * 1000 m² + Wind m/s * 200 kW) * eficiência 60% / 50 kWh por kg H2
+      hydrogenProduction: Math.round(
+        ((locationData.solarBase * 1000 + locationData.windBase * 200) * 0.6) / 50
+      ),
       investment: Math.round(locationData.solarBase * locationData.windBase * 150000),
       roi: Number(((locationData.solarBase + locationData.windBase) * 0.6).toFixed(1))
     },
@@ -267,7 +251,9 @@ const FeasibilityAnalysis = () => {
       years: 3,
       solarPotential: Number((locationData.solarBase + 0.2).toFixed(1)),
       windPotential: Number((locationData.windBase + 0.3).toFixed(1)),
-      hydrogenProduction: Math.round(locationData.solarBase * locationData.windBase * 25),
+      hydrogenProduction: Math.round(
+        (((locationData.solarBase + 0.2) * 1000 + (locationData.windBase + 0.3) * 200) * 0.65) / 50
+      ),
       investment: Math.round(locationData.solarBase * locationData.windBase * 450000),
       roi: Number(((locationData.solarBase + locationData.windBase) * 1.1).toFixed(1))
     },
@@ -275,7 +261,9 @@ const FeasibilityAnalysis = () => {
       years: 5,
       solarPotential: Number((locationData.solarBase + 0.4).toFixed(1)),
       windPotential: Number((locationData.windBase + 0.5).toFixed(1)),
-      hydrogenProduction: Math.round(locationData.solarBase * locationData.windBase * 45),
+      hydrogenProduction: Math.round(
+        (((locationData.solarBase + 0.4) * 1000 + (locationData.windBase + 0.5) * 200) * 0.7) / 50
+      ),
       investment: Math.round(locationData.solarBase * locationData.windBase * 720000),
       roi: Number(((locationData.solarBase + locationData.windBase) * 1.7).toFixed(1))
     }
@@ -365,9 +353,16 @@ const FeasibilityAnalysis = () => {
                   <h1 className="text-4xl font-bold text-slate-900">
                     Análise de Viabilidade para Hidrogênio Verde
                   </h1>
-                  <p className="text-slate-600 mt-1">
-                    Local: {localLocation.name} | Coordenadas: {localLocation.lat.toFixed(4)}, {localLocation.lng.toFixed(4)}
-                  </p>
+                  <div className="flex items-center gap-3 mt-1">
+                    <p className="text-slate-600">
+                      Local: {localLocation.name} | Coordenadas: {localLocation.lat.toFixed(4)}, {localLocation.lng.toFixed(4)}
+                    </p>
+                    {weatherData && analysisStarted && (
+                      <Badge className="bg-emerald-100 text-emerald-800 border-emerald-300">
+                        📊 Dados Reais: {weatherData.dataPoints} dias analisados
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
