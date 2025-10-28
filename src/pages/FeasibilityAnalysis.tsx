@@ -34,6 +34,31 @@ interface AnalysisPeriod {
   roi: number;
 }
 
+interface EnergyCalculations {
+  // Entrada de dados
+  solarIrradiance: number; // W/m²
+  windSpeed: number; // m/s
+  
+  // Parâmetros de instalação
+  solarPanelArea: number; // m²
+  solarEfficiency: number; // %
+  windTurbineArea: number; // m²
+  windEfficiency: number; // %
+  
+  // Potências geradas
+  solarPower: number; // kW
+  windPower: number; // kW
+  totalPower: number; // kW
+  
+  // Energia disponível
+  dailyEnergy: number; // kWh/dia
+  annualEnergy: number; // kWh/ano
+  
+  // Produção de H2
+  dailyH2Production: number; // kg/dia
+  annualH2Production: number; // kg/ano (toneladas)
+}
+
 interface WeatherData {
   avgTemperature: number;
   avgSolarIrradiance: number;
@@ -235,57 +260,88 @@ const FeasibilityAnalysis = () => {
 
   const locationData = calculateLocationData(analyzedLocation.lat, analyzedLocation.lng);
 
+  // Função para calcular energia e produção de H2 usando fórmulas reais
+  const calculateEnergyProduction = (solarIrradiance: number, windSpeed: number, scaleFactor: number = 1): EnergyCalculations => {
+    // Parâmetros de instalação (escalam conforme o período)
+    const solarPanelArea = 10000 * scaleFactor; // m² (exemplo: 10.000 m² = 1 hectare para 1 ano)
+    const solarEfficiency = 0.20; // 20% eficiência média de painéis solares
+    
+    const windTurbineArea = 7854 * scaleFactor; // m² (π × r² onde r=50m para turbina típica de 100m diâmetro)
+    const windEfficiency = 0.45; // 45% eficiência de turbina eólica
+    const airDensity = 1.225; // kg/m³ (densidade do ar ao nível do mar)
+    
+    // Conversão de kWh/m²/dia para W/m² (irradiância média)
+    // kWh/m²/dia = (W/m²) × 24h / 1000
+    // Portanto: W/m² = (kWh/m²/dia × 1000) / 24
+    const solarIrradianceW = (solarIrradiance * 1000) / 24; // Converte para W/m²
+    
+    // Fórmula Solar: P = G × A × η
+    const solarPower = (solarIrradianceW * solarPanelArea * solarEfficiency) / 1000; // kW
+    
+    // Fórmula Eólica: P = 0.5 × ρ × A × v³ × η
+    const windPower = (0.5 * airDensity * windTurbineArea * Math.pow(windSpeed, 3) * windEfficiency) / 1000; // kW
+    
+    // Potência total
+    const totalPower = solarPower + windPower;
+    
+    // Energia disponível
+    const dailyEnergy = totalPower * 24; // kWh/dia
+    const annualEnergy = dailyEnergy * 365; // kWh/ano
+    
+    // Produção de H2 (eletrólise consome ~50 kWh por kg de H2)
+    const electrolyzerEfficiency = 50; // kWh/kg H2
+    const dailyH2Production = dailyEnergy / electrolyzerEfficiency; // kg/dia
+    const annualH2Production = annualEnergy / electrolyzerEfficiency / 1000; // toneladas/ano
+    
+    return {
+      solarIrradiance: solarIrradianceW,
+      windSpeed,
+      solarPanelArea,
+      solarEfficiency,
+      windTurbineArea,
+      windEfficiency,
+      solarPower,
+      windPower,
+      totalPower,
+      dailyEnergy,
+      annualEnergy,
+      dailyH2Production,
+      annualH2Production
+    };
+  };
+
+  // Cálculos de energia para cada período
+  const energyCalc1Year = calculateEnergyProduction(locationData.solarBase, locationData.windBase, 1);
+  const energyCalc3Years = calculateEnergyProduction(locationData.solarBase * 0.98, locationData.windBase * 1.02, 3);
+  const energyCalc5Years = calculateEnergyProduction(locationData.solarBase * 0.96, locationData.windBase * 1.04, 5);
+
   const analysisPeriods: AnalysisPeriod[] = [
     {
       years: 1,
       solarPotential: Number(locationData.solarBase.toFixed(2)),
       windPotential: Number(locationData.windBase.toFixed(2)),
-      // Produção de H2 realista (toneladas/ano)
-      // Fórmulas baseadas em dados reais da indústria de H2 Verde:
-      // - Capacidade instalada: 2 MW solar + 3 MW eólico = 5 MW total
-      // - Fator de capacidade: Solar ~23%, Eólico ~35%
-      // - Energia anual: (2 * 0.23 + 3 * 0.35) * 8760h = 13,182 MWh/ano
-      // - Eficiência eletrolisador: 55 kWh/kg H2
-      // - Produção: 13,182 MWh / 55 kWh por kg = 239.67 toneladas/ano
-      hydrogenProduction: Number((
-        (2 * locationData.solarBase / 5.5 * 0.23 + 3 * locationData.windBase / 7 * 0.35) * 8760 / 55 / 1000
-      ).toFixed(1)),
-      // Investimento baseado em custos reais (R$/kW instalado)
-      // Solar: R$ 3,500/kW | Eólico: R$ 5,000/kW | Eletrolisador: R$ 8,000/kW | Infraestrutura: 15%
-      investment: Math.round((2000 * 3500 + 3000 * 5000 + 1000 * 8000) * 1.15),
-      // ROI baseado em produção e preço de H2 (R$ 25/kg) em 1 ano
-      roi: Number((
-        ((2 * locationData.solarBase / 5.5 * 0.23 + 3 * locationData.windBase / 7 * 0.35) * 8760 / 55 / 1000) * 25000 / 
-        ((2000 * 3500 + 3000 * 5000 + 1000 * 8000) * 1.15)
-      ).toFixed(1))
+      hydrogenProduction: Number(energyCalc1Year.annualH2Production.toFixed(1)),
+      investment: Math.round(energyCalc1Year.solarPower * 3500 + energyCalc1Year.windPower * 5000 + (energyCalc1Year.totalPower * 0.5) * 8000),
+      roi: Number(((energyCalc1Year.annualH2Production * 25000) / 
+        (energyCalc1Year.solarPower * 3500 + energyCalc1Year.windPower * 5000 + (energyCalc1Year.totalPower * 0.5) * 8000) * 100).toFixed(1))
     },
     {
       years: 3,
-      solarPotential: Number((locationData.solarBase * 0.98).toFixed(2)), // 2% degradação
-      windPotential: Number((locationData.windBase * 1.02).toFixed(2)), // Otimização
-      // Expansão para 6 MW solar + 9 MW eólico = 15 MW total
-      hydrogenProduction: Number((
-        (6 * locationData.solarBase * 0.98 / 5.5 * 0.23 + 9 * locationData.windBase * 1.02 / 7 * 0.35) * 8760 / 55 / 1000
-      ).toFixed(1)),
-      investment: Math.round((6000 * 3500 + 9000 * 5000 + 3000 * 8000) * 1.15),
-      roi: Number((
-        ((6 * locationData.solarBase * 0.98 / 5.5 * 0.23 + 9 * locationData.windBase * 1.02 / 7 * 0.35) * 8760 / 55 / 1000) * 25000 * 3 / 
-        ((6000 * 3500 + 9000 * 5000 + 3000 * 8000) * 1.15)
-      ).toFixed(1))
+      solarPotential: Number((locationData.solarBase * 0.98).toFixed(2)),
+      windPotential: Number((locationData.windBase * 1.02).toFixed(2)),
+      hydrogenProduction: Number(energyCalc3Years.annualH2Production.toFixed(1)),
+      investment: Math.round(energyCalc3Years.solarPower * 3500 + energyCalc3Years.windPower * 5000 + (energyCalc3Years.totalPower * 0.5) * 8000),
+      roi: Number(((energyCalc3Years.annualH2Production * 25000 * 3) / 
+        (energyCalc3Years.solarPower * 3500 + energyCalc3Years.windPower * 5000 + (energyCalc3Years.totalPower * 0.5) * 8000) * 100).toFixed(1))
     },
     {
       years: 5,
-      solarPotential: Number((locationData.solarBase * 0.96).toFixed(2)), // 4% degradação
-      windPotential: Number((locationData.windBase * 1.04).toFixed(2)), // Otimização contínua
-      // Expansão para 10 MW solar + 15 MW eólico = 25 MW total
-      hydrogenProduction: Number((
-        (10 * locationData.solarBase * 0.96 / 5.5 * 0.23 + 15 * locationData.windBase * 1.04 / 7 * 0.35) * 8760 / 55 / 1000
-      ).toFixed(1)),
-      investment: Math.round((10000 * 3500 + 15000 * 5000 + 5000 * 8000) * 1.15),
-      roi: Number((
-        ((10 * locationData.solarBase * 0.96 / 5.5 * 0.23 + 15 * locationData.windBase * 1.04 / 7 * 0.35) * 8760 / 55 / 1000) * 25000 * 5 / 
-        ((10000 * 3500 + 15000 * 5000 + 5000 * 8000) * 1.15)
-      ).toFixed(1))
+      solarPotential: Number((locationData.solarBase * 0.96).toFixed(2)),
+      windPotential: Number((locationData.windBase * 1.04).toFixed(2)),
+      hydrogenProduction: Number(energyCalc5Years.annualH2Production.toFixed(1)),
+      investment: Math.round(energyCalc5Years.solarPower * 3500 + energyCalc5Years.windPower * 5000 + (energyCalc5Years.totalPower * 0.5) * 8000),
+      roi: Number(((energyCalc5Years.annualH2Production * 25000 * 5) / 
+        (energyCalc5Years.solarPower * 3500 + energyCalc5Years.windPower * 5000 + (energyCalc5Years.totalPower * 0.5) * 8000) * 100).toFixed(1))
     }
   ];
 
@@ -439,7 +495,7 @@ const FeasibilityAnalysis = () => {
           ) : (
             <>
 
-        {/* Potencial Energético */}
+        {/* Cálculos de Produção de Energia e H2 */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -449,7 +505,270 @@ const FeasibilityAnalysis = () => {
           <Card className="p-6 bg-white/80 backdrop-blur-sm border-emerald-200">
             <div className="flex items-center space-x-3 mb-6">
               <Zap className="w-6 h-6 text-emerald-600" />
-              <h2 className="text-2xl font-bold text-slate-900">Potencial Energético</h2>
+              <h2 className="text-2xl font-bold text-slate-900">Cálculo de Produção de Energia e Hidrogênio Verde</h2>
+              <Badge className="bg-blue-100 text-blue-800 border-blue-300">
+                📐 Fórmulas Reais
+              </Badge>
+            </div>
+
+            <Tabs defaultValue="1" className="w-full">
+              <TabsList className="grid w-full grid-cols-3 mb-6">
+                <TabsTrigger value="1">1 Ano</TabsTrigger>
+                <TabsTrigger value="3">3 Anos</TabsTrigger>
+                <TabsTrigger value="5">5 Anos</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="1">
+                <div className="space-y-6">
+                  {/* Entrada de Dados */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center">
+                      <Sun className="w-5 h-5 mr-2 text-amber-600" />
+                      1. Entrada de Energia Renovável
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <Card className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
+                        <p className="text-sm text-slate-700 mb-2">☀️ <strong>Irradiância Solar:</strong> {energyCalc1Year.solarIrradiance.toFixed(0)} W/m²</p>
+                        <p className="text-sm text-slate-700 mb-2">📐 <strong>Área dos Painéis:</strong> {energyCalc1Year.solarPanelArea.toLocaleString()} m²</p>
+                        <p className="text-sm text-slate-700 mb-2">⚡ <strong>Eficiência:</strong> {(energyCalc1Year.solarEfficiency * 100).toFixed(0)}%</p>
+                        <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
+                          <strong>Fórmula:</strong> P<sub>solar</sub> = G × A × η
+                        </p>
+                        <p className="text-2xl font-bold text-amber-600 mt-3">{energyCalc1Year.solarPower.toFixed(1)} kW</p>
+                        <p className="text-xs text-slate-600">Potência Solar Gerada</p>
+                      </Card>
+
+                      <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
+                        <p className="text-sm text-slate-700 mb-2">💨 <strong>Velocidade do Vento:</strong> {energyCalc1Year.windSpeed.toFixed(1)} m/s</p>
+                        <p className="text-sm text-slate-700 mb-2">📐 <strong>Área Varrida:</strong> {energyCalc1Year.windTurbineArea.toLocaleString()} m²</p>
+                        <p className="text-sm text-slate-700 mb-2">⚡ <strong>Eficiência:</strong> {(energyCalc1Year.windEfficiency * 100).toFixed(0)}%</p>
+                        <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
+                          <strong>Fórmula:</strong> P<sub>eólica</sub> = ½ × ρ × A × v³ × η
+                        </p>
+                        <p className="text-2xl font-bold text-blue-600 mt-3">{energyCalc1Year.windPower.toFixed(1)} kW</p>
+                        <p className="text-xs text-slate-600">Potência Eólica Gerada</p>
+                      </Card>
+                    </div>
+                  </div>
+
+                  {/* Energia Total */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center">
+                      <Activity className="w-5 h-5 mr-2 text-purple-600" />
+                      2. Energia Total Disponível
+                    </h3>
+                    <div className="grid md:grid-cols-3 gap-4">
+                      <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                        <p className="text-sm text-slate-700 mb-1">Potência Total</p>
+                        <p className="text-3xl font-bold text-purple-600">{energyCalc1Year.totalPower.toFixed(1)}</p>
+                        <p className="text-xs text-slate-600">kW</p>
+                      </Card>
+
+                      <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                        <p className="text-sm text-slate-700 mb-1">Energia Diária</p>
+                        <p className="text-3xl font-bold text-purple-600">{energyCalc1Year.dailyEnergy.toFixed(0)}</p>
+                        <p className="text-xs text-slate-600">kWh/dia</p>
+                      </Card>
+
+                      <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                        <p className="text-sm text-slate-700 mb-1">Energia Anual</p>
+                        <p className="text-3xl font-bold text-purple-600">{(energyCalc1Year.annualEnergy / 1000).toFixed(1)}</p>
+                        <p className="text-xs text-slate-600">MWh/ano</p>
+                      </Card>
+                    </div>
+                  </div>
+
+                  {/* Produção de H2 */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center">
+                      <Droplet className="w-5 h-5 mr-2 text-emerald-600" />
+                      3. Produção de Hidrogênio Verde
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+                        <p className="text-sm text-slate-700 mb-2">💧 <strong>Produção Diária:</strong></p>
+                        <p className="text-3xl font-bold text-emerald-600">{energyCalc1Year.dailyH2Production.toFixed(1)} kg/dia</p>
+                        <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
+                          <strong>Consumo eletrolisador:</strong> 50 kWh por kg de H₂
+                        </p>
+                      </Card>
+
+                      <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+                        <p className="text-sm text-slate-700 mb-2">📊 <strong>Produção Anual:</strong></p>
+                        <p className="text-3xl font-bold text-emerald-600">{energyCalc1Year.annualH2Production.toFixed(1)} ton/ano</p>
+                        <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
+                          <strong>Fórmula:</strong> H₂ (kg) = E<sub>disponível</sub> / 50 kWh/kg
+                        </p>
+                      </Card>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="3">
+                <div className="space-y-6">
+                  {/* Entrada de Dados */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center">
+                      <Sun className="w-5 h-5 mr-2 text-amber-600" />
+                      1. Entrada de Energia Renovável (Expansão 3 Anos)
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <Card className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
+                        <p className="text-sm text-slate-700 mb-2">☀️ <strong>Irradiância Solar:</strong> {energyCalc3Years.solarIrradiance.toFixed(0)} W/m²</p>
+                        <p className="text-sm text-slate-700 mb-2">📐 <strong>Área dos Painéis:</strong> {energyCalc3Years.solarPanelArea.toLocaleString()} m²</p>
+                        <p className="text-sm text-slate-700 mb-2">⚡ <strong>Eficiência:</strong> {(energyCalc3Years.solarEfficiency * 100).toFixed(0)}%</p>
+                        <p className="text-2xl font-bold text-amber-600 mt-3">{energyCalc3Years.solarPower.toFixed(1)} kW</p>
+                        <p className="text-xs text-slate-600">Potência Solar Gerada</p>
+                      </Card>
+
+                      <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
+                        <p className="text-sm text-slate-700 mb-2">💨 <strong>Velocidade do Vento:</strong> {energyCalc3Years.windSpeed.toFixed(1)} m/s</p>
+                        <p className="text-sm text-slate-700 mb-2">📐 <strong>Área Varrida:</strong> {energyCalc3Years.windTurbineArea.toLocaleString()} m²</p>
+                        <p className="text-sm text-slate-700 mb-2">⚡ <strong>Eficiência:</strong> {(energyCalc3Years.windEfficiency * 100).toFixed(0)}%</p>
+                        <p className="text-2xl font-bold text-blue-600 mt-3">{energyCalc3Years.windPower.toFixed(1)} kW</p>
+                        <p className="text-xs text-slate-600">Potência Eólica Gerada</p>
+                      </Card>
+                    </div>
+                  </div>
+
+                  {/* Energia Total */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center">
+                      <Activity className="w-5 h-5 mr-2 text-purple-600" />
+                      2. Energia Total Disponível
+                    </h3>
+                    <div className="grid md:grid-cols-3 gap-4">
+                      <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                        <p className="text-sm text-slate-700 mb-1">Potência Total</p>
+                        <p className="text-3xl font-bold text-purple-600">{energyCalc3Years.totalPower.toFixed(1)}</p>
+                        <p className="text-xs text-slate-600">kW</p>
+                      </Card>
+
+                      <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                        <p className="text-sm text-slate-700 mb-1">Energia Diária</p>
+                        <p className="text-3xl font-bold text-purple-600">{energyCalc3Years.dailyEnergy.toFixed(0)}</p>
+                        <p className="text-xs text-slate-600">kWh/dia</p>
+                      </Card>
+
+                      <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                        <p className="text-sm text-slate-700 mb-1">Energia Anual</p>
+                        <p className="text-3xl font-bold text-purple-600">{(energyCalc3Years.annualEnergy / 1000).toFixed(1)}</p>
+                        <p className="text-xs text-slate-600">MWh/ano</p>
+                      </Card>
+                    </div>
+                  </div>
+
+                  {/* Produção de H2 */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center">
+                      <Droplet className="w-5 h-5 mr-2 text-emerald-600" />
+                      3. Produção de Hidrogênio Verde
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+                        <p className="text-sm text-slate-700 mb-2">💧 <strong>Produção Diária:</strong></p>
+                        <p className="text-3xl font-bold text-emerald-600">{energyCalc3Years.dailyH2Production.toFixed(1)} kg/dia</p>
+                      </Card>
+
+                      <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+                        <p className="text-sm text-slate-700 mb-2">📊 <strong>Produção Anual:</strong></p>
+                        <p className="text-3xl font-bold text-emerald-600">{energyCalc3Years.annualH2Production.toFixed(1)} ton/ano</p>
+                      </Card>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="5">
+                <div className="space-y-6">
+                  {/* Entrada de Dados */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center">
+                      <Sun className="w-5 h-5 mr-2 text-amber-600" />
+                      1. Entrada de Energia Renovável (Expansão 5 Anos)
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <Card className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
+                        <p className="text-sm text-slate-700 mb-2">☀️ <strong>Irradiância Solar:</strong> {energyCalc5Years.solarIrradiance.toFixed(0)} W/m²</p>
+                        <p className="text-sm text-slate-700 mb-2">📐 <strong>Área dos Painéis:</strong> {energyCalc5Years.solarPanelArea.toLocaleString()} m²</p>
+                        <p className="text-sm text-slate-700 mb-2">⚡ <strong>Eficiência:</strong> {(energyCalc5Years.solarEfficiency * 100).toFixed(0)}%</p>
+                        <p className="text-2xl font-bold text-amber-600 mt-3">{energyCalc5Years.solarPower.toFixed(1)} kW</p>
+                        <p className="text-xs text-slate-600">Potência Solar Gerada</p>
+                      </Card>
+
+                      <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
+                        <p className="text-sm text-slate-700 mb-2">💨 <strong>Velocidade do Vento:</strong> {energyCalc5Years.windSpeed.toFixed(1)} m/s</p>
+                        <p className="text-sm text-slate-700 mb-2">📐 <strong>Área Varrida:</strong> {energyCalc5Years.windTurbineArea.toLocaleString()} m²</p>
+                        <p className="text-sm text-slate-700 mb-2">⚡ <strong>Eficiência:</strong> {(energyCalc5Years.windEfficiency * 100).toFixed(0)}%</p>
+                        <p className="text-2xl font-bold text-blue-600 mt-3">{energyCalc5Years.windPower.toFixed(1)} kW</p>
+                        <p className="text-xs text-slate-600">Potência Eólica Gerada</p>
+                      </Card>
+                    </div>
+                  </div>
+
+                  {/* Energia Total */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center">
+                      <Activity className="w-5 h-5 mr-2 text-purple-600" />
+                      2. Energia Total Disponível
+                    </h3>
+                    <div className="grid md:grid-cols-3 gap-4">
+                      <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                        <p className="text-sm text-slate-700 mb-1">Potência Total</p>
+                        <p className="text-3xl font-bold text-purple-600">{energyCalc5Years.totalPower.toFixed(1)}</p>
+                        <p className="text-xs text-slate-600">kW</p>
+                      </Card>
+
+                      <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                        <p className="text-sm text-slate-700 mb-1">Energia Diária</p>
+                        <p className="text-3xl font-bold text-purple-600">{energyCalc5Years.dailyEnergy.toFixed(0)}</p>
+                        <p className="text-xs text-slate-600">kWh/dia</p>
+                      </Card>
+
+                      <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                        <p className="text-sm text-slate-700 mb-1">Energia Anual</p>
+                        <p className="text-3xl font-bold text-purple-600">{(energyCalc5Years.annualEnergy / 1000).toFixed(1)}</p>
+                        <p className="text-xs text-slate-600">MWh/ano</p>
+                      </Card>
+                    </div>
+                  </div>
+
+                  {/* Produção de H2 */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center">
+                      <Droplet className="w-5 h-5 mr-2 text-emerald-600" />
+                      3. Produção de Hidrogênio Verde
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+                        <p className="text-sm text-slate-700 mb-2">💧 <strong>Produção Diária:</strong></p>
+                        <p className="text-3xl font-bold text-emerald-600">{energyCalc5Years.dailyH2Production.toFixed(1)} kg/dia</p>
+                      </Card>
+
+                      <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+                        <p className="text-sm text-slate-700 mb-2">📊 <strong>Produção Anual:</strong></p>
+                        <p className="text-3xl font-bold text-emerald-600">{energyCalc5Years.annualH2Production.toFixed(1)} ton/ano</p>
+                      </Card>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </Card>
+        </motion.div>
+
+        {/* Resumo Financeiro e Viabilidade */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mb-8"
+        >
+          <Card className="p-6 bg-white/80 backdrop-blur-sm border-emerald-200">
+            <div className="flex items-center space-x-3 mb-6">
+              <TrendingUp className="w-6 h-6 text-emerald-600" />
+              <h2 className="text-2xl font-bold text-slate-900">Resumo Financeiro e ROI</h2>
             </div>
 
             <Tabs defaultValue="1" className="w-full">
