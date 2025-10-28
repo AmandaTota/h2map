@@ -89,7 +89,9 @@ const FeasibilityAnalysis = () => {
       const startDateStr = format(startDate, 'yyyy-MM-dd');
       const endDateStr = format(endDate, 'yyyy-MM-dd');
       
-      const { data, error } = await supabase.functions.invoke('fetch-weather-data', {
+      console.log('Fetching NASA POWER data for location:', { lat, lng, startDateStr, endDateStr });
+      
+      const { data, error } = await supabase.functions.invoke('fetch-nasa-power-data', {
         body: {
           lat,
           lon: lng,
@@ -99,29 +101,27 @@ const FeasibilityAnalysis = () => {
       });
 
       if (error) {
-        console.error('Error fetching OpenWeatherMap data:', error);
-        toast.warning('Não foi possível carregar dados reais. Usando estimativas regionais.');
+        console.error('Error fetching NASA POWER data:', error);
+        toast.warning('Não foi possível carregar dados da NASA POWER. Usando estimativas regionais.');
         return;
       }
 
       if (data?.averages) {
         const avgData = data.averages;
         
-        // Convert OpenWeatherMap data to our format
-        // Solar irradiance estimate based on cloud cover (inverted relationship)
-        const solarIrradiance = (100 - avgData.cloudCover) * 10; // Approximate W/m²
+        console.log('NASA POWER data received:', avgData);
         
         setWeatherData({
           avgTemperature: avgData.temperature,
-          avgSolarIrradiance: solarIrradiance,
+          avgSolarIrradiance: avgData.solarIrradiance, // Already in kWh/m²/day
           avgWindSpeed: avgData.windSpeed,
           avgHumidity: avgData.humidity,
-          avgPressure: avgData.pressure,
+          avgPressure: 1013, // Standard atmospheric pressure (NASA POWER doesn't provide this)
           totalRainfall: avgData.totalPrecipitation,
           dataPoints: data.daysAnalyzed,
         });
 
-        toast.success(`Dados climáticos reais de ${data.daysAnalyzed} dias carregados com sucesso!`);
+        toast.success(`✅ Dados reais da NASA POWER: ${data.daysAnalyzed} dias analisados`);
       } else {
         console.log('No weather data available, using estimates');
         toast.warning('Usando estimativas regionais para análise.');
@@ -135,22 +135,21 @@ const FeasibilityAnalysis = () => {
 
   // Função para calcular dados baseados na localização analisada
   const calculateLocationData = (lat: number, lng: number) => {
-    // Se temos dados reais do OpenWeatherMap, usar eles com prioridade
-    let solarBase = 4.0; // default
-    let windBase = 5.0; // default
+    // Se temos dados reais da NASA POWER, usar eles com prioridade
+    let solarBase = 4.0; // default kWh/m²/day
+    let windBase = 5.0; // default m/s
     
     if (weatherData) {
-      // Convert solar irradiance (W/m²) to kWh/m²/day
-      // Assuming average 5 hours of peak sunlight per day
-      solarBase = (weatherData.avgSolarIrradiance * 5) / 1000;
+      // NASA POWER already provides solar irradiance in kWh/m²/day
+      solarBase = weatherData.avgSolarIrradiance;
       windBase = weatherData.avgWindSpeed;
       
-      console.log('Using real weather data:', {
+      console.log('Using real NASA POWER data:', {
         temperature: weatherData.avgTemperature,
         solarIrradiance: weatherData.avgSolarIrradiance,
         windSpeed: weatherData.avgWindSpeed,
-        calculatedSolarBase: solarBase,
-        calculatedWindBase: windBase
+        humidity: weatherData.avgHumidity,
+        precipitation: weatherData.totalRainfall
       });
     }
     let environmentalImpact = 'Moderado';
@@ -237,35 +236,54 @@ const FeasibilityAnalysis = () => {
   const analysisPeriods: AnalysisPeriod[] = [
     {
       years: 1,
-      solarPotential: Number(locationData.solarBase.toFixed(1)),
-      windPotential: Number(locationData.windBase.toFixed(1)),
-      // Produção de H2 baseada em energia disponível (kg/dia)
-      // Fórmula: (Solar kWh/m²/day * 1000 m² + Wind m/s * 200 kW) * eficiência 60% / 50 kWh por kg H2
-      hydrogenProduction: Math.round(
-        ((locationData.solarBase * 1000 + locationData.windBase * 200) * 0.6) / 50
-      ),
-      investment: Math.round(locationData.solarBase * locationData.windBase * 150000),
-      roi: Number(((locationData.solarBase + locationData.windBase) * 0.6).toFixed(1))
+      solarPotential: Number(locationData.solarBase.toFixed(2)),
+      windPotential: Number(locationData.windBase.toFixed(2)),
+      // Produção de H2 realista (toneladas/ano)
+      // Fórmulas baseadas em dados reais da indústria:
+      // - Solar: 1 MW de capacidade instalada produz ~1,500 MWh/ano em média
+      // - Para H2: 50-55 kWh produz 1 kg de H2 (eletrólise)
+      // - Área solar: assumindo 10,000 m² (1 hectare) com eficiência de 20%
+      // - Sistema de 2 MW solar + 3 MW eólico
+      hydrogenProduction: Number((
+        (locationData.solarBase * 10000 * 0.20 * 365 / 53) + // Solar: kWh/m²/day * área * eficiência * dias / kWh por kg
+        (locationData.windBase * 0.5 * 24 * 365 * 3000 / 53000) // Eólico: velocidade * fator capacidade * horas * dias * potência / kWh
+      ).toFixed(1)),
+      // Investimento baseado em custos reais (R$/kW instalado)
+      // Solar: ~R$ 3,500/kW | Eólico: ~R$ 5,000/kW | Eletrolisador: ~R$ 8,000/kW
+      investment: Math.round((2000 * 3500 + 3000 * 5000 + 1000 * 8000) * 1.2), // 20% contingência
+      // ROI baseado em produção e preço de H2 (~R$ 25/kg)
+      roi: Number((
+        ((locationData.solarBase * 10000 * 0.20 * 365 / 53) + (locationData.windBase * 0.5 * 24 * 365 * 3000 / 53000)) * 25 * 1000 / 
+        ((2000 * 3500 + 3000 * 5000 + 1000 * 8000) * 1.2)
+      ).toFixed(1))
     },
     {
       years: 3,
-      solarPotential: Number((locationData.solarBase + 0.2).toFixed(1)),
-      windPotential: Number((locationData.windBase + 0.3).toFixed(1)),
-      hydrogenProduction: Math.round(
-        (((locationData.solarBase + 0.2) * 1000 + (locationData.windBase + 0.3) * 200) * 0.65) / 50
-      ),
-      investment: Math.round(locationData.solarBase * locationData.windBase * 450000),
-      roi: Number(((locationData.solarBase + locationData.windBase) * 1.1).toFixed(1))
+      solarPotential: Number((locationData.solarBase * 1.02).toFixed(2)), // 2% degradação
+      windPotential: Number((locationData.windBase * 1.03).toFixed(2)), // Otimização
+      hydrogenProduction: Number((
+        ((locationData.solarBase * 1.02) * 30000 * 0.20 * 365 / 53) + 
+        ((locationData.windBase * 1.03) * 0.5 * 24 * 365 * 9000 / 53000)
+      ).toFixed(1)),
+      investment: Math.round((6000 * 3500 + 9000 * 5000 + 3000 * 8000) * 1.2),
+      roi: Number((
+        (((locationData.solarBase * 1.02) * 30000 * 0.20 * 365 / 53) + ((locationData.windBase * 1.03) * 0.5 * 24 * 365 * 9000 / 53000)) * 25 * 1000 / 
+        ((6000 * 3500 + 9000 * 5000 + 3000 * 8000) * 1.2)
+      ).toFixed(1))
     },
     {
       years: 5,
-      solarPotential: Number((locationData.solarBase + 0.4).toFixed(1)),
-      windPotential: Number((locationData.windBase + 0.5).toFixed(1)),
-      hydrogenProduction: Math.round(
-        (((locationData.solarBase + 0.4) * 1000 + (locationData.windBase + 0.5) * 200) * 0.7) / 50
-      ),
-      investment: Math.round(locationData.solarBase * locationData.windBase * 720000),
-      roi: Number(((locationData.solarBase + locationData.windBase) * 1.7).toFixed(1))
+      solarPotential: Number((locationData.solarBase * 1.04).toFixed(2)),
+      windPotential: Number((locationData.windBase * 1.05).toFixed(2)),
+      hydrogenProduction: Number((
+        ((locationData.solarBase * 1.04) * 50000 * 0.20 * 365 / 53) + 
+        ((locationData.windBase * 1.05) * 0.5 * 24 * 365 * 15000 / 53000)
+      ).toFixed(1)),
+      investment: Math.round((10000 * 3500 + 15000 * 5000 + 5000 * 8000) * 1.2),
+      roi: Number((
+        (((locationData.solarBase * 1.04) * 50000 * 0.20 * 365 / 53) + ((locationData.windBase * 1.05) * 0.5 * 24 * 365 * 15000 / 53000)) * 25 * 1000 / 
+        ((10000 * 3500 + 15000 * 5000 + 5000 * 8000) * 1.2)
+      ).toFixed(1))
     }
   ];
 
@@ -359,7 +377,7 @@ const FeasibilityAnalysis = () => {
                     </p>
                     {weatherData && analysisStarted && (
                       <Badge className="bg-emerald-100 text-emerald-800 border-emerald-300">
-                        📊 Dados Reais: {weatherData.dataPoints} dias analisados
+                        📊 NASA POWER: {weatherData.dataPoints} dias de dados reais
                       </Badge>
                     )}
                   </div>
@@ -447,8 +465,8 @@ const FeasibilityAnalysis = () => {
                         <Sun className="w-5 h-5 text-amber-600" />
                         <span className="text-sm font-medium text-slate-700">Energia Solar</span>
                       </div>
-                      <p className="text-2xl font-bold text-slate-900">{period.solarPotential} kWh/m²</p>
-                      <p className="text-xs text-slate-600 mt-1">Radiação média diária</p>
+                      <p className="text-2xl font-bold text-slate-900">{period.solarPotential} kWh/m²/dia</p>
+                      <p className="text-xs text-slate-600 mt-1">Irradiação solar média</p>
                     </Card>
 
                     <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">

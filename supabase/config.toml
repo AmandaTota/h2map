@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.fetch-weather-data]
 verify_jwt = false
+
+[functions.fetch-nasa-power-data]
+verify_jwt = false
