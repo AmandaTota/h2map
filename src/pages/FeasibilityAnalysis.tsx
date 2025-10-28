@@ -253,9 +253,9 @@ const FeasibilityAnalysis = () => {
       // Investimento baseado em custos reais (R$/kW instalado)
       // Solar: R$ 3,500/kW | Eólico: R$ 5,000/kW | Eletrolisador: R$ 8,000/kW | Infraestrutura: 15%
       investment: Math.round((2000 * 3500 + 3000 * 5000 + 1000 * 8000) * 1.15),
-      // ROI baseado em produção e preço de H2 (R$ 25/kg) e vida útil de 20 anos
+      // ROI baseado em produção e preço de H2 (R$ 25/kg) em 1 ano
       roi: Number((
-        ((2 * locationData.solarBase / 5.5 * 0.23 + 3 * locationData.windBase / 7 * 0.35) * 8760 / 55 / 1000) * 25000 * 20 / 
+        ((2 * locationData.solarBase / 5.5 * 0.23 + 3 * locationData.windBase / 7 * 0.35) * 8760 / 55 / 1000) * 25000 / 
         ((2000 * 3500 + 3000 * 5000 + 1000 * 8000) * 1.15)
       ).toFixed(1))
     },
@@ -269,7 +269,7 @@ const FeasibilityAnalysis = () => {
       ).toFixed(1)),
       investment: Math.round((6000 * 3500 + 9000 * 5000 + 3000 * 8000) * 1.15),
       roi: Number((
-        ((6 * locationData.solarBase * 0.98 / 5.5 * 0.23 + 9 * locationData.windBase * 1.02 / 7 * 0.35) * 8760 / 55 / 1000) * 25000 * 20 / 
+        ((6 * locationData.solarBase * 0.98 / 5.5 * 0.23 + 9 * locationData.windBase * 1.02 / 7 * 0.35) * 8760 / 55 / 1000) * 25000 * 3 / 
         ((6000 * 3500 + 9000 * 5000 + 3000 * 8000) * 1.15)
       ).toFixed(1))
     },
@@ -283,7 +283,7 @@ const FeasibilityAnalysis = () => {
       ).toFixed(1)),
       investment: Math.round((10000 * 3500 + 15000 * 5000 + 5000 * 8000) * 1.15),
       roi: Number((
-        ((10 * locationData.solarBase * 0.96 / 5.5 * 0.23 + 15 * locationData.windBase * 1.04 / 7 * 0.35) * 8760 / 55 / 1000) * 25000 * 20 / 
+        ((10 * locationData.solarBase * 0.96 / 5.5 * 0.23 + 15 * locationData.windBase * 1.04 / 7 * 0.35) * 8760 / 55 / 1000) * 25000 * 5 / 
         ((10000 * 3500 + 15000 * 5000 + 5000 * 8000) * 1.15)
       ).toFixed(1))
     }

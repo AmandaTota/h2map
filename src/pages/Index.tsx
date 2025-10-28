@@ -84,27 +84,27 @@ export default function Index() {
             <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="relative">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-4">
-                  <div className="bg-white rounded-xl p-4 shadow-lg border border-emerald-100">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <Sun className="w-6 h-6 text-yellow-500" />
-                      <span className="font-semibold text-slate-900">Energia Solar</span>
-                    </div>
+                  <div className="bg-white rounded-xl p-6 shadow-lg border border-emerald-100 hover:shadow-xl transition-all">
+                    <Sun className="w-8 h-8 text-yellow-500 mb-3" />
+                    <h3 className="font-bold text-slate-900 text-lg mb-2">Energia Solar</h3>
+                    <p className="text-sm text-slate-600">Análise de irradiância solar e potencial fotovoltaico</p>
                   </div>
-                  <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl p-4 text-white">
-                    <MapPin className="w-6 h-6 mb-2" />
-                    <p className="font-semibold">Georreferenciamento Preciso</p>
+                  <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all">
+                    <MapPin className="w-8 h-8 mb-3" />
+                    <h3 className="font-bold text-lg mb-2">Georreferenciamento Preciso</h3>
+                    <p className="text-sm text-white/90">Dados geográficos exatos para planejamento eficiente</p>
                   </div>
                 </div>
                 <div className="space-y-4 pt-8">
-                  <div className="bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl p-4 text-white">
-                    <Wind className="w-6 h-6 mb-2" />
-                    <p className="font-semibold">Análise Eólica</p>
+                  <div className="bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all">
+                    <Wind className="w-8 h-8 mb-3" />
+                    <h3 className="font-bold text-lg mb-2">Análise Eólica</h3>
+                    <p className="text-sm text-white/90">Análise do vento para máximo aproveitamento energético</p>
                   </div>
-                  <div className="bg-white rounded-xl p-4 shadow-lg border border-emerald-100">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <BarChart3 className="w-6 h-6 text-emerald-600" />
-                      <span className="font-semibold text-slate-900">Dados Climáticos</span>
-                    </div>
+                  <div className="bg-white rounded-xl p-6 shadow-lg border border-emerald-100 hover:shadow-xl transition-all">
+                    <BarChart3 className="w-8 h-8 text-emerald-600 mb-3" />
+                    <h3 className="font-bold text-slate-900 text-lg mb-2">Dados Climáticos</h3>
+                    <p className="text-sm text-slate-600">Tempo, chuvas, ventos e padrões climáticos</p>
                   </div>
                 </div>
               </div>
