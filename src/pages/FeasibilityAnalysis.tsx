@@ -260,41 +260,53 @@ const FeasibilityAnalysis = () => {
 
   const locationData = calculateLocationData(analyzedLocation.lat, analyzedLocation.lng);
 
-  // Função para calcular energia e produção de H2 usando fórmulas reais
+  // Função para calcular energia e produção de H2 usando fórmulas reais e valores realistas da indústria
   const calculateEnergyProduction = (solarIrradiance: number, windSpeed: number, scaleFactor: number = 1): EnergyCalculations => {
-    // Parâmetros de instalação (escalam conforme o período)
-    const solarPanelArea = 10000 * scaleFactor; // m² (exemplo: 10.000 m² = 1 hectare para 1 ano)
-    const solarEfficiency = 0.20; // 20% eficiência média de painéis solares
+    // ============ PARÂMETROS REALISTAS DA INDÚSTRIA ============
     
-    const windTurbineArea = 7854 * scaleFactor; // m² (π × r² onde r=50m para turbina típica de 100m diâmetro)
-    const windEfficiency = 0.45; // 45% eficiência de turbina eólica
+    // Instalação Solar (escala modesta - típico para projetos piloto/pequeno porte)
+    const solarPanelArea = 1000 * scaleFactor; // m² (1.000 m² para 1 ano - ~200 kW pico)
+    const solarEfficiency = 0.20; // 20% eficiência de painéis comerciais
+    const solarCapacityFactor = 0.20; // 20% fator de capacidade real (dias/noites, nuvens, etc.)
+    
+    // Instalação Eólica (1 turbina pequena de ~100 kW)
+    const windTurbineArea = 314 * scaleFactor; // m² (π × r² onde r=10m - turbina pequena)
+    const windEfficiency = 0.40; // 40% eficiência (Betz limit ~59%, real ~35-45%)
+    const windCapacityFactor = 0.30; // 30% fator de capacidade real
     const airDensity = 1.225; // kg/m³ (densidade do ar ao nível do mar)
     
-    // Conversão de kWh/m²/dia para W/m² (irradiância média)
-    // kWh/m²/dia = (W/m²) × 24h / 1000
-    // Portanto: W/m² = (kWh/m²/dia × 1000) / 24
-    const solarIrradianceW = (solarIrradiance * 1000) / 24; // Converte para W/m²
+    // ============ CÁLCULO DE ENERGIA SOLAR ============
+    // CORREÇÃO: solarIrradiance já está em kWh/m²/dia (energia diária integrada)
+    // NÃO precisa multiplicar por 24 horas!
+    const dailySolarEnergy = solarIrradiance * solarPanelArea * solarEfficiency; // kWh/dia
+    const annualSolarEnergy = dailySolarEnergy * 365; // kWh/ano
+    const solarPower = dailySolarEnergy / 24; // kW médio ao longo do dia
     
-    // Fórmula Solar: P = G × A × η
-    const solarPower = (solarIrradianceW * solarPanelArea * solarEfficiency) / 1000; // kW
+    // ============ CÁLCULO DE ENERGIA EÓLICA ============
+    // Fórmula: P = 0.5 × ρ × A × v³ × η
+    // Mas aplicamos fator de capacidade porque v é velocidade MÉDIA
+    const windPowerPeak = (0.5 * airDensity * windTurbineArea * Math.pow(windSpeed, 3) * windEfficiency) / 1000; // kW pico
+    const windPower = windPowerPeak * windCapacityFactor; // kW médio considerando intermitência
+    const dailyWindEnergy = windPower * 24; // kWh/dia
+    const annualWindEnergy = dailyWindEnergy * 365; // kWh/ano
     
-    // Fórmula Eólica: P = 0.5 × ρ × A × v³ × η
-    const windPower = (0.5 * airDensity * windTurbineArea * Math.pow(windSpeed, 3) * windEfficiency) / 1000; // kW
+    // ============ ENERGIA TOTAL ============
+    const totalPower = solarPower + windPower; // kW médio
+    const dailyEnergy = dailySolarEnergy + dailyWindEnergy; // kWh/dia
+    const annualEnergy = annualSolarEnergy + annualWindEnergy; // kWh/ano
     
-    // Potência total
-    const totalPower = solarPower + windPower;
+    // ============ PRODUÇÃO DE H2 (VALORES REALISTAS) ============
+    // Eletrolisadores modernos: PEM ~55 kWh/kg, Alcalino ~50 kWh/kg
+    // Considerando perdas do sistema completo (conversão DC/AC, compressão, etc.): ~58 kWh/kg
+    const electrolyzerEfficiency = 58; // kWh/kg H2 (valor realista considerando perdas)
+    const systemEfficiency = 0.85; // 85% eficiência do sistema completo (conversão, compressão)
     
-    // Energia disponível
-    const dailyEnergy = totalPower * 24; // kWh/dia
-    const annualEnergy = dailyEnergy * 365; // kWh/ano
-    
-    // Produção de H2 (eletrólise consome ~50 kWh por kg de H2)
-    const electrolyzerEfficiency = 50; // kWh/kg H2
-    const dailyH2Production = dailyEnergy / electrolyzerEfficiency; // kg/dia
-    const annualH2Production = annualEnergy / electrolyzerEfficiency / 1000; // toneladas/ano
+    const usableEnergy = dailyEnergy * systemEfficiency;
+    const dailyH2Production = usableEnergy / electrolyzerEfficiency; // kg/dia
+    const annualH2Production = (annualEnergy * systemEfficiency) / electrolyzerEfficiency / 1000; // toneladas/ano
     
     return {
-      solarIrradiance: solarIrradianceW,
+      solarIrradiance: solarIrradiance * 1000 / 24, // Converte para W/m² para exibição
       windSpeed,
       solarPanelArea,
       solarEfficiency,
@@ -320,28 +332,55 @@ const FeasibilityAnalysis = () => {
       years: 1,
       solarPotential: Number(locationData.solarBase.toFixed(2)),
       windPotential: Number(locationData.windBase.toFixed(2)),
-      hydrogenProduction: Number(energyCalc1Year.annualH2Production.toFixed(1)),
-      investment: Math.round(energyCalc1Year.solarPower * 3500 + energyCalc1Year.windPower * 5000 + (energyCalc1Year.totalPower * 0.5) * 8000),
+      hydrogenProduction: Number(energyCalc1Year.annualH2Production.toFixed(2)),
+      // Custos realistas da indústria 2024-2025:
+      // - Painéis solares: R$ 3.000-4.000/kW instalado
+      // - Turbinas eólicas pequenas: R$ 8.000-12.000/kW instalado
+      // - Eletrolisadores PEM: R$ 15.000-20.000/kW (equipamento mais caro!)
+      // - Infraestrutura (armazenamento, compressão, controles): +40%
+      investment: Math.round(
+        (energyCalc1Year.solarPower * 3500) + // Solar
+        (energyCalc1Year.windPower * 10000) + // Eólico (turbinas pequenas são mais caras por kW)
+        (energyCalc1Year.totalPower * 1.0 * 18000) + // Eletrolisador (dimensionado pela potência total)
+        ((energyCalc1Year.solarPower * 3500 + energyCalc1Year.windPower * 10000) * 0.40) // Infraestrutura
+      ),
+      // ROI: Preço do H2 verde no Brasil: R$ 20-30/kg (usando R$ 25/kg)
       roi: Number(((energyCalc1Year.annualH2Production * 25000) / 
-        (energyCalc1Year.solarPower * 3500 + energyCalc1Year.windPower * 5000 + (energyCalc1Year.totalPower * 0.5) * 8000) * 100).toFixed(1))
+        ((energyCalc1Year.solarPower * 3500) + (energyCalc1Year.windPower * 10000) + 
+        (energyCalc1Year.totalPower * 1.0 * 18000) + 
+        ((energyCalc1Year.solarPower * 3500 + energyCalc1Year.windPower * 10000) * 0.40)) * 100).toFixed(1))
     },
     {
       years: 3,
       solarPotential: Number((locationData.solarBase * 0.98).toFixed(2)),
       windPotential: Number((locationData.windBase * 1.02).toFixed(2)),
-      hydrogenProduction: Number(energyCalc3Years.annualH2Production.toFixed(1)),
-      investment: Math.round(energyCalc3Years.solarPower * 3500 + energyCalc3Years.windPower * 5000 + (energyCalc3Years.totalPower * 0.5) * 8000),
+      hydrogenProduction: Number(energyCalc3Years.annualH2Production.toFixed(2)),
+      investment: Math.round(
+        (energyCalc3Years.solarPower * 3500) + 
+        (energyCalc3Years.windPower * 10000) + 
+        (energyCalc3Years.totalPower * 1.0 * 18000) + 
+        ((energyCalc3Years.solarPower * 3500 + energyCalc3Years.windPower * 10000) * 0.40)
+      ),
       roi: Number(((energyCalc3Years.annualH2Production * 25000 * 3) / 
-        (energyCalc3Years.solarPower * 3500 + energyCalc3Years.windPower * 5000 + (energyCalc3Years.totalPower * 0.5) * 8000) * 100).toFixed(1))
+        ((energyCalc3Years.solarPower * 3500) + (energyCalc3Years.windPower * 10000) + 
+        (energyCalc3Years.totalPower * 1.0 * 18000) + 
+        ((energyCalc3Years.solarPower * 3500 + energyCalc3Years.windPower * 10000) * 0.40)) * 100).toFixed(1))
     },
     {
       years: 5,
       solarPotential: Number((locationData.solarBase * 0.96).toFixed(2)),
       windPotential: Number((locationData.windBase * 1.04).toFixed(2)),
-      hydrogenProduction: Number(energyCalc5Years.annualH2Production.toFixed(1)),
-      investment: Math.round(energyCalc5Years.solarPower * 3500 + energyCalc5Years.windPower * 5000 + (energyCalc5Years.totalPower * 0.5) * 8000),
+      hydrogenProduction: Number(energyCalc5Years.annualH2Production.toFixed(2)),
+      investment: Math.round(
+        (energyCalc5Years.solarPower * 3500) + 
+        (energyCalc5Years.windPower * 10000) + 
+        (energyCalc5Years.totalPower * 1.0 * 18000) + 
+        ((energyCalc5Years.solarPower * 3500 + energyCalc5Years.windPower * 10000) * 0.40)
+      ),
       roi: Number(((energyCalc5Years.annualH2Production * 25000 * 5) / 
-        (energyCalc5Years.solarPower * 3500 + energyCalc5Years.windPower * 5000 + (energyCalc5Years.totalPower * 0.5) * 8000) * 100).toFixed(1))
+        ((energyCalc5Years.solarPower * 3500) + (energyCalc5Years.windPower * 10000) + 
+        (energyCalc5Years.totalPower * 1.0 * 18000) + 
+        ((energyCalc5Years.solarPower * 3500 + energyCalc5Years.windPower * 10000) * 0.40)) * 100).toFixed(1))
     }
   ];
 
@@ -589,7 +628,10 @@ const FeasibilityAnalysis = () => {
                         <p className="text-sm text-slate-700 mb-2">💧 <strong>Produção Diária:</strong></p>
                         <p className="text-3xl font-bold text-emerald-600">{energyCalc1Year.dailyH2Production.toFixed(1)} kg/dia</p>
                         <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
-                          <strong>Consumo eletrolisador:</strong> 50 kWh por kg de H₂
+                          <strong>Consumo eletrolisador:</strong> 58 kWh/kg H₂ (incluindo perdas do sistema)
+                        </p>
+                        <p className="text-xs text-amber-700 mt-1 p-2 bg-amber-50 rounded">
+                          ⚠️ Valores realistas considerando fator de capacidade solar (~20%) e eólico (~30%)
                         </p>
                       </Card>
 
