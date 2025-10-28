@@ -12,7 +12,8 @@ import {
   Droplet,
   Zap,
   BarChart3,
-  FileText
+  FileText,
+  Loader2
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -20,6 +21,9 @@ import { Badge } from '@/components/ui/badge';
 import Navigation from '@/components/Navigation';
 import LocationSearch from '@/components/LocationSearch';
 import { useLocationStore } from '@/store/locationStore';
+import { supabase } from '@/integrations/supabase/client';
+import { format, subDays } from 'date-fns';
+import { toast } from 'sonner';
 
 interface AnalysisPeriod {
   years: number;
@@ -30,6 +34,16 @@ interface AnalysisPeriod {
   roi: number;
 }
 
+interface WeatherData {
+  avgTemperature: number;
+  avgSolarIrradiance: number;
+  avgWindSpeed: number;
+  avgHumidity: number;
+  avgPressure: number;
+  totalRainfall: number;
+  dataPoints: number;
+}
+
 const FeasibilityAnalysis = () => {
   const { selectedLocation, setSelectedLocation } = useLocationStore();
   const [localLocation, setLocalLocation] = useState(
@@ -37,6 +51,8 @@ const FeasibilityAnalysis = () => {
   );
   const [analysisStarted, setAnalysisStarted] = useState(false);
   const [analyzedLocation, setAnalyzedLocation] = useState(localLocation);
+  const [loading, setLoading] = useState(false);
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
 
   useEffect(() => {
     if (selectedLocation) {
@@ -49,22 +65,114 @@ const FeasibilityAnalysis = () => {
     setSelectedLocation(location);
   };
 
-  const handleStartAnalysis = () => {
+  const handleStartAnalysis = async () => {
+    setLoading(true);
     setAnalyzedLocation(localLocation);
-    setAnalysisStarted(true);
+    
+    try {
+      await fetchWeatherData(localLocation.lat, localLocation.lng);
+      setAnalysisStarted(true);
+    } catch (error) {
+      console.error('Error starting analysis:', error);
+      toast.error('Erro ao buscar dados climáticos. Usando dados estimados.');
+      setAnalysisStarted(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchWeatherData = async (lat: number, lng: number) => {
+    try {
+      const endDate = new Date();
+      const startDate = subDays(endDate, 365); // 1 year of data
+      
+      const startDateStr = format(startDate, 'yyyy-MM-dd');
+      const endDateStr = format(endDate, 'yyyy-MM-dd');
+      
+      // Use a default INMET station code (in production, find nearest station)
+      const stationCode = 'A001';
+      
+      const { data, error } = await supabase.functions.invoke('fetch-inmet-data', {
+        body: {
+          stationCode,
+          startDate: startDateStr,
+          endDate: endDateStr,
+        },
+      });
+
+      if (error) {
+        console.error('Error fetching INMET data:', error);
+        return;
+      }
+
+      if (data?.data && Array.isArray(data.data) && data.data.length > 0) {
+        // Calculate averages from real data
+        const inmetData = data.data;
+        const validData = inmetData.filter((item: any) => item && typeof item === 'object');
+        
+        if (validData.length === 0) {
+          console.log('No valid INMET data available');
+          return;
+        }
+
+        const avgTemp = validData.reduce((sum: number, item: any) => {
+          const temp = parseFloat(item.TEM_INS || item.temperatura_bulbo_hora || 0);
+          return sum + (isNaN(temp) ? 0 : temp);
+        }, 0) / validData.length;
+
+        const avgSolar = validData.reduce((sum: number, item: any) => {
+          const solar = parseFloat(item.RAD_GLO || item.radiacao_global || 0);
+          return sum + (isNaN(solar) ? 0 : solar);
+        }, 0) / validData.length;
+
+        const avgWind = validData.reduce((sum: number, item: any) => {
+          const wind = parseFloat(item.VEN_VEL || item.vento_velocidade || 0);
+          return sum + (isNaN(wind) ? 0 : wind);
+        }, 0) / validData.length;
+
+        const avgHumidity = validData.reduce((sum: number, item: any) => {
+          const humidity = parseFloat(item.UMD_INS || item.umidade_rel_max || 0);
+          return sum + (isNaN(humidity) ? 0 : humidity);
+        }, 0) / validData.length;
+
+        const avgPressure = validData.reduce((sum: number, item: any) => {
+          const pressure = parseFloat(item.PRE_INS || item.pressao_atm_max || 0);
+          return sum + (isNaN(pressure) ? 0 : pressure);
+        }, 0) / validData.length;
+
+        const totalRain = validData.reduce((sum: number, item: any) => {
+          const rain = parseFloat(item.CHUVA || item.precipitacao_total || 0);
+          return sum + (isNaN(rain) ? 0 : rain);
+        }, 0);
+
+        setWeatherData({
+          avgTemperature: avgTemp,
+          avgSolarIrradiance: avgSolar,
+          avgWindSpeed: avgWind,
+          avgHumidity,
+          avgPressure,
+          totalRainfall: totalRain,
+          dataPoints: validData.length,
+        });
+
+        toast.success('Dados climáticos reais carregados com sucesso!');
+      } else {
+        console.log('No INMET data available, using estimates');
+      }
+    } catch (error) {
+      console.error('Error in fetchWeatherData:', error);
+      throw error;
+    }
   };
 
   // Função para calcular dados baseados na localização analisada
   const calculateLocationData = (lat: number, lng: number) => {
-    // Determinar região do Brasil baseada na latitude
-    // Nordeste: lat > -18 (maior potencial solar e eólico)
-    // Norte: lat > -5 (alto solar, médio eólico)
-    // Centro-Oeste: -5 >= lat >= -18 (alto solar, baixo eólico)
-    // Sudeste: -18 >= lat >= -25 (médio solar e eólico)
-    // Sul: lat < -25 (baixo solar, alto eólico)
+    // Se temos dados reais do INMET, usar eles
+    let solarBase = weatherData?.avgSolarIrradiance 
+      ? weatherData.avgSolarIrradiance / 200 // Convert W/m² to approximate kWh/m²/day
+      : 4.0;
     
-    let solarBase = 4.0;
-    let windBase = 5.0;
+    let windBase = weatherData?.avgWindSpeed || 5.0;
     let environmentalImpact = 'Moderado';
     let environmentalStatus = 'warning';
     let biodiversity = 'Moderada';
@@ -74,58 +182,61 @@ const FeasibilityAnalysis = () => {
     let waterResources = 'Adequado';
     let waterStatus = 'success';
 
-    // Nordeste (maior potencial para H2 Verde)
-    if (lat > -18 && lat < -2) {
-      solarBase = 5.8;
-      windBase = 8.5;
-      environmentalImpact = 'Baixo';
-      environmentalStatus = 'success';
-      waterResources = 'Moderado';
-      waterStatus = 'warning';
-    }
-    // Norte
-    else if (lat >= -2) {
-      solarBase = 5.2;
-      windBase = 4.5;
-      environmentalImpact = 'Alto';
-      environmentalStatus = 'error';
-      biodiversity = 'Alta';
-      biodiversityStatus = 'error';
-      waterResources = 'Abundante';
-      waterStatus = 'success';
-    }
-    // Centro-Oeste
-    else if (lat >= -18 && lat < -5 && lng > -55) {
-      solarBase = 5.5;
-      windBase = 4.2;
-      environmentalImpact = 'Moderado';
-      environmentalStatus = 'warning';
-      slope = '8°';
-    }
-    // Sudeste
-    else if (lat >= -25 && lat < -18) {
-      solarBase = 4.8;
-      windBase = 5.5;
-      environmentalImpact = 'Baixo';
-      environmentalStatus = 'success';
-      waterResources = 'Bom';
-      waterStatus = 'success';
-    }
-    // Sul
-    else if (lat < -25) {
-      solarBase = 4.2;
-      windBase = 7.8;
-      environmentalImpact = 'Baixo';
-      environmentalStatus = 'success';
-      biodiversity = 'Baixa';
-      biodiversityStatus = 'success';
-      slope = '15°';
-      slopeStatus = 'warning';
-    }
+    // Se não temos dados reais, usar estimativas regionais
+    if (!weatherData) {
+      // Nordeste (maior potencial para H2 Verde)
+      if (lat > -18 && lat < -2) {
+        solarBase = 5.8;
+        windBase = 8.5;
+        environmentalImpact = 'Baixo';
+        environmentalStatus = 'success';
+        waterResources = 'Moderado';
+        waterStatus = 'warning';
+      }
+      // Norte
+      else if (lat >= -2) {
+        solarBase = 5.2;
+        windBase = 4.5;
+        environmentalImpact = 'Alto';
+        environmentalStatus = 'error';
+        biodiversity = 'Alta';
+        biodiversityStatus = 'error';
+        waterResources = 'Abundante';
+        waterStatus = 'success';
+      }
+      // Centro-Oeste
+      else if (lat >= -18 && lat < -5 && lng > -55) {
+        solarBase = 5.5;
+        windBase = 4.2;
+        environmentalImpact = 'Moderado';
+        environmentalStatus = 'warning';
+        slope = '8°';
+      }
+      // Sudeste
+      else if (lat >= -25 && lat < -18) {
+        solarBase = 4.8;
+        windBase = 5.5;
+        environmentalImpact = 'Baixo';
+        environmentalStatus = 'success';
+        waterResources = 'Bom';
+        waterStatus = 'success';
+      }
+      // Sul
+      else if (lat < -25) {
+        solarBase = 4.2;
+        windBase = 7.8;
+        environmentalImpact = 'Baixo';
+        environmentalStatus = 'success';
+        biodiversity = 'Baixa';
+        biodiversityStatus = 'success';
+        slope = '15°';
+        slopeStatus = 'warning';
+      }
 
-    // Variação baseada na longitude (proximidade com o litoral)
-    const coastalBonus = lng > -45 ? 0.3 : 0;
-    windBase += coastalBonus;
+      // Variação baseada na longitude (proximidade com o litoral)
+      const coastalBonus = lng > -45 ? 0.3 : 0;
+      windBase += coastalBonus;
+    }
 
     return {
       solarBase,
@@ -274,10 +385,20 @@ const FeasibilityAnalysis = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleStartAnalysis}
-                  className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all flex items-center space-x-2"
+                  disabled={loading}
+                  className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <BarChart3 className="w-5 h-5" />
-                  <span>Iniciar Análise</span>
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Carregando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <BarChart3 className="w-5 h-5" />
+                      <span>Iniciar Análise</span>
+                    </>
+                  )}
                 </motion.button>
               </div>
             </Card>
