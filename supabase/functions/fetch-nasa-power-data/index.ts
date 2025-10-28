@@ -57,13 +57,29 @@ serve(async (req) => {
     const humidityData = parameters.RH2M || {};
     const precipData = parameters.PRECTOTCORR || {};
 
-    // Calculate averages
-    const solarValues = Object.values(solarData) as number[];
-    const windValues = Object.values(windData) as number[];
-    const tempValues = Object.values(tempData) as number[];
-    const humidityValues = Object.values(humidityData) as number[];
-    const precipValues = Object.values(precipData) as number[];
+    // Filter out invalid values (-999 = missing data in NASA POWER)
+    // Only use positive values for calculations
+    const filterValid = (values: number[]) => values.filter(v => v > -999 && !isNaN(v));
+    
+    const solarValues = filterValid(Object.values(solarData) as number[]);
+    const windValues = filterValid(Object.values(windData) as number[]);
+    const tempValues = filterValid(Object.values(tempData) as number[]);
+    const humidityValues = filterValid(Object.values(humidityData) as number[]);
+    const precipValues = filterValid(Object.values(precipData) as number[]);
 
+    console.log('Valid data points:', {
+      solar: solarValues.length,
+      wind: windValues.length,
+      temp: tempValues.length,
+      humidity: humidityValues.length,
+      precip: precipValues.length
+    });
+
+    if (solarValues.length === 0 || windValues.length === 0) {
+      throw new Error('No valid data available for this location/period');
+    }
+
+    // Calculate averages from valid data only
     const avgSolarIrradiance = solarValues.reduce((a, b) => a + b, 0) / solarValues.length;
     const avgWindSpeed = windValues.reduce((a, b) => a + b, 0) / windValues.length;
     const avgTemperature = tempValues.reduce((a, b) => a + b, 0) / tempValues.length;

@@ -83,8 +83,10 @@ const FeasibilityAnalysis = () => {
 
   const fetchWeatherData = async (lat: number, lng: number) => {
     try {
-      const endDate = new Date();
-      const startDate = subDays(endDate, 365); // 1 year of historical data
+      // NASA POWER only has historical data, not future predictions
+      // Use data from 2 years ago to 1 year ago (365 days of historical data)
+      const endDate = subDays(new Date(), 1); // Yesterday
+      const startDate = subDays(endDate, 365); // 1 year before yesterday
       
       const startDateStr = format(startDate, 'yyyy-MM-dd');
       const endDateStr = format(endDate, 'yyyy-MM-dd');
