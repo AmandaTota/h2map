@@ -2,9 +2,10 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
-  MapPin, Wind, Sun, Droplets, ChevronRight, Leaf, TreePine,
+  MapPin, Wind, Sun, ChevronRight, Leaf, TreePine,
   BarChart3, Shield, Menu, X, Eye, Map
 } from "lucide-react";
+import logo from '@/assets/h2maps-logo.png';
 
 export default function Index() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -15,11 +16,12 @@ export default function Index() {
       <nav className="fixed top-0 w-full bg-white/95 backdrop-blur-md z-50 border-b border-emerald-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
-                <Droplets className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-slate-900">H2maps</span>
+            <Link to="/" className="flex items-center">
+              <img 
+                src={logo} 
+                alt="H2maps Neoenergia" 
+                className="h-12 w-auto"
+              />
             </Link>
 
             <div className="hidden md:flex items-center space-x-8">
@@ -142,7 +144,7 @@ export default function Index() {
                 color: "from-yellow-500 to-orange-500" 
               },
               { 
-                icon: <Droplets className="w-8 h-8" />, 
+                icon: <Sun className="w-8 h-8" />, 
                 title: "Dados Climáticos", 
                 description: "Análise de chuvas, umidade e condições meteorológicas para viabilidade",
                 color: "from-blue-500 to-indigo-600" 
@@ -265,9 +267,12 @@ export default function Index() {
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-3 gap-8 mb-8">
             <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <Droplets className="w-6 h-6 text-emerald-500" />
-                <span className="text-xl font-bold text-white">H2maps</span>
+              <div className="flex items-center mb-4">
+                <img 
+                  src={logo} 
+                  alt="H2maps Neoenergia" 
+                  className="h-10 w-auto"
+                />
               </div>
               <p className="text-sm text-slate-400">
                 Georreferenciamento inteligente para um futuro energético sustentável.
