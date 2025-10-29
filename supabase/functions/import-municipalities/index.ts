@@ -40,11 +40,16 @@ Deno.serve(async (req) => {
 
     console.log(`Processing SQL content... (${sqlContent.length} characters)`);
     
-    // Parse INSERT statements
-    const insertRegex = /INSERT INTO municipios VALUES\s*\n([\s\S]+?);/gi;
+    // Parse INSERT statements - more flexible regex to handle different line endings
+    // Match: INSERT INTO municipios VALUES followed by any content until semicolon
+    const insertRegex = /INSERT\s+INTO\s+municipios\s+VALUES\s*([\s\S]+?);/gi;
     const matches = [...sqlContent.matchAll(insertRegex)];
     
+    console.log(`Found ${matches.length} INSERT statement(s)`);
+    
     if (matches.length === 0) {
+      // Debug: show first 500 chars of SQL
+      console.error('SQL preview:', sqlContent.substring(0, 500));
       throw new Error('No INSERT statements found in SQL');
     }
 
