@@ -90,6 +90,19 @@ interface SimulationResult {
   opexAnnual: number; // R$/ano
 }
 
+interface TopographyData {
+  latitude: number;
+  longitude: number;
+  averageSlope: number;
+  slopeCategory: string;
+  slopeStatus: 'success' | 'warning' | 'error';
+  terrainType: string;
+  slopeDegrees: number;
+  dataSource: string;
+  timestamp: string;
+  recommendations: string[];
+}
+
 const FeasibilityAnalysis = () => {
   const { selectedLocation, setSelectedLocation } = useLocationStore();
   const [localLocation, setLocalLocation] = useState(
@@ -99,6 +112,7 @@ const FeasibilityAnalysis = () => {
   const [analyzedLocation, setAnalyzedLocation] = useState(localLocation);
   const [loading, setLoading] = useState(false);
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [topographyData, setTopographyData] = useState<TopographyData | null>(null);
   const [simulationResults, setSimulationResults] = useState<{
     oneYear: SimulationResult | null;
     threeYears: SimulationResult | null;
@@ -121,11 +135,15 @@ const FeasibilityAnalysis = () => {
     setAnalyzedLocation(localLocation);
     
     try {
-      await fetchWeatherData(localLocation.lat, localLocation.lng);
+      // Buscar dados meteorológicos e topográficos em paralelo
+      await Promise.all([
+        fetchWeatherData(localLocation.lat, localLocation.lng),
+        fetchTopographyData(localLocation.lat, localLocation.lng)
+      ]);
       setAnalysisStarted(true);
     } catch (error) {
       console.error('Error starting analysis:', error);
-      toast.error('Erro ao buscar dados climáticos. Usando dados estimados.');
+      toast.error('Erro ao buscar dados. Usando dados estimados.');
       setAnalysisStarted(true);
     } finally {
       setLoading(false);
@@ -428,6 +446,34 @@ const FeasibilityAnalysis = () => {
     toast.success('✅ Simulação horária completa com dados reais!');
   };
 
+  const fetchTopographyData = async (lat: number, lng: number) => {
+    try {
+      setLoading(true);
+      console.log('Fetching topography data for:', { lat, lng });
+      
+      const { data, error } = await supabase.functions.invoke('fetch-topography-data', {
+        body: { latitude: lat, longitude: lng }
+      });
+
+      if (error) {
+        console.error('Error fetching topography data:', error);
+        toast.error('Erro ao buscar dados topográficos. Usando estimativa regional.');
+        return;
+      }
+
+      if (data) {
+        console.log('Topography data received:', data);
+        setTopographyData(data);
+        toast.success('✅ Dados topográficos obtidos com sucesso!');
+      }
+    } catch (error) {
+      console.error('Error in fetchTopographyData:', error);
+      toast.error('Erro ao processar dados topográficos');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const locationData = calculateLocationData(analyzedLocation.lat, analyzedLocation.lng);
 
   // Função para calcular energia e produção de H2 usando fórmulas reais e valores realistas da indústria
@@ -576,11 +622,15 @@ const FeasibilityAnalysis = () => {
     {
       icon: Mountain,
       title: 'Declividade',
-      value: locationData.slope,
-      status: locationData.slopeStatus,
-      description: locationData.slopeStatus === 'success' 
-        ? 'Topografia adequada para instalação' 
-        : 'Topografia requer planejamento especial'
+      value: topographyData 
+        ? `${topographyData.slopeCategory} (${topographyData.slopeDegrees}°)` 
+        : locationData.slope,
+      status: topographyData?.slopeStatus || locationData.slopeStatus,
+      description: topographyData 
+        ? `${topographyData.terrainType} - Fonte: ${topographyData.dataSource}`
+        : locationData.slopeStatus === 'success' 
+          ? 'Topografia adequada para instalação' 
+          : 'Topografia requer planejamento especial'
     },
     {
       icon: Droplet,
@@ -1914,6 +1964,33 @@ const FeasibilityAnalysis = () => {
                     <Badge variant="outline" className="ml-4 bg-emerald-100 text-emerald-800 border-emerald-200">Baixa</Badge>
                   </div>
                 </motion.div>
+
+                {/* Recomendações Topográficas Dinâmicas */}
+                {topographyData?.recommendations.map((recommendation, index) => (
+                  <motion.div
+                    key={`topo-${index}`}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 + index * 0.05 }}
+                    className="flex items-start space-x-3 p-3 rounded-lg hover:bg-slate-50 transition-colors"
+                  >
+                    <Mountain className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1 flex items-center justify-between">
+                      <p className="text-slate-700">
+                        <strong>Topografia:</strong> {recommendation}
+                      </p>
+                      <Badge variant="outline" className={`ml-4 ${
+                        topographyData.slopeStatus === 'success' 
+                          ? 'bg-green-100 text-green-800 border-green-200'
+                          : topographyData.slopeStatus === 'warning'
+                          ? 'bg-amber-100 text-amber-800 border-amber-200'
+                          : 'bg-red-100 text-red-800 border-red-200'
+                      }`}>
+                        {topographyData.slopeStatus === 'success' ? 'Baixa' : topographyData.slopeStatus === 'warning' ? 'Média' : 'Alta'}
+                      </Badge>
+                    </div>
+                  </motion.div>
+                ))}
               </div>
             </Card>
           </motion.div>
