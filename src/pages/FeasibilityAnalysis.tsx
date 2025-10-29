@@ -540,8 +540,8 @@ const FeasibilityAnalysis = () => {
 
   // Cálculos de energia para cada período
   const energyCalc1Year = calculateEnergyProduction(locationData.solarBase, locationData.windBase, 1);
-  const energyCalc3Years = calculateEnergyProduction(locationData.solarBase * 0.98, locationData.windBase * 1.02, 3);
-  const energyCalc5Years = calculateEnergyProduction(locationData.solarBase * 0.96, locationData.windBase * 1.04, 5);
+  const energyCalc3Years = calculateEnergyProduction(locationData.solarBase, locationData.windBase, 3);
+  const energyCalc5Years = calculateEnergyProduction(locationData.solarBase, locationData.windBase, 5);
 
   const analysisPeriods: AnalysisPeriod[] = [
     {
@@ -867,19 +867,22 @@ const FeasibilityAnalysis = () => {
                 </div>
               </TabsContent>
 
-              <TabsContent value="3">
+               <TabsContent value="3">
                 <div className="space-y-6">
                   {/* Entrada de Dados */}
                   <div>
                     <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center">
                       <Sun className="w-5 h-5 mr-2 text-amber-600" />
-                      1. Entrada de Energia Renovável (Expansão 3 Anos)
+                      1. Entrada de Energia Renovável (Expansão 3x)
                     </h3>
                     <div className="grid md:grid-cols-2 gap-4">
                       <Card className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
                         <p className="text-sm text-slate-700 mb-2">☀️ <strong>Irradiância Solar:</strong> {energyCalc3Years.solarIrradiance.toFixed(0)} W/m²</p>
                         <p className="text-sm text-slate-700 mb-2">📐 <strong>Área dos Painéis:</strong> {energyCalc3Years.solarPanelArea.toLocaleString()} m²</p>
                         <p className="text-sm text-slate-700 mb-2">⚡ <strong>Eficiência:</strong> {(energyCalc3Years.solarEfficiency * 100).toFixed(0)}%</p>
+                        <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
+                          <strong>Fórmula:</strong> P<sub>solar</sub> = G × A × η
+                        </p>
                         <p className="text-2xl font-bold text-amber-600 mt-3">{energyCalc3Years.solarPower.toFixed(1)} kW</p>
                         <p className="text-xs text-slate-600">Potência Solar Gerada</p>
                       </Card>
@@ -888,6 +891,9 @@ const FeasibilityAnalysis = () => {
                         <p className="text-sm text-slate-700 mb-2">💨 <strong>Velocidade do Vento:</strong> {energyCalc3Years.windSpeed.toFixed(1)} m/s</p>
                         <p className="text-sm text-slate-700 mb-2">📐 <strong>Área Varrida:</strong> {energyCalc3Years.windTurbineArea.toLocaleString()} m²</p>
                         <p className="text-sm text-slate-700 mb-2">⚡ <strong>Eficiência:</strong> {(energyCalc3Years.windEfficiency * 100).toFixed(0)}%</p>
+                        <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
+                          <strong>Fórmula:</strong> P<sub>eólica</sub> = ½ × ρ × A × v³ × η
+                        </p>
                         <p className="text-2xl font-bold text-blue-600 mt-3">{energyCalc3Years.windPower.toFixed(1)} kW</p>
                         <p className="text-xs text-slate-600">Potência Eólica Gerada</p>
                       </Card>
@@ -931,11 +937,20 @@ const FeasibilityAnalysis = () => {
                       <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
                         <p className="text-sm text-slate-700 mb-2">💧 <strong>Produção Diária:</strong></p>
                         <p className="text-3xl font-bold text-emerald-600">{energyCalc3Years.dailyH2Production.toFixed(1)} kg/dia</p>
+                        <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
+                          <strong>Consumo eletrolisador:</strong> 58 kWh/kg H₂ (incluindo perdas do sistema)
+                        </p>
+                        <p className="text-xs text-amber-700 mt-1 p-2 bg-amber-50 rounded">
+                          ⚠️ Valores realistas considerando fator de capacidade solar (~20%) e eólico (~30%)
+                        </p>
                       </Card>
 
                       <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
                         <p className="text-sm text-slate-700 mb-2">📊 <strong>Produção Anual:</strong></p>
                         <p className="text-3xl font-bold text-emerald-600">{energyCalc3Years.annualH2Production.toFixed(1)} ton/ano</p>
+                        <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
+                          <strong>Fórmula:</strong> H₂ (kg) = E<sub>disponível</sub> / 50 kWh/kg
+                        </p>
                       </Card>
                     </div>
                   </div>
@@ -948,13 +963,16 @@ const FeasibilityAnalysis = () => {
                   <div>
                     <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center">
                       <Sun className="w-5 h-5 mr-2 text-amber-600" />
-                      1. Entrada de Energia Renovável (Expansão 5 Anos)
+                      1. Entrada de Energia Renovável (Expansão 5x)
                     </h3>
                     <div className="grid md:grid-cols-2 gap-4">
                       <Card className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
                         <p className="text-sm text-slate-700 mb-2">☀️ <strong>Irradiância Solar:</strong> {energyCalc5Years.solarIrradiance.toFixed(0)} W/m²</p>
                         <p className="text-sm text-slate-700 mb-2">📐 <strong>Área dos Painéis:</strong> {energyCalc5Years.solarPanelArea.toLocaleString()} m²</p>
                         <p className="text-sm text-slate-700 mb-2">⚡ <strong>Eficiência:</strong> {(energyCalc5Years.solarEfficiency * 100).toFixed(0)}%</p>
+                        <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
+                          <strong>Fórmula:</strong> P<sub>solar</sub> = G × A × η
+                        </p>
                         <p className="text-2xl font-bold text-amber-600 mt-3">{energyCalc5Years.solarPower.toFixed(1)} kW</p>
                         <p className="text-xs text-slate-600">Potência Solar Gerada</p>
                       </Card>
@@ -963,6 +981,9 @@ const FeasibilityAnalysis = () => {
                         <p className="text-sm text-slate-700 mb-2">💨 <strong>Velocidade do Vento:</strong> {energyCalc5Years.windSpeed.toFixed(1)} m/s</p>
                         <p className="text-sm text-slate-700 mb-2">📐 <strong>Área Varrida:</strong> {energyCalc5Years.windTurbineArea.toLocaleString()} m²</p>
                         <p className="text-sm text-slate-700 mb-2">⚡ <strong>Eficiência:</strong> {(energyCalc5Years.windEfficiency * 100).toFixed(0)}%</p>
+                        <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
+                          <strong>Fórmula:</strong> P<sub>eólica</sub> = ½ × ρ × A × v³ × η
+                        </p>
                         <p className="text-2xl font-bold text-blue-600 mt-3">{energyCalc5Years.windPower.toFixed(1)} kW</p>
                         <p className="text-xs text-slate-600">Potência Eólica Gerada</p>
                       </Card>
@@ -1006,11 +1027,20 @@ const FeasibilityAnalysis = () => {
                       <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
                         <p className="text-sm text-slate-700 mb-2">💧 <strong>Produção Diária:</strong></p>
                         <p className="text-3xl font-bold text-emerald-600">{energyCalc5Years.dailyH2Production.toFixed(1)} kg/dia</p>
+                        <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
+                          <strong>Consumo eletrolisador:</strong> 58 kWh/kg H₂ (incluindo perdas do sistema)
+                        </p>
+                        <p className="text-xs text-amber-700 mt-1 p-2 bg-amber-50 rounded">
+                          ⚠️ Valores realistas considerando fator de capacidade solar (~20%) e eólico (~30%)
+                        </p>
                       </Card>
 
                       <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
                         <p className="text-sm text-slate-700 mb-2">📊 <strong>Produção Anual:</strong></p>
                         <p className="text-3xl font-bold text-emerald-600">{energyCalc5Years.annualH2Production.toFixed(1)} ton/ano</p>
+                        <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
+                          <strong>Fórmula:</strong> H₂ (kg) = E<sub>disponível</sub> / 50 kWh/kg
+                        </p>
                       </Card>
                     </div>
                   </div>
