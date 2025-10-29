@@ -23,19 +23,22 @@ Deno.serve(async (req) => {
   }
 
   try {
+    const requestBody = await req.json();
     console.log('Starting municipalities import...');
+    console.log('Request received with sqlContent');
     
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { sqlContent } = await req.json();
+    const { sqlContent } = requestBody;
     
-    if (!sqlContent) {
+    if (!sqlContent || typeof sqlContent !== 'string') {
+      console.error('Invalid request: sqlContent is missing or not a string');
       throw new Error('SQL content is required');
     }
 
-    console.log('Processing SQL content...');
+    console.log(`Processing SQL content... (${sqlContent.length} characters)`);
     
     // Parse INSERT statements
     const insertRegex = /INSERT INTO municipios VALUES\s*\n([\s\S]+?);/gi;
