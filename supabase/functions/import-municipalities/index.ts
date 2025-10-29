@@ -40,42 +40,38 @@ Deno.serve(async (req) => {
 
     console.log(`Processing SQL content... (${sqlContent.length} characters)`);
     
-    // Parse INSERT statements - more flexible regex to handle different line endings
-    // Match: INSERT INTO municipios VALUES followed by any content until semicolon
-    const insertRegex = /INSERT\s+INTO\s+municipios\s+VALUES\s*([\s\S]+?);/gi;
-    const matches = [...sqlContent.matchAll(insertRegex)];
+    // Extract the VALUES section from the single INSERT statement
+    // The SQL format is: INSERT INTO municipios VALUES\n(row1),\n(row2),...\n(rowN);
+    const valuesMatch = sqlContent.match(/INSERT\s+INTO\s+municipios\s+VALUES\s*([\s\S]+?);/i);
     
-    console.log(`Found ${matches.length} INSERT statement(s)`);
-    
-    if (matches.length === 0) {
-      // Debug: show first 500 chars of SQL
-      console.error('SQL preview:', sqlContent.substring(0, 500));
+    if (!valuesMatch) {
+      console.error('Could not find INSERT statement. SQL preview:', sqlContent.substring(0, 500));
       throw new Error('No INSERT statements found in SQL');
     }
-
+    
+    console.log('Found INSERT statement, parsing rows...');
+    
+    const valuesContent = valuesMatch[1];
+    
+    // Parse each row: (codigo_ibge,'nome',lat,lng,capital,codigo_uf,'siafi_id',ddd,'fuso')
+    const rowRegex = /\((\d+),'([^']+)',(-?\d+\.?\d*),(-?\d+\.?\d*),(TRUE|FALSE),(\d+),'([^']+)',(\d+),'([^']+)'\)/g;
     const municipalities: Municipality[] = [];
     
-    for (const match of matches) {
-      const valuesString = match[1];
-      // Parse each row
-      const rowRegex = /\((\d+),'([^']+)',(-?\d+\.?\d*),(-?\d+\.?\d*),(TRUE|FALSE),(\d+),'(\d+)',(\d+),'([^']+)'\)/gi;
-      const rows = [...valuesString.matchAll(rowRegex)];
-      
-      for (const row of rows) {
-        municipalities.push({
-          codigo_ibge: row[1],
-          nome: row[2],
-          latitude: parseFloat(row[3]),
-          longitude: parseFloat(row[4]),
-          capital: row[5] === 'TRUE',
-          codigo_uf: row[6],
-          siafi_id: row[7],
-          ddd: row[8],
-          fuso_horario: row[9],
-        });
-      }
+    let match;
+    while ((match = rowRegex.exec(valuesContent)) !== null) {
+      municipalities.push({
+        codigo_ibge: match[1],
+        nome: match[2],
+        latitude: parseFloat(match[3]),
+        longitude: parseFloat(match[4]),
+        capital: match[5] === 'TRUE',
+        codigo_uf: match[6],
+        siafi_id: match[7],
+        ddd: match[8],
+        fuso_horario: match[9],
+      });
     }
-
+    
     console.log(`Parsed ${municipalities.length} municipalities`);
 
     // Insert in batches
