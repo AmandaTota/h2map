@@ -14,48 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      municipalities: {
-        Row: {
-          capital: boolean
-          codigo_ibge: string
-          codigo_uf: string
-          created_at: string
-          ddd: string | null
-          fuso_horario: string | null
-          id: string
-          latitude: number
-          longitude: number
-          nome: string
-          siafi_id: string | null
-        }
-        Insert: {
-          capital?: boolean
-          codigo_ibge: string
-          codigo_uf: string
-          created_at?: string
-          ddd?: string | null
-          fuso_horario?: string | null
-          id?: string
-          latitude: number
-          longitude: number
-          nome: string
-          siafi_id?: string | null
-        }
-        Update: {
-          capital?: boolean
-          codigo_ibge?: string
-          codigo_uf?: string
-          created_at?: string
-          ddd?: string | null
-          fuso_horario?: string | null
-          id?: string
-          latitude?: number
-          longitude?: number
-          nome?: string
-          siafi_id?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Views: {
       [_ in never]: never
