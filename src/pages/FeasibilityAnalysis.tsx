@@ -1301,9 +1301,9 @@ const FeasibilityAnalysis = () => {
                         <span className="text-sm font-medium text-slate-700">Receita Potencial</span>
                       </div>
                       <p className="text-3xl font-bold text-slate-900">
-                        R$ {(simulationResults.oneYear.h2Production * 25).toFixed(0)}k
+                        R$ {((simulationResults.oneYear.h2Production * 25) / 1000).toFixed(1)} mil
                       </p>
-                      <p className="text-xs text-slate-600 mt-1">Anual (R$ 25/kg H₂)</p>
+                      <p className="text-xs text-slate-600 mt-1">Por ano (R$ 25/kg H₂)</p>
                     </Card>
                   </div>
 
@@ -1378,9 +1378,9 @@ const FeasibilityAnalysis = () => {
                         <span className="text-sm font-medium text-slate-700">Receita Potencial</span>
                       </div>
                       <p className="text-3xl font-bold text-slate-900">
-                        R$ {(simulationResults.threeYears!.h2Production * 25).toFixed(0)}k
+                        R$ {((simulationResults.threeYears!.h2Production * 25) / 1000).toFixed(1)} mil
                       </p>
-                      <p className="text-xs text-slate-600 mt-1">Anual (R$ 25/kg H₂)</p>
+                      <p className="text-xs text-slate-600 mt-1">Por ano (R$ 25/kg H₂)</p>
                     </Card>
                   </div>
 
@@ -1455,9 +1455,9 @@ const FeasibilityAnalysis = () => {
                         <span className="text-sm font-medium text-slate-700">Receita Potencial</span>
                       </div>
                       <p className="text-3xl font-bold text-slate-900">
-                        R$ {(simulationResults.fiveYears!.h2Production * 25).toFixed(0)}k
+                        R$ {((simulationResults.fiveYears!.h2Production * 25) / 1000).toFixed(1)} mil
                       </p>
-                      <p className="text-xs text-slate-600 mt-1">Anual (R$ 25/kg H₂)</p>
+                      <p className="text-xs text-slate-600 mt-1">Por ano (R$ 25/kg H₂)</p>
                     </Card>
                   </div>
 
