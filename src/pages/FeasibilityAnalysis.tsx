@@ -296,20 +296,20 @@ const FeasibilityAnalysis = () => {
     
     // Parâmetros do projeto para 1, 3 e 5 anos
     const scenarios = [
-      { years: 1, electrolyzerNominalPower: 100 }, // kW
-      { years: 3, electrolyzerNominalPower: 300 }, // kW
-      { years: 5, electrolyzerNominalPower: 500 }, // kW
+      { years: 1, electrolyzerNominalPower: 100, scaleFactor: 1 }, // kW
+      { years: 3, electrolyzerNominalPower: 300, scaleFactor: 3 }, // kW - 3x capacidade
+      { years: 5, electrolyzerNominalPower: 500, scaleFactor: 5 }, // kW - 5x capacidade
     ];
     
     const results: SimulationResult[] = [];
     
     for (const scenario of scenarios) {
-      const { electrolyzerNominalPower } = scenario;
+      const { electrolyzerNominalPower, scaleFactor } = scenario;
       
-      // Parâmetros da instalação
-      const solarPanelArea = 1000; // m²
+      // Parâmetros da instalação (escalam com o cenário)
+      const solarPanelArea = 1000 * scaleFactor; // m² - escala proporcionalmente
       const solarEfficiency = 0.20; // 20%
-      const windTurbineArea = 314; // m² (turbina pequena)
+      const windTurbineArea = 314 * scaleFactor; // m² - escala proporcionalmente
       const windEfficiency = 0.40; // 40%
       const airDensity = 1.225; // kg/m³
       
@@ -378,9 +378,9 @@ const FeasibilityAnalysis = () => {
       const totalHoursInPeriod = dailyData.length * 24;
       const capacityFactor = (totalEnergyConsumed / (electrolyzerNominalPower * totalHoursInPeriod)) * 100;
       
-      // Calcular custos
-      const estimatedSolarPower = 50; // kW (estimativa conservadora)
-      const estimatedWindPower = 30; // kW
+      // Calcular custos (escalam com o cenário)
+      const estimatedSolarPower = 50 * scaleFactor; // kW (escala com capacidade)
+      const estimatedWindPower = 30 * scaleFactor; // kW (escala com capacidade)
       
       const totalCapex = 
         (estimatedSolarPower * solarCapexPerKW) +
