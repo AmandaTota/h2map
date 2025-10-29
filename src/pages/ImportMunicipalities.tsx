@@ -16,11 +16,20 @@ const ImportMunicipalities = () => {
     setStatus('loading');
     
     try {
-      // Fetch SQL file
-      const response = await fetch('/src/data/municipios.sql');
+      // Fetch SQL file from public directory
+      const response = await fetch('/data/municipios.sql');
+      
+      if (!response.ok) {
+        throw new Error(`Erro ao carregar arquivo SQL: ${response.status}`);
+      }
+      
       const sqlContent = await response.text();
       
-      console.log('SQL file loaded, calling edge function...');
+      if (!sqlContent || sqlContent.length < 100) {
+        throw new Error('Arquivo SQL vazio ou inválido');
+      }
+      
+      console.log(`SQL file loaded (${sqlContent.length} bytes), calling edge function...`);
       
       // Call edge function
       const { data, error } = await supabase.functions.invoke('import-municipalities', {
