@@ -156,48 +156,38 @@ const FeasibilityAnalysis = () => {
 
   const fetchWeatherData = async (lat: number, lng: number) => {
     try {
-      // NASA POWER only has historical data, not future predictions
-      // Use data from 2 years ago to 1 year ago (365 days of historical data)
-      const endDate = subDays(new Date(), 1); // Yesterday
-      const startDate = subDays(endDate, 365); // 1 year before yesterday
+      console.log('Fetching OpenWeatherMap historical data for location:', { lat, lng });
       
-      const startDateStr = format(startDate, 'yyyy-MM-dd');
-      const endDateStr = format(endDate, 'yyyy-MM-dd');
-      
-      console.log('Fetching NASA POWER data for location:', { lat, lng, startDateStr, endDateStr });
-      
-      const { data, error } = await supabase.functions.invoke('fetch-nasa-power-data', {
+      const { data, error } = await supabase.functions.invoke('fetch-weather-data', {
         body: {
           lat,
           lon: lng,
-          startDate: startDateStr,
-          endDate: endDateStr,
         },
       });
 
       if (error) {
-        console.error('Error fetching NASA POWER data:', error);
-        toast.warning('Não foi possível carregar dados da NASA POWER. Usando estimativas regionais.');
+        console.error('Error fetching OpenWeatherMap data:', error);
+        toast.warning('Não foi possível carregar dados históricos. Usando estimativas regionais.');
         return;
       }
 
       if (data?.averages) {
         const avgData = data.averages;
         
-        console.log('NASA POWER data received:', avgData);
+        console.log('OpenWeatherMap historical data received:', avgData);
         
         setWeatherData({
           avgTemperature: avgData.temperature,
-          avgSolarIrradiance: avgData.solarIrradiance, // Already in kWh/m²/day
+          avgSolarIrradiance: avgData.solarIrradiance,
           avgWindSpeed: avgData.windSpeed,
           avgHumidity: avgData.humidity,
-          avgPressure: 1013, // Standard atmospheric pressure (NASA POWER doesn't provide this)
+          avgPressure: avgData.pressure,
           totalRainfall: avgData.totalPrecipitation,
           dataPoints: data.daysAnalyzed,
-          dailyData: data.dailyData, // Store daily profile for simulation
+          dailyData: data.dailyData,
         });
 
-        toast.success(`✅ Dados reais da NASA POWER: ${data.daysAnalyzed} dias analisados`);
+        toast.success(`✅ Dados históricos do OpenWeatherMap: ${data.daysAnalyzed} dias do último ano analisados`);
         
         // Run simulation with real data
         if (data.dailyData && data.dailyData.length > 0) {
@@ -216,16 +206,15 @@ const FeasibilityAnalysis = () => {
 
   // Função para calcular dados baseados na localização analisada
   const calculateLocationData = (lat: number, lng: number) => {
-    // Se temos dados reais da NASA POWER, usar eles com prioridade
+    // Se temos dados reais do OpenWeatherMap, usar eles com prioridade
     let solarBase = 4.0; // default kWh/m²/day
     let windBase = 5.0; // default m/s
     
     if (weatherData) {
-      // NASA POWER already provides solar irradiance in kWh/m²/day
       solarBase = weatherData.avgSolarIrradiance;
       windBase = weatherData.avgWindSpeed;
       
-      console.log('Using real NASA POWER data:', {
+      console.log('Using real OpenWeatherMap historical data:', {
         temperature: weatherData.avgTemperature,
         solarIrradiance: weatherData.avgSolarIrradiance,
         windSpeed: weatherData.avgWindSpeed,

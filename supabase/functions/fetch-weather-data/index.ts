@@ -11,80 +11,122 @@ serve(async (req) => {
   }
 
   try {
-    const { lat, lon, startDate, endDate } = await req.json();
+    const { lat, lon } = await req.json();
     
-    console.log('Fetching weather data for:', { lat, lon, startDate, endDate });
+    console.log('Fetching weather history data for:', { lat, lon });
 
     const apiKey = Deno.env.get('OPENWEATHERMAP_API_KEY');
     if (!apiKey) {
       throw new Error('OPENWEATHERMAP_API_KEY not configured');
     }
 
-    // Parse dates
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    // Calculate timestamps for last year
+    const endTimestamp = Math.floor(Date.now() / 1000); // Current time in seconds
+    const startTimestamp = endTimestamp - (365 * 24 * 60 * 60); // 1 year ago
     
-    // Collect data for each day in the range
-    const weatherData = [];
-    const currentDate = new Date(start);
+    console.log('Fetching history from:', new Date(startTimestamp * 1000).toISOString(), 'to', new Date(endTimestamp * 1000).toISOString());
+
+    // Fetch hourly data from OpenWeatherMap History API
+    const url = `https://history.openweathermap.org/data/3.0/history/city?lat=${lat}&lon=${lon}&type=hour&start=${startTimestamp}&end=${endTimestamp}&appid=${apiKey}&units=metric`;
     
-    while (currentDate <= end) {
-      const dateStr = currentDate.toISOString().split('T')[0]; // YYYY-MM-DD format
-      
-      try {
-        const url = `https://api.openweathermap.org/data/3.0/onecall/day_summary?lat=${lat}&lon=${lon}&date=${dateStr}&appid=${apiKey}&units=metric&lang=pt_br`;
-        
-        console.log(`Fetching data for ${dateStr}`);
-        const response = await fetch(url);
-        
-        if (response.ok) {
-          const data = await response.json();
-          weatherData.push({
-            date: dateStr,
-            ...data
-          });
-        } else {
-          console.error(`Failed to fetch data for ${dateStr}:`, response.status);
-        }
-      } catch (error) {
-        console.error(`Error fetching data for ${dateStr}:`, error);
+    console.log('Requesting history data...');
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('API Error:', response.status, errorText);
+      throw new Error(`OpenWeatherMap API error: ${response.status}`);
+    }
+
+    const historyData = await response.json();
+    console.log('History data received, processing...');
+
+    if (!historyData.list || historyData.list.length === 0) {
+      throw new Error('No historical data available');
+    }
+
+    // Process hourly data into daily averages
+    const dailyDataMap = new Map();
+
+    for (const hour of historyData.list) {
+      const date = new Date(hour.dt * 1000);
+      const dateKey = date.toISOString().split('T')[0];
+
+      if (!dailyDataMap.has(dateKey)) {
+        dailyDataMap.set(dateKey, {
+          date: dateKey,
+          windSpeeds: [],
+          temperatures: [],
+          humidities: [],
+          pressures: [],
+          precipitations: [],
+          cloudCovers: []
+        });
       }
-      
-      // Move to next day
-      currentDate.setDate(currentDate.getDate() + 1);
-      
-      // Add small delay to avoid rate limiting
-      await new Promise(resolve => setTimeout(resolve, 100));
+
+      const dayData = dailyDataMap.get(dateKey);
+      dayData.windSpeeds.push(hour.wind?.speed || 0);
+      dayData.temperatures.push(hour.main?.temp || 0);
+      dayData.humidities.push(hour.main?.humidity || 0);
+      dayData.pressures.push(hour.main?.pressure || 0);
+      dayData.precipitations.push(hour.rain?.['1h'] || 0);
+      dayData.cloudCovers.push(hour.clouds?.all || 0);
     }
 
-    // Calculate averages
-    if (weatherData.length === 0) {
-      throw new Error('No weather data retrieved');
-    }
+    // Calculate daily and overall averages
+    const dailyData = [];
+    let totalWindSpeed = 0;
+    let totalTemp = 0;
+    let totalHumidity = 0;
+    let totalPressure = 0;
+    let totalPrecipitation = 0;
+    let totalCloudCover = 0;
+    let dayCount = 0;
 
-    const avgTemp = weatherData.reduce((sum, day) => sum + (day.temperature?.afternoon || 0), 0) / weatherData.length;
-    const avgHumidity = weatherData.reduce((sum, day) => sum + (day.humidity?.afternoon || 0), 0) / weatherData.length;
-    const avgWindSpeed = weatherData.reduce((sum, day) => sum + (day.wind?.max?.speed || 0), 0) / weatherData.length;
-    const avgPressure = weatherData.reduce((sum, day) => sum + (day.pressure?.afternoon || 0), 0) / weatherData.length;
-    const avgCloudCover = weatherData.reduce((sum, day) => sum + (day.cloud_cover?.afternoon || 0), 0) / weatherData.length;
-    const totalPrecipitation = weatherData.reduce((sum, day) => sum + (day.precipitation?.total || 0), 0);
+    for (const [date, data] of dailyDataMap) {
+      const avgWindSpeed = data.windSpeeds.reduce((a: number, b: number) => a + b, 0) / data.windSpeeds.length;
+      const avgTemp = data.temperatures.reduce((a: number, b: number) => a + b, 0) / data.temperatures.length;
+      const avgHumidity = data.humidities.reduce((a: number, b: number) => a + b, 0) / data.humidities.length;
+      const avgPressure = data.pressures.reduce((a: number, b: number) => a + b, 0) / data.pressures.length;
+      const dailyPrecipitation = data.precipitations.reduce((a: number, b: number) => a + b, 0);
+      const avgCloudCover = data.cloudCovers.reduce((a: number, b: number) => a + b, 0) / data.cloudCovers.length;
+
+      dailyData.push({
+        date,
+        windSpeed: avgWindSpeed,
+        temperature: avgTemp,
+        humidity: avgHumidity,
+        pressure: avgPressure,
+        precipitation: dailyPrecipitation,
+        cloudCover: avgCloudCover,
+        solarIrradiance: calculateSolarFromCloudCover(avgCloudCover)
+      });
+
+      totalWindSpeed += avgWindSpeed;
+      totalTemp += avgTemp;
+      totalHumidity += avgHumidity;
+      totalPressure += avgPressure;
+      totalPrecipitation += dailyPrecipitation;
+      totalCloudCover += avgCloudCover;
+      dayCount++;
+    }
 
     const summary = {
       location: { lat, lon },
-      dateRange: { start: startDate, end: endDate },
-      daysAnalyzed: weatherData.length,
+      daysAnalyzed: dayCount,
       averages: {
-        temperature: avgTemp,
-        humidity: avgHumidity,
-        windSpeed: avgWindSpeed,
-        pressure: avgPressure,
-        cloudCover: avgCloudCover,
-        totalPrecipitation
+        temperature: totalTemp / dayCount,
+        humidity: totalHumidity / dayCount,
+        windSpeed: totalWindSpeed / dayCount,
+        pressure: totalPressure / dayCount,
+        cloudCover: totalCloudCover / dayCount,
+        totalPrecipitation: totalPrecipitation,
+        solarIrradiance: calculateSolarFromCloudCover(totalCloudCover / dayCount)
       },
-      dailyData: weatherData
+      dailyData: dailyData
     };
 
-    console.log('Weather data summary:', summary.averages);
+    console.log('Weather history summary:', summary.averages);
 
     return new Response(
       JSON.stringify(summary),
@@ -107,3 +149,12 @@ serve(async (req) => {
     );
   }
 });
+
+// Helper function to estimate solar irradiance from cloud cover
+function calculateSolarFromCloudCover(cloudCover: number): number {
+  // Maximum solar irradiance in kWh/m²/day for Brazil
+  const maxSolarIrradiance = 6.0;
+  // Cloud cover is 0-100%, convert to reduction factor
+  const clearSkyFactor = 1 - (cloudCover / 100) * 0.75; // 75% max reduction
+  return maxSolarIrradiance * clearSkyFactor;
+}
