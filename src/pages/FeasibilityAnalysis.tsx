@@ -364,11 +364,9 @@ const FeasibilityAnalysis = () => {
         // Solar: concentrada durante o dia (assumir 12 horas de sol)
         // Eólica: distribuída nas 24 horas
         
-        // Fórmula Solar: Energia Diária = (Irradiância × Área × Eficiência ÷ 1000) × 24
-        const dailySolarEnergy = (day.solarIrradiance * solarPanelArea * solarEfficiency / 1000) * 24; // kWh/dia
+        const dailySolarEnergy = day.solarIrradiance * solarPanelArea * solarEfficiency; // kWh/dia
         const solarPowerPerHour = dailySolarEnergy / 12; // kW por hora (durante 12 horas de sol)
         
-        // Fórmula Eólica: P = (0.5 × ρ × A × v³ × η) ÷ 1000
         const windPowerPeak = (0.5 * airDensity * windTurbineArea * Math.pow(day.windSpeed, 3) * windEfficiency) / 1000;
         const windPowerPerHour = windPowerPeak * 0.30; // kW (com fator de capacidade)
         
@@ -498,14 +496,15 @@ const FeasibilityAnalysis = () => {
     const airDensity = 1.225; // kg/m³ (densidade do ar ao nível do mar)
     
     // ============ CÁLCULO DE ENERGIA SOLAR ============
-    // Fórmula: Energia Diária = (Irradiância × Área × Eficiência ÷ 1000) × 24
-    // solarIrradiance está em kWh/m²/dia da NASA POWER
-    const dailySolarEnergy = (solarIrradiance * solarPanelArea * solarEfficiency / 1000) * 24; // kWh/dia
+    // CORREÇÃO: solarIrradiance já está em kWh/m²/dia (energia diária integrada)
+    // NÃO precisa multiplicar por 24 horas!
+    const dailySolarEnergy = solarIrradiance * solarPanelArea * solarEfficiency; // kWh/dia
     const annualSolarEnergy = dailySolarEnergy * 365; // kWh/ano
     const solarPower = dailySolarEnergy / 24; // kW médio ao longo do dia
     
     // ============ CÁLCULO DE ENERGIA EÓLICA ============
-    // Fórmula: P = (0.5 × ρ × A × v³ × η) ÷ 1000
+    // Fórmula: P = 0.5 × ρ × A × v³ × η
+    // Mas aplicamos fator de capacidade porque v é velocidade MÉDIA
     const windPowerPeak = (0.5 * airDensity * windTurbineArea * Math.pow(windSpeed, 3) * windEfficiency) / 1000; // kW pico
     const windPower = windPowerPeak * windCapacityFactor; // kW médio considerando intermitência
     const dailyWindEnergy = windPower * 24; // kWh/dia
@@ -517,15 +516,14 @@ const FeasibilityAnalysis = () => {
     const annualEnergy = annualSolarEnergy + annualWindEnergy; // kWh/ano
     
     // ============ PRODUÇÃO DE H2 (VALORES REALISTAS) ============
-    // Consumo do eletrolisador: 65 kWh/kg H2
-    const electrolyzerConsumption = 65; // kWh/kg H2
+    // Eletrolisadores modernos: PEM ~55 kWh/kg, Alcalino ~50 kWh/kg
+    // Considerando perdas do sistema completo (conversão DC/AC, compressão, etc.): ~65 kWh/kg
+    const electrolyzerEfficiency = 65; // kWh/kg H2 (valor realista considerando perdas)
     const systemEfficiency = 0.85; // 85% eficiência do sistema completo (conversão, compressão)
     
-    // Fórmula: H₂ Diário = (Energia Diária × Eficiência do Sistema) ÷ Consumo do Eletrolisador
-    const dailyH2Production = (dailyEnergy * systemEfficiency) / electrolyzerConsumption; // kg/dia
-    
-    // Fórmula: H₂ Anual = (Energia Anual × Eficiência do Sistema) ÷ Consumo do Eletrolisador ÷ 1000
-    const annualH2Production = (annualEnergy * systemEfficiency) / electrolyzerConsumption / 1000; // toneladas/ano
+    const usableEnergy = dailyEnergy * systemEfficiency;
+    const dailyH2Production = usableEnergy / electrolyzerEfficiency; // kg/dia
+    const annualH2Production = (annualEnergy * systemEfficiency) / electrolyzerEfficiency / 1000; // toneladas/ano
     
     return {
       solarIrradiance: solarIrradiance * 1000 / 24, // Converte para W/m² para exibição
@@ -566,8 +564,7 @@ const FeasibilityAnalysis = () => {
         (energyCalc1Year.totalPower * 1.0 * 18000) + // Eletrolisador (dimensionado pela potência total)
         ((energyCalc1Year.solarPower * 3500 + energyCalc1Year.windPower * 10000) * 0.40) // Infraestrutura
       ),
-      // Fórmula ROI: ROI = (Receita Anual ÷ CAPEX) × 100
-      // Preço do H2 verde no Brasil: R$ 20-30/kg (usando R$ 25/kg)
+      // ROI: Preço do H2 verde no Brasil: R$ 20-30/kg (usando R$ 25/kg)
       roi: Number(((energyCalc1Year.annualH2Production * 25000) / 
         ((energyCalc1Year.solarPower * 3500) + (energyCalc1Year.windPower * 10000) + 
         (energyCalc1Year.totalPower * 1.0 * 18000) + 
@@ -584,8 +581,7 @@ const FeasibilityAnalysis = () => {
         (energyCalc3Years.totalPower * 1.0 * 18000) + 
         ((energyCalc3Years.solarPower * 3500 + energyCalc3Years.windPower * 10000) * 0.40)
       ),
-      // Fórmula ROI: ROI = (Receita Anual ÷ CAPEX) × 100
-      roi: Number(((energyCalc3Years.annualH2Production * 25000) / 
+      roi: Number(((energyCalc3Years.annualH2Production * 25000 * 3) / 
         ((energyCalc3Years.solarPower * 3500) + (energyCalc3Years.windPower * 10000) + 
         (energyCalc3Years.totalPower * 1.0 * 18000) + 
         ((energyCalc3Years.solarPower * 3500 + energyCalc3Years.windPower * 10000) * 0.40)) * 100).toFixed(1))
@@ -601,8 +597,7 @@ const FeasibilityAnalysis = () => {
         (energyCalc5Years.totalPower * 1.0 * 18000) + 
         ((energyCalc5Years.solarPower * 3500 + energyCalc5Years.windPower * 10000) * 0.40)
       ),
-      // Fórmula ROI: ROI = (Receita Anual ÷ CAPEX) × 100
-      roi: Number(((energyCalc5Years.annualH2Production * 25000) / 
+      roi: Number(((energyCalc5Years.annualH2Production * 25000 * 5) / 
         ((energyCalc5Years.solarPower * 3500) + (energyCalc5Years.windPower * 10000) + 
         (energyCalc5Years.totalPower * 1.0 * 18000) + 
         ((energyCalc5Years.solarPower * 3500 + energyCalc5Years.windPower * 10000) * 0.40)) * 100).toFixed(1))
