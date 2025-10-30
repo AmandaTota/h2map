@@ -16,7 +16,7 @@ const Navigation = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="fixed top-0 w-full bg-white/95 backdrop-blur-md z-50 border-b border-h2-light-green shadow-sm">
+    <nav className="fixed top-0 w-full bg-white/95 backdrop-blur-md z-50 border-b border-emerald-100 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-18">
           <Link to="/" className="flex items-center space-x-2 group">
@@ -34,8 +34,8 @@ const Navigation = () => {
                   className={cn(
                     'flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors',
                     isActive(item.path)
-                      ? 'bg-h2-light-green text-h2-dark-green font-medium'
-                      : 'text-h2-dark hover:text-h2-primary hover:bg-h2-light-green/50'
+                      ? 'bg-emerald-100 text-emerald-700 font-medium'
+                      : 'text-slate-600 hover:text-emerald-600 hover:bg-emerald-50'
                   )}
                 >
                   <Icon className="w-4 h-4" />
@@ -47,13 +47,13 @@ const Navigation = () => {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden p-2 rounded-lg hover:bg-h2-light-green transition-colors"
+            className="md:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? (
-              <X className="w-6 h-6 text-h2-dark" />
+              <X className="w-6 h-6 text-slate-700" />
             ) : (
-              <Menu className="w-6 h-6 text-h2-dark" />
+              <Menu className="w-6 h-6 text-slate-700" />
             )}
           </button>
         </div>
@@ -61,7 +61,7 @@ const Navigation = () => {
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-t border-h2-light-green">
+        <div className="md:hidden bg-white border-t border-emerald-100">
           <div className="px-4 py-2 space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -73,8 +73,8 @@ const Navigation = () => {
                   className={cn(
                     'flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors',
                     isActive(item.path)
-                      ? 'bg-h2-light-green text-h2-dark-green font-medium'
-                      : 'text-h2-dark hover:text-h2-primary hover:bg-h2-light-green/50'
+                      ? 'bg-emerald-100 text-emerald-700 font-medium'
+                      : 'text-slate-600 hover:text-emerald-600 hover:bg-emerald-50'
                   )}
                 >
                   <Icon className="w-4 h-4" />
