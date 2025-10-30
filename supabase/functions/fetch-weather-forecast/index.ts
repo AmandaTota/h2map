@@ -46,8 +46,12 @@ serve(async (req) => {
     const dailyForecast: any[] = [];
     const processedDates = new Set();
 
-    // Add current day
-    const todayDate = new Date().toISOString().split('T')[0];
+    // Get today's date at midnight (start of day)
+    const now = new Date();
+    const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const todayDate = todayMidnight.toISOString().split('T')[0];
+
+    // Add current day (Hoje)
     dailyForecast.push({
       date: todayDate,
       dayName: 'Hoje',
@@ -69,19 +73,21 @@ serve(async (req) => {
     });
     processedDates.add(todayDate);
 
-    // Process forecast data
+    // Process forecast data - only include future dates
     forecastData.list.forEach((item: any) => {
       const date = new Date(item.dt * 1000);
       const dateStr = date.toISOString().split('T')[0];
       
-      if (!processedDates.has(dateStr) && dailyForecast.length < 5) {
+      // Only process dates that are today or in the future, and we haven't processed yet
+      if (date >= todayMidnight && !processedDates.has(dateStr) && dailyForecast.length < 5) {
         const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
         const dayName = dailyForecast.length === 1 ? 'Amanhã' : dayNames[date.getDay()];
         
         // Find all entries for this day
         const dayEntries = forecastData.list.filter((entry: any) => {
-          const entryDate = new Date(entry.dt * 1000).toISOString().split('T')[0];
-          return entryDate === dateStr;
+          const entryDate = new Date(entry.dt * 1000);
+          const entryDateStr = entryDate.toISOString().split('T')[0];
+          return entryDateStr === dateStr && entryDate >= todayMidnight;
         });
 
         if (dayEntries.length > 0) {
