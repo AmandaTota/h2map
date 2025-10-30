@@ -683,7 +683,7 @@ const FeasibilityAnalysis = () => {
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-6">
+            <div className="mt-[30px] flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-6">
               <div className="flex items-center space-x-3">
                 <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl">
                   <BarChart3 className="w-8 h-8 text-white" />
@@ -767,7 +767,7 @@ const FeasibilityAnalysis = () => {
               <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-emerald-50/50 transition-colors">
                 <div className="flex items-center space-x-3 w-full">
                   <Zap className="w-6 h-6 text-emerald-600" />
-                  <h2 className="text-2xl font-bold text-slate-900">Cálculo de Produção de Energia e Hidrogênio Verde</h2>
+                  <h2 className="text-2xl font-bold text-slate-900">Cálculo de Projeção para Produção de Hidrogênio Verde</h2>
                   <Badge className="bg-blue-100 text-blue-800 border-blue-300 ml-auto">
                     📐 Fórmulas Reais
                   </Badge>
@@ -1062,7 +1062,7 @@ const FeasibilityAnalysis = () => {
                 <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-blue-50/50 transition-colors">
                   <div className="flex items-center space-x-3 w-full">
                     <BarChart3 className="w-6 h-6 text-blue-600" />
-                    <h2 className="text-2xl font-bold text-slate-900">Simulação Horária com Dados Reais (360 dias)</h2>
+                    <h2 className="text-2xl font-bold text-slate-900">Simulação Horária Baseada em Dados Reais</h2>
                     <Badge className="bg-green-100 text-green-800 border-green-300 ml-auto">
                       ✓ Dados NASA POWER
                     </Badge>
@@ -1244,7 +1244,7 @@ const FeasibilityAnalysis = () => {
                 <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-emerald-50/50 transition-colors">
                   <div className="flex items-center space-x-3 w-full">
                     <TrendingUp className="w-6 h-6 text-emerald-600" />
-                    <h2 className="text-2xl font-bold text-slate-900">Resumo Financeiro e Viabilidade Econômica</h2>
+                    <h2 className="text-2xl font-bold text-slate-900">Análise Financeira e Estudo de Viabilidade</h2>
                     <Badge className="bg-green-100 text-green-800 border-green-300 ml-auto">
                       ✓ Baseado em Simulação Real
                     </Badge>

@@ -601,11 +601,11 @@ const Statistics = () => {
     <>
       <Navigation />
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 pt-16">
-        <div className="max-w-7xl mx-auto p-6">
+        <div className="max-w-7xl mx-auto p-6 ">
           {/* Header with Export Button */}
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-between items-center mb-6 ">
             <div>
-              <h1 className="text-3xl font-bold text-slate-900">Análise Estatística</h1>
+              <h1 className="text-3xl font-bold text-slate-900 mt-3 ">Análise Estatística</h1>
               <p className="text-slate-600 mt-1">Dados climáticos detalhados para análise de viabilidade</p>
             </div>
             <button
@@ -673,7 +673,7 @@ const Statistics = () => {
 
             {/* Custom Date Range */}
             {dateRange === 'custom' && (
-              <div className="flex space-x-2">
+              <div className="flex space-x-2 ">
                 <div className="flex-1">
                   <label className="block text-sm font-medium text-slate-700 mb-1">
                     Data Início
