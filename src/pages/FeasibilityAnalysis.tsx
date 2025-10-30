@@ -340,7 +340,7 @@ const FeasibilityAnalysis = () => {
       const electrolyzerMinPower = electrolyzerNominalPower * minOperatingLoad; // kW
       
       // Parâmetros de eficiência
-      const electrolyzerConsumption = 58; // kWh/kg H2
+      const electrolyzerConsumption = 65; // kWh/kg H2
       const systemEfficiency = 0.85; // 85% eficiência do sistema
       
       // Custos (valores realistas 2024-2025)
@@ -517,8 +517,8 @@ const FeasibilityAnalysis = () => {
     
     // ============ PRODUÇÃO DE H2 (VALORES REALISTAS) ============
     // Eletrolisadores modernos: PEM ~55 kWh/kg, Alcalino ~50 kWh/kg
-    // Considerando perdas do sistema completo (conversão DC/AC, compressão, etc.): ~58 kWh/kg
-    const electrolyzerEfficiency = 58; // kWh/kg H2 (valor realista considerando perdas)
+    // Considerando perdas do sistema completo (conversão DC/AC, compressão, etc.): ~65 kWh/kg
+    const electrolyzerEfficiency = 65; // kWh/kg H2 (valor realista considerando perdas)
     const systemEfficiency = 0.85; // 85% eficiência do sistema completo (conversão, compressão)
     
     const usableEnergy = dailyEnergy * systemEfficiency;
@@ -852,7 +852,7 @@ const FeasibilityAnalysis = () => {
                         <p className="text-sm text-slate-700 mb-2">💧 <strong>Produção Diária:</strong></p>
                         <p className="text-3xl font-bold text-emerald-600">{energyCalc1Year.dailyH2Production.toFixed(1)} kg/dia</p>
                         <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
-                          <strong>Consumo eletrolisador:</strong> 58 kWh/kg H₂ (incluindo perdas do sistema)
+                          <strong>Consumo eletrolisador:</strong> 65 kWh/kg H₂ (incluindo perdas do sistema)
                         </p>
                         <p className="text-xs text-amber-700 mt-1 p-2 bg-amber-50 rounded">
                           ⚠️ Valores realistas considerando fator de capacidade solar (~20%) e eólico (~30%)
@@ -942,7 +942,7 @@ const FeasibilityAnalysis = () => {
                         <p className="text-sm text-slate-700 mb-2">💧 <strong>Produção Diária:</strong></p>
                         <p className="text-3xl font-bold text-emerald-600">{energyCalc3Years.dailyH2Production.toFixed(1)} kg/dia</p>
                         <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
-                          <strong>Consumo eletrolisador:</strong> 58 kWh/kg H₂ (incluindo perdas do sistema)
+                          <strong>Consumo eletrolisador:</strong> 65 kWh/kg H₂ (incluindo perdas do sistema)
                         </p>
                         <p className="text-xs text-amber-700 mt-1 p-2 bg-amber-50 rounded">
                           ⚠️ Valores realistas considerando fator de capacidade solar (~20%) e eólico (~30%)
@@ -1032,7 +1032,7 @@ const FeasibilityAnalysis = () => {
                         <p className="text-sm text-slate-700 mb-2">💧 <strong>Produção Diária:</strong></p>
                         <p className="text-3xl font-bold text-emerald-600">{energyCalc5Years.dailyH2Production.toFixed(1)} kg/dia</p>
                         <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
-                          <strong>Consumo eletrolisador:</strong> 58 kWh/kg H₂ (incluindo perdas do sistema)
+                          <strong>Consumo eletrolisador:</strong> 65 kWh/kg H₂ (incluindo perdas do sistema)
                         </p>
                         <p className="text-xs text-amber-700 mt-1 p-2 bg-amber-50 rounded">
                           ⚠️ Valores realistas considerando fator de capacidade solar (~20%) e eólico (~30%)
