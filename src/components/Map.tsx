@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { motion } from 'framer-motion';
-import LocationSearch from './LocationSearch'; // ajuste o caminho conforme necessário
+import LocationSearch from './LocationSearch';
 
 type Location = {
   lat: number;
@@ -40,20 +40,21 @@ const Map = ({ initialLocation }: { initialLocation?: Location }) => {
 
     map.current.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-right');
 
+    // Espera o mapa carregar antes de aplicar flyTo
+    map.current.on('load', () => {
+      if (selectedLocation) {
+        map.current?.flyTo({
+          center: [selectedLocation.lng, selectedLocation.lat],
+          zoom: 12,
+          essential: true,
+        });
+      }
+    });
+
     return () => {
       map.current?.remove();
     };
   }, []);
-
-  useEffect(() => {
-    if (selectedLocation && map.current) {
-      map.current.flyTo({
-        center: [selectedLocation.lng, selectedLocation.lat],
-        zoom: 12,
-        essential: true,
-      });
-    }
-  }, [selectedLocation]);
 
   return (
     <motion.div
@@ -70,15 +71,7 @@ const Map = ({ initialLocation }: { initialLocation?: Location }) => {
           </label>
           <LocationSearch
             onLocationSelect={handleLocationSelect}
-            initialLocation={
-              selectedLocation
-                ? {
-                    lat: selectedLocation.lat,
-                    lng: selectedLocation.lng,
-                    name: selectedLocation.name,
-                  }
-                : undefined
-            }
+            initialLocation={selectedLocation || undefined}
           />
         </div>
       </div>
