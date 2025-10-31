@@ -121,7 +121,9 @@ export default function Index() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <div>
-                  <LocationSearch/>
+                  <LocationSearch onLocationSelect={function (Location): void {
+                    throw new Error("Function not implemented.");
+                  } }/>
                   </div>
                   
                 <Link
