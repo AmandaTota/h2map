@@ -1,16 +1,16 @@
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Map, BarChart3, LineChart } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Menu, X, Map, BarChart3, LineChart } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const Navigation = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
 
   const navItems = [
-    { path: '/dashboard', label: 'Mapa', icon: Map },
-    { path: '/feasibility', label: 'Análise de Viabilidade', icon: BarChart3 },
-    { path: '/statistics', label: 'Estatísticas', icon: LineChart },
+    { path: "/dashboard", label: "Mapa", icon: Map },
+    { path: "/feasibility", label: "Análise de Viabilidade", icon: BarChart3 },
+    { path: "/statistics", label: "Estatísticas", icon: LineChart },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -20,8 +20,11 @@ const Navigation = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-18">
           <Link to="/" className="flex items-center space-x-2 group">
-            <div className="h-[90px] w-[90px] bg-gradient-to-br from-emerald-50/80 via-teal-50/80 to-cyan-50/80 rounded-lg flex items-center justify-center p-2">
-              <img className='h-full w-full object-contain' src="/Logo.svg" />
+            <div className="h-[70px] w-[70px] bg-gradient-to-br from-emerald-50/80 via-teal-50/80 to-cyan-50/80 rounded-lg flex items-center justify-center p-2">
+              <img
+                className="h-[100px] w-[100px] object-contain"
+                src="/Logo.png"
+              />
             </div>
           </Link>
 
@@ -34,10 +37,10 @@ const Navigation = () => {
                   key={item.path}
                   to={item.path}
                   className={cn(
-                    'flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors',
+                    "flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors",
                     isActive(item.path)
-                      ? 'bg-emerald-100 text-emerald-700 font-medium'
-                      : 'text-slate-600 hover:text-emerald-600 hover:bg-emerald-50'
+                      ? "bg-emerald-100 text-emerald-700 font-medium"
+                      : "text-slate-600 hover:text-emerald-600 hover:bg-emerald-50"
                   )}
                 >
                   <Icon className="w-4 h-4" />
@@ -73,10 +76,10 @@ const Navigation = () => {
                   to={item.path}
                   onClick={() => setMobileMenuOpen(false)}
                   className={cn(
-                    'flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors',
+                    "flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors",
                     isActive(item.path)
-                      ? 'bg-emerald-100 text-emerald-700 font-medium'
-                      : 'text-slate-600 hover:text-emerald-600 hover:bg-emerald-50'
+                      ? "bg-emerald-100 text-emerald-700 font-medium"
+                      : "text-slate-600 hover:text-emerald-600 hover:bg-emerald-50"
                   )}
                 >
                   <Icon className="w-4 h-4" />

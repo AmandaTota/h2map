@@ -2,8 +2,19 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
-  MapPin, Wind, Sun, Droplets, ChevronRight, Leaf, TreePine,
-  BarChart3, Shield, Menu, X, Eye, Map
+  MapPin,
+  Wind,
+  Sun,
+  Droplets,
+  ChevronRight,
+  Leaf,
+  TreePine,
+  BarChart3,
+  Shield,
+  Menu,
+  X,
+  Eye,
+  Map,
 } from "lucide-react";
 
 export default function Index() {
@@ -14,27 +25,43 @@ export default function Index() {
       {/* Navigation */}
       <nav className="fixed top-0 w-full bg-gradient-to-br from-emerald-50/80 via-teal-50/80 to-cyan-50/80 backdrop-blur-md z-50 border-b border-emerald-100/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-[90px]">
+          <div className="flex justify-between items-center h-[70px]">
             <Link to="/" className="flex items-center space-x-2">
-              <div className="w-[90px] h-[90px] bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
-            <img src="/Logo.svg" />
+              <div className="w-[100px] h-[100px]  to-teal-600 rounded-lg flex items-center justify-center">
+                <img src="/Logo.png" />
               </div>
             </Link>
 
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-slate-600 hover:text-emerald-600 transition-colors">
+              <a
+                href="#features"
+                className="text-slate-600 hover:text-emerald-600 transition-colors"
+              >
                 Recursos
               </a>
-              <a href="#conservation" className="text-slate-600 hover:text-emerald-600 transition-colors">
+              <a
+                href="#conservation"
+                className="text-slate-600 hover:text-emerald-600 transition-colors"
+              >
                 Conservação
               </a>
-              <Link to="/dashboard" className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors">
+              <Link
+                to="/dashboard"
+                className="bg-[#0da9ff] opacity-60 text-white font-medium px-4 py-2 rounded-lg hover:bg-[#73cb94] transition-colors"
+              >
                 Demonstração
               </Link>
             </div>
 
-            <button className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            <button
+              className="md:hidden"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
             </button>
           </div>
         </div>
@@ -42,9 +69,22 @@ export default function Index() {
         {mobileMenuOpen && (
           <div className="md:hidden bg-white border-t border-emerald-100">
             <div className="px-4 py-2 space-y-1">
-              <a href="#features" className="block px-3 py-2 text-slate-600 hover:text-emerald-600">Recursos</a>
-              <a href="#conservation" className="block px-3 py-2 text-slate-600 hover:text-emerald-600">Conservação</a>
-              <Link to="/dashboard" className="block px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">
+              <a
+                href="#features"
+                className="block px-3 py-2 text-slate-600 hover:text-emerald-600"
+              >
+                Recursos
+              </a>
+              <a
+                href="#conservation"
+                className="block px-3 py-2 text-slate-600 hover:text-emerald-600"
+              >
+                Conservação
+              </a>
+              <Link
+                to="/dashboard"
+                className="block px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+              >
                 Demonstração
               </Link>
             </div>
@@ -56,54 +96,91 @@ export default function Index() {
       <section className="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }}>
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+            >
               <div className="inline-flex items-center space-x-2 bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-sm font-medium mb-6">
                 <Leaf className="w-4 h-4" />
                 <span>Energia Renovável Inteligente</span>
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight justify-center text-center">
                 Georreferenciamento para viabilidade de produção de
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600"> Hidrogênio Verde</span>
+                <span className="text-[#00a443] bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">
+                  {" "}
+                  Hidrogênio Verde
+                </span>
               </h1>
-              <p className="text-xl text-slate-600 mb-8 leading-relaxed">
-                Analise a viabilidade de instalação de energia eólica e solar usando mapas climáticos avançados. Incluindo unidades de conservação da fauna e flora para desenvolvimento sustentável.
+              <p className="text-xl text-slate-600 mb-8 leading-relaxed justify-center text-justify">
+                Analise a viabilidade de instalação de energia eólica e solar
+                usando mapas climáticos avançados. Incluindo unidades de
+                conservação da fauna e flora para desenvolvimento sustentável.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/dashboard" className="bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors flex items-center justify-center space-x-2">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link
+                  to="/dashboard"
+                  className="bg-[#0da9ff] opacity-60  text-white px-6 py-3 rounded-lg hover:bg-[#73cb94]  transition-colors flex items-center justify-center space-x-2"
+                >
                   <span>Começar Análise</span>
                   <ChevronRight className="w-5 h-5" />
                 </Link>
-                <Link to="/feasibility" className="bg-white text-emerald-600 px-6 py-3 rounded-lg hover:bg-emerald-50 transition-colors flex items-center justify-center space-x-2 border border-emerald-600">
+                <Link
+                  to="/feasibility"
+                  className="bg-[#0da9ff] opacity-60  text-[white] px-6 py-3 rounded-lg hover:bg-[#73cb94] transition-colors flex items-center justify-center space-x-2 border border-[#0da9ff]"
+                >
                   <BarChart3 className="w-5 h-5" />
                   <span>Análise de Viabilidade</span>
+                  <ChevronRight className="w-5 h-5" />
                 </Link>
               </div>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="relative">
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="relative"
+            >
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-4">
-                  <div className="bg-white rounded-xl p-6 shadow-lg border border-emerald-100 hover:shadow-xl transition-all">
+                  <div className="bg-white  rounded-xl p-6 shadow-lg border border-emerald-100 hover:shadow-xl transition-all">
                     <Sun className="w-8 h-8 text-yellow-500 mb-3" />
-                    <h3 className="font-bold text-slate-900 text-lg mb-2">Energia Solar</h3>
-                    <p className="text-sm text-slate-600">Análise de irradiância solar e potencial fotovoltaico</p>
+                    <h3 className="font-bold text-slate-900 text-lg mb-2">
+                      Energia Solar
+                    </h3>
+                    <p className="text-sm text-slate-600">
+                      Análise de irradiância solar e potencial fotovoltaico
+                    </p>
                   </div>
-                  <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all">
+                  <div className="bg-[#ff9c1a] opacity-60  rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all">
                     <MapPin className="w-8 h-8 mb-3" />
-                    <h3 className="font-bold text-lg mb-2">Georreferenciamento Preciso</h3>
-                    <p className="text-sm text-white/90">Dados geográficos exatos para planejamento eficiente</p>
+                    <h3 className="font-bold text-lg mb-2 opacity-100">
+                      Georreferenciamento Preciso
+                    </h3>
+                    <p className="text-sm text-white/90 opacity-100">
+                      Dados geográficos exatos para planejamento eficiente
+                    </p>
                   </div>
                 </div>
                 <div className="space-y-4 pt-8">
-                  <div className="bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all">
+                  <div className="bg-[#00a443] opacity-60 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all">
                     <Wind className="w-8 h-8 mb-3" />
-                    <h3 className="font-bold text-lg mb-2">Análise Eólica</h3>
-                    <p className="text-sm text-white/90">Análise do vento para máximo aproveitamento energético</p>
+                    <h3 className="font-bold text-lg mb-2 opacity-100">
+                      Análise Eólica
+                    </h3>
+                    <p className="text-sm text-white/90 opacity-100">
+                      Análise do vento para máximo aproveitamento energético
+                    </p>
                   </div>
                   <div className="bg-white rounded-xl p-6 shadow-lg border border-emerald-100 hover:shadow-xl transition-all">
                     <BarChart3 className="w-8 h-8 text-emerald-600 mb-3" />
-                    <h3 className="font-bold text-slate-900 text-lg mb-2">Dados Climáticos</h3>
-                    <p className="text-sm text-slate-600">Tempo, chuvas, ventos e padrões climáticos</p>
+                    <h3 className="font-bold text-slate-900 text-lg mb-2">
+                      Dados Climáticos
+                    </h3>
+                    <p className="text-sm text-slate-600">
+                      Tempo, chuvas, ventos e padrões climáticos
+                    </p>
                   </div>
                 </div>
               </div>
@@ -116,61 +193,76 @@ export default function Index() {
       <section id="features" className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Recursos Avançados de Análise</h2>
-            <p className="text-slate-600 text-lg">Ferramentas completas para análise georreferenciada e tomada de decisão inteligente</p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
+              Recursos Avançados de Análise
+            </h2>
+            <p className="text-slate-600 text-lg">
+              Ferramentas completas para análise georreferenciada e tomada de
+              decisão inteligente
+            </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { 
-                icon: <MapPin className="w-8 h-8" />, 
-                title: "Mapeamento Preciso", 
-                description: "Localização ideal para instalação de painéis solares e turbinas eólicas usando GIS avançado",
-                color: "from-emerald-500 to-teal-600" 
+              {
+                icon: <MapPin className="w-8 h-8" />,
+                title: "Mapeamento Preciso",
+                description:
+                  "Localização ideal para instalação de painéis solares e turbinas eólicas usando GIS avançado",
+                color: "from-emerald-500 to-teal-600",
               },
-              { 
-                icon: <Wind className="w-8 h-8" />, 
-                title: "Análise Eólica", 
-                description: "Dados de velocidade do vento, direção e padrões para máximo aproveitamento energético",
-                color: "from-teal-500 to-cyan-600" 
+              {
+                icon: <Wind className="w-8 h-8" />,
+                title: "Análise Eólica",
+                description:
+                  "Dados de velocidade do vento, direção e padrões para máximo aproveitamento energético",
+                color: "from-teal-500 to-cyan-600",
               },
-              { 
-                icon: <Sun className="w-8 h-8" />, 
-                title: "Potencial Solar", 
-                description: "Medição de irradiância solar, horas de sol e eficiência fotovoltaica por região",
-                color: "from-yellow-500 to-orange-500" 
+              {
+                icon: <Sun className="w-8 h-8" />,
+                title: "Potencial Solar",
+                description:
+                  "Medição de irradiância solar, horas de sol e eficiência fotovoltaica por região",
+                color: "from-yellow-500 to-orange-500",
               },
-              { 
-                icon: <Droplets className="w-8 h-8" />, 
-                title: "Dados Climáticos", 
-                description: "Análise de chuvas, umidade e condições meteorológicas para viabilidade",
-                color: "from-blue-500 to-indigo-600" 
+              {
+                icon: <Droplets className="w-8 h-8" />,
+                title: "Dados Climáticos",
+                description:
+                  "Análise de chuvas, umidade e condições meteorológicas para viabilidade",
+                color: "from-blue-500 to-indigo-600",
               },
-              { 
-                icon: <TreePine className="w-8 h-8" />, 
-                title: "Unidades de Conservação", 
-                description: "Mapeamento de áreas protegidas de fauna e flora para desenvolvimento sustentável",
-                color: "from-green-500 to-emerald-600" 
+              {
+                icon: <TreePine className="w-8 h-8" />,
+                title: "Unidades de Conservação",
+                description:
+                  "Mapeamento de áreas protegidas de fauna e flora para desenvolvimento sustentável",
+                color: "from-green-500 to-emerald-600",
               },
-              { 
-                icon: <Shield className="w-8 h-8" />, 
-                title: "Análise de Riscos", 
-                description: "Identificação de áreas de risco e fatores ambientais críticos",
-                color: "from-red-500 to-red-600" 
+              {
+                icon: <Shield className="w-8 h-8" />,
+                title: "Análise de Riscos",
+                description:
+                  "Identificação de áreas de risco e fatores ambientais críticos",
+                color: "from-red-500 to-red-600",
               },
             ].map((feature, index) => (
-              <motion.div 
-                key={index} 
+              <motion.div
+                key={index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
                 className="bg-white border border-emerald-100 rounded-xl p-6 hover:shadow-xl transition-all hover:-translate-y-1"
               >
-                <div className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-lg flex items-center justify-center text-white mb-4`}>
+                <div
+                  className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-lg flex items-center justify-center text-white mb-4`}
+                >
                   {feature.icon}
                 </div>
-                <h3 className="text-xl font-semibold text-slate-900 mb-2">{feature.title}</h3>
+                <h3 className="text-xl font-semibold text-slate-900 mb-2">
+                  {feature.title}
+                </h3>
                 <p className="text-slate-600 text-sm">{feature.description}</p>
               </motion.div>
             ))}
@@ -179,7 +271,10 @@ export default function Index() {
       </section>
 
       {/* Conservation Section */}
-      <section id="conservation" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-emerald-50 via-teal-50 to-green-50">
+      <section
+        id="conservation"
+        className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-emerald-50 via-teal-50 to-green-50"
+      >
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <motion.div
@@ -192,8 +287,9 @@ export default function Index() {
                 Protegendo a Biodiversidade
               </h2>
               <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-                Nossa plataforma integra dados de unidades de conservação para garantir que o desenvolvimento 
-                de energia renovável respeite e proteja os ecossistemas locais.
+                Nossa plataforma integra dados de unidades de conservação para
+                garantir que o desenvolvimento de energia renovável respeite e
+                proteja os ecossistemas locais.
               </p>
             </motion.div>
           </div>
@@ -207,11 +303,26 @@ export default function Index() {
               className="space-y-6"
             >
               {[
-                { icon: <Map className="w-6 h-6" />, text: "Mapeamento de áreas de proteção ambiental" },
-                { icon: <TreePine className="w-6 h-6" />, text: "Análise de impacto sobre habitats naturais" },
-                { icon: <Wind className="w-6 h-6" />, text: "Identificação de corredores ecológicos" },
-                { icon: <Eye className="w-6 h-6" />, text: "Monitoramento de espécies ameaçadas" },
-                { icon: <BarChart3 className="w-6 h-6" />, text: "Relatórios de sustentabilidade ambiental" },
+                {
+                  icon: <Map className="w-6 h-6" />,
+                  text: "Mapeamento de áreas de proteção ambiental",
+                },
+                {
+                  icon: <TreePine className="w-6 h-6" />,
+                  text: "Análise de impacto sobre habitats naturais",
+                },
+                {
+                  icon: <Wind className="w-6 h-6" />,
+                  text: "Identificação de corredores ecológicos",
+                },
+                {
+                  icon: <Eye className="w-6 h-6" />,
+                  text: "Monitoramento de espécies ameaçadas",
+                },
+                {
+                  icon: <BarChart3 className="w-6 h-6" />,
+                  text: "Relatórios de sustentabilidade ambiental",
+                },
               ].map((item, index) => (
                 <motion.div
                   key={index}
@@ -237,10 +348,26 @@ export default function Index() {
               className="grid grid-cols-2 gap-6"
             >
               {[
-                { number: "1.200+", label: "Áreas Protegidas", color: "from-emerald-500 to-teal-600" },
-                { number: "350+", label: "Espécies Monitoradas", color: "from-teal-500 to-cyan-600" },
-                { number: "85%", label: "Precisão Mapeada", color: "from-green-500 to-emerald-600" },
-                { number: "100%", label: "Conformidade Legal", color: "from-emerald-600 to-green-700" },
+                {
+                  number: "1.200+",
+                  label: "Áreas Protegidas",
+                  color: "from-emerald-500 to-teal-600",
+                },
+                {
+                  number: "350+",
+                  label: "Espécies Monitoradas",
+                  color: "from-teal-500 to-cyan-600",
+                },
+                {
+                  number: "85%",
+                  label: "Precisão Mapeada",
+                  color: "from-green-500 to-emerald-600",
+                },
+                {
+                  number: "100%",
+                  label: "Conformidade Legal",
+                  color: "from-emerald-600 to-green-700",
+                },
               ].map((stat, index) => (
                 <motion.div
                   key={index}
@@ -269,17 +396,46 @@ export default function Index() {
                 <span className="text-xl font-bold text-white">H2maps</span>
               </div>
               <p className="text-sm text-slate-400">
-                Georreferenciamento inteligente para um futuro energético sustentável.
+                Georreferenciamento inteligente para um futuro energético
+                sustentável.
               </p>
             </div>
-            
+
             <div>
               <h3 className="text-white font-semibold mb-4">Links Rápidos</h3>
               <ul className="space-y-2 text-sm">
-                <li><a href="#features" className="hover:text-emerald-400 transition-colors">Recursos</a></li>
-                <li><a href="#conservation" className="hover:text-emerald-400 transition-colors">Conservação</a></li>
-                <li><Link to="/dashboard" className="hover:text-emerald-400 transition-colors">Demonstração</Link></li>
-                <li><Link to="/feasibility" className="hover:text-emerald-400 transition-colors">Análise de Viabilidade</Link></li>
+                <li>
+                  <a
+                    href="#features"
+                    className="hover:text-emerald-400 transition-colors"
+                  >
+                    Recursos
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#conservation"
+                    className="hover:text-emerald-400 transition-colors"
+                  >
+                    Conservação
+                  </a>
+                </li>
+                <li>
+                  <Link
+                    to="/dashboard"
+                    className="hover:text-[#73cb94] transition-colors opacity-100"
+                  >
+                    Demonstração
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/feasibility"
+                    className="hover:text-emerald-400 transition-colors"
+                  >
+                    Análise de Viabilidade
+                  </Link>
+                </li>
               </ul>
             </div>
 
@@ -308,7 +464,8 @@ export default function Index() {
 
           <div className="border-t border-slate-800 pt-8 text-center">
             <p className="text-sm text-slate-400">
-              © 2025 H2maps. Todos os direitos reservados. | Desenvolvido para um futuro sustentável.
+              © 2025 H2maps. Todos os direitos reservados. | Desenvolvido para
+              um futuro sustentável.
             </p>
           </div>
         </div>
