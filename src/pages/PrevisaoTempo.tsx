@@ -1,1 +1,0 @@
-import previsao from '@/components/previsao';
