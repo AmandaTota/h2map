@@ -18,11 +18,11 @@ const Navigation = () => {
   return (
     <nav className="fixed top-0 w-full bg-gradient-to-br from-emerald-50/80 via-teal-50/80 to-cyan-50/80 backdrop-blur-md z-50 border-b border-border/50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-18">
-          <Link to="/" className="flex items-center space-x-2 group">
-            <div className="h-[70px] w-[70px] bg-gradient-to-br from-emerald-50/80 via-teal-50/80 to-cyan-50/80 rounded-lg flex items-center justify-center p-2">
+        <div className="flex justify-between items-center h-[70px]">
+          <Link to="/" className="flex items-center space-x-2">
+            <div className="h-[100px] w-[100px]">
               <img
-                className="h-[100px] w-[100px] object-contain"
+                className="h-[100px] w-[100px] "
                 src="/Logo.png"
               />
             </div>
