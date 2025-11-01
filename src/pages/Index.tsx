@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import LocationSearch from '@/components/LocationSearch';
+import AuthDialog from '@/components/AuthDialog';
 
 import {
   MapPin,
@@ -21,6 +22,7 @@ import {
 
 export default function Index() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
@@ -120,20 +122,22 @@ export default function Index() {
                 conservação da fauna e flora para desenvolvimento sustentável.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center text-center">
-                <Link
-                  to="/auth"
+                <button
+                  onClick={() => setAuthDialogOpen(true)}
                   className="bg-[#0da9ff] opacity-60 w-[200px] text-white px-6 py-3 rounded-lg hover:bg-[#73cb94] transition-colors flex items-center justify-center space-x-2"
                 >
                   <span>Cadastrar-se</span>
-                </Link>
+                </button>
                   
-                <Link
-                  to="/auth"
+                <button
+                  onClick={() => setAuthDialogOpen(true)}
                   className="bg-[#0da9ff] opacity-60 w-[200px] text-white px-6 py-3 rounded-lg hover:bg-[#73cb94] transition-colors flex items-center justify-center space-x-2"
                 >
                   <span>Entrar</span>
-                </Link>
+                </button>
               </div>
+
+              <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
             </motion.div>
 
             <motion.div
