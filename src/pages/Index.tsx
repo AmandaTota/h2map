@@ -375,40 +375,14 @@ export default function Index() {
               ].map((stat, index) => (
                 <motion.div
                   key={index}
-                  initial={{ opacity: 0, y: 50, scale: 0.8 }}
-                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  whileHover={{ 
-                    scale: 1.1, 
-                    y: -10,
-                    rotate: [0, -2, 2, 0],
-                    transition: { duration: 0.3 }
-                  }}
-                  transition={{ 
-                    duration: 0.6, 
-                    delay: index * 0.15,
-                    type: "spring",
-                    stiffness: 100
-                  }}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className={`bg-gradient-to-br ${stat.color} rounded-xl p-6 text-white shadow-lg hover:shadow-2xl cursor-pointer relative overflow-hidden`}
+                  className={`bg-gradient-to-br ${stat.color} rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all hover:-translate-y-1`}
                 >
-                  <motion.div
-                    className="absolute inset-0 bg-white/20"
-                    initial={{ x: "-100%" }}
-                    whileHover={{ x: "100%" }}
-                    transition={{ duration: 0.6 }}
-                  />
-                  <div className="relative z-10">
-                    <motion.div 
-                      className="text-4xl font-bold mb-2"
-                      initial={{ scale: 1 }}
-                      whileHover={{ scale: 1.15 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      {stat.number}
-                    </motion.div>
-                    <div className="text-white/90 font-medium">{stat.label}</div>
-                  </div>
+                  <div className="text-4xl font-bold mb-2">{stat.number}</div>
+                  <div className="text-white/90 font-medium">{stat.label}</div>
                 </motion.div>
               ))}
             </motion.div>
