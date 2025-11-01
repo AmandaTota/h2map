@@ -60,6 +60,7 @@ serve(async (req) => {
       longitude: lon.toString(),
       daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,relative_humidity_2m_mean,surface_pressure_mean',
       timezone: 'auto',
+      forecast_days: '6', // Request 6 days to ensure we have data for next 5 days
     });
 
     const [currentResponse, forecastResponse] = await Promise.all([
@@ -82,24 +83,27 @@ serve(async (req) => {
     const sunriseTime = new Date(currentData.daily.sunrise[todayIndex]).getTime() / 1000;
     const sunsetTime = new Date(currentData.daily.sunset[todayIndex]).getTime() / 1000;
 
-    // Process forecast data - create 5-day forecast
+    // Process forecast data - create 5-day forecast (starting from tomorrow, day +1)
     const dailyForecast: any[] = [];
     const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
-    for (let i = 0; i < Math.min(5, forecastData.daily.time.length); i++) {
+    // Start from index 1 (tomorrow) to index 5 (day +5)
+    for (let i = 1; i <= Math.min(5, forecastData.daily.time.length - 1); i++) {
       const date = new Date(forecastData.daily.time[i]);
       const dateStr = forecastData.daily.time[i];
       const weather = mapWeatherCode(forecastData.daily.weather_code[i]);
       
-      // Day name: "Hoje", "Amanhã", or day of week
+      // Day name: "Amanhã" for first day, then day of week
       let dayName = '';
-      if (i === 0) {
-        dayName = 'Hoje';
-      } else if (i === 1) {
+      if (i === 1) {
         dayName = 'Amanhã';
       } else {
         dayName = dayNames[date.getDay()];
       }
+
+      const precipitationSum = forecastData.daily.precipitation_sum[i];
+      
+      console.log(`Day ${i} (${dateStr}): Precipitation = ${precipitationSum} mm`);
 
       dailyForecast.push({
         date: dateStr,
@@ -117,8 +121,8 @@ serve(async (req) => {
         humidity: forecastData.daily.relative_humidity_2m_mean[i] || 0,
         windSpeed: forecastData.daily.wind_speed_10m_max[i] || 0,
         pressure: forecastData.daily.surface_pressure_mean[i] || 1013,
-        rainfall: forecastData.daily.precipitation_sum[i] || 0,
-        clouds: i === 0 ? currentData.current.cloud_cover : 0 // Only available for current day
+        rainfall: precipitationSum || 0,
+        clouds: 0 // Cloud cover percentage not available in daily forecast
       });
     }
 
