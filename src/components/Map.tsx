@@ -26,6 +26,20 @@ const Map = ({ initialLocation }: { initialLocation?: Location }) => {
     }
   };
 
+  // Atualiza quando initialLocation mudar (vindo do store global)
+  useEffect(() => {
+    if (initialLocation) {
+      setSelectedLocation(initialLocation);
+      if (map.current) {
+        map.current.flyTo({
+          center: [initialLocation.lng, initialLocation.lat],
+          zoom: 12,
+          essential: true,
+        });
+      }
+    }
+  }, [initialLocation]);
+
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 

@@ -1,12 +1,22 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Map from './Map';
+import { useLocationStore } from '@/store/locationStore';
 
 const MapGridAnimated = () => {
+  const { selectedLocation } = useLocationStore();
   const [maps, setMaps] = useState([
-    { id: 1, location: null },
+    { id: 1, location: selectedLocation },
   ]);
+
+  // Atualiza o primeiro mapa quando a localização global muda
+  useEffect(() => {
+    if (selectedLocation && maps.length > 0) {
+      setMaps(prevMaps => prevMaps.map((map, index) => 
+        index === 0 ? { ...map, location: selectedLocation } : map
+      ));
+    }
+  }, [selectedLocation]);
 
   const addMap = () => {
     if (maps.length < 4) {
