@@ -89,8 +89,10 @@ serve(async (req) => {
 
     // Start from index 1 (tomorrow) to index 5 (day +5)
     for (let i = 1; i <= Math.min(5, forecastData.daily.time.length - 1); i++) {
-      const date = new Date(forecastData.daily.time[i]);
       const dateStr = forecastData.daily.time[i];
+      // Parse date in UTC to avoid timezone issues
+      const [year, month, day] = dateStr.split('-').map(Number);
+      const date = new Date(Date.UTC(year, month - 1, day));
       const weather = mapWeatherCode(forecastData.daily.weather_code[i]);
       
       // Day name: "Amanhã" for first day, then day of week
@@ -98,12 +100,12 @@ serve(async (req) => {
       if (i === 1) {
         dayName = 'Amanhã';
       } else {
-        dayName = dayNames[date.getDay()];
+        dayName = dayNames[date.getUTCDay()];
       }
 
       const precipitationSum = forecastData.daily.precipitation_sum[i];
       
-      console.log(`Day ${i} (${dateStr}): Precipitation = ${precipitationSum} mm`);
+      console.log(`Day ${i} (${dateStr}, ${dayName}): Precipitation = ${precipitationSum} mm, Day of week = ${date.getUTCDay()}`);
 
       dailyForecast.push({
         date: dateStr,
