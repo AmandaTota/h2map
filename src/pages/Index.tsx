@@ -120,19 +120,16 @@ export default function Index() {
                 conservação da fauna e flora para desenvolvimento sustentável.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center text-center">
-                <div>
-                
                 <Link
-                  to="#"
-                  className="bg-[#0da9ff] opacity-60 w-[200px]  text-white px-6 py-3 rounded-lg hover:bg-[#73cb94]  transition-colors flex items-center justify-center space-x-2"
+                  to="/auth"
+                  className="bg-[#0da9ff] opacity-60 w-[200px] text-white px-6 py-3 rounded-lg hover:bg-[#73cb94] transition-colors flex items-center justify-center space-x-2"
                 >
                   <span>Cadastrar-se</span>
                 </Link>
-                  </div>
                   
                 <Link
-                  to="#"
-                  className="bg-[#0da9ff] opacity-60 w-[200px]  text-white px-6 py-3 rounded-lg hover:bg-[#73cb94]  transition-colors flex items-center justify-center space-x-2"
+                  to="/auth"
+                  className="bg-[#0da9ff] opacity-60 w-[200px] text-white px-6 py-3 rounded-lg hover:bg-[#73cb94] transition-colors flex items-center justify-center space-x-2"
                 >
                   <span>Entrar</span>
                 </Link>
