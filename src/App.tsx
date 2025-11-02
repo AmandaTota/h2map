@@ -6,7 +6,7 @@ import FeasibilityAnalysis from "./pages/FeasibilityAnalysis";
 import ImportMunicipalities from "./pages/ImportMunicipalities";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
-import MapGridAnimated from './components/MapGridAnimated';
+
 
 function App() {
   return (
@@ -18,13 +18,7 @@ function App() {
         <Route path="/statistics" element={<Statistics />} />
         <Route path="/feasibility" element={<FeasibilityAnalysis />} />
         <Route path="/import-municipalities" element={<ImportMunicipalities />} />
-        <Route path="/maps" element={
-  <div className="p-6">
-    <h1 className="text-xl font-bold mb-4">Mosaico de Mapas</h1>
-    <MapGridAnimated />
-  </div>
-} />
-<Route path="/PrevisaoTempo" element={<Dashboard/>}/>
+        <Route path="/PrevisaoTempo" element={<Dashboard/>}/>
 
         <Route path="*" element={<NotFound />} />
       </Routes>
