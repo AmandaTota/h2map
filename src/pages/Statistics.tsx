@@ -110,7 +110,7 @@ class WeatherService {
         uvIndex: 5 + Math.random() * 5, // Estimate based on solar
         visibility: 10, // Default visibility
         rainfall: averages.totalPrecipitation / nasaData.daysAnalyzed + (Math.random() - 0.5) * 5, // Daily average with variation
-        solarIrradiance: averages.solarIrradiance * 1000 / 24 // Convert kWh/m²/day to W/m² average
+        solarIrradiance: averages.solarIrradiance * 1000 / 12 // Convert kWh/m²/day to W/m² (assuming 12h daylight)
       });
       currentDate.setDate(currentDate.getDate() + 1);
     }
@@ -451,7 +451,7 @@ const Statistics = () => {
     
     // Count rainy and sunny days
     const rainyDays = data.filter(d => d.rainfall > 1).length; // Days with >1mm rainfall
-    const sunnyDays = data.filter(d => d.solarIrradiance > 600).length; // Days with high solar irradiance
+    const sunnyDays = data.filter(d => d.solarIrradiance > 300).length; // Days with >300 W/m² (good solar irradiance)
     
     // Calculate average daily energy potential (solar)
     // Convert W/m² average to kWh/m²/day (assuming 12 hours of daylight)
