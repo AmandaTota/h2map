@@ -629,7 +629,7 @@ const FeasibilityAnalysis = () => {
         : locationData.slope,
       status: topographyData?.slopeStatus || locationData.slopeStatus,
       description: topographyData 
-        ? `${topographyData.terrainType} - Fonte: ${topographyData.dataSource}`
+        ? topographyData.terrainType
         : locationData.slopeStatus === 'success' 
           ? 'Topografia adequada para instalação' 
           : 'Topografia requer planejamento especial'
@@ -694,11 +694,6 @@ const FeasibilityAnalysis = () => {
                     <p className="text-slate-600">
                       Local: {localLocation.name} | Coordenadas: {localLocation.lat.toFixed(4)}, {localLocation.lng.toFixed(4)}
                     </p>
-                    {weatherData && analysisStarted && (
-                      <Badge className="bg-emerald-100 text-emerald-800 border-emerald-300">
-                        📊 NASA POWER: {weatherData.dataPoints} dias de dados reais
-                      </Badge>
-                    )}
                   </div>
                 </div>
               </div>
@@ -1060,10 +1055,7 @@ const FeasibilityAnalysis = () => {
                 <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-blue-50/50 transition-colors">
                   <div className="flex items-center space-x-3 w-full">
                     <BarChart3 className="w-6 h-6 text-blue-600" />
-                    <h2 className="text-2xl font-bold text-slate-900">Simulação Horária Baseada em Dados Reais</h2>
-                    <Badge className="bg-green-100 text-green-800 border-green-300 ml-auto">
-                      ✓ Dados NASA POWER
-                    </Badge>
+                    <h2 className="text-2xl font-bold text-slate-900">Simulação Horária</h2>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-6 pb-6">
@@ -1221,7 +1213,7 @@ const FeasibilityAnalysis = () => {
               <Card className="mt-6 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
                 <h3 className="text-lg font-semibold text-slate-900 mb-2">📊 Sobre a Simulação</h3>
                 <p className="text-sm text-slate-700 mb-2">
-                  Análise com {weatherData?.dataPoints || 365} dias de dados reais NASA POWER, simulando operação hora a hora:
+                  Análise detalhada simulando operação hora a hora:
                 </p>
                 <ul className="text-sm text-slate-700 space-y-1 ml-4 list-disc">
                   <li><strong>Fator de Capacidade:</strong> Eficiência real do eletrolisador</li>
@@ -1541,9 +1533,6 @@ const FeasibilityAnalysis = () => {
                   <div className="flex items-center space-x-3 w-full">
                     <CheckCircle2 className="w-6 h-6 text-emerald-600" />
                     <h2 className="text-2xl font-bold text-slate-900">Viabilidade do Projeto</h2>
-                    <Badge className="bg-green-100 text-green-800 border-green-300 ml-auto">
-                      ✓ Análise com Dados Reais
-                    </Badge>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-6 pb-6">
