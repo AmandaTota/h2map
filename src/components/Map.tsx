@@ -1,8 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { motion } from 'framer-motion';
-import LocationSearch from './LocationSearch';
 
 type Location = {
   lat: number;
@@ -13,30 +11,15 @@ type Location = {
 const Map = ({ initialLocation }: { initialLocation?: Location }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(initialLocation || null);
 
-  const handleLocationSelect = (location: Location) => {
-    setSelectedLocation(location);
-    if (map.current) {
+  // Atualiza quando initialLocation mudar
+  useEffect(() => {
+    if (initialLocation && map.current) {
       map.current.flyTo({
-        center: [location.lng, location.lat],
+        center: [initialLocation.lng, initialLocation.lat],
         zoom: 12,
         essential: true,
       });
-    }
-  };
-
-  // Atualiza quando initialLocation mudar (vindo do store global)
-  useEffect(() => {
-    if (initialLocation) {
-      setSelectedLocation(initialLocation);
-      if (map.current) {
-        map.current.flyTo({
-          center: [initialLocation.lng, initialLocation.lat],
-          zoom: 12,
-          essential: true,
-        });
-      }
     }
   }, [initialLocation]);
 
@@ -48,17 +31,17 @@ const Map = ({ initialLocation }: { initialLocation?: Location }) => {
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v12',
-      center: selectedLocation ? [selectedLocation.lng, selectedLocation.lat] : [-43.2096, -22.9068],
-      zoom: selectedLocation ? 12 : 10,
+      center: initialLocation ? [initialLocation.lng, initialLocation.lat] : [-43.2096, -22.9068],
+      zoom: initialLocation ? 12 : 10,
     });
 
     map.current.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-right');
 
     // Espera o mapa carregar antes de aplicar flyTo
     map.current.on('load', () => {
-      if (selectedLocation) {
+      if (initialLocation) {
         map.current?.flyTo({
-          center: [selectedLocation.lng, selectedLocation.lat],
+          center: [initialLocation.lng, initialLocation.lat],
           zoom: 12,
           essential: true,
         });
@@ -71,26 +54,7 @@ const Map = ({ initialLocation }: { initialLocation?: Location }) => {
   }, []);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.3 }}
-      className="w-full h-full rounded-lg border p-4 space-y-4 "
-    >
-      <div className="grid grid-cols-1 gap-6 mb-6 ">
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
-            Localização
-          </label>
-          <LocationSearch
-            onLocationSelect={handleLocationSelect}
-            initialLocation={selectedLocation || undefined}
-          />
-        </div>
-      </div>
-      <div ref={mapContainer} className="w-full h-[400px] rounded-lg" />
-    </motion.div>
+    <div ref={mapContainer} className="w-full h-[500px] rounded-lg" />
   );
 };
 
