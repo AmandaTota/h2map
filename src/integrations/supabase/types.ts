@@ -14,7 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      favorite_locations: {
+        Row: {
+          created_at: string
+          id: string
+          latitude: number
+          longitude: number
+          name: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          latitude: number
+          longitude: number
+          name: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          latitude?: number
+          longitude?: number
+          name?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      municipalities: {
+        Row: {
+          capital: boolean
+          codigo_ibge: string
+          codigo_uf: string
+          created_at: string
+          ddd: string | null
+          fuso_horario: string | null
+          id: string
+          latitude: number
+          longitude: number
+          nome: string
+          siafi_id: string | null
+        }
+        Insert: {
+          capital?: boolean
+          codigo_ibge: string
+          codigo_uf: string
+          created_at?: string
+          ddd?: string | null
+          fuso_horario?: string | null
+          id?: string
+          latitude: number
+          longitude: number
+          nome: string
+          siafi_id?: string | null
+        }
+        Update: {
+          capital?: boolean
+          codigo_ibge?: string
+          codigo_uf?: string
+          created_at?: string
+          ddd?: string | null
+          fuso_horario?: string | null
+          id?: string
+          latitude?: number
+          longitude?: number
+          nome?: string
+          siafi_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

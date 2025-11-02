@@ -8,6 +8,11 @@ interface FavoritesListProps {
 const FavoritesList = ({ onLocationSelect }: FavoritesListProps) => {
   const { favorites, removeFavorite } = useLocationStore();
 
+  const handleRemove = async (e: React.MouseEvent, locationName: string) => {
+    e.stopPropagation();
+    await removeFavorite(locationName);
+  };
+
   if (favorites.length === 0) {
     return (
       <div className="text-center text-sm text-slate-500 mt-4">
@@ -33,10 +38,7 @@ const FavoritesList = ({ onLocationSelect }: FavoritesListProps) => {
             </span>
           </button>
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              removeFavorite(location.name);
-            }}
+            onClick={(e) => handleRemove(e, location.name)}
             className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-50 rounded"
             title="Remover favorito"
           >

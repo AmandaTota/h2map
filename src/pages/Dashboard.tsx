@@ -10,11 +10,20 @@ import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Dashboard() {
-  const { selectedLocation: storeLocation, setSelectedLocation, addFavorite, isFavorite } = useLocationStore();
+  const { selectedLocation: storeLocation, setSelectedLocation, addFavorite, isFavorite, loadFavorites } = useLocationStore();
   const [localLocation, setLocalLocation] = useState(
     storeLocation || { lat: -23.5505, lng: -46.6333, name: 'São Paulo, SP' }
   );
   const { toast } = useToast();
+  const [isLoadingFavorites, setIsLoadingFavorites] = useState(true);
+
+  useEffect(() => {
+    const loadUserFavorites = async () => {
+      await loadFavorites();
+      setIsLoadingFavorites(false);
+    };
+    loadUserFavorites();
+  }, [loadFavorites]);
 
   useEffect(() => {
     if (storeLocation) {
@@ -27,7 +36,7 @@ export default function Dashboard() {
     setSelectedLocation(location);
   };
 
-  const handleAddFavorite = () => {
+  const handleAddFavorite = async () => {
     if (isFavorite(localLocation.name)) {
       toast({
         title: 'Já favoritado',
@@ -35,7 +44,7 @@ export default function Dashboard() {
       });
       return;
     }
-    addFavorite(localLocation);
+    await addFavorite(localLocation);
     toast({
       title: 'Favorito adicionado',
       description: `${localLocation.name} foi adicionado aos favoritos`,
