@@ -122,6 +122,7 @@ const WeatherForecastComponent = ({ location }: WeatherForecastProps) => {
         body: JSON.stringify({
           lat: location.lat,
           lon: location.lng,
+          name: location.name,
         }),
       });
 

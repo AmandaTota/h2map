@@ -42,7 +42,7 @@ serve(async (req) => {
   }
 
   try {
-    const { lat, lon } = await req.json();
+    const { lat, lon, name } = await req.json();
     
     console.log('Fetching weather forecast for:', { lat, lon });
 
@@ -163,7 +163,7 @@ serve(async (req) => {
 
     const result = {
       location: {
-        name: `${lat.toFixed(2)}°, ${lon.toFixed(2)}°`, // Open-Meteo doesn't provide location name
+        name: name || `${lat.toFixed(2)}°, ${lon.toFixed(2)}°`, // Use provided name or coordinates as fallback
         lat,
         lon
       },
