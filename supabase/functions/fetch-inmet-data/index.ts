@@ -1,9 +1,16 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+const requestSchema = z.object({
+  stationCode: z.string().regex(/^[A-Z0-9]+$/).min(1).max(20),
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/)
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -11,7 +18,19 @@ serve(async (req) => {
   }
 
   try {
-    const { stationCode, startDate, endDate } = await req.json();
+    const body = await req.json();
+    const validatedData = requestSchema.parse(body);
+    const { stationCode, startDate, endDate } = validatedData;
+    
+    // Validate date range
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (start > end) {
+      return new Response(
+        JSON.stringify({ error: 'Start date must be before end date' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
     
     // INMET API endpoint for automatic stations data
     const url = `https://apitempo.inmet.gov.br/estacao/${startDate}/${endDate}/${stationCode}`;
@@ -37,6 +56,17 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error('Error fetching INMET data:', error);
+    
+    if (error instanceof z.ZodError) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid input parameters', details: error.errors }),
+        { 
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+    
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
       { 
