@@ -31,7 +31,7 @@ import {
   Sunrise,
   Sunset
 } from 'lucide-react';
-import { format, subDays, startOfDay, endOfDay } from 'date-fns';
+import { format, subDays, startOfDay, endOfDay, addDays } from 'date-fns';
 import * as XLSX from 'xlsx';
 import Navigation from '@/components/Navigation';
 import LocationSearch from '@/components/LocationSearch';
@@ -58,7 +58,9 @@ class WeatherService {
   private async fetchNASAPowerData(lat: number, lon: number, startDate: Date, endDate: Date) {
     try {
       const startDateStr = format(startDate, 'yyyy-MM-dd');
-      const endDateStr = format(endDate, 'yyyy-MM-dd');
+      // Algumas APIs retornam intervalo exclusivo para a data final.
+      // Para garantir inclusão do último dia, enviamos endDate + 1 dia.
+      const endDateStr = format(addDays(endDate, 1), 'yyyy-MM-dd');
       
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-nasa-power-data`, {
         method: 'POST',
@@ -419,29 +421,38 @@ const Statistics = () => {
   };
 
   const getDateRange = () => {
-    const endDate = new Date();
+    // NASA POWER possui atraso de ~4 dias nos dados diários.
+    // Ajustamos a data final para hoje - 4 dias para garantir dados disponíveis.
+    const today = new Date();
+    const lastAvailable = subDays(today, 4);
+
+    let endDate = lastAvailable;
     let startDate: Date;
 
     switch (dateRange) {
       case '7':
-        startDate = subDays(endDate, 7);
+        // Intervalo inclusivo: N dias exatos => start = end - (N - 1)
+        startDate = subDays(endDate, 7 - 1);
         break;
       case '15':
-        startDate = subDays(endDate, 15);
+        startDate = subDays(endDate, 15 - 1);
         break;
       case '30':
-        startDate = subDays(endDate, 30);
+        startDate = subDays(endDate, 30 - 1);
         break;
       case 'custom':
         if (customStartDate && customEndDate) {
-          startDate = new Date(customStartDate);
-          endDate.setTime(new Date(customEndDate).getTime());
+          const customStart = new Date(customStartDate);
+          const customEnd = new Date(customEndDate);
+          // Clamp da data final para último disponível
+          endDate = customEnd > lastAvailable ? lastAvailable : customEnd;
+          startDate = customStart;
         } else {
-          startDate = subDays(endDate, 7);
+          startDate = subDays(endDate, 7 - 1);
         }
         break;
       default:
-        startDate = subDays(endDate, 7);
+        startDate = subDays(endDate, 7 - 1);
     }
 
     return { startDate: startOfDay(startDate), endDate: endOfDay(endDate) };
