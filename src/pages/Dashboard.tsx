@@ -92,12 +92,12 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Right Content: Weather Forecast + Map */}
+            {/* Main Content: Weather Forecast + Map */}
             <div className="lg:col-span-3 space-y-6">
               {/* Weather Forecast */}
               <WeatherForecast location={localLocation} />
 
-              {/* Map Section 
+              {/* Map Section (comentado)
               <div className="bg-white rounded-xl shadow-md p-6">
                 <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
                   <MapPin className="w-6 h-6 text-emerald-600" />
@@ -106,6 +106,8 @@ export default function Dashboard() {
                 <Map initialLocation={localLocation} />
               </div> */}
             </div>
+
+            {/* Right Sidebar: Notícias (removida — movida para a página Informações) */}
           </div>
         </div>
       </div>
