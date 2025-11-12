@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ThermometerSun , BarChart3, LineChart, LogIn, LogOut, User } from "lucide-react";
+import { Menu, X, ThermometerSun , BarChart3, LineChart, LogIn, LogOut, User, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,7 @@ const Navigation = () => {
     { path: "/feasibility", label: "Análise de Viabilidade", icon: BarChart3 },
     { path: "/statistics", label: "Estatísticas", icon: LineChart },
     { path: "/dashboard", label: "Previsão", icon: ThermometerSun },
+    { path: "/informacoes", label: "Informações", icon: Info },
   ];
 
   const isActive = (path: string) => location.pathname === path;
