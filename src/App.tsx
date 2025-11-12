@@ -5,7 +5,7 @@ import Statistics from "./pages/Statistics";
 import FeasibilityAnalysis from "./pages/FeasibilityAnalysis";
 import ImportMunicipalities from "./pages/ImportMunicipalities";
 import NotFound from "./pages/NotFound";
-import Auth from "./pages/Auth";
+{/*import Auth from "./pages/Auth";*/}
 
 
 function App() {
@@ -13,7 +13,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Index />} />
-        <Route path="/auth" element={<Auth />} />
+        {/*<Route path="/auth" element={<Auth />} />*/}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/statistics" element={<Statistics />} />
         <Route path="/feasibility" element={<FeasibilityAnalysis />} />

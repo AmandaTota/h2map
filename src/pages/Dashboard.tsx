@@ -1,6 +1,6 @@
 import { MapPin, Star } from 'lucide-react';
 import Navigation from '@/components/Navigation';
-import Map from '@/components/Map';
+{/*import Map from '@/components/Map';*/}
 import WeatherForecast from '@/components/WeatherForecast';
 import LocationSearch from '@/components/LocationSearch';
 import FavoritesList from '@/components/FavoritesList';
@@ -97,14 +97,14 @@ export default function Dashboard() {
               {/* Weather Forecast */}
               <WeatherForecast location={localLocation} />
 
-              {/* Map Section */}
+              {/* Map Section 
               <div className="bg-white rounded-xl shadow-md p-6">
                 <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
                   <MapPin className="w-6 h-6 text-emerald-600" />
                   Mapa Interativo
                 </h2>
                 <Map initialLocation={localLocation} />
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
