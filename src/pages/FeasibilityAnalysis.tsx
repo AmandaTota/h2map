@@ -701,8 +701,8 @@ const FeasibilityAnalysis = () => {
 
             {/* Location Search */}
             <Card className="p-6 bg-white/80 backdrop-blur-sm border-emerald-200">
-              <div className="flex flex-col md:flex-row gap-4 items-end">
-                <div className="flex-1">
+              <div className="flex flex-col md:flex-row gap-4 items-center justify-center">
+                <div className="flex-1 max-w-md">
                   <LocationSearch
                     onLocationSelect={handleLocationSelect}
                     initialLocation={localLocation}
@@ -713,7 +713,7 @@ const FeasibilityAnalysis = () => {
                   whileTap={{ scale: 0.98 }}
                   onClick={handleStartAnalysis}
                   disabled={loading}
-                  className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed min-w-[160px] justify-center"
                 >
                   {loading ? (
                     <>
@@ -768,10 +768,10 @@ const FeasibilityAnalysis = () => {
               </AccordionTrigger>
               <AccordionContent className="px-6 pb-6">
                 <Tabs defaultValue="1" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-6">
-                <TabsTrigger value="1">1 Ano</TabsTrigger>
-                <TabsTrigger value="3">3 Anos</TabsTrigger>
-                <TabsTrigger value="5">5 Anos</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-3 mb-6 bg-gradient-to-r from-emerald-100 to-teal-100 p-2 rounded-xl border border-emerald-200 shadow-sm">
+                <TabsTrigger value="1" className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-emerald-700 rounded-lg transition-all">1 Ano</TabsTrigger>
+                <TabsTrigger value="3" className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-emerald-700 rounded-lg transition-all">3 Anos</TabsTrigger>
+                <TabsTrigger value="5" className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-emerald-700 rounded-lg transition-all">5 Anos</TabsTrigger>
               </TabsList>
 
               <TabsContent value="1">
@@ -1568,10 +1568,10 @@ const FeasibilityAnalysis = () => {
                 <AccordionContent className="px-6 pb-6">
 
               <Tabs defaultValue="1" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-6">
-                  <TabsTrigger value="1">Cenário 1 Ano (100 kW)</TabsTrigger>
-                  <TabsTrigger value="3">Cenário 3 Anos (300 kW)</TabsTrigger>
-                  <TabsTrigger value="5">Cenário 5 Anos (500 kW)</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-3 mb-6 bg-gradient-to-r from-emerald-100 to-teal-100 p-2 rounded-xl border border-emerald-200 shadow-sm">
+                  <TabsTrigger value="1" className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-emerald-700 rounded-lg transition-all">Cenário 1 Ano (100 kW)</TabsTrigger>
+                  <TabsTrigger value="3" className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-emerald-700 rounded-lg transition-all">Cenário 3 Anos (300 kW)</TabsTrigger>
+                  <TabsTrigger value="5" className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-emerald-700 rounded-lg transition-all">Cenário 5 Anos (500 kW)</TabsTrigger>
                 </TabsList>
 
                 {/* Cenário 1 Ano */}
