@@ -860,7 +860,7 @@ const FeasibilityAnalysis = () => {
                         <p className="text-sm text-slate-700 mb-2">📊 <strong>Produção Anual:</strong></p>
                         <p className="text-3xl font-bold text-emerald-600">{energyCalc1Year.annualH2Production.toFixed(1)} ton/ano</p>
                         <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
-                          <strong>Fórmula:</strong> H₂ (kg) = E<sub>disponível</sub> / 50 kWh/kg
+                          <strong>Fórmula:</strong> H₂ (kg) = E<sub>disponível</sub> {'/'} 50 kWh/kg
                         </p>
                       </Card>
                     </div>
@@ -950,7 +950,7 @@ const FeasibilityAnalysis = () => {
                         <p className="text-sm text-slate-700 mb-2">📊 <strong>Produção Anual:</strong></p>
                         <p className="text-3xl font-bold text-emerald-600">{energyCalc3Years.annualH2Production.toFixed(1)} ton/ano</p>
                         <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
-                          <strong>Fórmula:</strong> H₂ (kg) = E<sub>disponível</sub> / 50 kWh/kg
+                          <strong>Fórmula:</strong> H₂ (kg) = E<sub>disponível</sub> {'/'} 50 kWh/kg
                         </p>
                       </Card>
                     </div>
@@ -1041,7 +1041,7 @@ const FeasibilityAnalysis = () => {
                         <p className="text-sm text-slate-700 mb-2">📊 <strong>Produção Anual:</strong></p>
                         <p className="text-3xl font-bold text-emerald-600">{energyCalc5Years.annualH2Production.toFixed(1)} ton/ano</p>
                         <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
-                          <strong>Fórmula:</strong> H₂ (kg) = E<sub>disponível</sub> / 50 kWh/kg
+                          <strong>Fórmula:</strong> H₂ (kg) = E<sub>disponível</sub> {'/'} 50 kWh/kg
                         </p>
                       </Card>
                     </div>
