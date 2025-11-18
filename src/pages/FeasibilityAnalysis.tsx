@@ -1061,10 +1061,25 @@ const FeasibilityAnalysis = () => {
                 <AccordionContent className="px-6 pb-6">
 
               <Tabs defaultValue="1" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-6">
-                  <TabsTrigger value="1">Cenário 1 Ano (100 kW)</TabsTrigger>
-                  <TabsTrigger value="3">Cenário 3 Anos (300 kW)</TabsTrigger>
-                  <TabsTrigger value="5">Cenário 5 Anos (500 kW)</TabsTrigger>
+                <TabsList className="flex w-full mb-6 overflow-x-auto">
+                  <TabsTrigger value="1" className="flex-shrink-0 min-w-[120px] sm:min-w-[140px]">
+                    <div className="text-center">
+                      <div className="text-xs sm:text-sm font-medium">Cenário 1 Ano</div>
+                      <div className="text-xs text-slate-500">100 kW</div>
+                    </div>
+                  </TabsTrigger>
+                  <TabsTrigger value="3" className="flex-shrink-0 min-w-[120px] sm:min-w-[140px]">
+                    <div className="text-center">
+                      <div className="text-xs sm:text-sm font-medium">Cenário 3 Anos</div>
+                      <div className="text-xs text-slate-500">300 kW</div>
+                    </div>
+                  </TabsTrigger>
+                  <TabsTrigger value="5" className="flex-shrink-0 min-w-[120px] sm:min-w-[140px]">
+                    <div className="text-center">
+                      <div className="text-xs sm:text-sm font-medium">Cenário 5 Anos</div>
+                      <div className="text-xs text-slate-500">500 kW</div>
+                    </div>
+                  </TabsTrigger>
                 </TabsList>
 
                 {/* Cenário 1 Ano */}
@@ -1243,10 +1258,25 @@ const FeasibilityAnalysis = () => {
                 <AccordionContent className="px-6 pb-6">
 
               <Tabs defaultValue="1" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-6">
-                  <TabsTrigger value="1">Cenário 1 Ano (100 kW)</TabsTrigger>
-                  <TabsTrigger value="3">Cenário 3 Anos (300 kW)</TabsTrigger>
-                  <TabsTrigger value="5">Cenário 5 Anos (500 kW)</TabsTrigger>
+                <TabsList className="flex w-full mb-6 overflow-x-auto">
+                  <TabsTrigger value="1" className="flex-shrink-0 min-w-[120px] sm:min-w-[140px]">
+                    <div className="text-center">
+                      <div className="text-xs sm:text-sm font-medium">Cenário 1 Ano</div>
+                      <div className="text-xs text-slate-500">100 kW</div>
+                    </div>
+                  </TabsTrigger>
+                  <TabsTrigger value="3" className="flex-shrink-0 min-w-[120px] sm:min-w-[140px]">
+                    <div className="text-center">
+                      <div className="text-xs sm:text-sm font-medium">Cenário 3 Anos</div>
+                      <div className="text-xs text-slate-500">300 kW</div>
+                    </div>
+                  </TabsTrigger>
+                  <TabsTrigger value="5" className="flex-shrink-0 min-w-[120px] sm:min-w-[140px]">
+                    <div className="text-center">
+                      <div className="text-xs sm:text-sm font-medium">Cenário 5 Anos</div>
+                      <div className="text-xs text-slate-500">500 kW</div>
+                    </div>
+                  </TabsTrigger>
                 </TabsList>
 
                 {/* Cenário 1 Ano */}

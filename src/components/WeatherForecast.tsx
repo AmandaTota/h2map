@@ -239,27 +239,27 @@ const WeatherForecastComponent = ({ location }: WeatherForecastProps) => {
       {/* 5-Day Forecast */}
       <div className="overflow-x-auto">
         <h3 className="text-sm font-semibold text-slate-900 mb-2">Próximos 5 Dias</h3>
-        <div className="grid grid-cols-5 gap-2 min-w-[400px]">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 min-w-0">
           {forecast.forecast.map((day, index) => (
             <motion.div
               key={day.date}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-2 border border-slate-200 hover:shadow-md transition-shadow"
+              className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-2 sm:p-3 border border-slate-200 hover:shadow-md transition-shadow min-w-[140px] sm:min-w-0"
             >
               <div className="text-center mb-2">
-                <p className="text-xs font-semibold text-slate-900">{day.dayName}</p>
+                <p className="text-xs sm:text-sm font-semibold text-slate-900 truncate">{day.dayName}</p>
                 <p className="text-xs text-slate-500">
                   {day.date.split('-').slice(1).reverse().join('/')}
                 </p>
               </div>
               
               <div className="flex justify-center mb-2">
-                {getWeatherIcon(day.weather.icon, 32)}
+                {getWeatherIcon(day.weather.icon, 28)}
               </div>
 
-              <p className="text-xs text-slate-600 text-center mb-2 capitalize line-clamp-2 h-8">
+              <p className="text-xs text-slate-600 text-center mb-2 capitalize line-clamp-2 h-6 sm:h-8">
                 {day.weather.description}
               </p>
 
@@ -287,6 +287,9 @@ const WeatherForecastComponent = ({ location }: WeatherForecastProps) => {
               </div>
             </motion.div>
           ))}
+        </div>
+        <div className="mt-2 text-xs text-slate-500 text-center sm:hidden">
+          ← Role horizontalmente para ver mais →
         </div>
       </div>
     </motion.div>
