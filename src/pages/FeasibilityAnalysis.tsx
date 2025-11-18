@@ -769,7 +769,6 @@ const FeasibilityAnalysis = () => {
                 </div>
               </AccordionTrigger>
               <AccordionContent className="px-6 pb-6">
-              {
               <div className="mb-6">
                 <ScenarioSelector
                   selectedScenario={selectedScenario}
@@ -870,7 +869,6 @@ const FeasibilityAnalysis = () => {
                 )}
 
                {selectedScenario === '3' && (
-              
                 <div className="space-y-6">
                   {/* Entrada de Dados */}
                   <div>
@@ -1144,12 +1142,11 @@ const FeasibilityAnalysis = () => {
                       </p>
                     </Card>
                   </div>
-                  </div>
-                )
+                </div>
+              )}
 
                 {/* Cenário 3 Anos */}
                 {selectedScenario === '3' && simulationResults.threeYears && (
-                
                   <div className="space-y-6">
                     <div className="grid md:grid-cols-4 gap-4">
                       <Card className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
@@ -1511,7 +1508,6 @@ const FeasibilityAnalysis = () => {
                 </div>
               </AccordionTrigger>
               <AccordionContent className="px-6 pb-6">
-
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
               {environmentalFactors.map((factor, index) => (
                 <motion.div
@@ -1854,7 +1850,6 @@ const FeasibilityAnalysis = () => {
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-6 pb-6">
-
               <div className="space-y-3">
                 {/* Recomendações dinâmicas baseadas nos resultados */}
                 {simulationResults.oneYear.capacityFactor < 30 && (
