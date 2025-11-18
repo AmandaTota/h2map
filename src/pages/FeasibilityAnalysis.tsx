@@ -827,13 +827,13 @@ const FeasibilityAnalysis = () => {
                       <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
                         <p className="text-sm text-slate-700 mb-1">Energia Diária</p>
                         <p className="text-3xl font-bold text-purple-600">{energyCalc1Year.dailyEnergy.toFixed(0)}</p>
-                        <p className="text-xs text-slate-600">kWh/dia</p>
+                        <p className="text-xs text-slate-600">kWh{'/'}dia</p>
                       </Card>
 
                       <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
                         <p className="text-sm text-slate-700 mb-1">Energia Anual</p>
                         <p className="text-3xl font-bold text-purple-600">{(energyCalc1Year.annualEnergy / 1000).toFixed(1)}</p>
-                        <p className="text-xs text-slate-600">MWh/ano</p>
+                        <p className="text-xs text-slate-600">MWh{'/'}ano</p>
                       </Card>
                     </div>
                   </div>
@@ -917,13 +917,13 @@ const FeasibilityAnalysis = () => {
                       <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
                         <p className="text-sm text-slate-700 mb-1">Energia Diária</p>
                         <p className="text-3xl font-bold text-purple-600">{energyCalc3Years.dailyEnergy.toFixed(0)}</p>
-                        <p className="text-xs text-slate-600">kWh/dia</p>
+                        <p className="text-xs text-slate-600">kWh{'/'}dia</p>
                       </Card>
 
                       <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
                         <p className="text-sm text-slate-700 mb-1">Energia Anual</p>
                         <p className="text-3xl font-bold text-purple-600">{(energyCalc3Years.annualEnergy / 1000).toFixed(1)}</p>
-                        <p className="text-xs text-slate-600">MWh/ano</p>
+                        <p className="text-xs text-slate-600">MWh{'/'}ano</p>
                       </Card>
                     </div>
                   </div>
@@ -1008,13 +1008,13 @@ const FeasibilityAnalysis = () => {
                       <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
                         <p className="text-sm text-slate-700 mb-1">Energia Diária</p>
                         <p className="text-3xl font-bold text-purple-600">{energyCalc5Years.dailyEnergy.toFixed(0)}</p>
-                        <p className="text-xs text-slate-600">kWh/dia</p>
+                        <p className="text-xs text-slate-600">kWh{'/'}dia</p>
                       </Card>
 
                       <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
                         <p className="text-sm text-slate-700 mb-1">Energia Anual</p>
                         <p className="text-3xl font-bold text-purple-600">{(energyCalc5Years.annualEnergy / 1000).toFixed(1)}</p>
-                        <p className="text-xs text-slate-600">MWh/ano</p>
+                        <p className="text-xs text-slate-600">MWh{'/'}ano</p>
                       </Card>
                     </div>
                   </div>
@@ -1093,7 +1093,7 @@ const FeasibilityAnalysis = () => {
                       <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
                         <p className="text-sm text-slate-700 mb-1">🔋 Energia Consumida</p>
                         <p className="text-3xl font-bold text-purple-600">{(simulationResults.oneYear.totalEnergyConsumed / 1000).toFixed(1)}</p>
-                        <p className="text-xs text-slate-600 mt-2">MWh/ano</p>
+                        <p className="text-xs text-slate-600 mt-2">MWh{'/'}ano</p>
                       </Card>
 
                       <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
@@ -1228,12 +1228,12 @@ const FeasibilityAnalysis = () => {
                   <li><strong>Curtailment:</strong> Energia renovável desperdiçada</li>
                   <li><strong>Operação:</strong> 20-100% quando energia disponível nessa faixa</li>
                 </ul>
-                </Card>
-                )}
-                </AccordionContent>
               </Card>
-            </AccordionItem>
-          )}
+            </div>
+        </AccordionContent>
+      </Card>
+    </AccordionItem>
+  )}
 
           {/* Resumo Financeiro */}
           {simulationResults.oneYear && (
@@ -1878,7 +1878,7 @@ const FeasibilityAnalysis = () => {
                     <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
                     <div className="flex-1 flex items-center justify-between">
                       <p className="text-slate-700">
-                        <strong>Reduzir Curtailment:</strong> {(simulationResults.oneYear.curtailment / 1000).toFixed(1)} MWh/ano de energia desperdiçada. 
+                        <strong>Reduzir Curtailment:</strong> {(simulationResults.oneYear.curtailment / 1000).toFixed(1)} MWh{'/'}ano de energia desperdiçada. 
                         Considere sistema de armazenamento (baterias) ou aumentar capacidade do eletrolisador.
                       </p>
                       <Badge variant="outline" className="ml-4 bg-amber-100 text-amber-800 border-amber-200">Média</Badge>
