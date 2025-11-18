@@ -769,7 +769,7 @@ const FeasibilityAnalysis = () => {
                 </div>
               </AccordionTrigger>
               <AccordionContent className="px-6 pb-6">
-              
+              {
               <div className="mb-6">
                 <ScenarioSelector
                   selectedScenario={selectedScenario}
@@ -959,10 +959,9 @@ const FeasibilityAnalysis = () => {
                   </div>
                 </div>
               )}
-
-              {selectedScenario === '5' && (
               
-                <div className="space-y-6">
+              {/* Cenário 5 Anos */}
+              {selectedScenario === '5' && simulationResults.fiveYears && (
                   {/* Entrada de Dados */}
                   <div>
                     <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center">
@@ -1232,6 +1231,7 @@ const FeasibilityAnalysis = () => {
                   <li><strong>Operação:</strong> 20-100% quando energia disponível nessa faixa</li>
                 </ul>
                 </Card>
+                )}
                 </AccordionContent>
               </Card>
             </AccordionItem>
