@@ -175,6 +175,7 @@ export default function Informacoes() {
                   </div>
                 )}
               </div>
+            </div>
           </div>
 
           {/* Seção de Artigos e Recursos */}
@@ -401,7 +402,6 @@ export default function Informacoes() {
                 </div>
               </motion.div>
             </div>
-          </div>
           </div>
         </div>
       </div>
