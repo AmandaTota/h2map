@@ -18,9 +18,9 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
   <Route path="/informacoes" element={<Informacoes />} />
         <Route path="/statistics" element={<Statistics />} />
-        <Route path="/feasibility" element={<FeasibilityAnalysis />} />
+        <Route path="/feasibility" element={<Dashboard />} />
         <Route path="/import-municipalities" element={<ImportMunicipalities />} />
-        <Route path="/PrevisaoTempo" element={<Dashboard/>}/>
+        <Route path="/PrevisaoTempo" element={<WeatherForecast />}/>
 
         <Route path="*" element={<NotFound />} />
       </Routes>
