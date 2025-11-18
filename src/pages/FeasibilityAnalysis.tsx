@@ -18,7 +18,7 @@ import {
   Database
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -769,14 +769,17 @@ const FeasibilityAnalysis = () => {
                 </div>
               </AccordionTrigger>
               <AccordionContent className="px-6 pb-6">
-                <Tabs defaultValue="1" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-6 bg-gradient-to-r from-emerald-100 to-teal-100 p-2 rounded-xl border border-emerald-200 shadow-sm">
-                <TabsTrigger value="1" className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-emerald-700 rounded-lg transition-all">1 Ano</TabsTrigger>
-                <TabsTrigger value="3" className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-emerald-700 rounded-lg transition-all">3 Anos</TabsTrigger>
-                <TabsTrigger value="5" className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-emerald-700 rounded-lg transition-all">5 Anos</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="1">
+              
+              <div className="mb-6">
+                <ScenarioSelector
+                  selectedScenario={selectedScenario}
+                  onScenarioChange={setSelectedScenario}
+                  variant="pills"
+                  className="justify-center"
+                />
+              </div>
+              
+              {selectedScenario === '1' && (
                 <div className="space-y-6">
                   {/* Entrada de Dados */}
                   <div>
@@ -864,9 +867,10 @@ const FeasibilityAnalysis = () => {
                     </div>
                   </div>
                 </div>
-              </TabsContent>
+                )}
 
-               <TabsContent value="3">
+               {selectedScenario === '3' && (
+              
                 <div className="space-y-6">
                   {/* Entrada de Dados */}
                   <div>
@@ -954,9 +958,10 @@ const FeasibilityAnalysis = () => {
                     </div>
                   </div>
                 </div>
-              </TabsContent>
+              )}
 
-              <TabsContent value="5">
+              {selectedScenario === '5' && (
+              
                 <div className="space-y-6">
                   {/* Entrada de Dados */}
                   <div>
@@ -1043,8 +1048,7 @@ const FeasibilityAnalysis = () => {
                       </Card>
                     </div>
                   </div>
-                </div>
-              )
+                )}
               </AccordionContent>
             </Card>
           </AccordionItem>
@@ -1144,7 +1148,8 @@ const FeasibilityAnalysis = () => {
                 )
 
                 {/* Cenário 3 Anos */}
-                <TabsContent value="3">
+                {selectedScenario === '3' && simulationResults.threeYears && (
+                
                   <div className="space-y-6">
                     <div className="grid md:grid-cols-4 gap-4">
                       <Card className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
@@ -1213,7 +1218,6 @@ const FeasibilityAnalysis = () => {
                     </Card>
                   </div>
                 )}
-              </Tabs>
 
               {/* Explicação */}
               <Card className="mt-6 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
@@ -1490,7 +1494,7 @@ const FeasibilityAnalysis = () => {
                     </p>
                   </Card>
                 </div>
-                )
+                )}
                 </AccordionContent>
               </Card>
             </AccordionItem>
@@ -1647,7 +1651,7 @@ const FeasibilityAnalysis = () => {
                       </div>
                     </div>
                   </div>
-                </TabsContent>
+                )}
 
                 {/* Cenário 3 Anos */}
                 {selectedScenario === '3' && simulationResults.threeYears && (
@@ -1738,7 +1742,7 @@ const FeasibilityAnalysis = () => {
                       </div>
                     </div>
                   </div>
-                </TabsContent>
+                )}
 
                 {/* Cenário 5 Anos */}
                 {selectedScenario === '5' && simulationResults.fiveYears && (
@@ -1829,8 +1833,7 @@ const FeasibilityAnalysis = () => {
                       </div>
                     </div>
                   </div>
-                </TabsContent>
-              </Tabs>
+                )}
               </AccordionContent>
             </Card>
           </AccordionItem>

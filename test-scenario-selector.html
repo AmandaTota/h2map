@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scenario Selector Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .scenario-selector { margin: 20px 0; }
+        .pills { display: flex; gap: 10px; flex-wrap: wrap; }
+        .pill {
+            padding: 8px 16px;
+            border: 2px solid #ccc;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .pill:hover { border-color: #999; }
+        .pill.active {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+        .content { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <h1>Scenario Selector Test</h1>
+    
+    <div class="scenario-selector">
+        <div class="pills">
+            <button class="pill active" data-scenario="1">Cenário 1 Ano • 100 kW</button>
+            <button class="pill" data-scenario="3">Cenário 3 Anos • 300 kW</button>
+            <button class="pill" data-scenario="5">Cenário 5 Anos • 500 kW</button>
+        </div>
+    </div>
+
+    <div id="scenario-1" class="content">
+        <h3>Cenário 1 Ano</h3>
+        <p>Conteúdo do cenário de 1 ano com capacidade de 100 kW</p>
+        <p>LCOH: R$ 12.50/kg | Fator Capacidade: 35.2% | Produção: 12.5 ton/ano</p>
+    </div>
+
+    <div id="scenario-3" class="content hidden">
+        <h3>Cenário 3 Anos</h3>
+        <p>Conteúdo do cenário de 3 anos com capacidade de 300 kW</p>
+        <p>LCOH: R$ 10.80/kg | Fator Capacidade: 38.1% | Produção: 37.8 ton/ano</p>
+    </div>
+
+    <div id="scenario-5" class="content hidden">
+        <h3>Cenário 5 Anos</h3>
+        <p>Conteúdo do cenário de 5 anos com capacidade de 500 kW</p>
+        <p>LCOH: R$ 9.20/kg | Fator Capacidade: 41.3% | Produção: 62.1 ton/ano</p>
+    </div>
+
+    <script>
+        // Simple test functionality
+        const pills = document.querySelectorAll('.pill');
+        const contents = document.querySelectorAll('.content');
+
+        pills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                const scenario = pill.dataset.scenario;
+                
+                // Update active pill
+                pills.forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                
+                // Show corresponding content
+                contents.forEach(content => {
+                    content.classList.add('hidden');
+                });
+                document.getElementById(`scenario-${scenario}`).classList.remove('hidden');
+            });
+        });
+    </script>
+</body>
+</html>
