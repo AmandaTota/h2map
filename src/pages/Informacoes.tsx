@@ -1,4 +1,4 @@
-jam import Navigation from '@/components/Navigation';
+import Navigation from '@/components/Navigation';
 import { Droplets, Sun, Wind, Zap, Leaf, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
 
