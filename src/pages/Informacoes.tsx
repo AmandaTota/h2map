@@ -1,6 +1,8 @@
 import Navigation from '@/components/Navigation';
-import { Droplets, Sun, Wind, Zap, Leaf, ChevronDown, ChevronUp } from 'lucide-react';
+import { Droplets, Sun, Wind, Zap, Leaf, ChevronDown, ChevronUp, Activity, TreePine, BarChart3, FileText } from 'lucide-react';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
 
 export default function Informacoes() {
   const [expandedSections, setExpandedSections] = useState({
