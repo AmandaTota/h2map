@@ -962,6 +962,7 @@ const FeasibilityAnalysis = () => {
               
               {/* Cenário 5 Anos */}
               {selectedScenario === '5' && simulationResults.fiveYears && (
+                <div className="space-y-6">
                   {/* Entrada de Dados */}
                   <div>
                     <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center">
@@ -1180,8 +1181,8 @@ const FeasibilityAnalysis = () => {
                       </div>
                     </Card>
                   </div>
-                  </div>
-                )
+                </div>
+              )}
 
                 {/* Cenário 5 Anos */}
                 {selectedScenario === '5' && simulationResults.fiveYears && (
