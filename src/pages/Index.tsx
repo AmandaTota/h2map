@@ -31,8 +31,8 @@ export default function Index() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-[70px]">
             <Link to="/" className="flex items-center space-x-2">
-              <div className="w-[100px] h-[100px]  to-teal-600 rounded-lg flex items-center justify-center">
-                <img src="/Logo.png" />
+              <div className="w-12 h-12 sm:w-14 sm:h-14 to-teal-600 rounded-lg flex items-center justify-center">
+                <img src="/Logo.png" alt="Logo H2maps" className="w-full h-full object-contain" />
               </div>
             </Link>
 
@@ -109,29 +109,29 @@ export default function Index() {
                 <Leaf className="w-4 h-4" />
                 <span>Energia Renovável Inteligente</span>
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight justify-center text-center">
+              <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight text-center">
                 Georreferenciamento para viabilidade de produção de
                 <span className="text-[#00a443] bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">
                   {" "}
                   Hidrogênio Verde
                 </span>
               </h1>
-              <p className="text-xl text-slate-600 mb-8 leading-relaxed justify-center text-justify">
+              <p className="text-lg sm:text-xl text-slate-600 mb-8 leading-relaxed text-center">
                 Analise a viabilidade de instalação de energia eólica e solar
                 usando mapas climáticos avançados. Incluindo unidades de
                 conservação da fauna e flora para desenvolvimento sustentável.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center text-center">
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <button
                   onClick={() => setAuthDialogOpen(true)}
-                  className="bg-[#0da9ff] opacity-60 w-[200px] text-white px-6 py-3 rounded-lg hover:bg-[#73cb94] transition-colors flex items-center justify-center space-x-2"
+                  className="bg-[#0da9ff] opacity-60 w-full sm:w-auto text-white px-6 py-3 rounded-lg hover:bg-[#73cb94] transition-colors flex items-center justify-center space-x-2"
                 >
                   <span>Cadastrar-se</span>
                 </button>
                   
                 <button
                   onClick={() => setAuthDialogOpen(true)}
-                  className="bg-[#0da9ff] opacity-60 w-[200px] text-white px-6 py-3 rounded-lg hover:bg-[#73cb94] transition-colors flex items-center justify-center space-x-2"
+                  className="bg-[#0da9ff] opacity-60 w-full sm:w-auto text-white px-6 py-3 rounded-lg hover:bg-[#73cb94] transition-colors flex items-center justify-center space-x-2"
                 >
                   <span>Entrar</span>
                 </button>
@@ -144,45 +144,45 @@ export default function Index() {
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative"
+              className="relative mt-8 lg:mt-0"
             >
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-4">
-                  <div className="bg-white  rounded-xl p-6 shadow-lg border border-emerald-100 hover:shadow-xl transition-all">
-                    <Sun className="w-8 h-8 text-yellow-500 mb-3" />
-                    <h3 className="font-bold text-slate-900 text-lg mb-2">
+                  <div className="bg-white rounded-xl p-4 sm:p-6 shadow-lg border border-emerald-100 hover:shadow-xl transition-all">
+                    <Sun className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-500 mb-2 sm:mb-3" />
+                    <h3 className="font-bold text-slate-900 text-base sm:text-lg mb-1 sm:mb-2">
                       Energia Solar
                     </h3>
-                    <p className="text-sm text-slate-600">
+                    <p className="text-xs sm:text-sm text-slate-600">
                       Análise de irradiância solar e potencial fotovoltaico
                     </p>
                   </div>
-                  <div className="bg-[#ff9c1a] opacity-60  rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all">
-                    <MapPin className="w-8 h-8 mb-3" />
-                    <h3 className="font-bold text-lg mb-2 opacity-100">
+                  <div className="bg-[#ff9c1a] opacity-60 rounded-xl p-4 sm:p-6 text-white shadow-lg hover:shadow-xl transition-all">
+                    <MapPin className="w-6 h-6 sm:w-8 sm:h-8 mb-2 sm:mb-3" />
+                    <h3 className="font-bold text-base sm:text-lg mb-1 sm:mb-2 opacity-100">
                       Georreferenciamento Preciso
                     </h3>
-                    <p className="text-sm text-white/90 opacity-100">
+                    <p className="text-xs sm:text-sm text-white/90 opacity-100">
                       Dados geográficos exatos para planejamento eficiente
                     </p>
                   </div>
                 </div>
-                <div className="space-y-4 pt-8">
-                  <div className="bg-[#00a443] opacity-60 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all">
-                    <Wind className="w-8 h-8 mb-3" />
-                    <h3 className="font-bold text-lg mb-2 opacity-100">
+                <div className="space-y-4 sm:pt-8">
+                  <div className="bg-[#00a443] opacity-60 rounded-xl p-4 sm:p-6 text-white shadow-lg hover:shadow-xl transition-all">
+                    <Wind className="w-6 h-6 sm:w-8 sm:h-8 mb-2 sm:mb-3" />
+                    <h3 className="font-bold text-base sm:text-lg mb-1 sm:mb-2 opacity-100">
                       Análise Eólica
                     </h3>
-                    <p className="text-sm text-white/90 opacity-100">
+                    <p className="text-xs sm:text-sm text-white/90 opacity-100">
                       Análise do vento para máximo aproveitamento energético
                     </p>
                   </div>
-                  <div className="bg-white rounded-xl p-6 shadow-lg border border-emerald-100 hover:shadow-xl transition-all">
-                    <BarChart3 className="w-8 h-8 text-emerald-600 mb-3" />
-                    <h3 className="font-bold text-slate-900 text-lg mb-2">
+                  <div className="bg-white rounded-xl p-4 sm:p-6 shadow-lg border border-emerald-100 hover:shadow-xl transition-all">
+                    <BarChart3 className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-600 mb-2 sm:mb-3" />
+                    <h3 className="font-bold text-slate-900 text-base sm:text-lg mb-1 sm:mb-2">
                       Dados Climáticos
                     </h3>
-                    <p className="text-sm text-slate-600">
+                    <p className="text-xs sm:text-sm text-slate-600">
                       Tempo, chuvas, ventos e padrões climáticos
                     </p>
                   </div>
@@ -194,19 +194,19 @@ export default function Index() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
+      <section id="features" className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 mb-2 sm:mb-4">
               Recursos Avançados de Análise
             </h2>
-            <p className="text-slate-600 text-lg">
+            <p className="text-slate-600 text-base sm:text-lg">
               Ferramentas completas para análise georreferenciada e tomada de
               decisão inteligente
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {[
               {
                 icon: <MapPin className="w-8 h-8" />,
@@ -257,17 +257,17 @@ export default function Index() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="bg-white border border-emerald-100 rounded-xl p-6 hover:shadow-xl transition-all hover:-translate-y-1"
+                className="bg-white border border-emerald-100 rounded-xl p-4 sm:p-6 hover:shadow-xl transition-all hover:-translate-y-1"
               >
                 <div
-                  className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-lg flex items-center justify-center text-white mb-4`}
+                  className={`w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br ${feature.color} rounded-lg flex items-center justify-center text-white mb-3 sm:mb-4`}
                 >
                   {feature.icon}
                 </div>
-                <h3 className="text-xl font-semibold text-slate-900 mb-2">
+                <h3 className="text-lg sm:text-xl font-semibold text-slate-900 mb-1 sm:mb-2">
                   {feature.title}
                 </h3>
-                <p className="text-slate-600 text-sm">{feature.description}</p>
+                <p className="text-slate-600 text-xs sm:text-sm">{feature.description}</p>
               </motion.div>
             ))}
           </div>
@@ -277,20 +277,20 @@ export default function Index() {
       {/* Conservation Section */}
       <section
         id="conservation"
-        className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-emerald-50 via-teal-50 to-green-50"
+        className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-emerald-50 via-teal-50 to-green-50"
       >
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-8 sm:mb-12 lg:mb-16">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 mb-2 sm:mb-4">
                 Protegendo a Biodiversidade
               </h2>
-              <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+              <p className="text-base sm:text-lg lg:text-xl text-slate-600 max-w-3xl mx-auto">
                 Nossa plataforma integra dados de unidades de conservação para
                 garantir que o desenvolvimento de energia renovável respeite e
                 proteja os ecossistemas locais.
@@ -298,7 +298,7 @@ export default function Index() {
             </motion.div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-12 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 mb-8 sm:mb-12 lg:mb-16">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -334,12 +334,12 @@ export default function Index() {
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className="flex items-start space-x-4 bg-white p-4 rounded-lg shadow-sm border border-emerald-100 hover:shadow-xl transition-all hover:-translate-y-1"
+                  className="flex items-start space-x-3 sm:space-x-4 bg-white p-3 sm:p-4 rounded-lg shadow-sm border border-emerald-100 hover:shadow-xl transition-all hover:-translate-y-1"
                 >
-                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center text-white flex-shrink-0">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center text-white flex-shrink-0">
                     {item.icon}
                   </div>
-                  <p className="text-slate-700 font-medium pt-2">{item.text}</p>
+                  <p className="text-slate-700 font-medium text-sm sm:text-base pt-1 sm:pt-2">{item.text}</p>
                 </motion.div>
               ))}
             </motion.div>
@@ -349,7 +349,7 @@ export default function Index() {
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
-              className="grid grid-cols-2 gap-6"
+              className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6"
             >
               {[
                 {
@@ -379,10 +379,10 @@ export default function Index() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className={`bg-gradient-to-br ${stat.color} rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all hover:-translate-y-1`}
+                  className={`bg-gradient-to-br ${stat.color} rounded-xl p-4 sm:p-6 text-white shadow-lg hover:shadow-xl transition-all hover:-translate-y-1`}
                 >
-                  <div className="text-4xl font-bold mb-2">{stat.number}</div>
-                  <div className="text-white/90 font-medium">{stat.label}</div>
+                  <div className="text-2xl sm:text-4xl font-bold mb-1 sm:mb-2">{stat.number}</div>
+                  <div className="text-white/90 font-medium text-sm sm:text-base">{stat.label}</div>
                 </motion.div>
               ))}
             </motion.div>
@@ -391,9 +391,9 @@ export default function Index() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-900 text-slate-300 py-12 px-4">
+      <footer className="bg-slate-900 text-slate-300 py-8 sm:py-12 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-8 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-6 sm:mb-8">
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <Droplets className="w-6 h-6 text-emerald-500" />

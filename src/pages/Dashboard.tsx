@@ -56,14 +56,14 @@ export default function Dashboard() {
       <Navigation />
       
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 pt-16">
-        <div className="container mx-auto px-4 py-6 max-w-7xl">
+        <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 max-w-7xl">
           {/* Layout: Sidebar (Search + Favorites) | Main Content (Weather + Map) */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
             {/* Left Sidebar: Location Search & Favorites */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-xl shadow-md p-5 sticky top-20">
-                <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-emerald-600" />
+              <div className="bg-white rounded-xl shadow-md p-3 sm:p-5 sticky top-20">
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-3 sm:mb-4 flex items-center gap-2">
+                  <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
                   Localização
                 </h3>
                 
@@ -76,9 +76,9 @@ export default function Dashboard() {
                   onClick={handleAddFavorite}
                   variant="outline"
                   size="sm"
-                  className="w-full mt-4 border-amber-300 hover:bg-amber-50 hover:border-amber-400 transition-colors"
+                  className="w-full mt-3 sm:mt-4 border-amber-300 hover:bg-amber-50 hover:border-amber-400 transition-colors text-sm sm:text-base"
                 >
-                  <Star className={`w-4 h-4 mr-2 transition-all ${isFavorite(localLocation.name) ? 'fill-amber-500 text-amber-500' : 'text-amber-500'}`} />
+                  <Star className={`w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 transition-all ${isFavorite(localLocation.name) ? 'fill-amber-500 text-amber-500' : 'text-amber-500'}`} />
                   {isFavorite(localLocation.name) ? 'Favoritado' : 'Adicionar Favorito'}
                 </Button>
 
