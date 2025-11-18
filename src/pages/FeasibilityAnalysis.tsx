@@ -18,13 +18,12 @@ import {
   Database
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Navigation from '@/components/Navigation';
 import LocationSearch from '@/components/LocationSearch';
-import ScenarioSelector from '@/components/ScenarioSelector';
 import { useLocationStore } from '@/store/locationStore';
 import { supabase } from '@/integrations/supabase/client';
 import { format, subDays } from 'date-fns';
@@ -123,7 +122,6 @@ const FeasibilityAnalysis = () => {
     threeYears: SimulationResult | null;
     fiveYears: SimulationResult | null;
   }>({ oneYear: null, threeYears: null, fiveYears: null });
-  const [selectedScenario, setSelectedScenario] = useState<string>('1');
 
   useEffect(() => {
     if (selectedLocation) {
@@ -769,16 +767,14 @@ const FeasibilityAnalysis = () => {
                 </div>
               </AccordionTrigger>
               <AccordionContent className="px-6 pb-6">
-              <div className="mb-6">
-                <ScenarioSelector
-                  selectedScenario={selectedScenario}
-                  onScenarioChange={setSelectedScenario}
-                  variant="pills"
-                  className="justify-center"
-                />
-              </div>
-              
-              {selectedScenario === '1' && (
+                <Tabs defaultValue="1" className="w-full">
+              <TabsList className="grid w-full grid-cols-3 mb-6 bg-gradient-to-r from-emerald-100 to-teal-100 p-2 rounded-xl border border-emerald-200 shadow-sm">
+                <TabsTrigger value="1" className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-emerald-700 rounded-lg transition-all">1 Ano</TabsTrigger>
+                <TabsTrigger value="3" className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-emerald-700 rounded-lg transition-all">3 Anos</TabsTrigger>
+                <TabsTrigger value="5" className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-emerald-700 rounded-lg transition-all">5 Anos</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="1">
                 <div className="space-y-6">
                   {/* Entrada de Dados */}
                   <div>
@@ -827,13 +823,13 @@ const FeasibilityAnalysis = () => {
                       <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
                         <p className="text-sm text-slate-700 mb-1">Energia Diária</p>
                         <p className="text-3xl font-bold text-purple-600">{energyCalc1Year.dailyEnergy.toFixed(0)}</p>
-                        <p className="text-xs text-slate-600">kWh{'/'}dia</p>
+                        <p className="text-xs text-slate-600">kWh/dia</p>
                       </Card>
 
                       <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
                         <p className="text-sm text-slate-700 mb-1">Energia Anual</p>
                         <p className="text-3xl font-bold text-purple-600">{(energyCalc1Year.annualEnergy / 1000).toFixed(1)}</p>
-                        <p className="text-xs text-slate-600">MWh{'/'}ano</p>
+                        <p className="text-xs text-slate-600">MWh/ano</p>
                       </Card>
                     </div>
                   </div>
@@ -860,15 +856,15 @@ const FeasibilityAnalysis = () => {
                         <p className="text-sm text-slate-700 mb-2">📊 <strong>Produção Anual:</strong></p>
                         <p className="text-3xl font-bold text-emerald-600">{energyCalc1Year.annualH2Production.toFixed(1)} ton/ano</p>
                         <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
-                          <strong>Fórmula:</strong> H₂ (kg) = E<sub>disponível</sub> {'/'} 50 kWh/kg
+                          <strong>Fórmula:</strong> H₂ (kg) = E<sub>disponível</sub> / 50 kWh/kg
                         </p>
                       </Card>
                     </div>
                   </div>
                 </div>
-                )}
+              </TabsContent>
 
-               {selectedScenario === '3' && (
+               <TabsContent value="3">
                 <div className="space-y-6">
                   {/* Entrada de Dados */}
                   <div>
@@ -917,13 +913,13 @@ const FeasibilityAnalysis = () => {
                       <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
                         <p className="text-sm text-slate-700 mb-1">Energia Diária</p>
                         <p className="text-3xl font-bold text-purple-600">{energyCalc3Years.dailyEnergy.toFixed(0)}</p>
-                        <p className="text-xs text-slate-600">kWh{'/'}dia</p>
+                        <p className="text-xs text-slate-600">kWh/dia</p>
                       </Card>
 
                       <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
                         <p className="text-sm text-slate-700 mb-1">Energia Anual</p>
                         <p className="text-3xl font-bold text-purple-600">{(energyCalc3Years.annualEnergy / 1000).toFixed(1)}</p>
-                        <p className="text-xs text-slate-600">MWh{'/'}ano</p>
+                        <p className="text-xs text-slate-600">MWh/ano</p>
                       </Card>
                     </div>
                   </div>
@@ -950,16 +946,15 @@ const FeasibilityAnalysis = () => {
                         <p className="text-sm text-slate-700 mb-2">📊 <strong>Produção Anual:</strong></p>
                         <p className="text-3xl font-bold text-emerald-600">{energyCalc3Years.annualH2Production.toFixed(1)} ton/ano</p>
                         <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
-                          <strong>Fórmula:</strong> H₂ (kg) = E<sub>disponível</sub> {'/'} 50 kWh/kg
+                          <strong>Fórmula:</strong> H₂ (kg) = E<sub>disponível</sub> / 50 kWh/kg
                         </p>
                       </Card>
                     </div>
                   </div>
                 </div>
-              )}
-              
-              {/* Cenário 5 Anos */}
-              {selectedScenario === '5' && simulationResults.fiveYears && (
+              </TabsContent>
+
+              <TabsContent value="5">
                 <div className="space-y-6">
                   {/* Entrada de Dados */}
                   <div>
@@ -1008,13 +1003,13 @@ const FeasibilityAnalysis = () => {
                       <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
                         <p className="text-sm text-slate-700 mb-1">Energia Diária</p>
                         <p className="text-3xl font-bold text-purple-600">{energyCalc5Years.dailyEnergy.toFixed(0)}</p>
-                        <p className="text-xs text-slate-600">kWh{'/'}dia</p>
+                        <p className="text-xs text-slate-600">kWh/dia</p>
                       </Card>
 
                       <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
                         <p className="text-sm text-slate-700 mb-1">Energia Anual</p>
                         <p className="text-3xl font-bold text-purple-600">{(energyCalc5Years.annualEnergy / 1000).toFixed(1)}</p>
-                        <p className="text-xs text-slate-600">MWh{'/'}ano</p>
+                        <p className="text-xs text-slate-600">MWh/ano</p>
                       </Card>
                     </div>
                   </div>
@@ -1041,12 +1036,14 @@ const FeasibilityAnalysis = () => {
                         <p className="text-sm text-slate-700 mb-2">📊 <strong>Produção Anual:</strong></p>
                         <p className="text-3xl font-bold text-emerald-600">{energyCalc5Years.annualH2Production.toFixed(1)} ton/ano</p>
                         <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
-                          <strong>Fórmula:</strong> H₂ (kg) = E<sub>disponível</sub> {'/'} 50 kWh/kg
+                          <strong>Fórmula:</strong> H₂ (kg) = E<sub>disponível</sub> / 50 kWh/kg
                         </p>
                       </Card>
                     </div>
                   </div>
-                )}
+                </div>
+              </TabsContent>
+                </Tabs>
               </AccordionContent>
             </Card>
           </AccordionItem>
@@ -1063,18 +1060,30 @@ const FeasibilityAnalysis = () => {
                 </AccordionTrigger>
                 <AccordionContent className="px-6 pb-6">
 
-              <div className="mb-6">
-                <ScenarioSelector
-                  selectedScenario={selectedScenario}
-                  onScenarioChange={setSelectedScenario}
-                  variant="pills"
-                  className="justify-center"
-                />
-              </div>
-              
-              <div className="space-y-6">
+              <Tabs defaultValue="1" className="w-full">
+                <TabsList className="flex w-full mb-6 overflow-x-auto">
+                  <TabsTrigger value="1" className="flex-shrink-0 min-w-[120px] sm:min-w-[140px]">
+                    <div className="text-center">
+                      <div className="text-xs sm:text-sm font-medium">Cenário 1 Ano</div>
+                      <div className="text-xs text-slate-500">100 kW</div>
+                    </div>
+                  </TabsTrigger>
+                  <TabsTrigger value="3" className="flex-shrink-0 min-w-[120px] sm:min-w-[140px]">
+                    <div className="text-center">
+                      <div className="text-xs sm:text-sm font-medium">Cenário 3 Anos</div>
+                      <div className="text-xs text-slate-500">300 kW</div>
+                    </div>
+                  </TabsTrigger>
+                  <TabsTrigger value="5" className="flex-shrink-0 min-w-[120px] sm:min-w-[140px]">
+                    <div className="text-center">
+                      <div className="text-xs sm:text-sm font-medium">Cenário 5 Anos</div>
+                      <div className="text-xs text-slate-500">500 kW</div>
+                    </div>
+                  </TabsTrigger>
+                </TabsList>
+
                 {/* Cenário 1 Ano */}
-                {selectedScenario === '1' && simulationResults.oneYear && (
+                <TabsContent value="1">
                   <div className="space-y-6">
                     {/* Métricas Principais */}
                     <div className="grid md:grid-cols-4 gap-4">
@@ -1093,7 +1102,7 @@ const FeasibilityAnalysis = () => {
                       <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
                         <p className="text-sm text-slate-700 mb-1">🔋 Energia Consumida</p>
                         <p className="text-3xl font-bold text-purple-600">{(simulationResults.oneYear.totalEnergyConsumed / 1000).toFixed(1)}</p>
-                        <p className="text-xs text-slate-600 mt-2">MWh{'/'}ano</p>
+                        <p className="text-xs text-slate-600 mt-2">MWh/ano</p>
                       </Card>
 
                       <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
@@ -1142,11 +1151,10 @@ const FeasibilityAnalysis = () => {
                       </p>
                     </Card>
                   </div>
-                </div>
-              )}
+                </TabsContent>
 
                 {/* Cenário 3 Anos */}
-                {selectedScenario === '3' && simulationResults.threeYears && (
+                <TabsContent value="3">
                   <div className="space-y-6">
                     <div className="grid md:grid-cols-4 gap-4">
                       <Card className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
@@ -1178,11 +1186,10 @@ const FeasibilityAnalysis = () => {
                       </div>
                     </Card>
                   </div>
-                </div>
-              )}
+                </TabsContent>
 
                 {/* Cenário 5 Anos */}
-                {selectedScenario === '5' && simulationResults.fiveYears && (
+                <TabsContent value="5">
                   <div className="space-y-6">
                     <div className="grid md:grid-cols-4 gap-4">
                       <Card className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
@@ -1214,7 +1221,8 @@ const FeasibilityAnalysis = () => {
                       </div>
                     </Card>
                   </div>
-                )}
+                </TabsContent>
+              </Tabs>
 
               {/* Explicação */}
               <Card className="mt-6 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
@@ -1228,12 +1236,11 @@ const FeasibilityAnalysis = () => {
                   <li><strong>Curtailment:</strong> Energia renovável desperdiçada</li>
                   <li><strong>Operação:</strong> 20-100% quando energia disponível nessa faixa</li>
                 </ul>
+                </Card>
+                </AccordionContent>
               </Card>
-            </div>
-        </AccordionContent>
-      </Card>
-    </AccordionItem>
-  )}
+            </AccordionItem>
+          )}
 
           {/* Resumo Financeiro */}
           {simulationResults.oneYear && (
@@ -1250,19 +1257,31 @@ const FeasibilityAnalysis = () => {
                 </AccordionTrigger>
                 <AccordionContent className="px-6 pb-6">
 
-              <div className="mb-6">
-                <ScenarioSelector
-                  selectedScenario={selectedScenario}
-                  onScenarioChange={setSelectedScenario}
-                  variant="pills"
-                  className="justify-center"
-                />
-              </div>
+              <Tabs defaultValue="1" className="w-full">
+                <TabsList className="flex w-full mb-6 overflow-x-auto">
+                  <TabsTrigger value="1" className="flex-shrink-0 min-w-[120px] sm:min-w-[140px]">
+                    <div className="text-center">
+                      <div className="text-xs sm:text-sm font-medium">Cenário 1 Ano</div>
+                      <div className="text-xs text-slate-500">100 kW</div>
+                    </div>
+                  </TabsTrigger>
+                  <TabsTrigger value="3" className="flex-shrink-0 min-w-[120px] sm:min-w-[140px]">
+                    <div className="text-center">
+                      <div className="text-xs sm:text-sm font-medium">Cenário 3 Anos</div>
+                      <div className="text-xs text-slate-500">300 kW</div>
+                    </div>
+                  </TabsTrigger>
+                  <TabsTrigger value="5" className="flex-shrink-0 min-w-[120px] sm:min-w-[140px]">
+                    <div className="text-center">
+                      <div className="text-xs sm:text-sm font-medium">Cenário 5 Anos</div>
+                      <div className="text-xs text-slate-500">500 kW</div>
+                    </div>
+                  </TabsTrigger>
+                </TabsList>
 
                 {/* Cenário 1 Ano */}
-                {selectedScenario === '1' && simulationResults.oneYear && (
-                  <div className="space-y-6">
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <TabsContent value="1">
+                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
                       <div className="flex items-center space-x-2 mb-2">
                         <Droplet className="w-5 h-5 text-blue-600" />
@@ -1335,12 +1354,11 @@ const FeasibilityAnalysis = () => {
                       💡 Assumindo preço de venda de R$ 25/kg e taxa de desconto de 10% ao ano
                     </p>
                   </Card>
-                )}
+                </TabsContent>
 
                 {/* Cenário 3 Anos */}
-                {selectedScenario === '3' && simulationResults.threeYears && (
-                  <div className="space-y-6">
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <TabsContent value="3">
+                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
                       <div className="flex items-center space-x-2 mb-2">
                         <Droplet className="w-5 h-5 text-blue-600" />
@@ -1413,12 +1431,11 @@ const FeasibilityAnalysis = () => {
                       💡 Assumindo preço de venda de R$ 25/kg e taxa de desconto de 10% ao ano
                     </p>
                   </Card>
-                )}
+                </TabsContent>
 
                 {/* Cenário 5 Anos */}
-                {selectedScenario === '5' && simulationResults.fiveYears && (
-                  <div className="space-y-6">
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <TabsContent value="5">
+                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
                       <div className="flex items-center space-x-2 mb-2">
                         <Droplet className="w-5 h-5 text-blue-600" />
@@ -1491,8 +1508,8 @@ const FeasibilityAnalysis = () => {
                       💡 Assumindo preço de venda de R$ 25/kg e taxa de desconto de 10% ao ano
                     </p>
                   </Card>
-                </div>
-                )}
+                </TabsContent>
+                </Tabs>
                 </AccordionContent>
               </Card>
             </AccordionItem>
@@ -1508,6 +1525,7 @@ const FeasibilityAnalysis = () => {
                 </div>
               </AccordionTrigger>
               <AccordionContent className="px-6 pb-6">
+
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
               {environmentalFactors.map((factor, index) => (
                 <motion.div
@@ -1549,17 +1567,15 @@ const FeasibilityAnalysis = () => {
                 </AccordionTrigger>
                 <AccordionContent className="px-6 pb-6">
 
-              <div className="mb-6">
-                <ScenarioSelector
-                  selectedScenario={selectedScenario}
-                  onScenarioChange={setSelectedScenario}
-                  variant="pills"
-                  className="justify-center"
-                />
-              </div>
+              <Tabs defaultValue="1" className="w-full">
+                <TabsList className="grid w-full grid-cols-3 mb-6 bg-gradient-to-r from-emerald-100 to-teal-100 p-2 rounded-xl border border-emerald-200 shadow-sm">
+                  <TabsTrigger value="1" className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-emerald-700 rounded-lg transition-all">Cenário 1 Ano (100 kW)</TabsTrigger>
+                  <TabsTrigger value="3" className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-emerald-700 rounded-lg transition-all">Cenário 3 Anos (300 kW)</TabsTrigger>
+                  <TabsTrigger value="5" className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-emerald-700 rounded-lg transition-all">Cenário 5 Anos (500 kW)</TabsTrigger>
+                </TabsList>
 
                 {/* Cenário 1 Ano */}
-                {selectedScenario === '1' && simulationResults.oneYear && (
+                <TabsContent value="1">
                   <div className="space-y-4">
                     {/* Viabilidade Técnica */}
                     <div className={`flex items-start space-x-3 p-4 rounded-lg border ${
@@ -1648,10 +1664,10 @@ const FeasibilityAnalysis = () => {
                       </div>
                     </div>
                   </div>
-                )}
+                </TabsContent>
 
                 {/* Cenário 3 Anos */}
-                {selectedScenario === '3' && simulationResults.threeYears && (
+                <TabsContent value="3">
                   <div className="space-y-4">
                     {/* Viabilidade Técnica */}
                     <div className={`flex items-start space-x-3 p-4 rounded-lg border ${
@@ -1739,10 +1755,10 @@ const FeasibilityAnalysis = () => {
                       </div>
                     </div>
                   </div>
-                )}
+                </TabsContent>
 
                 {/* Cenário 5 Anos */}
-                {selectedScenario === '5' && simulationResults.fiveYears && (
+                <TabsContent value="5">
                   <div className="space-y-4">
                     {/* Viabilidade Técnica */}
                     <div className={`flex items-start space-x-3 p-4 rounded-lg border ${
@@ -1830,7 +1846,8 @@ const FeasibilityAnalysis = () => {
                       </div>
                     </div>
                   </div>
-                )}
+                </TabsContent>
+              </Tabs>
               </AccordionContent>
             </Card>
           </AccordionItem>
@@ -1850,6 +1867,7 @@ const FeasibilityAnalysis = () => {
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-6 pb-6">
+
               <div className="space-y-3">
                 {/* Recomendações dinâmicas baseadas nos resultados */}
                 {simulationResults.oneYear.capacityFactor < 30 && (
@@ -1878,7 +1896,7 @@ const FeasibilityAnalysis = () => {
                     <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
                     <div className="flex-1 flex items-center justify-between">
                       <p className="text-slate-700">
-                        <strong>Reduzir Curtailment:</strong> {(simulationResults.oneYear.curtailment / 1000).toFixed(1)} MWh{'/'}ano de energia desperdiçada. 
+                        <strong>Reduzir Curtailment:</strong> {(simulationResults.oneYear.curtailment / 1000).toFixed(1)} MWh/ano de energia desperdiçada. 
                         Considere sistema de armazenamento (baterias) ou aumentar capacidade do eletrolisador.
                       </p>
                       <Badge variant="outline" className="ml-4 bg-amber-100 text-amber-800 border-amber-200">Média</Badge>
@@ -2028,232 +2046,6 @@ const FeasibilityAnalysis = () => {
         </Accordion>
         </>
         )}
-
-        {/* Seção de Artigos e Recursos */}
-        <div className="mt-12">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-slate-900 mb-2">Artigos e Recursos</h2>
-            <p className="text-slate-600">Conheça mais sobre energias renováveis e hidrogênio verde</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Artigo 1 */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow"
-            >
-              <div className="p-6">
-                <div className="flex items-center mb-3">
-                  <Sun className="w-6 h-6 text-emerald-600 mr-2" />
-                  <span className="text-sm font-medium text-emerald-700 bg-emerald-100 px-2 py-1 rounded">Sustentabilidade</span>
-                </div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-3">
-                  Impacto das Energias Renováveis na Sustentabilidade Global
-                </h3>
-                <p className="text-slate-600 text-sm mb-4">
-                  Analisa tecnologias renováveis (solar, eólica, hidrelétrica), seus impactos ambientais e benefícios econômicos.
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500">Fonte: repositori...gna.com.br</span>
-                  <Button variant="outline" size="sm" className="text-emerald-600 border-emerald-200 hover:bg-emerald-50">
-                    Leia aqui
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Artigo 2 */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow"
-            >
-              <div className="p-6">
-                <div className="flex items-center mb-3">
-                  <Wind className="w-6 h-6 text-blue-600 mr-2" />
-                  <span className="text-sm font-medium text-blue-700 bg-blue-100 px-2 py-1 rounded">Transição Energética</span>
-                </div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-3">
-                  A Transição Para Energias Renováveis: Impactos Econômicos e Ambientais
-                </h3>
-                <p className="text-slate-600 text-sm mb-4">
-                  Explora como fontes limpas remodelam sistemas energéticos globais e os desafios da adoção.
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500">Fonte: iosrjournals.org</span>
-                  <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50">
-                    Leia aqui
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Artigo 3 */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow"
-            >
-              <div className="p-6">
-                <div className="flex items-center mb-3">
-                  <TreePine className="w-6 h-6 text-green-600 mr-2" />
-                  <span className="text-sm font-medium text-green-700 bg-green-100 px-2 py-1 rounded">Sociedade de Baixa Carbono</span>
-                </div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-3">
-                  A geração de energia no contexto da sustentabilidade
-                </h3>
-                <p className="text-slate-600 text-sm mb-4">
-                  Livro da SciELO sobre transição para sociedade de baixo carbono e planejamento energético.
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500">Fonte: books.scielo.org</span>
-                  <Button variant="outline" size="sm" className="text-green-600 border-green-200 hover:bg-green-50">
-                    Leia aqui
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Artigo 4 */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow"
-            >
-              <div className="p-6">
-                <div className="flex items-center mb-3">
-                  <Activity className="w-6 h-6 text-purple-600 mr-2" />
-                  <span className="text-sm font-medium text-purple-700 bg-purple-100 px-2 py-1 rounded">Fontes Limpas</span>
-                </div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-3">
-                  Energias Renováveis: Fonte de Energia Limpa?
-                </h3>
-                <p className="text-slate-600 text-sm mb-4">
-                  Analisa impactos ambientais e pontos fortes das tecnologias solar, eólica e biomassa.
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500">Fonte: ibeas.org.br</span>
-                  <Button variant="outline" size="sm" className="text-purple-600 border-purple-200 hover:bg-purple-50">
-                    Leia aqui
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Artigo 5 - Hidrogênio */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow"
-            >
-              <div className="p-6">
-                <div className="flex items-center mb-3">
-                  <Droplet className="w-6 h-6 text-cyan-600 mr-2" />
-                  <span className="text-sm font-medium text-cyan-700 bg-cyan-100 px-2 py-1 rounded">Hidrogênio Verde</span>
-                </div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-3">
-                  Hidrogênio Verde: A Fonte de Energia do Futuro
-                </h3>
-                <p className="text-slate-600 text-sm mb-4">
-                  Discute potencial energético, redução de CO₂ e vantagens para países com alta geração renovável.
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500">Fonte: periodicos.ufpa.br</span>
-                  <Button variant="outline" size="sm" className="text-cyan-600 border-cyan-200 hover:bg-cyan-50">
-                    Leia aqui
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Artigo 6 - Hidrogênio Sustentabilidade */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow"
-            >
-              <div className="p-6">
-                <div className="flex items-center mb-3">
-                  <Zap className="w-6 h-6 text-orange-600 mr-2" />
-                  <span className="text-sm font-medium text-orange-700 bg-orange-100 px-2 py-1 rounded">Visão Integrada</span>
-                </div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-3">
-                  Hidrogênio Verde e Sustentabilidade: Uma Visão Integrada
-                </h3>
-                <p className="text-slate-600 text-sm mb-4">
-                  Aborda desafios tecnológicos, econômicos e regulatórios, além de oportunidades para o Brasil.
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500">Fonte: bing.com</span>
-                  <Button variant="outline" size="sm" className="text-orange-600 border-orange-200 hover:bg-orange-50">
-                    Leia aqui
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Artigo 7 - Transição Brasileira */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
-              className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow"
-            >
-              <div className="p-6">
-                <div className="flex items-center mb-3">
-                  <BarChart3 className="w-6 h-6 text-indigo-600 mr-2" />
-                  <span className="text-sm font-medium text-indigo-700 bg-indigo-100 px-2 py-1 rounded">Transição Brasileira</span>
-                </div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-3">
-                  Hidrogênio Verde: O Seu Potencial na Transição Energética Brasileira
-                </h3>
-                <p className="text-slate-600 text-sm mb-4">
-                  Analisa rotas de produção, vantagens e desafios para adoção em larga escala.
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500">Fonte: revistaft.com.br</span>
-                  <Button variant="outline" size="sm" className="text-indigo-600 border-indigo-200 hover:bg-indigo-50">
-                    Leia aqui
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Artigo 8 - Contexto Global */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-              className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow"
-            >
-              <div className="p-6">
-                <div className="flex items-center mb-3">
-                  <FileText className="w-6 h-6 text-teal-600 mr-2" />
-                  <span className="text-sm font-medium text-teal-700 bg-teal-100 px-2 py-1 rounded">Revisão Sistemática</span>
-                </div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-3">
-                  A Produção de Hidrogênio no Contexto da Transição Energética Global
-                </h3>
-                <p className="text-slate-600 text-sm mb-4">
-                  Revisão sistemática sobre papel do H₂V na mitigação das mudanças climáticas.
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500">Fonte: submissao....gep.org.br</span>
-                  <Button variant="outline" size="sm" className="text-teal-600 border-teal-200 hover:bg-teal-50">
-                    Leia aqui
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
         </div>
       </div>
     </>
