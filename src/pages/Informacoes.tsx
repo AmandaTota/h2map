@@ -286,6 +286,7 @@ export default function Informacoes() {
                     econômicos.
                   </p>
                   <div className="flex items-center justify-between">
+<<<<<<< HEAD
                     <span className="text-xs text-slate-500">
                       Fonte: repositori...gna.com.br
                     </span>
@@ -293,6 +294,14 @@ export default function Informacoes() {
                       variant="outline"
                       size="sm"
                       className="text-emerald-600 border-emerald-200 hover:bg-emerald-50"
+=======
+                    <span className="text-xs text-slate-500">Fonte: repositori...gna.com.br</span>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-emerald-600 border-emerald-200 hover:bg-emerald-50"
+                      onClick={() => window.open('https://repositori.ufla.br/handle/123456789/12345', '_blank')}
+>>>>>>> 204e7f9fdc6c7ef3b1cab4e6eeb43c1f94037bae
                     >
                       Leia aqui
                     </Button>
@@ -323,6 +332,7 @@ export default function Informacoes() {
                     globais e os desafios da adoção.
                   </p>
                   <div className="flex items-center justify-between">
+<<<<<<< HEAD
                     <span className="text-xs text-slate-500">
                       Fonte: iosrjournals.org
                     </span>
@@ -330,6 +340,14 @@ export default function Informacoes() {
                       variant="outline"
                       size="sm"
                       className="text-blue-600 border-blue-200 hover:bg-blue-50"
+=======
+                    <span className="text-xs text-slate-500">Fonte: iosrjournals.org</span>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                      onClick={() => window.open('https://iosrjournals.org/iosr-jestft/papers/vol7-issue1/Version-1/G0711010106.pdf', '_blank')}
+>>>>>>> 204e7f9fdc6c7ef3b1cab4e6eeb43c1f94037bae
                     >
                       Leia aqui
                     </Button>
@@ -359,6 +377,7 @@ export default function Informacoes() {
                     carbono e planejamento energético.
                   </p>
                   <div className="flex items-center justify-between">
+<<<<<<< HEAD
                     <span className="text-xs text-slate-500">
                       Fonte: books.scielo.org
                     </span>
@@ -366,6 +385,14 @@ export default function Informacoes() {
                       variant="outline"
                       size="sm"
                       className="text-green-600 border-green-200 hover:bg-green-50"
+=======
+                    <span className="text-xs text-slate-500">Fonte: books.scielo.org</span>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-green-600 border-green-200 hover:bg-green-50"
+                      onClick={() => window.open('https://books.scielo.org/id/srchb/pdf/costa-9788575412352.pdf', '_blank')}
+>>>>>>> 204e7f9fdc6c7ef3b1cab4e6eeb43c1f94037bae
                     >
                       Leia aqui
                     </Button>
@@ -395,6 +422,7 @@ export default function Informacoes() {
                     solar, eólica e biomassa.
                   </p>
                   <div className="flex items-center justify-between">
+<<<<<<< HEAD
                     <span className="text-xs text-slate-500">
                       Fonte: ibeas.org.br
                     </span>
@@ -402,6 +430,14 @@ export default function Informacoes() {
                       variant="outline"
                       size="sm"
                       className="text-purple-600 border-purple-200 hover:bg-purple-50"
+=======
+                    <span className="text-xs text-slate-500">Fonte: ibeas.org.br</span>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-purple-600 border-purple-200 hover:bg-purple-50"
+                      onClick={() => window.open('https://www.ibeas.org.br/energias-renovaveis-fonte-de-energia-limpa/', '_blank')}
+>>>>>>> 204e7f9fdc6c7ef3b1cab4e6eeb43c1f94037bae
                     >
                       Leia aqui
                     </Button>
@@ -431,6 +467,7 @@ export default function Informacoes() {
                     para países com alta geração renovável.
                   </p>
                   <div className="flex items-center justify-between">
+<<<<<<< HEAD
                     <span className="text-xs text-slate-500">
                       Fonte: periodicos.ufpa.br
                     </span>
@@ -438,6 +475,14 @@ export default function Informacoes() {
                       variant="outline"
                       size="sm"
                       className="text-cyan-600 border-cyan-200 hover:bg-cyan-50"
+=======
+                    <span className="text-xs text-slate-500">Fonte: periodicos.ufpa.br</span>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-cyan-600 border-cyan-200 hover:bg-cyan-50"
+                      onClick={() => window.open('https://periodicos.ufpa.br/index.php/revistaamazonia/article/view/12345', '_blank')}
+>>>>>>> 204e7f9fdc6c7ef3b1cab4e6eeb43c1f94037bae
                     >
                       Leia aqui
                     </Button>
@@ -467,6 +512,7 @@ export default function Informacoes() {
                     além de oportunidades para o Brasil.
                   </p>
                   <div className="flex items-center justify-between">
+<<<<<<< HEAD
                     <span className="text-xs text-slate-500">
                       Fonte: bing.com
                     </span>
@@ -474,6 +520,14 @@ export default function Informacoes() {
                       variant="outline"
                       size="sm"
                       className="text-orange-600 border-orange-200 hover:bg-orange-50"
+=======
+                    <span className="text-xs text-slate-500">Fonte: bing.com</span>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-orange-600 border-orange-200 hover:bg-orange-50"
+                      onClick={() => window.open('https://www.bing.com/search?q=hidrogenio+verde+sustentabilidade+visao+integrada', '_blank')}
+>>>>>>> 204e7f9fdc6c7ef3b1cab4e6eeb43c1f94037bae
                     >
                       Leia aqui
                     </Button>
@@ -504,6 +558,7 @@ export default function Informacoes() {
                     em larga escala.
                   </p>
                   <div className="flex items-center justify-between">
+<<<<<<< HEAD
                     <span className="text-xs text-slate-500">
                       Fonte: revistaft.com.br
                     </span>
@@ -511,6 +566,14 @@ export default function Informacoes() {
                       variant="outline"
                       size="sm"
                       className="text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+=======
+                    <span className="text-xs text-slate-500">Fonte: revistaft.com.br</span>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                      onClick={() => window.open('https://www.revistaft.com.br/hidrogenio-verde-transicao-energetica-brasileira', '_blank')}
+>>>>>>> 204e7f9fdc6c7ef3b1cab4e6eeb43c1f94037bae
                     >
                       Leia aqui
                     </Button>
@@ -541,6 +604,7 @@ export default function Informacoes() {
                     mudanças climáticas.
                   </p>
                   <div className="flex items-center justify-between">
+<<<<<<< HEAD
                     <span className="text-xs text-slate-500">
                       Fonte: submissao....gep.org.br
                     </span>
@@ -591,6 +655,14 @@ export default function Informacoes() {
                           "_blank"
                         )
                       }
+=======
+                    <span className="text-xs text-slate-500">Fonte: submissao....gep.org.br</span>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-teal-600 border-teal-200 hover:bg-teal-50"
+                      onClick={() => window.open('https://submissao.gep.org.br/anais/article/view/12345', '_blank')}
+>>>>>>> 204e7f9fdc6c7ef3b1cab4e6eeb43c1f94037bae
                     >
                       Leia aqui
                     </Button>
