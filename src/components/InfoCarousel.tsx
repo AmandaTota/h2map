@@ -55,6 +55,14 @@ const cards = [
     content:
       'Nas últimas décadas, a temperatura média global tem apresentado um crescimento significativo, fenômeno',
   },
+  {
+    id: 'h2-preservacao',
+    title: 'H₂ Verde e Preservação Ambiental',
+    short: 'Impactos ambientais positivos da produção de hidrogênio verde.',
+    image: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=1200&q=60&auto=format&fit=crop',
+    content:
+      'A produção de hidrogênio verde contribui significativamente para a preservação ambiental ao eliminar emissões de CO₂ no processo de eletrólise. Diferente do hidrogênio cinza (produzido a partir de combustíveis fósseis), o H₂ verde utiliza apenas água e energia renovável, não gerando poluentes atmosféricos ou resíduos tóxicos. Além disso, plantas de produção podem ser integradas a parques eólicos e solares, otimizando o uso do solo e reduzindo a pressão sobre ecossistemas. A transição para hidrogênio verde em setores industriais pesados (siderurgia, química, transporte) diminui drasticamente a poluição do ar e hídrica, protegendo a biodiversidade e a saúde dos ecossistemas locais. Seu uso também reduz a dependência de extração de combustíveis fósseis, preservando habitats naturais ameaçados pela mineração e perfuração.',
+  },
 ];
 
 export default function InfoCarousel() {
