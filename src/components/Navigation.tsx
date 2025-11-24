@@ -33,7 +33,7 @@ const Navigation = () => {
     { path: "/feasibility", label: "Análise de Viabilidade", icon: BarChart3 },
     { path: "/statistics", label: "Estatísticas", icon: LineChart },
     { path: "/dashboard", label: "Previsão", icon: ThermometerSun },
-    { path: "/informacoes", label: "Informações e Artigos", icon: Info },
+    { path: "/informacoes", label: "Informações", icon: Info },
   ];
 
   const isActive = (path: string) => location.pathname === path;
