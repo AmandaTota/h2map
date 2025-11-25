@@ -143,8 +143,15 @@ export default function Informacoes() {
       (s, e) => s + e.kmPerDay * e.tripsPerWeek,
       0
     );
-    const yearlyKm = weeklyKm * 52;
-    const monthlyKm = yearlyKm / 12;
+
+    // Use fórmula solicitada:
+    // KM/mês = KM/dia × Dias/mês
+    // KM/dia = KM/mês / Dias/mês
+    // Calculamos KM/dia como média semanal dividida por 7, e depois KM/mês a partir de KM/dia.
+    const DAYS_IN_MONTH = 365.25 / 12; // média anual / 12 ≈ 30.4375 dias por mês
+    const dailyKm = weeklyKm / 7;
+    const monthlyKm = dailyKm * DAYS_IN_MONTH;
+    const yearlyKm = monthlyKm * 12;
     const totalKgCO2 = entries.reduce((s, e) => {
       const factor = emissionFactors[e.mode] ?? 0;
       return s + e.kmPerDay * e.tripsPerWeek * 52 * factor;
@@ -155,22 +162,22 @@ export default function Informacoes() {
     const trees = totalKgCO2 > 0 ? Math.ceil(totalKgCO2 / 20) : 0;
 
     // Classificação de emissões baseada em km/dia (referência: INPE)
-    // Calculamos a média diária a partir do total semanal: dailyKm = weeklyKm / 7
+    // Usamos a fórmula do usuário: KM/dia = KM/mês / Dias/mês (aqui dailyKm já foi calculado acima)
     const emissionLevel = (() => {
-      const dailyKm = weeklyKm / 7;
-      if (dailyKm <= 0)
+      const daily = monthlyKm / DAYS_IN_MONTH; // equivalência direta com `dailyKm`
+      if (daily <= 0)
         return {
           label: "Nenhuma",
           color: "bg-slate-200",
           text: "text-slate-700",
         };
-      if (dailyKm < 10)
+      if (daily < 10)
         return {
           label: "Baixa",
           color: "bg-emerald-100",
           text: "text-emerald-800",
         };
-      if (dailyKm <= 30)
+      if (daily <= 30)
         return {
           label: "Média",
           color: "bg-yellow-100",
@@ -232,7 +239,7 @@ export default function Informacoes() {
             <Button
               variant="outline"
               size="sm"
-              className="w-full md:w-auto px-3 py-2 h-10"
+              className="w-[50px] md:w-auto px-3 py-2 h-10"
               onClick={addEntry}
             >
               Adicionar
@@ -245,13 +252,19 @@ export default function Informacoes() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm border-collapse">
                 <thead>
-                  <tr className="text-left text-slate-600">
-                    <th className="pb-2">Meio</th>
-                    <th className="pb-2">Km / dia</th>
-                    <th className="pb-2">Viagens / semana</th>
-                    <th className="pb-2">Km / semana</th>
-                    <th className="pb-2">kg CO₂ / ano</th>
-                    <th className="pb-2">Remover</th>
+                  <tr className="text-slate-600">
+                    <th className="py-2 px-2 sm:px-4 text-left">Meio</th>
+                    <th className="py-2 px-2 sm:px-4 text-right">Km / dia</th>
+                    <th className="py-2 px-2 sm:px-4 text-right">
+                      Viagens / semana
+                    </th>
+                    <th className="py-2 px-2 sm:px-4 text-right">
+                      Km / semana
+                    </th>
+                    <th className="py-2 px-2 sm:px-4 text-right">
+                      kg CO₂ / ano
+                    </th>
+                    <th className="py-2 px-2 sm:px-4 text-center">Remover</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -263,23 +276,23 @@ export default function Informacoes() {
                       options.find((o) => o.key === e.mode)?.label ?? e.mode;
                     return (
                       <tr key={e.id} className="border-t">
-                        <td className="py-2">
+                        <td className="py-2 px-2 sm:px-4">
                           <span className="mr-2">{emojiMap[e.mode]}</span>
                           {label}
                         </td>
-                        <td className="py-2 text-right font-medium">
+                        <td className="py-2 px-2 sm:px-4 text-right font-medium">
                           {e.kmPerDay}
                         </td>
-                        <td className="py-2 text-right font-medium">
+                        <td className="py-2 px-2 sm:px-4 text-right font-medium">
                           {e.tripsPerWeek}
                         </td>
-                        <td className="py-2 text-right font-medium">
+                        <td className="py-2 px-2 sm:px-4 text-right font-medium">
                           {weekly}
                         </td>
-                        <td className="py-2 text-right font-medium">
+                        <td className="py-2 px-2 sm:px-4 text-right font-medium">
                           {kg.toFixed(2)}
                         </td>
-                        <td className="py-2">
+                        <td className="py-2 px-2 sm:px-4 text-center">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -309,10 +322,6 @@ export default function Informacoes() {
                 <div className="text-xs text-slate-500">Total</div>
                 <div className="text-base font-semibold text-slate-900">
                   {weeklyKm.toFixed(1)} km / semana
-                </div>
-                <div className="text-xs text-slate-500">
-                  {monthlyKm.toFixed(1)} km / mês · {(weeklyKm / 7).toFixed(1)}{" "}
-                  km / dia
                 </div>
               </div>
 
