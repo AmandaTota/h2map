@@ -2,22 +2,16 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
-  Sun,
-  Wind,
-  TreePine,
-  Mountain,
-  Activity,
-  CheckCircle2,
-  AlertTriangle,
-  TrendingUp,
-  Droplet,
-  Zap,
-  BarChart3,
-  FileText,
-  Loader2,
-  Database,
-} from "lucide-react";
-import { Card } from "@/components/ui/card";
+                                <div>
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    Payback Estimado:
+                                  </p>
+                                  <p className="text-xl font-bold text-green-600">
+                                    {isFinite(simulationResults.oneYear.payback || 0)
+                                      ? `${simulationResults.oneYear.payback!.toFixed(1)} anos`
+                                      : 'N/A'}
+                                  </p>
+                                </div>
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Accordion,
@@ -97,6 +91,7 @@ interface SimulationResult {
   lcoh: number; // R$/kg
   capexAnnualized: number; // R$/ano
   opexAnnual: number; // R$/ano
+  payback?: number; // anos
 }
 
 interface TopographyData {
@@ -432,21 +427,48 @@ const FeasibilityAnalysis = () => {
         }
       }
 
-      // Anualizar resultados (multiplicar pelos anos do cenário)
-      const annualEnergyConsumed = totalEnergyConsumed;
-      const annualH2Production = annualEnergyConsumed / electrolyzerConsumption; // kg/ano
-
-      // Calcular Fator de Capacidade
+      // Anualizar resultados (valores agregados do período simulado)
+      const annualEnergyConsumed = totalEnergyConsumed; // kWh/ano (simulado)
+      // Fator de capacidade (decimal)
       const totalHoursInPeriod = dailyData.length * 24;
       const capacityFactor =
         (totalEnergyConsumed /
           (electrolyzerNominalPower * totalHoursInPeriod)) *
-        100;
+        100; // em % (para exibição)
+      const capacityFactorDecimal = Math.max(0, capacityFactor / 100);
 
-      // Calcular custos (escalam com o cenário)
+      // Estimativa de potência instalada (kW) a partir das fontes renováveis dimensionadas
       const estimatedSolarPower = 50 * scaleFactor; // kW (escala com capacidade)
       const estimatedWindPower = 30 * scaleFactor; // kW (escala com capacidade)
+      const totalInstalledPower = estimatedSolarPower + estimatedWindPower; // kW
 
+      // 1) Produção Anual de Energia (MWh) usando fórmula padrão
+      // E_anual (MWh) = (Potência Instalada (kW) × Fator de Capacidade × 8760) / 1000
+      const E_anual_MWh =
+        (totalInstalledPower * capacityFactorDecimal * 8760) / 1000; // MWh/ano
+      const E_anual_kWh = E_anual_MWh * 1000; // kWh/ano
+
+      // Parâmetros eletrolisador segundo documento de referência
+      const electrolyzerEfficiencyFraction = 0.7; // 70% (eficiência do eletrolisador)
+      const specificConsumption = 50; // kWh/kg H2 (consumo específico de referência)
+
+      // 2) Produção Anual de H2 (kg)
+      // H2 (kg) = (Energia Anual (kWh) × Eficiência do Eletrolisador) / Consumo específico (kWh/kg)
+      const systemAvailableEnergy_kWh = E_anual_kWh * systemEfficiency; // considerar eficiência do sistema
+      let annualH2Production_kg = 0;
+      if (specificConsumption > 0) {
+        annualH2Production_kg =
+          (systemAvailableEnergy_kWh * electrolyzerEfficiencyFraction) /
+          specificConsumption;
+      }
+
+      // Ajustes realistas: redução de CAPEX por escala e ganho de eficiência por escala
+      const scaleReduction =
+        scaleFactor === 1 ? 0 : scaleFactor === 3 ? 0.15 : 0.3; // ex.: 15% para 3x, 30% para 5x
+      const efficiencyGain =
+        scaleFactor === 1 ? 0 : scaleFactor === 3 ? 0.05 : 0.1; // ganho de produção por escala
+
+      // Calcular CAPEX total (como antes) e aplicar redução por escala
       const totalCapex =
         estimatedSolarPower * solarCapexPerKW +
         estimatedWindPower * windCapexPerKW +
@@ -454,37 +476,54 @@ const FeasibilityAnalysis = () => {
         (estimatedSolarPower * solarCapexPerKW +
           estimatedWindPower * windCapexPerKW) *
           infrastructureMultiplier;
+      const adjustedCapex = totalCapex * (1 - scaleReduction);
 
-      // Anualizar CAPEX (usando fator de recuperação de capital)
-      const crf =
-        (discountRate * Math.pow(1 + discountRate, projectLifetime)) /
-        (Math.pow(1 + discountRate, projectLifetime) - 1);
-      const capexAnnualized = totalCapex * crf;
+      // CAPEX amortizado por ano (seguindo a fórmula do documento)
+      const capexAnnualized = adjustedCapex / projectLifetime; // R$/ano
 
-      // OPEX anual
+      // OPEX anual (manutenção + insumos como água)
       const opexAnnual =
-        totalCapex * opexPercentage + annualH2Production * waterCostPerKg;
+        totalCapex * opexPercentage + annualH2Production_kg * waterCostPerKg;
 
-      // LCOH (Levelized Cost of Hydrogen)
-      const lcoh = (capexAnnualized + opexAnnual) / annualH2Production;
+      // Produção ajustada por ganhos de eficiência
+      const productionAdjusted_kg =
+        annualH2Production_kg * (1 + efficiencyGain);
+
+      // Receita anual
+      const pricePerKg = 25; // R$/kg (valor de referência)
+      const annualRevenue = productionAdjusted_kg * pricePerKg;
+
+      // Payback (anos) = CAPEX / (Receita Anual - OPEX Anual)
+      const paybackYears =
+        annualRevenue - opexAnnual > 0
+          ? adjustedCapex / (annualRevenue - opexAnnual)
+          : Infinity;
+
+      // LCOH = (CAPEX amortizado por ano + OPEX Anual) / Produção Anual (kg)
+      const lcoh =
+        productionAdjusted_kg > 0
+          ? (capexAnnualized + opexAnnual) / productionAdjusted_kg
+          : Infinity;
 
       results.push({
         totalEnergyConsumed: annualEnergyConsumed,
-        h2Production: annualH2Production,
+        h2Production: productionAdjusted_kg,
         capacityFactor: capacityFactor,
         curtailment: totalCurtailment,
         operatingHours: operatingHours,
         lcoh: lcoh,
         capexAnnualized: capexAnnualized,
         opexAnnual: opexAnnual,
+        payback: paybackYears,
       });
 
       console.log(`Scenario ${scenario.years} year(s):`, {
         electrolyzerPower: electrolyzerNominalPower,
         energyConsumed: annualEnergyConsumed.toFixed(0),
-        h2Production: annualH2Production.toFixed(2),
+        h2Production: productionAdjusted_kg.toFixed(2),
         capacityFactor: capacityFactor.toFixed(1) + "%",
-        lcoh: lcoh.toFixed(2),
+        lcoh: lcoh === Infinity ? "NaN" : lcoh.toFixed(2),
+        payback: paybackYears === Infinity ? "Inf" : paybackYears.toFixed(1),
       });
     }
 
@@ -1486,7 +1525,7 @@ const FeasibilityAnalysis = () => {
                           <TabsContent value="1">
                             <div className="space-y-6">
                               {/* Métricas Principais */}
-                              <div className="grid md:grid-cols-4 gap-4">
+                              <div className="grid md:grid-cols-5 gap-4">
                                 <Card className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
                                   <p className="text-sm text-slate-700 mb-1">
                                     ⚡ Fator de Capacidade
@@ -1512,6 +1551,20 @@ const FeasibilityAnalysis = () => {
                                   </p>
                                   <p className="text-xs text-slate-600 mt-2">
                                     por kg de H₂
+                                  </p>
+                                </Card>
+
+                                <Card className="p-4 bg-gradient-to-br from-yellow-50 to-amber-50 border-amber-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    ⏳ Payback
+                                  </p>
+                                  <p className="text-3xl font-bold text-amber-600">
+                                    {isFinite(simulationResults.oneYear.payback || 0)
+                                      ? `${simulationResults.oneYear.payback!.toFixed(1)} anos`
+                                      : "N/A"}
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    Tempo para recuperar investimento
                                   </p>
                                 </Card>
 
@@ -1633,7 +1686,7 @@ const FeasibilityAnalysis = () => {
                           {/* Cenário 3 Anos */}
                           <TabsContent value="3">
                             <div className="space-y-6">
-                              <div className="grid md:grid-cols-4 gap-4">
+                              <div className="grid md:grid-cols-5 gap-4">
                                 <Card className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
                                   <p className="text-sm text-slate-700 mb-1">
                                     ⚡ Fator de Capacidade
@@ -1654,6 +1707,20 @@ const FeasibilityAnalysis = () => {
                                     {simulationResults.threeYears!.lcoh.toFixed(
                                       2
                                     )}
+                                  </p>
+                                </Card>
+
+                                <Card className="p-4 bg-gradient-to-br from-yellow-50 to-amber-50 border-amber-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    ⏳ Payback
+                                  </p>
+                                  <p className="text-3xl font-bold text-amber-600">
+                                    {isFinite(simulationResults.threeYears!.payback || 0)
+                                      ? `${simulationResults.threeYears!.payback!.toFixed(1)} anos`
+                                      : "N/A"}
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    Tempo para recuperar investimento
                                   </p>
                                 </Card>
                                 <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
@@ -1710,7 +1777,7 @@ const FeasibilityAnalysis = () => {
                           {/* Cenário 5 Anos */}
                           <TabsContent value="5">
                             <div className="space-y-6">
-                              <div className="grid md:grid-cols-4 gap-4">
+                              <div className="grid md:grid-cols-5 gap-4">
                                 <Card className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
                                   <p className="text-sm text-slate-700 mb-1">
                                     ⚡ Fator de Capacidade
@@ -1731,6 +1798,20 @@ const FeasibilityAnalysis = () => {
                                     {simulationResults.fiveYears!.lcoh.toFixed(
                                       2
                                     )}
+                                  </p>
+                                </Card>
+
+                                <Card className="p-4 bg-gradient-to-br from-yellow-50 to-amber-50 border-amber-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    ⏳ Payback
+                                  </p>
+                                  <p className="text-3xl font-bold text-amber-600">
+                                    {isFinite(simulationResults.fiveYears!.payback || 0)
+                                      ? `${simulationResults.fiveYears!.payback!.toFixed(1)} anos`
+                                      : "N/A"}
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    Tempo para recuperar investimento
                                   </p>
                                 </Card>
                                 <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
