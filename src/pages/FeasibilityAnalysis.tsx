@@ -2,16 +2,22 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
-                                <div>
-                                  <p className="text-sm text-slate-700 mb-1">
-                                    Payback Estimado:
-                                  </p>
-                                  <p className="text-xl font-bold text-green-600">
-                                    {isFinite(simulationResults.oneYear.payback || 0)
-                                      ? `${simulationResults.oneYear.payback!.toFixed(1)} anos`
-                                      : 'N/A'}
-                                  </p>
-                                </div>
+  Sun,
+  Wind,
+  TreePine,
+  Mountain,
+  Activity,
+  CheckCircle2,
+  AlertTriangle,
+  TrendingUp,
+  Droplet,
+  Zap,
+  BarChart3,
+  FileText,
+  Loader2,
+  Database,
+} from "lucide-react";
+import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Accordion,
@@ -91,7 +97,6 @@ interface SimulationResult {
   lcoh: number; // R$/kg
   capexAnnualized: number; // R$/ano
   opexAnnual: number; // R$/ano
-  payback?: number; // anos
 }
 
 interface TopographyData {
@@ -514,7 +519,6 @@ const FeasibilityAnalysis = () => {
         lcoh: lcoh,
         capexAnnualized: capexAnnualized,
         opexAnnual: opexAnnual,
-        payback: paybackYears,
       });
 
       console.log(`Scenario ${scenario.years} year(s):`, {
@@ -1525,7 +1529,7 @@ const FeasibilityAnalysis = () => {
                           <TabsContent value="1">
                             <div className="space-y-6">
                               {/* Métricas Principais */}
-                              <div className="grid md:grid-cols-5 gap-4">
+                              <div className="grid md:grid-cols-4 gap-4">
                                 <Card className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
                                   <p className="text-sm text-slate-700 mb-1">
                                     ⚡ Fator de Capacidade
@@ -1551,20 +1555,6 @@ const FeasibilityAnalysis = () => {
                                   </p>
                                   <p className="text-xs text-slate-600 mt-2">
                                     por kg de H₂
-                                  </p>
-                                </Card>
-
-                                <Card className="p-4 bg-gradient-to-br from-yellow-50 to-amber-50 border-amber-200">
-                                  <p className="text-sm text-slate-700 mb-1">
-                                    ⏳ Payback
-                                  </p>
-                                  <p className="text-3xl font-bold text-amber-600">
-                                    {isFinite(simulationResults.oneYear.payback || 0)
-                                      ? `${simulationResults.oneYear.payback!.toFixed(1)} anos`
-                                      : "N/A"}
-                                  </p>
-                                  <p className="text-xs text-slate-600 mt-2">
-                                    Tempo para recuperar investimento
                                   </p>
                                 </Card>
 
@@ -1686,7 +1676,7 @@ const FeasibilityAnalysis = () => {
                           {/* Cenário 3 Anos */}
                           <TabsContent value="3">
                             <div className="space-y-6">
-                              <div className="grid md:grid-cols-5 gap-4">
+                              <div className="grid md:grid-cols-4 gap-4">
                                 <Card className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
                                   <p className="text-sm text-slate-700 mb-1">
                                     ⚡ Fator de Capacidade
@@ -1707,20 +1697,6 @@ const FeasibilityAnalysis = () => {
                                     {simulationResults.threeYears!.lcoh.toFixed(
                                       2
                                     )}
-                                  </p>
-                                </Card>
-
-                                <Card className="p-4 bg-gradient-to-br from-yellow-50 to-amber-50 border-amber-200">
-                                  <p className="text-sm text-slate-700 mb-1">
-                                    ⏳ Payback
-                                  </p>
-                                  <p className="text-3xl font-bold text-amber-600">
-                                    {isFinite(simulationResults.threeYears!.payback || 0)
-                                      ? `${simulationResults.threeYears!.payback!.toFixed(1)} anos`
-                                      : "N/A"}
-                                  </p>
-                                  <p className="text-xs text-slate-600 mt-2">
-                                    Tempo para recuperar investimento
                                   </p>
                                 </Card>
                                 <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
@@ -1777,7 +1753,7 @@ const FeasibilityAnalysis = () => {
                           {/* Cenário 5 Anos */}
                           <TabsContent value="5">
                             <div className="space-y-6">
-                              <div className="grid md:grid-cols-5 gap-4">
+                              <div className="grid md:grid-cols-4 gap-4">
                                 <Card className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
                                   <p className="text-sm text-slate-700 mb-1">
                                     ⚡ Fator de Capacidade
@@ -1798,20 +1774,6 @@ const FeasibilityAnalysis = () => {
                                     {simulationResults.fiveYears!.lcoh.toFixed(
                                       2
                                     )}
-                                  </p>
-                                </Card>
-
-                                <Card className="p-4 bg-gradient-to-br from-yellow-50 to-amber-50 border-amber-200">
-                                  <p className="text-sm text-slate-700 mb-1">
-                                    ⏳ Payback
-                                  </p>
-                                  <p className="text-3xl font-bold text-amber-600">
-                                    {isFinite(simulationResults.fiveYears!.payback || 0)
-                                      ? `${simulationResults.fiveYears!.payback!.toFixed(1)} anos`
-                                      : "N/A"}
-                                  </p>
-                                  <p className="text-xs text-slate-600 mt-2">
-                                    Tempo para recuperar investimento
                                   </p>
                                 </Card>
                                 <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
