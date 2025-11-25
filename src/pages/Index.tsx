@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import LocationSearch from '@/components/LocationSearch';
-import AuthDialog from '@/components/AuthDialog';
+import LocationSearch from "@/components/LocationSearch";
+import AuthDialog from "@/components/AuthDialog";
 
 import {
   MapPin,
@@ -32,7 +32,11 @@ export default function Index() {
           <div className="flex justify-between items-center h-[70px]">
             <Link to="/" className="flex items-center space-x-2">
               <div className="w-12 h-12 sm:w-14 sm:h-14 to-teal-600 rounded-lg flex items-center justify-center">
-                <img src="/Logo.png" alt="Logo H2maps" className="w-full h-full object-contain" />
+                <img
+                  src="/Logo.png"
+                  alt="Logo H2maps"
+                  className="w-full h-full object-contain"
+                />
               </div>
             </Link>
 
@@ -50,13 +54,19 @@ export default function Index() {
                 Conservação
               </a>
               <Link
+                to="/informacoes"
+                className="text-slate-600 hover:text-emerald-600 transition-colors"
+              >
+                Informações
+              </Link>
+              <Link
                 to="/feasibility"
                 className="bg-[#0da9ff] opacity-60 text-white font-medium px-4 py-2 rounded-lg hover:bg-[#73cb94] transition-colors"
               >
                 Demonstração
               </Link>
             </div>
-            
+
             <button
               className="md:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -85,6 +95,13 @@ export default function Index() {
               >
                 Conservação
               </a>
+              <Link
+                to="/informacoes"
+                className="block px-3 py-2 text-slate-600 hover:text-emerald-600"
+              >
+                Informações
+              </Link>
+
               <Link
                 to="/dashboard"
                 className="block px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
@@ -128,7 +145,7 @@ export default function Index() {
                 >
                   <span>Cadastrar-se</span>
                 </button>
-                  
+
                 <button
                   onClick={() => setAuthDialogOpen(true)}
                   className="bg-[#0da9ff] opacity-60 w-full sm:w-auto text-white px-6 py-3 rounded-lg hover:bg-[#73cb94] transition-colors flex items-center justify-center space-x-2"
@@ -137,7 +154,10 @@ export default function Index() {
                 </button>
               </div>
 
-              <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
+              <AuthDialog
+                open={authDialogOpen}
+                onOpenChange={setAuthDialogOpen}
+              />
             </motion.div>
 
             <motion.div
@@ -194,7 +214,10 @@ export default function Index() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-white">
+      <section
+        id="features"
+        className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-white"
+      >
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-8 sm:mb-12">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 mb-2 sm:mb-4">
@@ -267,7 +290,9 @@ export default function Index() {
                 <h3 className="text-lg sm:text-xl font-semibold text-slate-900 mb-1 sm:mb-2">
                   {feature.title}
                 </h3>
-                <p className="text-slate-600 text-xs sm:text-sm">{feature.description}</p>
+                <p className="text-slate-600 text-xs sm:text-sm">
+                  {feature.description}
+                </p>
               </motion.div>
             ))}
           </div>
@@ -339,7 +364,9 @@ export default function Index() {
                   <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center text-white flex-shrink-0">
                     {item.icon}
                   </div>
-                  <p className="text-slate-700 font-medium text-sm sm:text-base pt-1 sm:pt-2">{item.text}</p>
+                  <p className="text-slate-700 font-medium text-sm sm:text-base pt-1 sm:pt-2">
+                    {item.text}
+                  </p>
                 </motion.div>
               ))}
             </motion.div>
@@ -381,8 +408,12 @@ export default function Index() {
                   viewport={{ once: true }}
                   className={`bg-gradient-to-br ${stat.color} rounded-xl p-4 sm:p-6 text-white shadow-lg hover:shadow-xl transition-all hover:-translate-y-1`}
                 >
-                  <div className="text-2xl sm:text-4xl font-bold mb-1 sm:mb-2">{stat.number}</div>
-                  <div className="text-white/90 font-medium text-sm sm:text-base">{stat.label}</div>
+                  <div className="text-2xl sm:text-4xl font-bold mb-1 sm:mb-2">
+                    {stat.number}
+                  </div>
+                  <div className="text-white/90 font-medium text-sm sm:text-base">
+                    {stat.label}
+                  </div>
                 </motion.div>
               ))}
             </motion.div>
@@ -473,7 +504,6 @@ export default function Index() {
             </p>
           </div>
         </div>
-        
       </footer>
     </div>
   );

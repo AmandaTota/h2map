@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
-import { Search, MapPin } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
+import { Search, MapPin } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface Location {
   lat: number;
@@ -25,10 +26,33 @@ interface LocationSearchProps {
 
 // Mapeamento de código UF para sigla
 const UF_MAP: Record<string, string> = {
-  '11': 'RO', '12': 'AC', '13': 'AM', '14': 'RR', '15': 'PA', '16': 'AP', '17': 'TO',
-  '21': 'MA', '22': 'PI', '23': 'CE', '24': 'RN', '25': 'PB', '26': 'PE', '27': 'AL',
-  '28': 'SE', '29': 'BA', '31': 'MG', '32': 'ES', '33': 'RJ', '35': 'SP', '41': 'PR',
-  '42': 'SC', '43': 'RS', '50': 'MS', '51': 'MT', '52': 'GO', '53': 'DF'
+  "11": "RO",
+  "12": "AC",
+  "13": "AM",
+  "14": "RR",
+  "15": "PA",
+  "16": "AP",
+  "17": "TO",
+  "21": "MA",
+  "22": "PI",
+  "23": "CE",
+  "24": "RN",
+  "25": "PB",
+  "26": "PE",
+  "27": "AL",
+  "28": "SE",
+  "29": "BA",
+  "31": "MG",
+  "32": "ES",
+  "33": "RJ",
+  "35": "SP",
+  "41": "PR",
+  "42": "SC",
+  "43": "RS",
+  "50": "MS",
+  "51": "MT",
+  "52": "GO",
+  "53": "DF",
 };
 
 interface SuggestionItem {
@@ -38,8 +62,11 @@ interface SuggestionItem {
   lng: number;
 }
 
-const LocationSearch = ({ onLocationSelect, initialLocation }: LocationSearchProps) => {
-  const [searchTerm, setSearchTerm] = useState(initialLocation?.name || '');
+const LocationSearch = ({
+  onLocationSelect,
+  initialLocation,
+}: LocationSearchProps) => {
+  const [searchTerm, setSearchTerm] = useState(initialLocation?.name || "");
   const [suggestions, setSuggestions] = useState<SuggestionItem[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -57,18 +84,19 @@ const LocationSearch = ({ onLocationSelect, initialLocation }: LocationSearchPro
       // Using any cast because municipalities table types are not yet generated
       const supabaseClient = supabase as any;
       const { data, error } = await supabaseClient
-        .from('municipalities')
-        .select('nome, latitude, longitude, codigo_uf')
-        .ilike('nome', `${term}%`) // Busca pelo início do nome (mais assertivo)
-        .order('nome')
+        .from("municipalities")
+        .select("nome, latitude, longitude, codigo_uf")
+        // Buscar por substring — assim duas letras no meio do nome também retornam
+        .ilike("nome", `%${term}%`)
+        .order("nome")
         .limit(10);
 
       if (error) {
-        console.error('Error searching municipalities:', error);
+        console.error("Error searching municipalities:", error);
         toast({
-          variant: 'destructive',
-          title: 'Erro ao buscar municípios',
-          description: 'Não foi possível carregar as sugestões',
+          variant: "destructive",
+          title: "Erro ao buscar municípios",
+          description: "Não foi possível carregar as sugestões",
         });
         setSuggestions([]);
         return;
@@ -76,19 +104,19 @@ const LocationSearch = ({ onLocationSelect, initialLocation }: LocationSearchPro
 
       if (data) {
         const municipalities = data as Municipality[];
-        const locations: SuggestionItem[] = municipalities.map(m => {
+        const locations: SuggestionItem[] = municipalities.map((m) => {
           const uf = UF_MAP[m.codigo_uf] || m.codigo_uf;
           return {
             name: m.nome,
             displayName: `${m.nome} - ${uf}`,
             lat: m.latitude,
-            lng: m.longitude
+            lng: m.longitude,
           };
         });
         setSuggestions(locations);
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
       setSuggestions([]);
     } finally {
       setIsLoading(false);
@@ -99,7 +127,7 @@ const LocationSearch = ({ onLocationSelect, initialLocation }: LocationSearchPro
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       searchMunicipalities(searchTerm);
-    }, 300);
+    }, 200); // debounce menor para respostas mais rápidas
 
     return () => clearTimeout(timeoutId);
   }, [searchTerm]);
@@ -115,12 +143,113 @@ const LocationSearch = ({ onLocationSelect, initialLocation }: LocationSearchPro
     onLocationSelect({
       lat: location.lat,
       lng: location.lng,
-      name: location.displayName
+      name: location.displayName,
     });
   };
 
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const [rect, setRect] = useState<DOMRect | null>(null);
+
+  useEffect(() => {
+    const update = () => {
+      if (wrapperRef.current)
+        setRect(wrapperRef.current.getBoundingClientRect());
+    };
+    update();
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update, true);
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update, true);
+    };
+  }, [isSearching, suggestions.length]);
+
+  const dropdown = (
+    <>
+      {isSearching &&
+        isLoading &&
+        rect &&
+        createPortal(
+          <div
+            style={{
+              position: "absolute",
+              left: rect.left + window.scrollX,
+              top: rect.bottom + window.scrollY + 8,
+              width: rect.width,
+              zIndex: 9999,
+            }}
+          >
+            <Card className="shadow-lg border-emerald-200 bg-white">
+              <div className="p-4 text-center text-slate-600">Buscando...</div>
+            </Card>
+          </div>,
+          document.body
+        )}
+
+      {isSearching &&
+        !isLoading &&
+        suggestions.length > 0 &&
+        rect &&
+        createPortal(
+          <div
+            style={{
+              position: "absolute",
+              left: rect.left + window.scrollX,
+              top: rect.bottom + window.scrollY + 8,
+              width: rect.width,
+              maxHeight: 320,
+              overflowY: "auto",
+              zIndex: 9999,
+            }}
+          >
+            <Card className="shadow-lg border-emerald-200 bg-white">
+              <div className="p-2">
+                {suggestions.map((location, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleSelectLocation(location)}
+                    className="w-full text-left px-3 py-3 rounded-lg hover:bg-emerald-50 transition-colors flex items-center space-x-3 group"
+                  >
+                    <MapPin className="w-4 h-4 text-emerald-600 flex-shrink-0 group-hover:text-emerald-700" />
+                    <span className="text-slate-700 group-hover:text-slate-900 font-medium">
+                      {location.displayName}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </Card>
+          </div>,
+          document.body
+        )}
+
+      {isSearching &&
+        !isLoading &&
+        searchTerm.length >= 2 &&
+        suggestions.length === 0 &&
+        rect &&
+        createPortal(
+          <div
+            style={{
+              position: "absolute",
+              left: rect.left + window.scrollX,
+              top: rect.bottom + window.scrollY + 8,
+              width: rect.width,
+              zIndex: 9999,
+            }}
+          >
+            <Card className="shadow-lg border-emerald-200 bg-white">
+              <div className="p-4 text-center text-slate-600">
+                Nenhuma localidade encontrada
+              </div>
+            </Card>
+          </div>,
+          document.body
+        )}
+    </>
+  );
+
   return (
-    <div className="relative w-full">
+    <div className="relative w-full" ref={wrapperRef}>
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 " />
         <Input
@@ -133,40 +262,7 @@ const LocationSearch = ({ onLocationSelect, initialLocation }: LocationSearchPro
         />
       </div>
 
-      {isSearching && isLoading && (
-        <Card className="absolute top-full mt-2 w-full z-[100] shadow-lg border-emerald-200 bg-white">
-          <div className="p-4 text-center text-slate-600">
-            Buscando...
-          </div>
-        </Card>
-      )}
-
-      {isSearching && !isLoading && suggestions.length > 0 && (
-        <Card className="absolute top-full mt-2 w-full max-h-80 overflow-y-auto z-[100] shadow-lg border-emerald-200 bg-white">
-          <div className="p-2">
-            {suggestions.map((location, index) => (
-              <button
-                key={index}
-                onClick={() => handleSelectLocation(location)}
-                className="w-full text-left px-3 py-3 rounded-lg hover:bg-emerald-50 transition-colors flex items-center space-x-3 group"
-              >
-                <MapPin className="w-4 h-4 text-emerald-600 flex-shrink-0 group-hover:text-emerald-700" />
-                <span className="text-slate-700 group-hover:text-slate-900 font-medium">
-                  {location.displayName}
-                </span>
-              </button>
-            ))}
-          </div>
-        </Card>
-      )}
-
-      {isSearching && !isLoading && searchTerm.length >= 2 && suggestions.length === 0 && (
-        <Card className="absolute top-full mt-2 w-full z-[100] shadow-lg border-emerald-200 bg-white">
-          <div className="p-4 text-center text-slate-600">
-            Nenhuma localidade encontrada
-          </div>
-        </Card>
-      )}
+      {dropdown}
     </div>
   );
 };
