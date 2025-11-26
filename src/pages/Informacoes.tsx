@@ -19,12 +19,333 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
 export default function Informacoes() {
-  const [openSection, setOpenSection] = useState<
-    "cleanEnergy" | "greenHydrogen" | null
-  >(null);
+  type SectionKey =
+    | "cleanEnergy"
+    | "greenHydrogen"
+    | "electrolysis"
+    | "solarRadiation"
+    | "windPotential"
+    | "waterAvailability"
+    | "productionPotential"
+    | "environmentalImpact"
+    | "energyInfrastructure";
 
-  const toggleSection = (section: "cleanEnergy" | "greenHydrogen") => {
+  const [openSection, setOpenSection] = useState<SectionKey | null>(null);
+
+  const toggleSection = (section: SectionKey) => {
     setOpenSection((prev) => (prev === section ? null : section));
+  };
+
+  const infoData: Record<
+    SectionKey,
+    { title: string; icon: any; color: string; content: React.ReactNode }
+  > = {
+    cleanEnergy: {
+      title: "Energia Limpa",
+      icon: Sun,
+      color: "amber",
+      content: (
+        <div className="space-y-4">
+          <p className="leading-relaxed">
+            Energia limpa é toda forma de geração de energia que não emite
+            poluentes significativos nem gases de efeito estufa durante sua
+            produção ou uso. Ela busca reduzir impactos ambientais e contribuir
+            para a sustentabilidade.
+          </p>
+          <div>
+            <h4 className="font-semibold mb-2 text-emerald-700">
+              Principais características
+            </h4>
+            <ul className="list-disc list-inside text-slate-600 space-y-1">
+              <li>Baixa emissão de carbono</li>
+              <li>Fontes renováveis</li>
+              <li>Impacto reduzido</li>
+            </ul>
+          </div>
+        </div>
+      ),
+    },
+    greenHydrogen: {
+      title: "Hidrogênio Verde",
+      icon: Droplets,
+      color: "emerald",
+      content: (
+        <div className="space-y-4">
+          <p className="leading-relaxed">
+            Hidrogênio verde é um tipo de hidrogênio produzido de forma
+            sustentável, sem emissão significativa de gases de efeito estufa,
+            obtido por eletrólise da água com eletricidade renovável.
+          </p>
+          <div>
+            <h4 className="font-semibold mb-2 text-emerald-700">
+              Por que é importante
+            </h4>
+            <ul className="list-disc list-inside text-slate-600 space-y-1">
+              <li>Baixo impacto ambiental</li>
+              <li>Aplicações industriais e transporte</li>
+              <li>Ajuda na descarbonização de setores difíceis</li>
+            </ul>
+          </div>
+        </div>
+      ),
+    },
+    electrolysis: {
+      title: "Eletrólise",
+      icon: Zap,
+      color: "blue",
+      content: (
+        <div className="space-y-4">
+          <p className="leading-relaxed">
+            Processo químico que separa hidrogênio e oxigênio da água aplicando
+            corrente elétrica. Quando essa energia vem de fontes renováveis, o
+            hidrogênio é chamado de “verde”.
+          </p>
+        </div>
+      ),
+    },
+    solarRadiation: {
+      title: "Radiação Solar",
+      icon: Sun,
+      color: "yellow",
+      content: (
+        <div className="space-y-4">
+          <p className="leading-relaxed">
+            Quantidade de energia solar que chega à superfície terrestre. É um
+            fator essencial para calcular o potencial de geração elétrica via
+            painéis fotovoltaicos.
+          </p>
+          <div>
+            <h4 className="font-semibold mb-2 text-yellow-700">
+              Medidas importantes
+            </h4>
+            <ul className="list-disc list-inside text-slate-600 space-y-1">
+              <li>
+                <strong>Irradiância:</strong> potência solar por metro quadrado
+                (W/m²)
+              </li>
+              <li>
+                <strong>Insolação:</strong> energia solar acumulada ao longo do
+                dia (kWh/m²/dia)
+              </li>
+              <li>
+                <strong>Horas de sol pico:</strong> equivalente de horas com
+                irradiância de 1000 W/m²
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-2 text-yellow-700">
+              Aplicações no Brasil
+            </h4>
+            <ul className="list-disc list-inside text-slate-600 space-y-1">
+              <li>Nordeste brasileiro tem alto potencial (5-6 kWh/m²/dia)</li>
+              <li>Ideal para plantas de hidrogênio verde fotovoltaico</li>
+              <li>Reduz dependência de combustíveis fósseis</li>
+            </ul>
+          </div>
+        </div>
+      ),
+    },
+    windPotential: {
+      title: "Potencial Eólico",
+      icon: Wind,
+      color: "cyan",
+      content: (
+        <div className="space-y-4">
+          <p className="leading-relaxed">
+            Capacidade de geração de energia a partir do vento. Regiões com
+            ventos constantes e fortes são ideais para produção de hidrogênio
+            verde.
+          </p>
+          <div>
+            <h4 className="font-semibold mb-2 text-cyan-700">
+              Fatores de avaliação
+            </h4>
+            <ul className="list-disc list-inside text-slate-600 space-y-1">
+              <li>
+                <strong>Velocidade do vento:</strong> ideal acima de 6 m/s em
+                média
+              </li>
+              <li>
+                <strong>Consistência:</strong> ventos regulares maximizam
+                produção
+              </li>
+              <li>
+                <strong>Altitude:</strong> maior velocidade em alturas elevadas
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-2 text-cyan-700">
+              Vantagens da energia eólica
+            </h4>
+            <ul className="list-disc list-inside text-slate-600 space-y-1">
+              <li>Complementa energia solar (vento noturno)</li>
+              <li>Custos decrescentes de geração</li>
+              <li>Brasil possui costa litorânea extensa com alto potencial</li>
+            </ul>
+          </div>
+        </div>
+      ),
+    },
+    waterAvailability: {
+      title: "Disponibilidade Hídrica",
+      icon: Droplets,
+      color: "sky",
+      content: (
+        <div className="space-y-4">
+          <p className="leading-relaxed">
+            Volume de água disponível para processos industriais, como a
+            eletrólise. É um recurso crítico para produção de hidrogênio.
+          </p>
+          <div>
+            <h4 className="font-semibold mb-2 text-sky-700">
+              Requisitos de água
+            </h4>
+            <ul className="list-disc list-inside text-slate-600 space-y-1">
+              <li>Aproximadamente 9 litros de água para produzir 1 kg de H₂</li>
+              <li>Água deve ter qualidade adequada (baixa salinidade)</li>
+              <li>Possibilidade de uso de água do mar com dessalinização</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-2 text-sky-700">
+              Gestão sustentável
+            </h4>
+            <ul className="list-disc list-inside text-slate-600 space-y-1">
+              <li>Sistemas de reciclagem e reuso minimizam consumo</li>
+              <li>Localização próxima a fontes hídricas reduz custos</li>
+              <li>Monitoramento de impacto em bacias hidrográficas</li>
+            </ul>
+          </div>
+        </div>
+      ),
+    },
+    productionPotential: {
+      title: "Potencial de Produção",
+      icon: BarChart3,
+      color: "indigo",
+      content: (
+        <div className="space-y-4">
+          <p className="leading-relaxed">
+            Estimativa da quantidade de hidrogênio que pode ser gerada em um
+            local, considerando fatores como radiação solar, vento e
+            disponibilidade hídrica.
+          </p>
+          <div>
+            <h4 className="font-semibold mb-2 text-indigo-700">
+              Fatores de cálculo
+            </h4>
+            <ul className="list-disc list-inside text-slate-600 space-y-1">
+              <li>
+                <strong>Energia disponível:</strong> solar + eólica + outras
+                renováveis
+              </li>
+              <li>
+                <strong>Eficiência do eletrolisador:</strong> tipicamente 60-80%
+              </li>
+              <li>
+                <strong>Fator de capacidade:</strong> horas operacionais/ano
+              </li>
+              <li>
+                <strong>Disponibilidade de água:</strong> volume sustentável
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-2 text-indigo-700">
+              Resultado da análise
+            </h4>
+            <ul className="list-disc list-inside text-slate-600 space-y-1">
+              <li>Toneladas de H₂ por ano estimadas</li>
+              <li>Viabilidade econômica e técnica</li>
+              <li>Comparação com demanda regional/nacional</li>
+            </ul>
+          </div>
+        </div>
+      ),
+    },
+    environmentalImpact: {
+      title: "Impacto Ambiental",
+      icon: Leaf,
+      color: "green",
+      content: (
+        <div className="space-y-4">
+          <p className="leading-relaxed">
+            Medida da redução de emissões de CO₂ e outros poluentes ao
+            substituir combustíveis fósseis por hidrogênio verde.
+          </p>
+          <div>
+            <h4 className="font-semibold mb-2 text-green-700">
+              Benefícios ambientais
+            </h4>
+            <ul className="list-disc list-inside text-slate-600 space-y-1">
+              <li>
+                Redução de até 95% nas emissões de CO₂ vs. hidrogênio cinza
+              </li>
+              <li>Zero emissões no ponto de uso (veículos, indústria)</li>
+              <li>Não gera poluentes atmosféricos (NOx, SOx)</li>
+              <li>Único subproduto da combustão: vapor d'água</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-2 text-green-700">
+              Setores impactados
+            </h4>
+            <ul className="list-disc list-inside text-slate-600 space-y-1">
+              <li>Transporte pesado e aviação</li>
+              <li>Siderurgia e indústria química</li>
+              <li>Geração de eletricidade e aquecimento</li>
+            </ul>
+          </div>
+        </div>
+      ),
+    },
+    energyInfrastructure: {
+      title: "Infraestrutura Energética",
+      icon: Activity,
+      color: "slate",
+      content: (
+        <div className="space-y-4">
+          <p className="leading-relaxed">
+            Conjunto de redes elétricas, transporte e logística que suportam a
+            instalação e operação de plantas de hidrogênio.
+          </p>
+          <div>
+            <h4 className="font-semibold mb-2 text-slate-700">
+              Componentes essenciais
+            </h4>
+            <ul className="list-disc list-inside text-slate-600 space-y-1">
+              <li>
+                <strong>Conexão à rede elétrica:</strong> linhas de transmissão
+                e subestações
+              </li>
+              <li>
+                <strong>Armazenamento:</strong> tanques pressurizados ou
+                liquefação
+              </li>
+              <li>
+                <strong>Transporte:</strong> gasodutos, caminhões ou navios
+              </li>
+              <li>
+                <strong>Distribuição:</strong> postos de abastecimento e pontos
+                de entrega
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-2 text-slate-700">
+              Desafios e investimentos
+            </h4>
+            <ul className="list-disc list-inside text-slate-600 space-y-1">
+              <li>Necessidade de investimento em infraestrutura dedicada</li>
+              <li>Adaptação de redes existentes de gás natural</li>
+              <li>Desenvolvimento de padrões de segurança</li>
+            </ul>
+          </div>
+        </div>
+      ),
+    },
   };
 
   // Calculadora de emissões - componente interno
@@ -535,80 +856,82 @@ export default function Informacoes() {
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 pt-16">
         <div className="container mx-auto px-4 py-6 max-w-7xl">
           {/* Compact info cards separated from calculators */}
-          <div className="mb-6 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <button
-              onClick={() => toggleSection("cleanEnergy")}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                openSection === "cleanEnergy"
+          <div className="mb-6 flex flex-wrap items-center justify-center gap-3">
+            {(
+              Object.entries(infoData) as [
+                SectionKey,
+                (typeof infoData)[SectionKey]
+              ][]
+            ).map(([key, data]) => {
+              const Icon = data.icon;
+              const isActive = openSection === key;
+              const colorClasses = {
+                amber: isActive
                   ? "bg-amber-200"
-                  : "bg-amber-100 hover:bg-amber-200"
-              }`}
-            >
-              <div className="bg-amber-500 rounded-full p-2 text-white">
-                <Sun className="w-4 h-4" />
-              </div>
-              <span>O que é energia limpa?</span>
-            </button>
-
-            <button
-              onClick={() => toggleSection("greenHydrogen")}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                openSection === "greenHydrogen"
+                  : "bg-amber-100 hover:bg-amber-200",
+                emerald: isActive
                   ? "bg-emerald-200"
-                  : "bg-emerald-100 hover:bg-emerald-200"
-              }`}
-            >
-              <div className="bg-emerald-500 rounded-full p-2 text-white">
-                <Droplets className="w-4 h-4" />
-              </div>
-              <span>O que é hidrogênio verde?</span>
-            </button>
+                  : "bg-emerald-100 hover:bg-emerald-200",
+                blue: isActive
+                  ? "bg-blue-200"
+                  : "bg-blue-100 hover:bg-blue-200",
+                yellow: isActive
+                  ? "bg-yellow-200"
+                  : "bg-yellow-100 hover:bg-yellow-200",
+                cyan: isActive
+                  ? "bg-cyan-200"
+                  : "bg-cyan-100 hover:bg-cyan-200",
+                sky: isActive ? "bg-sky-200" : "bg-sky-100 hover:bg-sky-200",
+                indigo: isActive
+                  ? "bg-indigo-200"
+                  : "bg-indigo-100 hover:bg-indigo-200",
+                green: isActive
+                  ? "bg-green-200"
+                  : "bg-green-100 hover:bg-green-200",
+                slate: isActive
+                  ? "bg-slate-200"
+                  : "bg-slate-100 hover:bg-slate-200",
+              }[data.color];
+
+              const iconBg = {
+                amber: "bg-amber-500",
+                emerald: "bg-emerald-500",
+                blue: "bg-blue-500",
+                yellow: "bg-yellow-500",
+                cyan: "bg-cyan-500",
+                sky: "bg-sky-500",
+                indigo: "bg-indigo-500",
+                green: "bg-green-500",
+                slate: "bg-slate-500",
+              }[data.color];
+
+              return (
+                <button
+                  key={key}
+                  onClick={() => toggleSection(key)}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${colorClasses}`}
+                >
+                  <div className={`${iconBg} rounded-full p-2 text-white`}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <span>{data.title}</span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Mobile detail panel: inline below buttons (visible on small screens) */}
           <div className="lg:hidden mb-6">
             <Card className="border-slate-200 shadow-sm">
               <CardHeader>
-                <CardTitle className="text-base">Definição</CardTitle>
+                <CardTitle className="text-base">
+                  {openSection ? infoData[openSection].title : "Definição"}
+                </CardTitle>
               </CardHeader>
               <CardContent className="text-slate-700">
-                {openSection === "cleanEnergy" && (
-                  <div className="space-y-3">
-                    <p>
-                      Energia limpa é toda forma de geração de energia que não
-                      emite poluentes significativos nem gases de efeito estufa
-                      durante sua produção ou uso. Ela busca reduzir impactos
-                      ambientais e contribuir para a sustentabilidade.
-                    </p>
-                    <h4 className="font-semibold">
-                      Principais características
-                    </h4>
-                    <ul className="list-disc list-inside text-sm text-slate-600">
-                      <li>Baixa emissão de carbono</li>
-                      <li>Fontes renováveis</li>
-                      <li>Impacto reduzido</li>
-                    </ul>
-                  </div>
-                )}
-
-                {openSection === "greenHydrogen" && (
-                  <div className="space-y-3">
-                    <p>
-                      Hidrogênio verde é um tipo de hidrogênio produzido de
-                      forma sustentável, sem emissão significativa de gases de
-                      efeito estufa, obtido por eletrólise da água com
-                      eletricidade renovável.
-                    </p>
-                    <h4 className="font-semibold">Por que é importante</h4>
-                    <ul className="list-disc list-inside text-sm text-slate-600">
-                      <li>Baixo impacto ambiental</li>
-                      <li>Aplicações industriais e transporte</li>
-                      <li>Ajuda na descarbonização de setores difíceis</li>
-                    </ul>
-                  </div>
-                )}
-
-                {!openSection && (
+                {openSection ? (
+                  infoData[openSection].content
+                ) : (
                   <div className="text-sm text-slate-500">
                     Clique em um cartão acima para ver mais informações.
                   </div>
@@ -621,58 +944,20 @@ export default function Informacoes() {
           <div className="hidden lg:block mb-8">
             <Card className="bg-white/80 shadow-md border-slate-200">
               <CardHeader>
-                <CardTitle className="text-xl text-emerald-800">
-                  {openSection === "cleanEnergy"
-                    ? "Energia Limpa"
-                    : openSection === "greenHydrogen"
-                    ? "Hidrogênio Verde"
-                    : "Informações"}
+                <CardTitle
+                  className={`text-xl ${
+                    openSection
+                      ? `text-${infoData[openSection].color}-800`
+                      : "text-emerald-800"
+                  }`}
+                >
+                  {openSection ? infoData[openSection].title : "Informações"}
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-slate-700">
-                {openSection === "cleanEnergy" && (
-                  <div className="space-y-4">
-                    <p className="leading-relaxed">
-                      Energia limpa é toda forma de geração de energia que não
-                      emite poluentes significativos nem gases de efeito estufa
-                      durante sua produção ou uso. Ela busca reduzir impactos
-                      ambientais e contribuir para a sustentabilidade.
-                    </p>
-                    <div>
-                      <h4 className="font-semibold mb-2 text-emerald-700">
-                        Principais características
-                      </h4>
-                      <ul className="list-disc list-inside text-slate-600 space-y-1">
-                        <li>Baixa emissão de carbono</li>
-                        <li>Fontes renováveis</li>
-                        <li>Impacto reduzido</li>
-                      </ul>
-                    </div>
-                  </div>
-                )}
-
-                {openSection === "greenHydrogen" && (
-                  <div className="space-y-4">
-                    <p className="leading-relaxed">
-                      Hidrogênio verde é um tipo de hidrogênio produzido de
-                      forma sustentável, sem emissão significativa de gases de
-                      efeito estufa, obtido por eletrólise da água com
-                      eletricidade renovável.
-                    </p>
-                    <div>
-                      <h4 className="font-semibold mb-2 text-emerald-700">
-                        Por que é importante
-                      </h4>
-                      <ul className="list-disc list-inside text-slate-600 space-y-1">
-                        <li>Baixo impacto ambiental</li>
-                        <li>Aplicações industriais e transporte</li>
-                        <li>Ajuda na descarbonização de setores difíceis</li>
-                      </ul>
-                    </div>
-                  </div>
-                )}
-
-                {!openSection && (
+                {openSection ? (
+                  infoData[openSection].content
+                ) : (
                   <div className="text-slate-500 italic">
                     Selecione um dos tópicos acima para visualizar os detalhes.
                   </div>
