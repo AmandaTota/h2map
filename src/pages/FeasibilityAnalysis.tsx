@@ -631,7 +631,7 @@ const FeasibilityAnalysis = () => {
     const usableEnergy = dailyEnergy * systemEfficiency;
     const dailyH2Production = usableEnergy / electrolyzerEfficiency; // kg/dia
     const annualH2Production =
-      (annualEnergy * systemEfficiency) / electrolyzerEfficiency; // kg/ano (cálculo anterior)
+      (annualEnergy * systemEfficiency) / electrolyzerEfficiency; // kg/ano
 
     return {
       solarIrradiance: (solarIrradiance * 1000) / 24, // Converte para W/m² para exibição
@@ -1971,13 +1971,10 @@ const FeasibilityAnalysis = () => {
                                   </span>
                                 </div>
                                 <p className="text-3xl font-bold text-slate-900">
-                                  {(
-                                    simulationResults.oneYear.h2Production /
-                                    1000
-                                  ).toFixed(2)}
+                                  {simulationResults.oneYear.h2Production.toFixed(2)}
                                 </p>
                                 <p className="text-xs text-slate-600 mt-1">
-                                  Toneladas H₂/ano
+                                  kg H₂/ano
                                 </p>
                               </Card>
 
@@ -2127,13 +2124,10 @@ const FeasibilityAnalysis = () => {
                                   </span>
                                 </div>
                                 <p className="text-3xl font-bold text-slate-900">
-                                  {(
-                                    simulationResults.threeYears!.h2Production /
-                                    1000
-                                  ).toFixed(2)}
+                                  {simulationResults.threeYears!.h2Production.toFixed(2)}
                                 </p>
                                 <p className="text-xs text-slate-600 mt-1">
-                                  Toneladas H₂/ano
+                                  kg H₂/ano
                                 </p>
                               </Card>
 
@@ -2286,13 +2280,10 @@ const FeasibilityAnalysis = () => {
                                   </span>
                                 </div>
                                 <p className="text-3xl font-bold text-slate-900">
-                                  {(
-                                    simulationResults.fiveYears!.h2Production /
-                                    1000
-                                  ).toFixed(2)}
+                                  {simulationResults.fiveYears!.h2Production.toFixed(2)}
                                 </p>
                                 <p className="text-xs text-slate-600 mt-1">
-                                  Toneladas H₂/ano
+                                  kg H₂/ano
                                 </p>
                               </Card>
 
@@ -2596,17 +2587,16 @@ const FeasibilityAnalysis = () => {
                                       simulationResults.oneYear.h2Production /
                                       1000
                                     ).toFixed(2)}{" "}
-                                    toneladas de H₂ verde no cenário de 100 kW.
+                                    kg de H₂ verde no cenário de 100 kW.
                                     Potencial de expansão para{" "}
                                     {(
-                                      simulationResults.fiveYears!
-                                        .h2Production / 1000
+                                      simulationResults.fiveYears!.h2Production
                                     ).toFixed(2)}{" "}
-                                    ton/ano com eletrolisador de 500 kW.
+                                    kg/ano com eletrolisador de 500 kW.
                                   </p>
                                   <p className="text-xs text-slate-600 mt-2">
                                     💡 Projeto adequado para fase piloto. Escala
-                                    comercial típica: 10-50 ton/ano.
+                                    comercial típica: 10–50 mil kg/ano.
                                   </p>
                                 </div>
                               </div>
@@ -2770,8 +2760,8 @@ const FeasibilityAnalysis = () => {
                                   </p>
                                   <p className="text-xs text-slate-600 mt-2">
                                     💡 Capacidade ideal para projetos em
-                                    expansão. Escala comercial típica: 10-50
-                                    ton/ano.
+                                    expansão. Escala comercial típica: 10–50
+                                    mil kg/ano.
                                   </p>
                                 </div>
                               </div>
