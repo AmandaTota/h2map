@@ -598,9 +598,8 @@ const FeasibilityAnalysis = () => {
     const airDensity = 1.225; // kg/m³ (densidade do ar ao nível do mar)
 
     // ============ CÁLCULO DE ENERGIA SOLAR ============
-    // CORREÇÃO: solarIrradiance já está em kWh/m²/dia (energia diária integrada)
-    // NÃO precisa multiplicar por 24 horas!
-    const dailySolarEnergy = solarIrradiance * solarPanelArea * solarEfficiency; // kWh/dia
+    const dailySolarEnergy =
+      solarIrradiance * 24 * solarPanelArea * solarEfficiency; // kWh/dia (cálculo anterior)
     const annualSolarEnergy = dailySolarEnergy * 365; // kWh/ano
     const solarPower = dailySolarEnergy / 24; // kW médio ao longo do dia
 
@@ -632,7 +631,7 @@ const FeasibilityAnalysis = () => {
     const usableEnergy = dailyEnergy * systemEfficiency;
     const dailyH2Production = usableEnergy / electrolyzerEfficiency; // kg/dia
     const annualH2Production =
-      (annualEnergy * systemEfficiency) / electrolyzerEfficiency / 1000; // toneladas/ano
+      (annualEnergy * systemEfficiency) / electrolyzerEfficiency; // kg/ano (cálculo anterior)
 
     return {
       solarIrradiance: (solarIrradiance * 1000) / 24, // Converte para W/m² para exibição
@@ -690,7 +689,7 @@ const FeasibilityAnalysis = () => {
       // ROI: Preço do H2 verde no Brasil: R$ 20-30/kg (usando R$ 25/kg)
       roi: Number(
         (
-          ((energyCalc1Year.annualH2Production * 25000) /
+          ((energyCalc1Year.annualH2Production * 25) /
             (energyCalc1Year.solarPower * 3500 +
               energyCalc1Year.windPower * 10000 +
               energyCalc1Year.totalPower * 1.0 * 18000 +
@@ -718,7 +717,7 @@ const FeasibilityAnalysis = () => {
       ),
       roi: Number(
         (
-          ((energyCalc3Years.annualH2Production * 25000 * 3) /
+          ((energyCalc3Years.annualH2Production * 25 * 3) /
             (energyCalc3Years.solarPower * 3500 +
               energyCalc3Years.windPower * 10000 +
               energyCalc3Years.totalPower * 1.0 * 18000 +
@@ -746,7 +745,7 @@ const FeasibilityAnalysis = () => {
       ),
       roi: Number(
         (
-          ((energyCalc5Years.annualH2Production * 25000 * 5) /
+          ((energyCalc5Years.annualH2Production * 25 * 5) /
             (energyCalc5Years.solarPower * 3500 +
               energyCalc5Years.windPower * 10000 +
               energyCalc5Years.totalPower * 1.0 * 18000 +
