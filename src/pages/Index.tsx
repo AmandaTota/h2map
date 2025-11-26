@@ -57,7 +57,7 @@ export default function Index() {
                 to="/informacoes"
                 className="text-slate-600 hover:text-emerald-600 transition-colors"
               >
-                Informações
+                Dados Verdes
               </Link>
               <Link
                 to="/feasibility"
@@ -99,7 +99,7 @@ export default function Index() {
                 to="/informacoes"
                 className="block px-3 py-2 text-slate-600 hover:text-emerald-600"
               >
-                Informações
+                Dados Verdes
               </Link>
 
               <Link

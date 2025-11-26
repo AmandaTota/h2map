@@ -19,21 +19,12 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
 export default function Informacoes() {
-  const [expandedSections, setExpandedSections] = useState({
-    cleanEnergy: false,
-    greenHydrogen: false,
-  });
+  const [openSection, setOpenSection] = useState<
+    "cleanEnergy" | "greenHydrogen" | null
+  >(null);
 
-  const toggleSection = (_section: keyof typeof expandedSections) => {
-    setExpandedSections((prev) => {
-      // Toggle both sections together: se ambas estiverem abertas, fechar; caso contrário, abrir ambas
-      const bothOpen = prev.cleanEnergy && prev.greenHydrogen;
-      const nextOpen = !bothOpen;
-      return {
-        cleanEnergy: nextOpen,
-        greenHydrogen: nextOpen,
-      };
-    });
+  const toggleSection = (section: "cleanEnergy" | "greenHydrogen") => {
+    setOpenSection((prev) => (prev === section ? null : section));
   };
 
   // Calculadora de emissões - componente interno
@@ -543,277 +534,167 @@ export default function Informacoes() {
       <Navigation />
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 pt-16">
         <div className="container mx-auto px-4 py-6 max-w-7xl">
-          {/* Calculadora de Emissões de CO2 (topo) */}
-          <div className="bg-white/80 rounded-xl shadow-md border border-slate-200 p-6 mb-8">
-            <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-              <div>
-                <h2 className="text-2xl font-bold text-slate-900 text-center mb-2">
-                  Calculadora: Emissão por Deslocamento ao trabalho
-                </h2>
-                <p className="text-slate-600 text-sm text-center">
-                  Escolha um meio (ícone), informe distância (ida+volta) e
-                  viagens/semana.
-                </p>
+          {/* Compact info cards separated from calculators */}
+          <div className="mb-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <button
+              onClick={() => toggleSection("cleanEnergy")}
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                openSection === "cleanEnergy"
+                  ? "bg-amber-200"
+                  : "bg-amber-100 hover:bg-amber-200"
+              }`}
+            >
+              <div className="bg-amber-500 rounded-full p-2 text-white">
+                <Sun className="w-4 h-4" />
               </div>
+              <span>O que é energia limpa?</span>
+            </button>
 
-              <div>
-                <h2 className="text-2xl font-bold text-slate-900 text-center mb-2">
-                  Calculadora: Emissão por Consumo Elétrico
-                </h2>
-                <p className="text-slate-600 text-sm text-center">
-                  Insira consumo mensal (kWh) e fator de emissão (kg CO₂/kWh).
-                </p>
+            <button
+              onClick={() => toggleSection("greenHydrogen")}
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                openSection === "greenHydrogen"
+                  ? "bg-emerald-200"
+                  : "bg-emerald-100 hover:bg-emerald-200"
+              }`}
+            >
+              <div className="bg-emerald-500 rounded-full p-2 text-white">
+                <Droplets className="w-4 h-4" />
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
-              <Card className="h-full">
-                <CardHeader>
-                  <CardTitle className="text-center">
-                    Deslocamento ao Trabalho
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-full flex flex-col">
-                    <Calculator />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="h-full">
-                <CardHeader>
-                  <CardTitle className="text-center">
-                    Consumo Elétrico
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-full flex flex-col">
-                    <ElectricityCalculator />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+              <span>O que é hidrogênio verde?</span>
+            </button>
           </div>
 
-          {/* Information Backdrop - Clean Energy */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-gradient-to-r from-amber-100 via-yellow-100 to-orange-100 rounded-xl shadow-lg border border-amber-200 p-6 mb-6">
-              <div className="flex items-start gap-4 ">
-                <div className="bg-amber-500 rounded-full p-3 flex-shrink-0">
-                  <Sun className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex-1 relative">
-                  <div className="relative mb-4">
-                    <h2 className="text-xl font-bold text-slate-900 text-center">
-                      O que é energia limpa?
-                    </h2>
-                    <button
-                      onClick={() => toggleSection("cleanEnergy")}
-                      className="absolute right-0 top-0 p-2 rounded-full hover:bg-amber-200/50 transition-colors"
-                      aria-label={
-                        expandedSections.cleanEnergy ? "Recolher" : "Expandir"
-                      }
-                    >
-                      {expandedSections.cleanEnergy ? (
-                        <ChevronUp className="w-5 h-5 text-amber-600" />
-                      ) : (
-                        <ChevronDown className="w-5 h-5 text-amber-600" />
-                      )}
-                    </button>
+          {/* Mobile detail panel: inline below buttons (visible on small screens) */}
+          <div className="lg:hidden mb-6">
+            <Card className="border-slate-200 shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-base">Definição</CardTitle>
+              </CardHeader>
+              <CardContent className="text-slate-700">
+                {openSection === "cleanEnergy" && (
+                  <div className="space-y-3">
+                    <p>
+                      Energia limpa é toda forma de geração de energia que não
+                      emite poluentes significativos nem gases de efeito estufa
+                      durante sua produção ou uso. Ela busca reduzir impactos
+                      ambientais e contribuir para a sustentabilidade.
+                    </p>
+                    <h4 className="font-semibold">
+                      Principais características
+                    </h4>
+                    <ul className="list-disc list-inside text-sm text-slate-600">
+                      <li>Baixa emissão de carbono</li>
+                      <li>Fontes renováveis</li>
+                      <li>Impacto reduzido</li>
+                    </ul>
                   </div>
+                )}
 
-                  {expandedSections.cleanEnergy && (
-                    <div className="text-slate-700 leading-relaxed space-y-4">
-                      <p>
-                        Energia limpa é toda forma de geração de energia que não
-                        emite poluentes significativos nem gases de efeito
-                        estufa durante sua produção ou uso. Ela busca reduzir
-                        impactos ambientais e contribuir para a
-                        sustentabilidade.
-                      </p>
+                {openSection === "greenHydrogen" && (
+                  <div className="space-y-3">
+                    <p>
+                      Hidrogênio verde é um tipo de hidrogênio produzido de
+                      forma sustentável, sem emissão significativa de gases de
+                      efeito estufa, obtido por eletrólise da água com
+                      eletricidade renovável.
+                    </p>
+                    <h4 className="font-semibold">Por que é importante</h4>
+                    <ul className="list-disc list-inside text-sm text-slate-600">
+                      <li>Baixo impacto ambiental</li>
+                      <li>Aplicações industriais e transporte</li>
+                      <li>Ajuda na descarbonização de setores difíceis</li>
+                    </ul>
+                  </div>
+                )}
 
-                      <div>
-                        <h3 className="font-semibold text-slate-900 mb-2">
-                          Principais características:
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <div className="bg-white/60 rounded-lg p-3">
-                            <h4 className="font-medium text-amber-700 mb-1">
-                              Baixa emissão de carbono
-                            </h4>
-                            <p className="text-sm text-slate-600">
-                              Zero emissões ou emissões mínimas durante a
-                              produção e uso.
-                            </p>
-                          </div>
-                          <div className="bg-white/60 rounded-lg p-3">
-                            <h4 className="font-medium text-amber-700 mb-1">
-                              Fontes renováveis
-                            </h4>
-                            <p className="text-sm text-slate-600">
-                              Processos que não degradam o meio ambiente e são
-                              sustentáveis.
-                            </p>
-                          </div>
-                          <div className="bg-white/60 rounded-lg p-3">
-                            <h4 className="font-medium text-amber-700 mb-1">
-                              Impacto reduzido
-                            </h4>
-                            <p className="text-sm text-slate-600">
-                              Menor impacto na saúde humana e nos ecossistemas.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
+                {!openSection && (
+                  <div className="text-sm text-slate-500">
+                    Clique em um cartão acima para ver mais informações.
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
 
-                      <div>
-                        <h3 className="font-semibold text-slate-900 mb-3">
-                          Exemplos de energia limpa:
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                          <div className="flex items-center gap-3 bg-white/60 rounded-lg p-3">
-                            <Droplets className="w-5 h-5 text-emerald-600" />
-                            <div>
-                              <h4 className="font-medium text-slate-900">
-                                Hidrogênio verde
-                              </h4>
-                              <p className="text-sm text-slate-600">
-                                Eletrólise da água usando energia renovável
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3 bg-white/60 rounded-lg p-3">
-                            <Sun className="w-5 h-5 text-amber-600" />
-                            <div>
-                              <h4 className="font-medium text-slate-900">
-                                Solar
-                              </h4>
-                              <p className="text-sm text-slate-600">
-                                Painéis fotovoltaicos
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3 bg-white/60 rounded-lg p-3">
-                            <Wind className="w-5 h-5 text-blue-600" />
-                            <div>
-                              <h4 className="font-medium text-slate-900">
-                                Eólica
-                              </h4>
-                              <p className="text-sm text-slate-600">
-                                Turbinas de vento
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3 bg-white/60 rounded-lg p-3">
-                            <Zap className="w-5 h-5 text-cyan-600" />
-                            <div>
-                              <h4 className="font-medium text-slate-900">
-                                Hidrelétrica
-                              </h4>
-                              <p className="text-sm text-slate-600">
-                                Com gestão sustentável
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3 bg-white/60 rounded-lg p-3">
-                            <Leaf className="w-5 h-5 text-green-600" />
-                            <div>
-                              <h4 className="font-medium text-slate-900">
-                                Biomassa
-                              </h4>
-                              <p className="text-sm text-slate-600">
-                                Quando bem controlada
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+          {/* Desktop detail panel: definitions as a full-width panel above calculators (visible on lg+) */}
+          <div className="hidden lg:block mb-8">
+            <Card className="bg-white/80 shadow-md border-slate-200">
+              <CardHeader>
+                <CardTitle className="text-xl text-emerald-800">
+                  {openSection === "cleanEnergy"
+                    ? "Energia Limpa"
+                    : openSection === "greenHydrogen"
+                    ? "Hidrogênio Verde"
+                    : "Informações"}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-slate-700">
+                {openSection === "cleanEnergy" && (
+                  <div className="space-y-4">
+                    <p className="leading-relaxed">
+                      Energia limpa é toda forma de geração de energia que não
+                      emite poluentes significativos nem gases de efeito estufa
+                      durante sua produção ou uso. Ela busca reduzir impactos
+                      ambientais e contribuir para a sustentabilidade.
+                    </p>
+                    <div>
+                      <h4 className="font-semibold mb-2 text-emerald-700">
+                        Principais características
+                      </h4>
+                      <ul className="list-disc list-inside text-slate-600 space-y-1">
+                        <li>Baixa emissão de carbono</li>
+                        <li>Fontes renováveis</li>
+                        <li>Impacto reduzido</li>
+                      </ul>
                     </div>
-                  )}
-                </div>
-              </div>
+                  </div>
+                )}
+
+                {openSection === "greenHydrogen" && (
+                  <div className="space-y-4">
+                    <p className="leading-relaxed">
+                      Hidrogênio verde é um tipo de hidrogênio produzido de
+                      forma sustentável, sem emissão significativa de gases de
+                      efeito estufa, obtido por eletrólise da água com
+                      eletricidade renovável.
+                    </p>
+                    <div>
+                      <h4 className="font-semibold mb-2 text-emerald-700">
+                        Por que é importante
+                      </h4>
+                      <ul className="list-disc list-inside text-slate-600 space-y-1">
+                        <li>Baixo impacto ambiental</li>
+                        <li>Aplicações industriais e transporte</li>
+                        <li>Ajuda na descarbonização de setores difíceis</li>
+                      </ul>
+                    </div>
+                  </div>
+                )}
+
+                {!openSection && (
+                  <div className="text-slate-500 italic">
+                    Selecione um dos tópicos acima para visualizar os detalhes.
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Calculators block */}
+          <div className="bg-white/80 rounded-xl shadow-md border border-slate-200 p-6 mb-8">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">
+                Calculadoras De Emissão de Carbono
+              </h2>
+              <p className="text-slate-600">
+                Estime suas emissões e veja como compensar
+              </p>
             </div>
 
-            {/* calculadora movida abaixo do card de Hidrogênio Verde */}
-
-            {/* Information Backdrop - Green Hydrogen */}
-            <div className="bg-gradient-to-r from-emerald-100 via-teal-100 to-cyan-100 rounded-xl shadow-lg border border-emerald-200 p-6 mb-6">
-              <div className="flex items-center gap-4">
-                <div className="bg-emerald-500 rounded-full p-3 flex-shrink-0 items-center">
-                  <Droplets className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex-1 relative">
-                  <div className="relative mb-4">
-                    <h2 className="text-xl font-bold text-slate-900 text-center">
-                      O que é hidrogênio verde?
-                    </h2>
-                    <button
-                      onClick={() => toggleSection("greenHydrogen")}
-                      className="absolute right-0 top-0 p-2 rounded-full hover:bg-emerald-200/50 transition-colors"
-                      aria-label={
-                        expandedSections.greenHydrogen ? "Recolher" : "Expandir"
-                      }
-                    >
-                      {expandedSections.greenHydrogen ? (
-                        <ChevronUp className="w-5 h-5 text-emerald-600" />
-                      ) : (
-                        <ChevronDown className="w-5 h-5 text-emerald-600" />
-                      )}
-                    </button>
-                  </div>
-
-                  {expandedSections.greenHydrogen && (
-                    <div className="text-slate-700 leading-relaxed space-y-4">
-                      <p>
-                        Hidrogênio verde é um tipo de hidrogênio produzido de
-                        forma sustentável, sem emissão significativa de gases de
-                        efeito estufa. Ele é obtido por meio da eletrólise da
-                        água, um processo que separa a molécula de H₂O em
-                        hidrogênio (H₂) e oxigênio (O₂) usando eletricidade.
-                        Para que seja considerado "verde", essa eletricidade
-                        precisa vir de fontes renováveis, como energia solar,
-                        eólica ou hidrelétrica.
-                      </p>
-
-                      <div>
-                        <h3 className="font-semibold text-slate-900 mb-2">
-                          Por que é importante?
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <div className="bg-white/60 rounded-lg p-3">
-                            <h4 className="font-medium text-emerald-700 mb-1">
-                              Baixo impacto ambiental
-                            </h4>
-                            <p className="text-sm text-slate-600">
-                              Diferente do hidrogênio cinza (produzido a partir
-                              de gás natural), o verde não gera CO₂.
-                            </p>
-                          </div>
-                          <div className="bg-white/60 rounded-lg p-3">
-                            <h4 className="font-medium text-emerald-700 mb-1">
-                              Aplicações
-                            </h4>
-                            <p className="text-sm text-slate-600">
-                              Pode ser usado como combustível limpo em
-                              indústrias, transporte pesado, geração de energia
-                              e até para armazenar energia renovável.
-                            </p>
-                          </div>
-                          <div className="bg-white/60 rounded-lg p-3">
-                            <h4 className="font-medium text-emerald-700 mb-1">
-                              Descarbonização
-                            </h4>
-                            <p className="text-sm text-slate-600">
-                              É uma peça-chave para reduzir emissões em setores
-                              difíceis de eletrificar.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <Calculator />
+              <ElectricityCalculator />
             </div>
           </div>
 
@@ -828,7 +709,7 @@ export default function Informacoes() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* Artigo 1 */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -836,17 +717,17 @@ export default function Informacoes() {
                 transition={{ delay: 0.1 }}
                 className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow"
               >
-                <div className="p-6">
-                  <div className="flex items-center mb-3">
-                    <Sun className="w-6 h-6 text-emerald-600 mr-2" />
-                    <span className="text-sm font-medium text-emerald-700 bg-emerald-100 px-2 py-1 rounded">
+                <div className="p-4">
+                  <div className="flex items-center mb-2">
+                    <Sun className="w-5 h-5 text-emerald-600 mr-2" />
+                    <span className="text-xs font-medium text-emerald-700 bg-emerald-100 px-2 py-1 rounded">
                       Sustentabilidade
                     </span>
                   </div>
-                  <h3 className="text-lg font-semibold text-slate-900 mb-3">
+                  <h3 className="text-base font-semibold text-slate-900 mb-2">
                     Impacto das Energias Renováveis na Sustentabilidade Global
                   </h3>
-                  <p className="text-slate-600 text-sm mb-4">
+                  <p className="text-slate-600 text-sm mb-3">
                     Analisa tecnologias renováveis (solar, eólica,
                     hidrelétrica), seus impactos ambientais e benefícios
                     econômicos.
@@ -879,18 +760,18 @@ export default function Informacoes() {
                 transition={{ delay: 0.2 }}
                 className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow"
               >
-                <div className="p-6">
-                  <div className="flex items-center mb-3">
-                    <Wind className="w-6 h-6 text-blue-600 mr-2" />
-                    <span className="text-sm font-medium text-blue-700 bg-blue-100 px-2 py-1 rounded">
+                <div className="p-4">
+                  <div className="flex items-center mb-2">
+                    <Wind className="w-5 h-5 text-blue-600 mr-2" />
+                    <span className="text-xs font-medium text-blue-700 bg-blue-100 px-2 py-1 rounded">
                       Transição Energética
                     </span>
                   </div>
-                  <h3 className="text-lg font-semibold text-slate-900 mb-3">
+                  <h3 className="text-base font-semibold text-slate-900 mb-2">
                     A Transição Para Energias Renováveis: Impactos Econômicos e
                     Ambientais
                   </h3>
-                  <p className="text-slate-600 text-sm mb-4">
+                  <p className="text-slate-600 text-sm mb-3">
                     Explora como fontes limpas remodelam sistemas energéticos
                     globais e os desafios da adoção.
                   </p>

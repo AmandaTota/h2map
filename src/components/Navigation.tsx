@@ -9,6 +9,7 @@ import {
   LogIn,
   LogOut,
   User,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,6 +45,7 @@ const Navigation = () => {
     { path: "/feasibility", label: "Análise de Viabilidade", icon: BarChart3 },
     { path: "/statistics", label: "Estatísticas", icon: LineChart },
     { path: "/dashboard", label: "Previsão do Tempo", icon: ThermometerSun },
+    { path: "/informacoes", label: "Dados Verdes", icon: FileText },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -64,34 +66,24 @@ const Navigation = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">
-            {navItems
-              .filter((item) => {
-                // Esconder 'Informações' quando estivermos na página de demonstração (/feasibility)
-                if (
-                  location.pathname.startsWith("/feasibility") &&
-                  item.path === "/informacoes"
-                )
-                  return false;
-                return true;
-              })
-              .map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={cn(
-                      "flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors text-sm lg:px-4 lg:text-base",
-                      isActive(item.path)
-                        ? "bg-emerald-100 text-emerald-700 font-medium"
-                        : "text-slate-600 hover:text-emerald-600 hover:bg-emerald-50"
-                    )}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span className="hidden lg:inline">{item.label}</span>
-                  </Link>
-                );
-              })}
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={cn(
+                    "flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors text-sm lg:px-4 lg:text-base",
+                    isActive(item.path)
+                      ? "bg-emerald-100 text-emerald-700 font-medium"
+                      : "text-slate-600 hover:text-emerald-600 hover:bg-emerald-50"
+                  )}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span className="hidden lg:inline">{item.label}</span>
+                </Link>
+              );
+            })}
 
             {/* Auth Button */}
             {/*}
@@ -145,34 +137,25 @@ const Navigation = () => {
       {mobileMenuOpen && (
         <div className="md:hidden bg-white border-t border-emerald-100">
           <div className="px-2 py-2 space-y-1">
-            {navItems
-              .filter((item) => {
-                if (
-                  location.pathname.startsWith("/feasibility") &&
-                  item.path === "/informacoes"
-                )
-                  return false;
-                return true;
-              })
-              .map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={cn(
-                      "flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors text-base",
-                      isActive(item.path)
-                        ? "bg-emerald-100 text-emerald-700 font-medium"
-                        : "text-slate-600 hover:text-emerald-600 hover:bg-emerald-50"
-                    )}
-                  >
-                    <Icon className="w-5 h-5" />
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={cn(
+                    "flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors text-base",
+                    isActive(item.path)
+                      ? "bg-emerald-100 text-emerald-700 font-medium"
+                      : "text-slate-600 hover:text-emerald-600 hover:bg-emerald-50"
+                  )}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
 
             {/* Mobile Auth Button */}
             <div className="pt-2 border-t border-slate-200 mt-2">

@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import LocationSearch from "@/components/LocationSearch";
 import FavoritesList from "@/components/FavoritesList";
 import WeatherForecast from "@/components/WeatherForecast";
+import NewsSidebar from "@/components/NewsSidebar";
 import { Button } from "@/components/ui/button";
 import { useLocationStore } from "@/store/locationStore";
 import { useState, useEffect } from "react";
@@ -111,6 +112,8 @@ export default function Dashboard() {
                   <FavoritesList onLocationSelect={handleLocationSelect} />
                 </div>
               </div>
+              {/* Compact news block outside the location container (max 4 notícias) */}
+              <NewsSidebar compact maxItems={4} />
             </div>
 
             {/* Main Content: Weather Forecast + Map */}
