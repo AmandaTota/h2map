@@ -432,48 +432,21 @@ const FeasibilityAnalysis = () => {
         }
       }
 
-      // Anualizar resultados (valores agregados do período simulado)
-      const annualEnergyConsumed = totalEnergyConsumed; // kWh/ano (simulado)
-      // Fator de capacidade (decimal)
+      // Anualizar resultados (multiplicar pelos anos do cenário)
+      const annualEnergyConsumed = totalEnergyConsumed;
+      const annualH2Production = annualEnergyConsumed / electrolyzerConsumption; // kg/ano
+
+      // Calcular Fator de Capacidade
       const totalHoursInPeriod = dailyData.length * 24;
       const capacityFactor =
         (totalEnergyConsumed /
           (electrolyzerNominalPower * totalHoursInPeriod)) *
-        100; // em % (para exibição)
-      const capacityFactorDecimal = Math.max(0, capacityFactor / 100);
+        100;
 
-      // Estimativa de potência instalada (kW) a partir das fontes renováveis dimensionadas
+      // Calcular custos (escalam com o cenário)
       const estimatedSolarPower = 50 * scaleFactor; // kW (escala com capacidade)
       const estimatedWindPower = 30 * scaleFactor; // kW (escala com capacidade)
-      const totalInstalledPower = estimatedSolarPower + estimatedWindPower; // kW
 
-      // 1) Produção Anual de Energia (MWh) usando fórmula padrão
-      // E_anual (MWh) = (Potência Instalada (kW) × Fator de Capacidade × 8760) / 1000
-      const E_anual_MWh =
-        (totalInstalledPower * capacityFactorDecimal * 8760) / 1000; // MWh/ano
-      const E_anual_kWh = E_anual_MWh * 1000; // kWh/ano
-
-      // Parâmetros eletrolisador segundo documento de referência
-      const electrolyzerEfficiencyFraction = 0.7; // 70% (eficiência do eletrolisador)
-      const specificConsumption = 50; // kWh/kg H2 (consumo específico de referência)
-
-      // 2) Produção Anual de H2 (kg)
-      // H2 (kg) = (Energia Anual (kWh) × Eficiência do Eletrolisador) / Consumo específico (kWh/kg)
-      const systemAvailableEnergy_kWh = E_anual_kWh * systemEfficiency; // considerar eficiência do sistema
-      let annualH2Production_kg = 0;
-      if (specificConsumption > 0) {
-        annualH2Production_kg =
-          (systemAvailableEnergy_kWh * electrolyzerEfficiencyFraction) /
-          specificConsumption;
-      }
-
-      // Ajustes realistas: redução de CAPEX por escala e ganho de eficiência por escala
-      const scaleReduction =
-        scaleFactor === 1 ? 0 : scaleFactor === 3 ? 0.15 : 0.3; // ex.: 15% para 3x, 30% para 5x
-      const efficiencyGain =
-        scaleFactor === 1 ? 0 : scaleFactor === 3 ? 0.05 : 0.1; // ganho de produção por escala
-
-      // Calcular CAPEX total (como antes) e aplicar redução por escala
       const totalCapex =
         estimatedSolarPower * solarCapexPerKW +
         estimatedWindPower * windCapexPerKW +
@@ -481,38 +454,23 @@ const FeasibilityAnalysis = () => {
         (estimatedSolarPower * solarCapexPerKW +
           estimatedWindPower * windCapexPerKW) *
           infrastructureMultiplier;
-      const adjustedCapex = totalCapex * (1 - scaleReduction);
 
-      // CAPEX amortizado por ano (seguindo a fórmula do documento)
-      const capexAnnualized = adjustedCapex / projectLifetime; // R$/ano
+      // Anualizar CAPEX (usando fator de recuperação de capital)
+      const crf =
+        (discountRate * Math.pow(1 + discountRate, projectLifetime)) /
+        (Math.pow(1 + discountRate, projectLifetime) - 1);
+      const capexAnnualized = totalCapex * crf;
 
-      // OPEX anual (manutenção + insumos como água)
+      // OPEX anual
       const opexAnnual =
-        totalCapex * opexPercentage + annualH2Production_kg * waterCostPerKg;
+        totalCapex * opexPercentage + annualH2Production * waterCostPerKg;
 
-      // Produção ajustada por ganhos de eficiência
-      const productionAdjusted_kg =
-        annualH2Production_kg * (1 + efficiencyGain);
-
-      // Receita anual
-      const pricePerKg = 25; // R$/kg (valor de referência)
-      const annualRevenue = productionAdjusted_kg * pricePerKg;
-
-      // Payback (anos) = CAPEX / (Receita Anual - OPEX Anual)
-      const paybackYears =
-        annualRevenue - opexAnnual > 0
-          ? adjustedCapex / (annualRevenue - opexAnnual)
-          : Infinity;
-
-      // LCOH = (CAPEX amortizado por ano + OPEX Anual) / Produção Anual (kg)
-      const lcoh =
-        productionAdjusted_kg > 0
-          ? (capexAnnualized + opexAnnual) / productionAdjusted_kg
-          : Infinity;
+      // LCOH (Levelized Cost of Hydrogen)
+      const lcoh = (capexAnnualized + opexAnnual) / annualH2Production;
 
       results.push({
         totalEnergyConsumed: annualEnergyConsumed,
-        h2Production: productionAdjusted_kg,
+        h2Production: annualH2Production,
         capacityFactor: capacityFactor,
         curtailment: totalCurtailment,
         operatingHours: operatingHours,
@@ -524,10 +482,9 @@ const FeasibilityAnalysis = () => {
       console.log(`Scenario ${scenario.years} year(s):`, {
         electrolyzerPower: electrolyzerNominalPower,
         energyConsumed: annualEnergyConsumed.toFixed(0),
-        h2Production: productionAdjusted_kg.toFixed(2),
+        h2Production: annualH2Production.toFixed(2),
         capacityFactor: capacityFactor.toFixed(1) + "%",
-        lcoh: lcoh === Infinity ? "NaN" : lcoh.toFixed(2),
-        payback: paybackYears === Infinity ? "Inf" : paybackYears.toFixed(1),
+        lcoh: lcoh.toFixed(2),
       });
     }
 
