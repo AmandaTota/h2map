@@ -86,7 +86,6 @@ const LocationSearch = ({
       const { data, error } = await supabaseClient
         .from("municipalities")
         .select("nome, latitude, longitude, codigo_uf")
-        // Buscar por substring — assim duas letras no meio do nome também retornam
         .ilike("nome", `%${term}%`)
         .order("nome")
         .limit(10);
