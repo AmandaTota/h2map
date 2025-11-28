@@ -71,7 +71,6 @@ serve(async (req) => {
       latitude: lat.toString(),
       longitude: lon.toString(),
       current: 'temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,cloud_cover',
-      daily: 'sunrise,sunset',
       timezone: 'auto',
     });
 
@@ -83,17 +82,22 @@ serve(async (req) => {
       forecast_days: '6', // Request 6 days to ensure we have data for next 5 days
     });
 
-    const [currentResponse, forecastResponse] = await Promise.all([
+    // Fetch sunrise/sunset from sunrise-sunset.org API (more accurate)
+    const sunApiUrl = `https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lon}&formatted=0&date=today`;
+
+    const [currentResponse, forecastResponse, sunResponse] = await Promise.all([
       fetch(`https://api.open-meteo.com/v1/forecast?${currentParams}`),
       fetch(`https://api.open-meteo.com/v1/forecast?${forecastParams}`),
+      fetch(sunApiUrl),
     ]);
 
-    if (!currentResponse.ok || !forecastResponse.ok) {
-      throw new Error('Open-Meteo API request failed');
+    if (!currentResponse.ok || !forecastResponse.ok || !sunResponse.ok) {
+      throw new Error('API request failed');
     }
 
     const currentData = await currentResponse.json();
     const forecastData = await forecastResponse.json();
+    const sunData = await sunResponse.json();
 
     console.log('Open-Meteo forecast dates:', forecastData.daily.time);
     console.log('Current date from API:', currentData.current.time);
@@ -101,10 +105,22 @@ serve(async (req) => {
     // Map weather code for current conditions
     const currentWeather = mapWeatherCode(currentData.current.weather_code);
     
-    // Calculate sunrise and sunset timestamps from today's data
-    const todayIndex = 0;
-    const sunriseTime = new Date(currentData.daily.sunrise[todayIndex]).getTime() / 1000;
-    const sunsetTime = new Date(currentData.daily.sunset[todayIndex]).getTime() / 1000;
+    // Get sunrise and sunset from sunrise-sunset.org API (in UTC ISO format)
+    // Convert to Unix timestamp (seconds)
+    let sunriseTime = 0;
+    let sunsetTime = 0;
+    
+    if (sunData.status === 'OK') {
+      sunriseTime = new Date(sunData.results.sunrise).getTime() / 1000;
+      sunsetTime = new Date(sunData.results.sunset).getTime() / 1000;
+      console.log('Sunrise from API:', sunData.results.sunrise, 'Timestamp:', sunriseTime);
+      console.log('Sunset from API:', sunData.results.sunset, 'Timestamp:', sunsetTime);
+    } else {
+      console.error('Sunrise-sunset API error:', sunData);
+      // Fallback to reasonable defaults
+      sunriseTime = Date.now() / 1000;
+      sunsetTime = Date.now() / 1000 + 12 * 3600;
+    }
 
     // Get today's date in Brazil timezone (GMT-3)
     const now = new Date();

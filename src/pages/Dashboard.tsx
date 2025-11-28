@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import LocationSearch from "@/components/LocationSearch";
 import FavoritesList from "@/components/FavoritesList";
 import WeatherForecast from "@/components/WeatherForecast";
+import WeatherAlerts from "@/components/WeatherAlerts";
 import NewsSidebar from "@/components/NewsSidebar";
 import { Button } from "@/components/ui/button";
 import { useLocationStore } from "@/store/locationStore";
@@ -71,7 +72,7 @@ export default function Dashboard() {
 
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 pt-16">
         <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 max-w-7xl">
-          {/* Layout: Sidebar (Search + Favorites) | Main Content (Weather + Map) */}
+          {/* Layout: Sidebar (Search + Favorites) | Main Content (Weather) | News Sidebar */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
             {/* Left Sidebar: Location Search & Favorites */}
             <div className="lg:col-span-1">
@@ -112,12 +113,13 @@ export default function Dashboard() {
                   <FavoritesList onLocationSelect={handleLocationSelect} />
                 </div>
               </div>
-              {/* Compact news block outside the location container (max 4 notícias) */}
-              <NewsSidebar compact maxItems={4} />
+
+              {/* Dicas e Alertas Dinâmicos */}
+              <WeatherAlerts location={localLocation} />
             </div>
 
-            {/* Main Content: Weather Forecast + Map */}
-            <div className="lg:col-span-3 space-y-6">
+            {/* Main Content: Weather Forecast */}
+            <div className="lg:col-span-2 space-y-6">
               {/* Inline Weather Forecast */}
               <WeatherForecast location={localLocation} />
 
@@ -131,7 +133,10 @@ export default function Dashboard() {
               </div> */}
             </div>
 
-            {/* Right Sidebar: Notícias (removida — movida para a página Informações) */}
+            {/* Right Sidebar: News */}
+            <div className="lg:col-span-1">
+              <NewsSidebar compact maxItems={4} />
+            </div>
           </div>
         </div>
       </div>

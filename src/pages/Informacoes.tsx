@@ -977,9 +977,13 @@ export default function Informacoes() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <Calculator />
-              <ElectricityCalculator />
+            <div className="flex flex-col lg:flex-row gap-8 lg:gap-0 lg:divide-x-2 lg:divide-emerald-200">
+              <div className="bg-white/70 backdrop-blur-sm p-4 lg:pr-8">
+                <Calculator />
+              </div>
+              <div className="bg-white/70 backdrop-blur-sm p-4 lg:pl-8">
+                <ElectricityCalculator />
+              </div>
             </div>
           </div>
 

@@ -145,7 +145,7 @@ export default function NewsSidebar({
   if (!compact) {
     return (
       <aside className="hidden lg:block">
-        <div className="sticky top-20 bg-white rounded-xl shadow-md p-0 mt-[22px] overflow-hidden">
+        <div className="sticky top-20 bg-white rounded-xl shadow-md p-0 overflow-hidden">
           {/* Header fixed inside card */}
           <div className="p-4 border-b bg-white sticky top-0 z-10">
             <div className="flex items-center justify-between mb-0">

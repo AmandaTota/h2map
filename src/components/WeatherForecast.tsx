@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { format } from 'date-fns';
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { format } from "date-fns";
 import {
   Sun,
   Thermometer,
@@ -16,8 +16,8 @@ import {
   CloudDrizzle,
   CloudLightning,
   CloudSun,
-  CloudFog
-} from 'lucide-react';
+  CloudFog,
+} from "lucide-react";
 
 interface WeatherForecast {
   location: {
@@ -76,24 +76,24 @@ interface WeatherForecastProps {
 const getWeatherIcon = (iconCode: string, size: number = 48) => {
   const code = iconCode.slice(0, 2); // Remove 'd' ou 'n' do final
   const iconProps = { size, strokeWidth: 1.5 };
-  
+
   switch (code) {
-    case '01': // céu limpo
+    case "01": // céu limpo
       return <Sun {...iconProps} className="text-amber-500" />;
-    case '02': // poucas nuvens
+    case "02": // poucas nuvens
       return <CloudSun {...iconProps} className="text-amber-400" />;
-    case '03': // nuvens esparsas
-    case '04': // nuvens quebradas
+    case "03": // nuvens esparsas
+    case "04": // nuvens quebradas
       return <Cloud {...iconProps} className="text-slate-400" />;
-    case '09': // chuva leve
+    case "09": // chuva leve
       return <CloudDrizzle {...iconProps} className="text-blue-500" />;
-    case '10': // chuva
+    case "10": // chuva
       return <CloudRain {...iconProps} className="text-blue-600" />;
-    case '11': // trovoada
+    case "11": // trovoada
       return <CloudLightning {...iconProps} className="text-purple-600" />;
-    case '13': // neve
+    case "13": // neve
       return <CloudSnow {...iconProps} className="text-cyan-300" />;
-    case '50': // névoa
+    case "50": // névoa
       return <CloudFog {...iconProps} className="text-slate-300" />;
     default:
       return <CloudSun {...iconProps} className="text-slate-400" />;
@@ -113,27 +113,34 @@ const WeatherForecastComponent = ({ location }: WeatherForecastProps) => {
   const loadForecast = async () => {
     setLoadingForecast(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-weather-forecast`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({
-          lat: location.lat,
-          lon: location.lng,
-          name: location.name,
-        }),
-      });
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_SUPABASE_URL
+        }/functions/v1/fetch-weather-forecast`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${
+              import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+            }`,
+          },
+          body: JSON.stringify({
+            lat: location.lat,
+            lon: location.lng,
+            name: location.name,
+          }),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch weather forecast');
+        throw new Error("Failed to fetch weather forecast");
       }
 
       const forecastData = await response.json();
       setForecast(forecastData);
     } catch (error) {
-      console.error('Error loading forecast:', error);
+      console.error("Error loading forecast:", error);
     } finally {
       setLoadingForecast(false);
     }
@@ -144,7 +151,9 @@ const WeatherForecastComponent = ({ location }: WeatherForecastProps) => {
       <div className="bg-white rounded-xl shadow-lg border border-emerald-100 p-6 mb-6">
         <div className="flex items-center justify-center py-12">
           <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
-          <span className="ml-3 text-slate-600">Carregando previsão do tempo...</span>
+          <span className="ml-3 text-slate-600">
+            Carregando previsão do tempo...
+          </span>
         </div>
       </div>
     );
@@ -169,22 +178,30 @@ const WeatherForecastComponent = ({ location }: WeatherForecastProps) => {
       <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg p-3 sm:p-4 mb-3 sm:mb-4 border border-blue-100">
         <div className="flex justify-between items-start mb-2 sm:mb-3">
           <div>
-            <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-1">Tempo Atual</h3>
-            <p className="text-xs sm:text-sm text-slate-600 capitalize">{forecast.current.weather.description}</p>
+            <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-1">
+              Tempo Atual
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 capitalize">
+              {forecast.current.weather.description}
+            </p>
           </div>
           <div className="flex items-center justify-center">
             {getWeatherIcon(forecast.current.weather.icon, 48)}
           </div>
         </div>
-        
+
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
           <div className="bg-white/60 backdrop-blur rounded-lg p-2">
             <div className="flex items-center gap-1.5 mb-1">
               <Thermometer className="w-3.5 h-3.5 text-red-600" />
               <span className="text-xs text-slate-600">Temperatura</span>
             </div>
-            <p className="text-xl font-bold text-slate-900">{forecast.current.temp.toFixed(1)}°C</p>
-            <p className="text-xs text-slate-500">Sensação: {forecast.current.feelsLike.toFixed(1)}°C</p>
+            <p className="text-xl font-bold text-slate-900">
+              {forecast.current.temp.toFixed(2)}°C
+            </p>
+            <p className="text-xs text-slate-500">
+              Sensação: {forecast.current.feelsLike.toFixed(2)}°C
+            </p>
           </div>
 
           <div className="bg-white/60 backdrop-blur rounded-lg p-2">
@@ -192,7 +209,9 @@ const WeatherForecastComponent = ({ location }: WeatherForecastProps) => {
               <Droplets className="w-3.5 h-3.5 text-blue-600" />
               <span className="text-xs text-slate-600">Umidade</span>
             </div>
-            <p className="text-xl font-bold text-slate-900">{forecast.current.humidity}%</p>
+            <p className="text-xl font-bold text-slate-900">
+              {forecast.current.humidity}%
+            </p>
           </div>
 
           <div className="bg-white/60 backdrop-blur rounded-lg p-2">
@@ -200,8 +219,12 @@ const WeatherForecastComponent = ({ location }: WeatherForecastProps) => {
               <Wind className="w-3.5 h-3.5 text-green-600" />
               <span className="text-xs text-slate-600">Vento</span>
             </div>
-            <p className="text-xl font-bold text-slate-900">{forecast.current.windSpeed.toFixed(1)} m/s</p>
-            <p className="text-xs text-slate-500">Dir: {forecast.current.windDirection}°</p>
+            <p className="text-xl font-bold text-slate-900">
+              {forecast.current.windSpeed.toFixed(1)} m/s
+            </p>
+            <p className="text-xs text-slate-500">
+              Dir: {forecast.current.windDirection}°
+            </p>
           </div>
 
           <div className="bg-white/60 backdrop-blur rounded-lg p-2">
@@ -209,7 +232,9 @@ const WeatherForecastComponent = ({ location }: WeatherForecastProps) => {
               <Gauge className="w-3.5 h-3.5 text-slate-600" />
               <span className="text-xs text-slate-600">Pressão</span>
             </div>
-            <p className="text-xl font-bold text-slate-900">{forecast.current.pressure}</p>
+            <p className="text-xl font-bold text-slate-900">
+              {forecast.current.pressure}
+            </p>
             <p className="text-xs text-slate-500">hPa</p>
           </div>
         </div>
@@ -220,7 +245,14 @@ const WeatherForecastComponent = ({ location }: WeatherForecastProps) => {
             <div>
               <p className="text-xs text-slate-600">Nascer do Sol</p>
               <p className="text-sm font-semibold text-slate-900">
-                {new Date(forecast.current.sunrise * 1000).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                {new Date(forecast.current.sunrise * 1000).toLocaleTimeString(
+                  "pt-BR",
+                  {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    timeZone: "America/Sao_Paulo",
+                  }
+                )}
               </p>
             </div>
           </div>
@@ -229,7 +261,14 @@ const WeatherForecastComponent = ({ location }: WeatherForecastProps) => {
             <div>
               <p className="text-xs text-slate-600">Pôr do Sol</p>
               <p className="text-sm font-semibold text-slate-900">
-                {new Date(forecast.current.sunset * 1000).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                {new Date(forecast.current.sunset * 1000).toLocaleTimeString(
+                  "pt-BR",
+                  {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    timeZone: "America/Sao_Paulo",
+                  }
+                )}
               </p>
             </div>
           </div>
@@ -238,7 +277,9 @@ const WeatherForecastComponent = ({ location }: WeatherForecastProps) => {
 
       {/* 5-Day Forecast */}
       <div className="overflow-x-auto">
-        <h3 className="text-sm font-semibold text-slate-900 mb-2">Próximos 5 Dias</h3>
+        <h3 className="text-sm font-semibold text-slate-900 mb-2">
+          Próximos 5 Dias
+        </h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 min-w-0">
           {forecast.forecast.map((day, index) => (
             <motion.div
@@ -249,12 +290,14 @@ const WeatherForecastComponent = ({ location }: WeatherForecastProps) => {
               className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-2 sm:p-3 border border-slate-200 hover:shadow-md transition-shadow min-w-[140px] sm:min-w-0"
             >
               <div className="text-center mb-2">
-                <p className="text-xs sm:text-sm font-semibold text-slate-900 truncate">{day.dayName}</p>
+                <p className="text-xs sm:text-sm font-semibold text-slate-900 truncate">
+                  {day.dayName}
+                </p>
                 <p className="text-xs text-slate-500">
-                  {day.date.split('-').slice(1).reverse().join('/')}
+                  {day.date.split("-").slice(1).reverse().join("/")}
                 </p>
               </div>
-              
+
               <div className="flex justify-center mb-2">
                 {getWeatherIcon(day.weather.icon, 28)}
               </div>
@@ -272,16 +315,22 @@ const WeatherForecastComponent = ({ location }: WeatherForecastProps) => {
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-500">Umid:</span>
-                  <span className="font-semibold text-slate-900">{day.humidity.toFixed(0)}%</span>
+                  <span className="font-semibold text-slate-900">
+                    {day.humidity.toFixed(0)}%
+                  </span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-500">Vento:</span>
-                  <span className="font-semibold text-slate-900">{day.windSpeed.toFixed(1)} m/s</span>
+                  <span className="font-semibold text-slate-900">
+                    {day.windSpeed.toFixed(1)} m/s
+                  </span>
                 </div>
                 {day.rainfall > 0 && (
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-slate-500">Chuva:</span>
-                    <span className="font-semibold text-blue-600">{day.rainfall.toFixed(1)} mm</span>
+                    <span className="font-semibold text-blue-600">
+                      {day.rainfall.toFixed(1)} mm
+                    </span>
                   </div>
                 )}
               </div>

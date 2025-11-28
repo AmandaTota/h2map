@@ -17,6 +17,7 @@ import {
   Loader2,
   Database,
   X,
+  ChevronDown,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -160,6 +161,11 @@ const FeasibilityAnalysis = () => {
   const [compareEstadoB, setCompareEstadoB] = useState<string>("");
   const [compareMicroB, setCompareMicroB] = useState<string>("");
   const [compareMicroNomeB, setCompareMicroNomeB] = useState<string>("");
+  // Forçar remontagem de filtros regionais ao limpar
+  const [regionFiltersKey, setRegionFiltersKey] = useState<number>(0);
+  // Toggles para iniciar fechados
+  const [showComparison, setShowComparison] = useState<boolean>(false);
+  const [showMapsComparison, setShowMapsComparison] = useState<boolean>(false);
   const [microregioesCompareA, setMicroregioesCompareA] = useState<
     Array<{ id: string; nome: string }>
   >([]);
@@ -4131,10 +4137,28 @@ const FeasibilityAnalysis = () => {
           ) : (
             <>
               <Card className="p-6 bg-white/80 backdrop-blur-sm border-emerald-200 mb-6">
-                <div>
-                  <p className="text-sm text-slate-600 mb-3 text-center font-semibold">
-                    Filtros Regionais
-                  </p>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-slate-600 font-semibold">
+                      Filtros Regionais
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedRegion("");
+                        setSelectedEstado("");
+                        setSelectedEstadoNome("");
+                        setSelectedMicrorregiao("");
+                        setSelectedMicrorregiaoNome("");
+                        setRegionFiltersKey((k) => k + 1);
+                      }}
+                      className="flex items-center gap-2"
+                    >
+                      <X className="w-4 h-4" />
+                      Limpar seleção
+                    </Button>
+                  </div>
                   <RegionFilters
                     onMacroregiaoChange={(macro) =>
                       setSelectedRegion(macro === "all" ? "Nordeste" : macro)
@@ -4151,29 +4175,31 @@ const FeasibilityAnalysis = () => {
                 </div>
               </Card>
 
-              {/* Tipologias Regionais - Accordion */}
-              <Accordion
-                type="multiple"
-                defaultValue={["tipologias"]}
-                className="mb-4"
-              >
-                <AccordionItem value="tipologias" className="border-none">
-                  <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden">
-                    <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-emerald-50/50 transition-colors">
-                      <div className="flex items-center space-x-3 w-full">
-                        <Zap className="w-6 h-6 text-emerald-600" />
-                        <h2 className="text-2xl font-bold text-slate-900">
-                          Tipologias Regionais
-                        </h2>
-                        <Badge className="ml-auto bg-blue-100 text-blue-800 border-blue-300">
-                          {selectedRegion}
-                        </Badge>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="px-6 pb-6">
-                      <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-4">
-                        {getTechnologyFactors(selectedRegion).map(
-                          (tech, tIndex) => (
+              {/* Tipologias Regionais - Accordion (apenas após escolhas) */}
+              {selectedRegion || selectedEstado || selectedMicrorregiao ? (
+                <Accordion
+                  type="multiple"
+                  defaultValue={["tipologias"]}
+                  className="mb-4"
+                >
+                  <AccordionItem value="tipologias" className="border-none">
+                    <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden">
+                      <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-emerald-50/50 transition-colors">
+                        <div className="flex items-center space-x-3 w-full">
+                          <Zap className="w-6 h-6 text-emerald-600" />
+                          <h2 className="text-2xl font-bold text-slate-900">
+                            Tipologias Regionais
+                          </h2>
+                          <Badge className="ml-auto bg-blue-100 text-blue-800 border-blue-300">
+                            {selectedRegion || "—"}
+                          </Badge>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="px-6 pb-6">
+                        <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-4">
+                          {getTechnologyFactors(
+                            selectedRegion || "Nordeste"
+                          ).map((tech, tIndex) => (
                             <div
                               key={`tech-${tIndex}`}
                               className="p-4 rounded-lg border hover:shadow-sm transition-shadow"
@@ -4203,13 +4229,18 @@ const FeasibilityAnalysis = () => {
                                 ))}
                               </div>
                             </div>
-                          )
-                        )}
-                      </div>
-                    </AccordionContent>
-                  </Card>
-                </AccordionItem>
-              </Accordion>
+                          ))}
+                        </div>
+                      </AccordionContent>
+                    </Card>
+                  </AccordionItem>
+                </Accordion>
+              ) : (
+                <div className="mb-4 text-sm text-slate-500 italic">
+                  Selecione filtros regionais para exibir as Tipologias
+                  Regionais.
+                </div>
+              )}
 
               {/* Card de Viabilidade do Estado */}
               {selectedEstado && selectedEstado !== "all" && (
@@ -4380,514 +4411,551 @@ const FeasibilityAnalysis = () => {
               )}
 
               <Card className="p-6 bg-white/80 backdrop-blur-sm border-emerald-200 mb-6">
-                <div className="flex items-center justify-between mb-4">
+                <div
+                  className="flex items-center justify-between mb-2 cursor-pointer select-none"
+                  onClick={() => setShowComparison((v) => !v)}
+                >
                   <div className="flex items-center space-x-3">
                     <BarChart3 className="w-6 h-6 text-emerald-600" />
                     <h2 className="text-2xl font-bold text-slate-900">
                       Comparar Regiões e Microrregiões
                     </h2>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      // Reset para valores padrão
-                      setCompareRegionA("");
-                      setCompareRegionB("");
-                      setCompareEstadoA("");
-                      setCompareMicroA("");
-                      setCompareMicroNomeA("");
-                      setCompareEstadoB("");
-                      setCompareMicroB("");
-                      setCompareMicroNomeB("");
-                      setCoordsMicroA(null);
-                      setCoordsMicroB(null);
-                      setMapKeyA((prev) => prev + 1);
-                      setMapKeyB((prev) => prev + 1);
-                    }}
-                    className="flex items-center gap-2"
-                  >
-                    <X className="w-4 h-4" />
-                    Limpar seleções
-                  </Button>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCompareRegionA("");
+                        setCompareRegionB("");
+                        setCompareEstadoA("");
+                        setCompareMicroA("");
+                        setCompareMicroNomeA("");
+                        setCompareEstadoB("");
+                        setCompareMicroB("");
+                        setCompareMicroNomeB("");
+                        setCoordsMicroA(null);
+                        setCoordsMicroB(null);
+                        setMapKeyA((prev) => prev + 1);
+                        setMapKeyB((prev) => prev + 1);
+                      }}
+                      className="flex items-center gap-2"
+                    >
+                      <X className="w-4 h-4" />
+                      Limpar seleções
+                    </Button>
+                    <ChevronDown
+                      className={`w-5 h-5 text-slate-600 transition-transform ${
+                        showComparison ? "rotate-180" : ""
+                      }`}
+                    />
+                  </div>
                 </div>
-                <Tabs defaultValue="regioes" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="regioes">Macrorregiões</TabsTrigger>
-                    <TabsTrigger value="microrregioes">
-                      Microrregiões
-                    </TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="regioes">
-                    <div className="grid md:grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <p className="text-sm text-slate-600 mb-2">Região A</p>
-                        <Select
-                          value={compareRegionA}
-                          onValueChange={(v) => setCompareRegionA(v)}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Região A" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Norte">Norte</SelectItem>
-                            <SelectItem value="Nordeste">Nordeste</SelectItem>
-                            <SelectItem value="Centro-Oeste">
-                              Centro-Oeste
-                            </SelectItem>
-                            <SelectItem value="Sudeste">Sudeste</SelectItem>
-                            <SelectItem value="Sul">Sul</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <p className="text-sm text-slate-600 mb-2">Região B</p>
-                        <Select
-                          value={compareRegionB}
-                          onValueChange={(v) => setCompareRegionB(v)}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Região B" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Norte">Norte</SelectItem>
-                            <SelectItem value="Nordeste">Nordeste</SelectItem>
-                            <SelectItem value="Centro-Oeste">
-                              Centro-Oeste
-                            </SelectItem>
-                            <SelectItem value="Sudeste">Sudeste</SelectItem>
-                            <SelectItem value="Sul">Sul</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    {(() => {
-                      const a = getSuitabilityScores(compareRegionA);
-                      const b = getSuitabilityScores(compareRegionB);
-                      const rows = [
-                        { label: "Solar", a: a.solar, b: b.solar, icon: Sun },
-                        { label: "Eólica", a: a.wind, b: b.wind, icon: Wind },
-                        {
-                          label: "Hidrogênio Verde",
-                          a: a.h2,
-                          b: b.h2,
-                          icon: Zap,
-                        },
-                      ];
-                      return (
-                        <div className="space-y-2">
-                          {rows.map((r, idx) => (
-                            <div
-                              key={`cmp-${idx}`}
-                              className="p-4 rounded-lg border flex items-center justify-between"
-                            >
-                              <div className="flex items-center gap-2">
-                                <r.icon className="w-5 h-5 text-emerald-600" />
-                                <span className="font-semibold text-slate-900">
-                                  {r.label}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Badge
-                                  className={`${
-                                    r.a >= r.b
-                                      ? "bg-emerald-100 text-emerald-800 border-emerald-200"
-                                      : "bg-slate-100 text-slate-800 border-slate-200"
-                                  }`}
-                                >
-                                  {compareRegionA}: {r.a}/100
-                                </Badge>
-                                <Badge
-                                  className={`${
-                                    r.b >= r.a
-                                      ? "bg-emerald-100 text-emerald-800 border-emerald-200"
-                                      : "bg-slate-100 text-slate-800 border-slate-200"
-                                  }`}
-                                >
-                                  {compareRegionB}: {r.b}/100
-                                </Badge>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      );
-                    })()}
-                  </TabsContent>
-                  <TabsContent value="microrregioes">
-                    <div className="space-y-4">
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <p className="text-sm font-semibold text-slate-700">
-                            Microrregião A
+                {showComparison && (
+                  <Tabs defaultValue="regioes" className="w-full mt-4">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="regioes">Macrorregiões</TabsTrigger>
+                      <TabsTrigger value="microrregioes">
+                        Microrregiões
+                      </TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="regioes">
+                      <div className="grid md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                          <p className="text-sm text-slate-600 mb-2">
+                            Região A
                           </p>
                           <Select
-                            value={compareEstadoA}
-                            onValueChange={(uf) => {
-                              setCompareEstadoA(uf);
-                              setCompareMicroA("");
-                              setCompareMicroNomeA("");
-                              if (uf) {
-                                fetch(
-                                  `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/microrregioes?orderBy=nome`
-                                )
-                                  .then((res) => res.json())
-                                  .then(
-                                    (
-                                      data: Array<{ id: number; nome: string }>
-                                    ) => {
-                                      setMicroregioesCompareA(
-                                        data.map((m) => ({
-                                          id: m.id.toString(),
-                                          nome: m.nome,
-                                        }))
-                                      );
-                                    }
-                                  );
-                              }
-                            }}
+                            value={compareRegionA}
+                            onValueChange={(v) => setCompareRegionA(v)}
                           >
                             <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Selecione o Estado" />
+                              <SelectValue placeholder="Região A" />
                             </SelectTrigger>
                             <SelectContent>
-                              {Object.entries(UF_MAP).map(([uf, nome]) => (
-                                <SelectItem key={uf} value={uf}>
-                                  {nome} ({uf})
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <Select
-                            value={compareMicroA}
-                            onValueChange={(id) => {
-                              setCompareMicroA(id);
-                              const micro = microregioesCompareA.find(
-                                (m) => m.id === id
-                              );
-                              if (micro) setCompareMicroNomeA(micro.nome);
-                            }}
-                            disabled={!compareEstadoA}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Selecione a Microrregião" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {microregioesCompareA.map((micro) => (
-                                <SelectItem key={micro.id} value={micro.id}>
-                                  {micro.nome}
-                                </SelectItem>
-                              ))}
+                              <SelectItem value="Norte">Norte</SelectItem>
+                              <SelectItem value="Nordeste">Nordeste</SelectItem>
+                              <SelectItem value="Centro-Oeste">
+                                Centro-Oeste
+                              </SelectItem>
+                              <SelectItem value="Sudeste">Sudeste</SelectItem>
+                              <SelectItem value="Sul">Sul</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
-                        <div className="space-y-2">
-                          <p className="text-sm font-semibold text-slate-700">
-                            Microrregião B
+                        <div>
+                          <p className="text-sm text-slate-600 mb-2">
+                            Região B
                           </p>
                           <Select
-                            value={compareEstadoB}
-                            onValueChange={(uf) => {
-                              setCompareEstadoB(uf);
-                              setCompareMicroB("");
-                              setCompareMicroNomeB("");
-                              if (uf) {
-                                fetch(
-                                  `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/microrregioes?orderBy=nome`
-                                )
-                                  .then((res) => res.json())
-                                  .then(
-                                    (
-                                      data: Array<{ id: number; nome: string }>
-                                    ) => {
-                                      setMicroregioesCompareB(
-                                        data.map((m) => ({
-                                          id: m.id.toString(),
-                                          nome: m.nome,
-                                        }))
-                                      );
-                                    }
-                                  );
-                              }
-                            }}
+                            value={compareRegionB}
+                            onValueChange={(v) => setCompareRegionB(v)}
                           >
                             <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Selecione o Estado" />
+                              <SelectValue placeholder="Região B" />
                             </SelectTrigger>
                             <SelectContent>
-                              {Object.entries(UF_MAP).map(([uf, nome]) => (
-                                <SelectItem key={uf} value={uf}>
-                                  {nome} ({uf})
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <Select
-                            value={compareMicroB}
-                            onValueChange={(id) => {
-                              setCompareMicroB(id);
-                              const micro = microregioesCompareB.find(
-                                (m) => m.id === id
-                              );
-                              if (micro) setCompareMicroNomeB(micro.nome);
-                            }}
-                            disabled={!compareEstadoB}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Selecione a Microrregião" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {microregioesCompareB.map((micro) => (
-                                <SelectItem key={micro.id} value={micro.id}>
-                                  {micro.nome}
-                                </SelectItem>
-                              ))}
+                              <SelectItem value="Norte">Norte</SelectItem>
+                              <SelectItem value="Nordeste">Nordeste</SelectItem>
+                              <SelectItem value="Centro-Oeste">
+                                Centro-Oeste
+                              </SelectItem>
+                              <SelectItem value="Sudeste">Sudeste</SelectItem>
+                              <SelectItem value="Sul">Sul</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
                       </div>
-                      {compareMicroA &&
-                        compareMicroB &&
-                        compareEstadoA &&
-                        compareEstadoB &&
-                        (() => {
-                          const a = getMicrorregiaoViability(
-                            compareEstadoA,
-                            compareMicroNomeA
-                          );
-                          const b = getMicrorregiaoViability(
-                            compareEstadoB,
-                            compareMicroNomeB
-                          );
-                          const rows = [
-                            {
-                              label: "Solar",
-                              a: a.solar,
-                              b: b.solar,
-                              icon: Sun,
-                            },
-                            {
-                              label: "Eólica",
-                              a: a.wind,
-                              b: b.wind,
-                              icon: Wind,
-                            },
-                            {
-                              label: "Hidrogênio Verde",
-                              a: a.h2,
-                              b: b.h2,
-                              icon: Zap,
-                            },
-                          ];
-                          return (
-                            <div className="space-y-2 mt-4">
-                              {rows.map((r, idx) => (
-                                <div
-                                  key={`cmp-micro-${idx}`}
-                                  className="p-4 rounded-lg border flex items-center justify-between"
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <r.icon className="w-5 h-5 text-emerald-600" />
-                                    <span className="font-semibold text-slate-900">
-                                      {r.label}
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <Badge
-                                      className={`${
-                                        r.a >= r.b
-                                          ? "bg-emerald-100 text-emerald-800 border-emerald-200"
-                                          : "bg-slate-100 text-slate-800 border-slate-200"
-                                      }`}
-                                    >
-                                      {compareMicroNomeA}: {r.a}
-                                    </Badge>
-                                    <Badge
-                                      className={`${
-                                        r.b >= r.a
-                                          ? "bg-emerald-100 text-emerald-800 border-emerald-200"
-                                          : "bg-slate-100 text-slate-800 border-slate-200"
-                                      }`}
-                                    >
-                                      {compareMicroNomeB}: {r.b}
-                                    </Badge>
-                                  </div>
+                      {(() => {
+                        const a = getSuitabilityScores(compareRegionA);
+                        const b = getSuitabilityScores(compareRegionB);
+                        const rows = [
+                          { label: "Solar", a: a.solar, b: b.solar, icon: Sun },
+                          { label: "Eólica", a: a.wind, b: b.wind, icon: Wind },
+                          {
+                            label: "Hidrogênio Verde",
+                            a: a.h2,
+                            b: b.h2,
+                            icon: Zap,
+                          },
+                        ];
+                        return (
+                          <div className="space-y-2">
+                            {rows.map((r, idx) => (
+                              <div
+                                key={`cmp-${idx}`}
+                                className="p-4 rounded-lg border flex items-center justify-between"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <r.icon className="w-5 h-5 text-emerald-600" />
+                                  <span className="font-semibold text-slate-900">
+                                    {r.label}
+                                  </span>
                                 </div>
-                              ))}
-                            </div>
-                          );
-                        })()}
-                    </div>
-                  </TabsContent>
-                </Tabs>
+                                <div className="flex items-center gap-2">
+                                  <Badge
+                                    className={`${
+                                      r.a >= r.b
+                                        ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+                                        : "bg-slate-100 text-slate-800 border-slate-200"
+                                    }`}
+                                  >
+                                    {compareRegionA}: {r.a}/100
+                                  </Badge>
+                                  <Badge
+                                    className={`${
+                                      r.b >= r.a
+                                        ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+                                        : "bg-slate-100 text-slate-800 border-slate-200"
+                                    }`}
+                                  >
+                                    {compareRegionB}: {r.b}/100
+                                  </Badge>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      })()}
+                    </TabsContent>
+                    <TabsContent value="microrregioes">
+                      <div className="space-y-4">
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <p className="text-sm font-semibold text-slate-700">
+                              Microrregião A
+                            </p>
+                            <Select
+                              value={compareEstadoA}
+                              onValueChange={(uf) => {
+                                setCompareEstadoA(uf);
+                                setCompareMicroA("");
+                                setCompareMicroNomeA("");
+                                if (uf) {
+                                  fetch(
+                                    `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/microrregioes?orderBy=nome`
+                                  )
+                                    .then((res) => res.json())
+                                    .then(
+                                      (
+                                        data: Array<{
+                                          id: number;
+                                          nome: string;
+                                        }>
+                                      ) => {
+                                        setMicroregioesCompareA(
+                                          data.map((m) => ({
+                                            id: m.id.toString(),
+                                            nome: m.nome,
+                                          }))
+                                        );
+                                      }
+                                    );
+                                }
+                              }}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Selecione o Estado" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Object.entries(UF_MAP).map(([uf, nome]) => (
+                                  <SelectItem key={uf} value={uf}>
+                                    {nome} ({uf})
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <Select
+                              value={compareMicroA}
+                              onValueChange={(id) => {
+                                setCompareMicroA(id);
+                                const micro = microregioesCompareA.find(
+                                  (m) => m.id === id
+                                );
+                                if (micro) setCompareMicroNomeA(micro.nome);
+                              }}
+                              disabled={!compareEstadoA}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Selecione a Microrregião" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {microregioesCompareA.map((micro) => (
+                                  <SelectItem key={micro.id} value={micro.id}>
+                                    {micro.nome}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <p className="text-sm font-semibold text-slate-700">
+                              Microrregião B
+                            </p>
+                            <Select
+                              value={compareEstadoB}
+                              onValueChange={(uf) => {
+                                setCompareEstadoB(uf);
+                                setCompareMicroB("");
+                                setCompareMicroNomeB("");
+                                if (uf) {
+                                  fetch(
+                                    `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/microrregioes?orderBy=nome`
+                                  )
+                                    .then((res) => res.json())
+                                    .then(
+                                      (
+                                        data: Array<{
+                                          id: number;
+                                          nome: string;
+                                        }>
+                                      ) => {
+                                        setMicroregioesCompareB(
+                                          data.map((m) => ({
+                                            id: m.id.toString(),
+                                            nome: m.nome,
+                                          }))
+                                        );
+                                      }
+                                    );
+                                }
+                              }}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Selecione o Estado" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Object.entries(UF_MAP).map(([uf, nome]) => (
+                                  <SelectItem key={uf} value={uf}>
+                                    {nome} ({uf})
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <Select
+                              value={compareMicroB}
+                              onValueChange={(id) => {
+                                setCompareMicroB(id);
+                                const micro = microregioesCompareB.find(
+                                  (m) => m.id === id
+                                );
+                                if (micro) setCompareMicroNomeB(micro.nome);
+                              }}
+                              disabled={!compareEstadoB}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Selecione a Microrregião" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {microregioesCompareB.map((micro) => (
+                                  <SelectItem key={micro.id} value={micro.id}>
+                                    {micro.nome}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        {compareMicroA &&
+                          compareMicroB &&
+                          compareEstadoA &&
+                          compareEstadoB &&
+                          (() => {
+                            const a = getMicrorregiaoViability(
+                              compareEstadoA,
+                              compareMicroNomeA
+                            );
+                            const b = getMicrorregiaoViability(
+                              compareEstadoB,
+                              compareMicroNomeB
+                            );
+                            const rows = [
+                              {
+                                label: "Solar",
+                                a: a.solar,
+                                b: b.solar,
+                                icon: Sun,
+                              },
+                              {
+                                label: "Eólica",
+                                a: a.wind,
+                                b: b.wind,
+                                icon: Wind,
+                              },
+                              {
+                                label: "Hidrogênio Verde",
+                                a: a.h2,
+                                b: b.h2,
+                                icon: Zap,
+                              },
+                            ];
+                            return (
+                              <div className="space-y-2 mt-4">
+                                {rows.map((r, idx) => (
+                                  <div
+                                    key={`cmp-micro-${idx}`}
+                                    className="p-4 rounded-lg border flex items-center justify-between"
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <r.icon className="w-5 h-5 text-emerald-600" />
+                                      <span className="font-semibold text-slate-900">
+                                        {r.label}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Badge
+                                        className={`${
+                                          r.a >= r.b
+                                            ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+                                            : "bg-slate-100 text-slate-800 border-slate-200"
+                                        }`}
+                                      >
+                                        {compareMicroNomeA}: {r.a}
+                                      </Badge>
+                                      <Badge
+                                        className={`${
+                                          r.b >= r.a
+                                            ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+                                            : "bg-slate-100 text-slate-800 border-slate-200"
+                                        }`}
+                                      >
+                                        {compareMicroNomeB}: {r.b}
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            );
+                          })()}
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                )}
               </Card>
 
-              {/* Card com Mapa das Regiões/Microrregiões Comparadas */}
+              {/* Card com Mapa das Regiões/Microrregiões Comparadas (inicia fechado) */}
               <Card className="p-6 bg-white/80 backdrop-blur-sm border-emerald-200 mb-6">
-                <div className="flex items-center space-x-3 mb-4">
-                  <Mountain className="w-6 h-6 text-emerald-600" />
-                  <h2 className="text-2xl font-bold text-slate-900">
-                    Mapa das Regiões Comparadas
-                  </h2>
+                <div
+                  className="flex items-center justify-between mb-2 cursor-pointer select-none"
+                  onClick={() => setShowMapsComparison((v) => !v)}
+                >
+                  <div className="flex items-center space-x-3">
+                    <Mountain className="w-6 h-6 text-emerald-600" />
+                    <h2 className="text-2xl font-bold text-slate-900">
+                      Mapa das Regiões Comparadas
+                    </h2>
+                  </div>
+                  <ChevronDown
+                    className={`w-5 h-5 text-slate-600 transition-transform ${
+                      showMapsComparison ? "rotate-180" : ""
+                    }`}
+                  />
                 </div>
-                {(() => {
-                  // Coordenadas aproximadas das macrorregiões
-                  const regionCoords: Record<
-                    string,
-                    { lat: number; lng: number }
-                  > = {
-                    Norte: { lat: -3.4653, lng: -62.2159 },
-                    Nordeste: { lat: -9.6658, lng: -35.7353 },
-                    "Centro-Oeste": { lat: -15.7801, lng: -47.9292 },
-                    Sudeste: { lat: -22.9068, lng: -43.1729 },
-                    Sul: { lat: -27.5954, lng: -48.548 },
-                  };
+                {showMapsComparison &&
+                  (() => {
+                    // Coordenadas aproximadas das macrorregiões
+                    const regionCoords: Record<
+                      string,
+                      { lat: number; lng: number }
+                    > = {
+                      Norte: { lat: -3.4653, lng: -62.2159 },
+                      Nordeste: { lat: -9.6658, lng: -35.7353 },
+                      "Centro-Oeste": { lat: -15.7801, lng: -47.9292 },
+                      Sudeste: { lat: -22.9068, lng: -43.1729 },
+                      Sul: { lat: -27.5954, lng: -48.548 },
+                    };
 
-                  // Lógica para exibir mapas independentes
-                  const showMicroMapA =
-                    compareMicroA && compareEstadoA && coordsMicroA;
-                  const showMicroMapB =
-                    compareMicroB && compareEstadoB && coordsMicroB;
-                  const showMacroMapA = compareRegionA;
-                  const showMacroMapB = compareRegionB;
+                    // Lógica para exibir mapas independentes
+                    const showMicroMapA =
+                      compareMicroA && compareEstadoA && coordsMicroA;
+                    const showMicroMapB =
+                      compareMicroB && compareEstadoB && coordsMicroB;
+                    const showMacroMapA = compareRegionA;
+                    const showMacroMapB = compareRegionB;
 
-                  const hasAnyMap =
-                    showMicroMapA ||
-                    showMicroMapB ||
-                    showMacroMapA ||
-                    showMacroMapB;
+                    const hasAnyMap =
+                      showMicroMapA ||
+                      showMicroMapB ||
+                      showMacroMapA ||
+                      showMacroMapB;
 
-                  if (!hasAnyMap) {
+                    if (!hasAnyMap) {
+                      return (
+                        <div className="text-center py-8 text-slate-500">
+                          <Mountain className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                          <p>
+                            Selecione regiões ou microrregiões para visualizar
+                            no mapa
+                          </p>
+                        </div>
+                      );
+                    }
+
                     return (
-                      <div className="text-center py-8 text-slate-500">
-                        <Mountain className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                        <p>
-                          Selecione regiões ou microrregiões para visualizar no
-                          mapa
-                        </p>
+                      <div className="space-y-4">
+                        <div className="grid md:grid-cols-2 gap-4">
+                          {/* Mapa A - Microrregião ou Macrorregião */}
+                          <div className="space-y-2">
+                            {showMicroMapA ? (
+                              <>
+                                <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                  <p className="text-sm font-semibold text-blue-900">
+                                    Microrregião A
+                                  </p>
+                                  <p className="text-base font-bold text-blue-800">
+                                    {compareMicroNomeA}
+                                  </p>
+                                  <p className="text-xs text-blue-700">
+                                    {UF_MAP[compareEstadoA]} ({compareEstadoA})
+                                  </p>
+                                </div>
+                                <div className="border rounded-lg overflow-hidden">
+                                  <Map
+                                    key={`map-a-${mapKeyA}`}
+                                    initialLocation={{
+                                      lat: coordsMicroA.lat,
+                                      lng: coordsMicroA.lng,
+                                      name: compareMicroNomeA,
+                                    }}
+                                    zoom={9}
+                                  />
+                                </div>
+                              </>
+                            ) : showMacroMapA ? (
+                              <>
+                                <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+                                  <p className="text-sm font-semibold text-emerald-900">
+                                    Macrorregião A
+                                  </p>
+                                  <p className="text-base font-bold text-emerald-800">
+                                    {compareRegionA}
+                                  </p>
+                                </div>
+                                <div className="border rounded-lg overflow-hidden">
+                                  <Map
+                                    key={`map-a-${mapKeyA}`}
+                                    initialLocation={{
+                                      lat: regionCoords[compareRegionA].lat,
+                                      lng: regionCoords[compareRegionA].lng,
+                                      name: `Região ${compareRegionA}`,
+                                    }}
+                                    zoom={5.5}
+                                  />
+                                </div>
+                              </>
+                            ) : (
+                              <div className="text-center py-16 text-slate-400 border-2 border-dashed rounded-lg">
+                                <Mountain className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                                <p className="text-sm">
+                                  Selecione uma região A
+                                </p>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Mapa B - Microrregião ou Macrorregião */}
+                          <div className="space-y-2">
+                            {showMicroMapB ? (
+                              <>
+                                <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
+                                  <p className="text-sm font-semibold text-purple-900">
+                                    Microrregião B
+                                  </p>
+                                  <p className="text-base font-bold text-purple-800">
+                                    {compareMicroNomeB}
+                                  </p>
+                                  <p className="text-xs text-purple-700">
+                                    {UF_MAP[compareEstadoB]} ({compareEstadoB})
+                                  </p>
+                                </div>
+                                <div className="border rounded-lg overflow-hidden">
+                                  <Map
+                                    key={`map-b-${mapKeyB}`}
+                                    initialLocation={{
+                                      lat: coordsMicroB.lat,
+                                      lng: coordsMicroB.lng,
+                                      name: compareMicroNomeB,
+                                    }}
+                                    zoom={9}
+                                  />
+                                </div>
+                              </>
+                            ) : showMacroMapB ? (
+                              <>
+                                <div className="p-3 bg-teal-50 rounded-lg border border-teal-200">
+                                  <p className="text-sm font-semibold text-teal-900">
+                                    Macrorregião B
+                                  </p>
+                                  <p className="text-base font-bold text-teal-800">
+                                    {compareRegionB}
+                                  </p>
+                                </div>
+                                <div className="border rounded-lg overflow-hidden">
+                                  <Map
+                                    key={`map-b-${mapKeyB}`}
+                                    initialLocation={{
+                                      lat: regionCoords[compareRegionB].lat,
+                                      lng: regionCoords[compareRegionB].lng,
+                                      name: `Região ${compareRegionB}`,
+                                    }}
+                                    zoom={5.5}
+                                  />
+                                </div>
+                              </>
+                            ) : (
+                              <div className="text-center py-16 text-slate-400 border-2 border-dashed rounded-lg">
+                                <Mountain className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                                <p className="text-sm">
+                                  Selecione uma região B
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     );
-                  }
-
-                  return (
-                    <div className="space-y-4">
-                      <div className="grid md:grid-cols-2 gap-4">
-                        {/* Mapa A - Microrregião ou Macrorregião */}
-                        <div className="space-y-2">
-                          {showMicroMapA ? (
-                            <>
-                              <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                                <p className="text-sm font-semibold text-blue-900">
-                                  Microrregião A
-                                </p>
-                                <p className="text-base font-bold text-blue-800">
-                                  {compareMicroNomeA}
-                                </p>
-                                <p className="text-xs text-blue-700">
-                                  {UF_MAP[compareEstadoA]} ({compareEstadoA})
-                                </p>
-                              </div>
-                              <div className="border rounded-lg overflow-hidden">
-                                <Map
-                                  key={`map-a-${mapKeyA}`}
-                                  initialLocation={{
-                                    lat: coordsMicroA.lat,
-                                    lng: coordsMicroA.lng,
-                                    name: compareMicroNomeA,
-                                  }}
-                                  zoom={9}
-                                />
-                              </div>
-                            </>
-                          ) : showMacroMapA ? (
-                            <>
-                              <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-200">
-                                <p className="text-sm font-semibold text-emerald-900">
-                                  Macrorregião A
-                                </p>
-                                <p className="text-base font-bold text-emerald-800">
-                                  {compareRegionA}
-                                </p>
-                              </div>
-                              <div className="border rounded-lg overflow-hidden">
-                                <Map
-                                  key={`map-a-${mapKeyA}`}
-                                  initialLocation={{
-                                    lat: regionCoords[compareRegionA].lat,
-                                    lng: regionCoords[compareRegionA].lng,
-                                    name: `Região ${compareRegionA}`,
-                                  }}
-                                  zoom={5.5}
-                                />
-                              </div>
-                            </>
-                          ) : (
-                            <div className="text-center py-16 text-slate-400 border-2 border-dashed rounded-lg">
-                              <Mountain className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                              <p className="text-sm">Selecione uma região A</p>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Mapa B - Microrregião ou Macrorregião */}
-                        <div className="space-y-2">
-                          {showMicroMapB ? (
-                            <>
-                              <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
-                                <p className="text-sm font-semibold text-purple-900">
-                                  Microrregião B
-                                </p>
-                                <p className="text-base font-bold text-purple-800">
-                                  {compareMicroNomeB}
-                                </p>
-                                <p className="text-xs text-purple-700">
-                                  {UF_MAP[compareEstadoB]} ({compareEstadoB})
-                                </p>
-                              </div>
-                              <div className="border rounded-lg overflow-hidden">
-                                <Map
-                                  key={`map-b-${mapKeyB}`}
-                                  initialLocation={{
-                                    lat: coordsMicroB.lat,
-                                    lng: coordsMicroB.lng,
-                                    name: compareMicroNomeB,
-                                  }}
-                                  zoom={9}
-                                />
-                              </div>
-                            </>
-                          ) : showMacroMapB ? (
-                            <>
-                              <div className="p-3 bg-teal-50 rounded-lg border border-teal-200">
-                                <p className="text-sm font-semibold text-teal-900">
-                                  Macrorregião B
-                                </p>
-                                <p className="text-base font-bold text-teal-800">
-                                  {compareRegionB}
-                                </p>
-                              </div>
-                              <div className="border rounded-lg overflow-hidden">
-                                <Map
-                                  key={`map-b-${mapKeyB}`}
-                                  initialLocation={{
-                                    lat: regionCoords[compareRegionB].lat,
-                                    lng: regionCoords[compareRegionB].lng,
-                                    name: `Região ${compareRegionB}`,
-                                  }}
-                                  zoom={5.5}
-                                />
-                              </div>
-                            </>
-                          ) : (
-                            <div className="text-center py-16 text-slate-400 border-2 border-dashed rounded-lg">
-                              <Mountain className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                              <p className="text-sm">Selecione uma região B</p>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })()}
+                  })()}
               </Card>
 
               {/* Ranking removido conforme solicitação */}
