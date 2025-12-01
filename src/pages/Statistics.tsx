@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import React from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect } from "react";
+import React from "react";
+import { motion } from "framer-motion";
 import {
   ArrowLeft,
   Download,
@@ -29,69 +29,94 @@ import {
   Cloud,
   CloudDrizzle,
   Sunrise,
-  Sunset
-} from 'lucide-react';
-import { format, subDays, startOfDay, endOfDay, addDays } from 'date-fns';
-import * as XLSX from 'xlsx';
-import Navigation from '@/components/Navigation';
-import LocationSearch from '@/components/LocationSearch';
-import { useLocationStore } from '@/store/locationStore';
+  Sunset,
+} from "lucide-react";
+import { format, subDays, startOfDay, endOfDay, addDays } from "date-fns";
+import * as XLSX from "xlsx";
+import Navigation from "@/components/Navigation";
+import LocationSearch from "@/components/LocationSearch";
+import { useLocationStore } from "@/store/locationStore";
 
 // Weather API Service
 class WeatherService {
-
-  async getHistoricalWeather(lat: number, lon: number, startDate: Date, endDate: Date) {
+  async getHistoricalWeather(
+    lat: number,
+    lon: number,
+    startDate: Date,
+    endDate: Date
+  ) {
     try {
       // Use NASA POWER data for accurate historical climate data
-      const nasaData = await this.fetchNASAPowerData(lat, lon, startDate, endDate);
+      const nasaData = await this.fetchNASAPowerData(
+        lat,
+        lon,
+        startDate,
+        endDate
+      );
       if (nasaData && nasaData.length > 0) {
         return nasaData;
       }
       // Fallback to mock data if NASA POWER fails
       return this.generateMockHistoricalData(lat, lon, startDate, endDate);
     } catch (error) {
-      console.error('Error fetching historical weather data:', error);
+      console.error("Error fetching historical weather data:", error);
       return this.generateMockHistoricalData(lat, lon, startDate, endDate);
     }
   }
 
-  private async fetchNASAPowerData(lat: number, lon: number, startDate: Date, endDate: Date) {
+  private async fetchNASAPowerData(
+    lat: number,
+    lon: number,
+    startDate: Date,
+    endDate: Date
+  ) {
     try {
-      const startDateStr = format(startDate, 'yyyy-MM-dd');
+      const startDateStr = format(startDate, "yyyy-MM-dd");
       // Algumas APIs retornam intervalo exclusivo para a data final.
       // Para garantir inclusão do último dia, enviamos endDate + 1 dia.
-      const endDateStr = format(addDays(endDate, 1), 'yyyy-MM-dd');
-      
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-nasa-power-data`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({
-          lat,
-          lon,
-          startDate: startDateStr,
-          endDate: endDateStr,
-        }),
-      });
+      const endDateStr = format(addDays(endDate, 1), "yyyy-MM-dd");
+
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_SUPABASE_URL
+        }/functions/v1/fetch-nasa-power-data`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${
+              import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+            }`,
+          },
+          body: JSON.stringify({
+            lat,
+            lon,
+            startDate: startDateStr,
+            endDate: endDateStr,
+          }),
+        }
+      );
 
       if (!response.ok) {
-        console.error('NASA POWER API request failed:', response.status);
+        console.error("NASA POWER API request failed:", response.status);
         return null;
       }
 
       const nasaData = await response.json();
-      
+
       // Transform NASA POWER summary into daily data for consistency
       return this.transformNASAPowerData(nasaData, startDate, endDate);
     } catch (error) {
-      console.error('Error fetching NASA POWER data:', error);
+      console.error("Error fetching NASA POWER data:", error);
       return null;
     }
   }
 
-  private transformNASAPowerData(nasaData: any, startDate: Date, endDate: Date): HistoricalData[] {
+  private transformNASAPowerData(
+    nasaData: any,
+    startDate: Date,
+    endDate: Date
+  ): HistoricalData[] {
     if (!nasaData || !nasaData.dailyData) return [];
 
     const data: HistoricalData[] = [];
@@ -115,47 +140,57 @@ class WeatherService {
         uvIndex: Math.min(11, Math.max(0, day.solarIrradiance * 2)), // Estimate UV from solar
         visibility: 10, // Default visibility
         rainfall: day.precipitation,
-        solarIrradiance: day.solarIrradiance * 1000 / 12 // Convert kWh/m²/day to W/m² (assuming 12h daylight)
+        solarIrradiance: (day.solarIrradiance * 1000) / 12, // Convert kWh/m²/day to W/m² (assuming 12h daylight)
       });
     }
 
     return data;
   }
 
-  private async fetchINMETData(lat: number, lon: number, startDate: Date, endDate: Date) {
+  private async fetchINMETData(
+    lat: number,
+    lon: number,
+    startDate: Date,
+    endDate: Date
+  ) {
     try {
       // Format dates as YYYY-MM-DD for INMET API
-      const startDateStr = format(startDate, 'yyyy-MM-dd');
-      const endDateStr = format(endDate, 'yyyy-MM-dd');
-      
+      const startDateStr = format(startDate, "yyyy-MM-dd");
+      const endDateStr = format(endDate, "yyyy-MM-dd");
+
       // Find nearest INMET station (using a default station for now)
       // In production, you'd call fetch-inmet-stations and find the closest one
-      const stationCode = 'A001'; // Default station code
-      
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-inmet-data`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({
-          stationCode,
-          startDate: startDateStr,
-          endDate: endDateStr,
-        }),
-      });
+      const stationCode = "A001"; // Default station code
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-inmet-data`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${
+              import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+            }`,
+          },
+          body: JSON.stringify({
+            stationCode,
+            startDate: startDateStr,
+            endDate: endDateStr,
+          }),
+        }
+      );
 
       if (!response.ok) {
-        console.error('INMET API request failed:', response.status);
+        console.error("INMET API request failed:", response.status);
         return null;
       }
 
       const { data } = await response.json();
-      
+
       // Transform INMET data to our format
       return this.transformINMETData(data);
     } catch (error) {
-      console.error('Error fetching INMET data:', error);
+      console.error("Error fetching INMET data:", error);
       return null;
     }
   }
@@ -163,7 +198,7 @@ class WeatherService {
   private transformINMETData(inmetData: any[]): HistoricalData[] {
     if (!inmetData || !Array.isArray(inmetData)) return [];
 
-    return inmetData.map(item => ({
+    return inmetData.map((item) => ({
       date: new Date(item.DT_MEDICAO || item.data || new Date()),
       temperature: parseFloat(item.TEM_INS || item.temperatura_bulbo_hora || 0),
       humidity: parseFloat(item.UMD_INS || item.umidade_rel_max || 0),
@@ -173,43 +208,53 @@ class WeatherService {
       uvIndex: 0, // INMET doesn't provide UV index
       visibility: 10, // Default visibility
       rainfall: parseFloat(item.CHUVA || item.precipitacao_total || 0),
-      solarIrradiance: parseFloat(item.RAD_GLO || item.radiacao_global || 0)
+      solarIrradiance: parseFloat(item.RAD_GLO || item.radiacao_global || 0),
     }));
   }
 
   async getCurrentWeather(lat: number, lon: number) {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-openweathermap-current`,
+        `${
+          import.meta.env.VITE_SUPABASE_URL
+        }/functions/v1/fetch-openweathermap-current`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${
+              import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+            }`,
           },
           body: JSON.stringify({ lat, lon }),
         }
       );
-      
+
       if (!response.ok) {
-        throw new Error('Weather API request failed');
+        throw new Error("Weather API request failed");
       }
-      
+
       return await response.json();
     } catch (error) {
-      console.error('Error fetching weather data:', error);
+      console.error("Error fetching weather data:", error);
       return this.getMockWeatherData(lat, lon);
     }
   }
 
-  private generateMockHistoricalData(lat: number, lon: number, startDate: Date, endDate: Date) {
+  private generateMockHistoricalData(
+    lat: number,
+    lon: number,
+    startDate: Date,
+    endDate: Date
+  ) {
     const data = [];
     const currentDate = new Date(startDate);
 
     while (currentDate <= endDate) {
       data.push({
         date: new Date(currentDate),
-        temperature: 15 + Math.random() * 20 + Math.sin(currentDate.getDate() / 30) * 5,
+        temperature:
+          15 + Math.random() * 20 + Math.sin(currentDate.getDate() / 30) * 5,
         humidity: 40 + Math.random() * 40,
         windSpeed: 3 + Math.random() * 15,
         windDirection: Math.random() * 360,
@@ -217,7 +262,10 @@ class WeatherService {
         uvIndex: 1 + Math.random() * 10,
         visibility: 5 + Math.random() * 15,
         rainfall: Math.random() > 0.7 ? Math.random() * 50 : 0,
-        solarIrradiance: 100 + Math.random() * 600 + Math.sin(currentDate.getHours() / 24) * 200
+        solarIrradiance:
+          100 +
+          Math.random() * 600 +
+          Math.sin(currentDate.getHours() / 24) * 200,
       });
       currentDate.setDate(currentDate.getDate() + 1);
     }
@@ -227,25 +275,27 @@ class WeatherService {
 
   private getMockWeatherData(lat: number, lon: number) {
     return {
-      name: 'Localização',
+      name: "Localização",
       lat,
       lon,
       main: {
         temp: 20 + Math.random() * 15,
         humidity: 50 + Math.random() * 30,
-        pressure: 1000 + Math.random() * 30
+        pressure: 1000 + Math.random() * 30,
       },
       wind: {
         speed: 5 + Math.random() * 20,
-        deg: Math.random() * 360
+        deg: Math.random() * 360,
       },
-      weather: [{
-        main: 'Céu limpo',
-        description: 'Céu limpo',
-        icon: '01d'
-      }],
+      weather: [
+        {
+          main: "Céu limpo",
+          description: "Céu limpo",
+          icon: "01d",
+        },
+      ],
       visibility: 8000 + Math.random() * 2000,
-      uvi: 1 + Math.random() * 10
+      uvi: 1 + Math.random() * 10,
     };
   }
 }
@@ -339,57 +389,134 @@ interface WeatherForecast {
 const Statistics = () => {
   const { selectedLocation: storeLocation } = useLocationStore();
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(
-    storeLocation ? {
-      id: 0,
-      name: storeLocation.name,
-      lat: storeLocation.lat,
-      lng: storeLocation.lng,
-      type: 'custom'
-    } : null
+    storeLocation
+      ? {
+          id: 0,
+          name: storeLocation.name,
+          lat: storeLocation.lat,
+          lng: storeLocation.lng,
+          type: "custom",
+        }
+      : null
   );
-  const [dateRange, setDateRange] = useState<'7' | '15' | '30' | 'custom'>('7');
-  const [customStartDate, setCustomStartDate] = useState('');
-  const [customEndDate, setCustomEndDate] = useState('');
+  const [dateRange, setDateRange] = useState<"7" | "15" | "30" | "custom">("7");
+  const [customStartDate, setCustomStartDate] = useState("");
+  const [customEndDate, setCustomEndDate] = useState("");
   const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
   const [statistics, setStatistics] = useState<StatisticsSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [selectedParameters, setSelectedParameters] = useState<string[]>([
-    'temperature', 'humidity', 'windSpeed', 'pressure', 'rainfall', 'solarIrradiance'
+    "temperature",
+    "humidity",
+    "windSpeed",
+    "pressure",
+    "rainfall",
+    "solarIrradiance",
   ]);
 
   const weatherService = new WeatherService();
 
   const locations: LocationData[] = [
-    { id: 1, name: 'São Paulo, SP', lat: -23.5505, lng: -46.6333, type: 'city' },
-    { id: 2, name: 'Rio de Janeiro, RJ', lat: -22.9068, lng: -43.1729, type: 'city' },
-    { id: 3, name: 'Brasília, DF', lat: -15.8267, lng: -47.9218, type: 'city' },
-    { id: 4, name: 'Fortaleza, CE', lat: -3.7319, lng: -38.5267, type: 'city' },
-    { id: 5, name: 'Salvador, BA', lat: -12.9714, lng: -38.5014, type: 'city' },
-    { id: 6, name: 'Recife, PE', lat: -8.0476, lng: -34.8770, type: 'city' },
-    { id: 7, name: 'Parque Eólico Rio do Fogo', lat: -5.3757, lng: -37.3439, type: 'wind' },
-    { id: 8, name: 'Complexo Solar Pirapora', lat: -17.3406, lng: -44.9361, type: 'solar' }
+    {
+      id: 1,
+      name: "São Paulo, SP",
+      lat: -23.5505,
+      lng: -46.6333,
+      type: "city",
+    },
+    {
+      id: 2,
+      name: "Rio de Janeiro, RJ",
+      lat: -22.9068,
+      lng: -43.1729,
+      type: "city",
+    },
+    { id: 3, name: "Brasília, DF", lat: -15.8267, lng: -47.9218, type: "city" },
+    { id: 4, name: "Fortaleza, CE", lat: -3.7319, lng: -38.5267, type: "city" },
+    { id: 5, name: "Salvador, BA", lat: -12.9714, lng: -38.5014, type: "city" },
+    { id: 6, name: "Recife, PE", lat: -8.0476, lng: -34.877, type: "city" },
+    {
+      id: 7,
+      name: "Parque Eólico Rio do Fogo",
+      lat: -5.3757,
+      lng: -37.3439,
+      type: "wind",
+    },
+    {
+      id: 8,
+      name: "Complexo Solar Pirapora",
+      lat: -17.3406,
+      lng: -44.9361,
+      type: "solar",
+    },
   ];
 
-  const handleLocationSelect = (location: { lat: number; lng: number; name: string }) => {
+  const handleLocationSelect = (location: {
+    lat: number;
+    lng: number;
+    name: string;
+  }) => {
     setSelectedLocation({
       id: 0,
       name: location.name,
       lat: location.lat,
       lng: location.lng,
-      type: 'custom'
+      type: "custom",
     });
   };
 
   const parameters = [
-    { id: 'temperature', name: 'Temperatura', icon: Thermometer, unit: '°C', color: '#ef4444' },
-    { id: 'humidity', name: 'Umidade', icon: Droplets, unit: '%', color: '#3b82f6' },
-    { id: 'windSpeed', name: 'Velocidade do Vento', icon: Wind, unit: 'm/s', color: '#10b981' },
-    { id: 'pressure', name: 'Pressão', icon: Gauge, unit: 'hPa', color: '#6b7280' },
-    { id: 'rainfall', name: 'Precipitação', icon: Droplets, unit: 'mm', color: '#06b6d4' },
-    { id: 'solarIrradiance', name: 'Irradiação Solar', icon: Sun, unit: 'W/m²', color: '#f59e0b' },
-    { id: 'uvIndex', name: 'Índice UV', icon: Eye, unit: '', color: '#8b5cf6' },
-    { id: 'visibility', name: 'Visibilidade', icon: Eye, unit: 'km', color: '#14b8a6' }
+    {
+      id: "temperature",
+      name: "Temperatura",
+      icon: Thermometer,
+      unit: "°C",
+      color: "#ef4444",
+    },
+    {
+      id: "humidity",
+      name: "Umidade",
+      icon: Droplets,
+      unit: "%",
+      color: "#3b82f6",
+    },
+    {
+      id: "windSpeed",
+      name: "Velocidade do Vento",
+      icon: Wind,
+      unit: "m/s",
+      color: "#10b981",
+    },
+    {
+      id: "pressure",
+      name: "Pressão",
+      icon: Gauge,
+      unit: "hPa",
+      color: "#6b7280",
+    },
+    {
+      id: "rainfall",
+      name: "Precipitação",
+      icon: Droplets,
+      unit: "mm",
+      color: "#06b6d4",
+    },
+    {
+      id: "solarIrradiance",
+      name: "Irradiação Solar",
+      icon: Sun,
+      unit: "W/m²",
+      color: "#f59e0b",
+    },
+    { id: "uvIndex", name: "Índice UV", icon: Eye, unit: "", color: "#8b5cf6" },
+    {
+      id: "visibility",
+      name: "Visibilidade",
+      icon: Eye,
+      unit: "km",
+      color: "#14b8a6",
+    },
   ];
 
   useEffect(() => {
@@ -414,7 +541,7 @@ const Statistics = () => {
       setHistoricalData(data);
       calculateStatistics(data);
     } catch (error) {
-      console.error('Error loading data:', error);
+      console.error("Error loading data:", error);
     } finally {
       setLoading(false);
     }
@@ -430,17 +557,17 @@ const Statistics = () => {
     let startDate: Date;
 
     switch (dateRange) {
-      case '7':
+      case "7":
         // Intervalo inclusivo: N dias exatos => start = end - (N - 1)
         startDate = subDays(endDate, 7 - 1);
         break;
-      case '15':
+      case "15":
         startDate = subDays(endDate, 15 - 1);
         break;
-      case '30':
+      case "30":
         startDate = subDays(endDate, 30 - 1);
         break;
-      case 'custom':
+      case "custom":
         if (customStartDate && customEndDate) {
           const customStart = new Date(customStartDate);
           const customEnd = new Date(customEndDate);
@@ -462,41 +589,71 @@ const Statistics = () => {
     if (data.length === 0) return;
 
     // Basic statistics
-    const avgTemperature = data.reduce((sum, d) => sum + d.temperature, 0) / data.length;
-    const avgWindSpeed = data.reduce((sum, d) => sum + d.windSpeed, 0) / data.length;
-    
+    const avgTemperature =
+      data.reduce((sum, d) => sum + d.temperature, 0) / data.length;
+    const avgWindSpeed =
+      data.reduce((sum, d) => sum + d.windSpeed, 0) / data.length;
+
     // Calculate standard deviations
-    const tempVariances = data.map(d => Math.pow(d.temperature - avgTemperature, 2));
-    const tempStdDev = Math.sqrt(tempVariances.reduce((sum, v) => sum + v, 0) / data.length);
-    
-    const windVariances = data.map(d => Math.pow(d.windSpeed - avgWindSpeed, 2));
-    const windSpeedStdDev = Math.sqrt(windVariances.reduce((sum, v) => sum + v, 0) / data.length);
-    
+    const tempVariances = data.map((d) =>
+      Math.pow(d.temperature - avgTemperature, 2)
+    );
+    const tempStdDev = Math.sqrt(
+      tempVariances.reduce((sum, v) => sum + v, 0) / data.length
+    );
+
+    const windVariances = data.map((d) =>
+      Math.pow(d.windSpeed - avgWindSpeed, 2)
+    );
+    const windSpeedStdDev = Math.sqrt(
+      windVariances.reduce((sum, v) => sum + v, 0) / data.length
+    );
+
     // Count rainy and sunny days
-    const rainyDays = data.filter(d => d.rainfall > 1).length; // Days with >1mm rainfall
-    const sunnyDays = data.filter(d => d.solarIrradiance > 300).length; // Days with >300 W/m² (good solar irradiance)
-    
+    const rainyDays = data.filter((d) => d.rainfall > 1).length; // Days with >1mm rainfall
+    const sunnyDays = data.filter((d) => d.solarIrradiance > 300).length; // Days with >300 W/m² (good solar irradiance)
+
     // Calculate average daily energy potential (solar)
     // Convert W/m² average to kWh/m²/day (assuming 12 hours of daylight)
-    const avgDailyEnergyPotential = data.reduce((sum, d) => sum + (d.solarIrradiance * 12 / 1000), 0) / data.length;
+    const avgDailyEnergyPotential =
+      data.reduce((sum, d) => sum + (d.solarIrradiance * 12) / 1000, 0) /
+      data.length;
 
     const stats: StatisticsSummary = {
       avgTemperature: parseFloat(avgTemperature.toFixed(1)),
-      maxTemperature: parseFloat(Math.max(...data.map(d => d.temperature)).toFixed(1)),
-      minTemperature: parseFloat(Math.min(...data.map(d => d.temperature)).toFixed(1)),
-      avgHumidity: Math.round(data.reduce((sum, d) => sum + d.humidity, 0) / data.length),
+      maxTemperature: parseFloat(
+        Math.max(...data.map((d) => d.temperature)).toFixed(1)
+      ),
+      minTemperature: parseFloat(
+        Math.min(...data.map((d) => d.temperature)).toFixed(1)
+      ),
+      avgHumidity: Math.round(
+        data.reduce((sum, d) => sum + d.humidity, 0) / data.length
+      ),
       avgWindSpeed: parseFloat(avgWindSpeed.toFixed(1)),
-      maxWindSpeed: parseFloat(Math.max(...data.map(d => d.windSpeed)).toFixed(1)),
-      totalRainfall: parseFloat(data.reduce((sum, d) => sum + d.rainfall, 0).toFixed(1)),
-      avgSolarIrradiance: parseFloat((data.reduce((sum, d) => sum + d.solarIrradiance, 0) / data.length).toFixed(1)),
-      avgPressure: Math.round(data.reduce((sum, d) => sum + d.pressure, 0) / data.length),
-      avgUVIndex: parseFloat((data.reduce((sum, d) => sum + d.uvIndex, 0) / data.length).toFixed(1)),
+      maxWindSpeed: parseFloat(
+        Math.max(...data.map((d) => d.windSpeed)).toFixed(1)
+      ),
+      totalRainfall: parseFloat(
+        data.reduce((sum, d) => sum + d.rainfall, 0).toFixed(1)
+      ),
+      avgSolarIrradiance: parseFloat(
+        (
+          data.reduce((sum, d) => sum + d.solarIrradiance, 0) / data.length
+        ).toFixed(1)
+      ),
+      avgPressure: Math.round(
+        data.reduce((sum, d) => sum + d.pressure, 0) / data.length
+      ),
+      avgUVIndex: parseFloat(
+        (data.reduce((sum, d) => sum + d.uvIndex, 0) / data.length).toFixed(1)
+      ),
       dataPoints: data.length,
       tempStdDev: parseFloat(tempStdDev.toFixed(1)),
       windSpeedStdDev: parseFloat(windSpeedStdDev.toFixed(1)),
       rainyDays,
       sunnyDays,
-      avgDailyEnergyPotential: parseFloat(avgDailyEnergyPotential.toFixed(2))
+      avgDailyEnergyPotential: parseFloat(avgDailyEnergyPotential.toFixed(2)),
     };
 
     setStatistics(stats);
@@ -508,19 +665,21 @@ const Statistics = () => {
     setExporting(true);
     try {
       // Prepare data for Excel
-      const exportData = historicalData.map(item => {
+      const exportData = historicalData.map((item) => {
         const row: any = {
-          'Data': format(item.date, 'dd/MM/yyyy'),
-          'Localização': selectedLocation.name,
-          'Latitude': selectedLocation.lat.toFixed(4),
-          'Longitude': selectedLocation.lng.toFixed(4)
+          Data: format(item.date, "dd/MM/yyyy"),
+          Localização: selectedLocation.name,
+          Latitude: selectedLocation.lat.toFixed(4),
+          Longitude: selectedLocation.lng.toFixed(4),
         };
 
-        selectedParameters.forEach(param => {
-          const paramConfig = parameters.find(p => p.id === param);
+        selectedParameters.forEach((param) => {
+          const paramConfig = parameters.find((p) => p.id === param);
           if (paramConfig) {
             const value = item[param as keyof HistoricalData] as number;
-            row[`${paramConfig.name} (${paramConfig.unit})`] = parseFloat(value.toFixed(1));
+            row[`${paramConfig.name} (${paramConfig.unit})`] = parseFloat(
+              value.toFixed(1)
+            );
           }
         });
 
@@ -530,47 +689,102 @@ const Statistics = () => {
       // Add summary data
       if (statistics) {
         exportData.push({});
-        exportData.push({ 'Data': 'RESUMO ESTATÍSTICO' });
-        exportData.push({ 'Data': 'Média Temperatura (°C)', 'Valor': statistics.avgTemperature });
-        exportData.push({ 'Data': 'Temperatura Máxima (°C)', 'Valor': statistics.maxTemperature });
-        exportData.push({ 'Data': 'Temperatura Mínima (°C)', 'Valor': statistics.minTemperature });
-        exportData.push({ 'Data': 'Desvio Padrão Temperatura (°C)', 'Valor': statistics.tempStdDev });
-        exportData.push({ 'Data': 'Média Umidade (%)', 'Valor': statistics.avgHumidity });
-        exportData.push({ 'Data': 'Média Velocidade Vento (m/s)', 'Valor': statistics.avgWindSpeed });
-        exportData.push({ 'Data': 'Velocidade Máxima Vento (m/s)', 'Valor': statistics.maxWindSpeed });
-        exportData.push({ 'Data': 'Desvio Padrão Vento (m/s)', 'Valor': statistics.windSpeedStdDev });
-        exportData.push({ 'Data': 'Precipitação Total (mm)', 'Valor': statistics.totalRainfall });
-        exportData.push({ 'Data': 'Média Irradiação Solar (W/m²)', 'Valor': statistics.avgSolarIrradiance });
-        exportData.push({ 'Data': 'Potencial Energético Diário (kWh/m²/dia)', 'Valor': statistics.avgDailyEnergyPotential });
-        exportData.push({ 'Data': 'Média Pressão (hPa)', 'Valor': statistics.avgPressure });
-        exportData.push({ 'Data': 'Média Índice UV', 'Valor': statistics.avgUVIndex });
-        exportData.push({ 'Data': 'Dias Ensolarados', 'Valor': statistics.sunnyDays });
-        exportData.push({ 'Data': 'Dias Chuvosos', 'Valor': statistics.rainyDays });
-        exportData.push({ 'Data': 'Total de Pontos de Dados', 'Valor': statistics.dataPoints });
+        exportData.push({ Data: "RESUMO ESTATÍSTICO" });
+        exportData.push({
+          Data: "Média Temperatura (°C)",
+          Valor: statistics.avgTemperature,
+        });
+        exportData.push({
+          Data: "Temperatura Máxima (°C)",
+          Valor: statistics.maxTemperature,
+        });
+        exportData.push({
+          Data: "Temperatura Mínima (°C)",
+          Valor: statistics.minTemperature,
+        });
+        exportData.push({
+          Data: "Desvio Padrão Temperatura (°C)",
+          Valor: statistics.tempStdDev,
+        });
+        exportData.push({
+          Data: "Média Umidade (%)",
+          Valor: statistics.avgHumidity,
+        });
+        exportData.push({
+          Data: "Média Velocidade Vento (m/s)",
+          Valor: statistics.avgWindSpeed,
+        });
+        exportData.push({
+          Data: "Velocidade Máxima Vento (m/s)",
+          Valor: statistics.maxWindSpeed,
+        });
+        exportData.push({
+          Data: "Desvio Padrão Vento (m/s)",
+          Valor: statistics.windSpeedStdDev,
+        });
+        exportData.push({
+          Data: "Precipitação Total (mm)",
+          Valor: statistics.totalRainfall,
+        });
+        exportData.push({
+          Data: "Média Irradiação Solar (W/m²)",
+          Valor: statistics.avgSolarIrradiance,
+        });
+        exportData.push({
+          Data: "Potencial Energético Diário (kWh/m²/dia)",
+          Valor: statistics.avgDailyEnergyPotential,
+        });
+        exportData.push({
+          Data: "Média Pressão (hPa)",
+          Valor: statistics.avgPressure,
+        });
+        exportData.push({
+          Data: "Média Índice UV",
+          Valor: statistics.avgUVIndex,
+        });
+        exportData.push({
+          Data: "Dias Ensolarados",
+          Valor: statistics.sunnyDays,
+        });
+        exportData.push({ Data: "Dias Chuvosos", Valor: statistics.rainyDays });
+        exportData.push({
+          Data: "Total de Pontos de Dados",
+          Valor: statistics.dataPoints,
+        });
       }
 
       // Create workbook
       const ws = XLSX.utils.json_to_sheet(exportData);
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, `Dados_${selectedLocation.name.replace(/[^a-zA-Z0-9]/g, '_')}`);
+      XLSX.utils.book_append_sheet(
+        wb,
+        ws,
+        `Dados_${selectedLocation.name.replace(/[^a-zA-Z0-9]/g, "_")}`
+      );
 
       // Generate filename with date range
       const { startDate, endDate } = getDateRange();
-      const filename = `H2maps_Estatisticas_${selectedLocation.name.replace(/[^a-zA-Z0-9]/g, '_')}_${format(startDate, 'dd-MM-yyyy')}_a_${format(endDate, 'dd-MM-yyyy')}.xlsx`;
+      const filename = `H2maps_Estatisticas_${selectedLocation.name.replace(
+        /[^a-zA-Z0-9]/g,
+        "_"
+      )}_${format(startDate, "dd-MM-yyyy")}_a_${format(
+        endDate,
+        "dd-MM-yyyy"
+      )}.xlsx`;
 
       // Download file
       XLSX.writeFile(wb, filename);
     } catch (error) {
-      console.error('Error exporting to Excel:', error);
+      console.error("Error exporting to Excel:", error);
     } finally {
       setExporting(false);
     }
   };
 
   const toggleParameter = (paramId: string) => {
-    setSelectedParameters(prev =>
+    setSelectedParameters((prev) =>
       prev.includes(paramId)
-        ? prev.filter(p => p !== paramId)
+        ? prev.filter((p) => p !== paramId)
         : [...prev, paramId]
     );
   };
@@ -578,8 +792,12 @@ const Statistics = () => {
   const getParameterStats = (paramId: string) => {
     if (!historicalData.length) return null;
 
-    const values = historicalData.map(d => d[paramId as keyof HistoricalData] as number);
-    const avg = parseFloat((values.reduce((sum, v) => sum + v, 0) / values.length).toFixed(1));
+    const values = historicalData.map(
+      (d) => d[paramId as keyof HistoricalData] as number
+    );
+    const avg = parseFloat(
+      (values.reduce((sum, v) => sum + v, 0) / values.length).toFixed(1)
+    );
     const max = parseFloat(Math.max(...values).toFixed(1));
     const min = parseFloat(Math.min(...values).toFixed(1));
 
@@ -594,8 +812,12 @@ const Statistics = () => {
           {/* Header with Export Button */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mt-3">Análise Estatística</h1>
-              <p className="text-slate-600 mt-1 text-sm sm:text-base">Dados climáticos detalhados para análise de viabilidade</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mt-3">
+                Análise Estatística
+              </h1>
+              <p className="text-slate-600 mt-1 text-sm sm:text-base">
+                Dados climáticos detalhados para análise de viabilidade
+              </p>
             </div>
             <button
               onClick={exportToExcel}
@@ -603,7 +825,7 @@ const Statistics = () => {
               className="flex items-center space-x-2 bg-emerald-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base w-full sm:w-auto justify-center"
             >
               <FileSpreadsheet className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span>{exporting ? 'Exportando...' : 'Exportar Excel'}</span>
+              <span>{exporting ? "Exportando..." : "Exportar Excel"}</span>
             </button>
           </div>
 
@@ -622,327 +844,424 @@ const Statistics = () => {
                 </label>
                 <LocationSearch
                   onLocationSelect={handleLocationSelect}
-                  initialLocation={selectedLocation ? { lat: selectedLocation.lat, lng: selectedLocation.lng, name: selectedLocation.name } : undefined}
+                  initialLocation={
+                    selectedLocation
+                      ? {
+                          lat: selectedLocation.lat,
+                          lng: selectedLocation.lng,
+                          name: selectedLocation.name,
+                        }
+                      : undefined
+                  }
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            {/* Date Range */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1 sm:mb-2">
-                Período de Análise
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {['7', '15', '30'].map(days => (
+              {/* Date Range */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1 sm:mb-2">
+                  Período de Análise
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {["7", "15", "30"].map((days) => (
+                    <button
+                      key={days}
+                      onClick={() => setDateRange(days as "7" | "15" | "30")}
+                      className={`flex-1 min-w-[60px] px-2 sm:px-3 py-2 rounded-lg border transition-colors text-sm ${
+                        dateRange === days
+                          ? "bg-emerald-600 text-white border-emerald-600"
+                          : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
+                      }`}
+                    >
+                      {days} dias
+                    </button>
+                  ))}
                   <button
-                    key={days}
-                    onClick={() => setDateRange(days as '7' | '15' | '30')}
-                    className={`flex-1 min-w-[60px] px-2 sm:px-3 py-2 rounded-lg border transition-colors text-sm ${
-                      dateRange === days
-                        ? 'bg-emerald-600 text-white border-emerald-600'
-                        : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                    onClick={() => setDateRange("custom")}
+                    className={`flex-1 min-w-[80px] px-2 sm:px-3 py-2 rounded-lg border transition-colors text-sm ${
+                      dateRange === "custom"
+                        ? "bg-emerald-600 text-white border-emerald-600"
+                        : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
                     }`}
                   >
-                    {days} dias
+                    Personalizado
+                  </button>
+                </div>
+              </div>
+
+              {/* Custom Date Range */}
+              {dateRange === "custom" && (
+                <div className="flex flex-col sm:flex-row gap-2 sm:space-x-2">
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                      Data Início
+                    </label>
+                    <input
+                      type="date"
+                      value={customStartDate}
+                      onChange={(e) => setCustomStartDate(e.target.value)}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                      Data Fim
+                    </label>
+                    <input
+                      type="date"
+                      value={customEndDate}
+                      onChange={(e) => setCustomEndDate(e.target.value)}
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Parameters Selection */}
+            <div className="mt-4 sm:mt-6">
+              <label className="block text-sm font-medium text-slate-700 mb-1 sm:mb-2">
+                Parâmetros para Análise
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
+                {parameters.map((param) => (
+                  <button
+                    key={param.id}
+                    onClick={() => toggleParameter(param.id)}
+                    className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 rounded-lg border transition-colors text-sm ${
+                      selectedParameters.includes(param.id)
+                        ? "bg-emerald-50 border-emerald-300 text-emerald-700"
+                        : "bg-white border-slate-300 text-slate-700 hover:bg-slate-50"
+                    }`}
+                  >
+                    <param.icon className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                    <span className="text-xs sm:text-sm truncate">
+                      {param.name}
+                    </span>
                   </button>
                 ))}
-                <button
-                  onClick={() => setDateRange('custom')}
-                  className={`flex-1 min-w-[80px] px-2 sm:px-3 py-2 rounded-lg border transition-colors text-sm ${
-                    dateRange === 'custom'
-                      ? 'bg-emerald-600 text-white border-emerald-600'
-                      : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
-                  }`}
-                >
-                  Personalizado
-                </button>
               </div>
             </div>
-
-            {/* Custom Date Range */}
-            {dateRange === 'custom' && (
-              <div className="flex flex-col sm:flex-row gap-2 sm:space-x-2">
-                <div className="flex-1">
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Data Início
-                  </label>
-                  <input
-                    type="date"
-                    value={customStartDate}
-                    onChange={(e) => setCustomStartDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
-                  />
-                </div>
-                <div className="flex-1">
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Data Fim
-                  </label>
-                  <input
-                    type="date"
-                    value={customEndDate}
-                    onChange={(e) => setCustomEndDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
-                  />
-                </div>
-              </div>
-            )}
           </div>
 
-          {/* Parameters Selection */}
-          <div className="mt-4 sm:mt-6">
-            <label className="block text-sm font-medium text-slate-700 mb-1 sm:mb-2">
-              Parâmetros para Análise
-            </label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
-              {parameters.map(param => (
-                <button
-                  key={param.id}
-                  onClick={() => toggleParameter(param.id)}
-                  className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 rounded-lg border transition-colors text-sm ${
-                    selectedParameters.includes(param.id)
-                      ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
-                      : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
-                  }`}
-                >
-                  <param.icon className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm truncate">{param.name}</span>
-                </button>
-              ))}
+          {/* Loading State */}
+          {loading && (
+            <div className="bg-white rounded-xl shadow-lg border border-emerald-100 p-12 text-center">
+              <RefreshCw className="w-8 h-8 animate-spin text-emerald-600 mx-auto mb-4" />
+              <p className="text-slate-600">Carregando dados históricos...</p>
             </div>
-          </div>
-        </div>
+          )}
 
+          {/* Statistics Summary */}
+          {!loading && statistics && (
+            <div className="bg-white rounded-xl shadow-lg border border-emerald-100 p-6 mb-6">
+              <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
+                <BarChart3 className="w-5 h-5 mr-2 text-emerald-600" />
+                Análise Estatística Detalhada
+              </h2>
 
-        {/* Loading State */}
-        {loading && (
-          <div className="bg-white rounded-xl shadow-lg border border-emerald-100 p-12 text-center">
-            <RefreshCw className="w-8 h-8 animate-spin text-emerald-600 mx-auto mb-4" />
-            <p className="text-slate-600">Carregando dados históricos...</p>
-          </div>
-        )}
-
-        {/* Statistics Summary */}
-        {!loading && statistics && (
-          <div className="bg-white rounded-xl shadow-lg border border-emerald-100 p-6 mb-6">
-            <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
-              <BarChart3 className="w-5 h-5 mr-2 text-emerald-600" />
-              Análise Estatística Detalhada
-            </h2>
-            
-            {/* Main Statistics Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-4 sm:mb-6">
-              <div className="p-3 sm:p-4 bg-red-50 rounded-lg">
-                <div className="flex items-center justify-between mb-1 sm:mb-2">
-                  <Thermometer className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
-                  <span className="text-xs sm:text-sm text-slate-600">Temperatura</span>
-                </div>
-                <div className="text-xl sm:text-2xl font-bold text-slate-900">{statistics.avgTemperature}°C</div>
-                <div className="text-xs text-slate-600 mt-1">
-                  Max: {statistics.maxTemperature}°C | Min: {statistics.minTemperature}°C
-                </div>
-                <div className="text-xs text-slate-500 mt-1">
-                  Desvio Padrão: ±{statistics.tempStdDev}°C
-                </div>
-              </div>
-              <div className="p-3 sm:p-4 bg-blue-50 rounded-lg">
-                <div className="flex items-center justify-between mb-1 sm:mb-2">
-                  <Droplets className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-                  <span className="text-xs sm:text-sm text-slate-600">Umidade</span>
-                </div>
-                <div className="text-xl sm:text-2xl font-bold text-slate-900">{statistics.avgHumidity}%</div>
-                <div className="text-xs text-slate-600 mt-1">
-                  Média do Período
-                </div>
-              </div>
-              <div className="p-3 sm:p-4 bg-green-50 rounded-lg">
-                <div className="flex items-center justify-between mb-1 sm:mb-2">
-                  <Wind className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
-                  <span className="text-xs sm:text-sm text-slate-600">Vento</span>
-                </div>
-                <div className="text-xl sm:text-2xl font-bold text-slate-900">{statistics.avgWindSpeed} m/s</div>
-                <div className="text-xs text-slate-600 mt-1">Max: {statistics.maxWindSpeed} m/s</div>
-                <div className="text-xs text-slate-500 mt-1">
-                  Desvio Padrão: ±{statistics.windSpeedStdDev} m/s
-                </div>
-              </div>
-              <div className="p-3 sm:p-4 bg-amber-50 rounded-lg">
-                <div className="flex items-center justify-between mb-1 sm:mb-2">
-                  <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
-                  <span className="text-xs sm:text-sm text-slate-600">Solar</span>
-                </div>
-                <div className="text-xl sm:text-2xl font-bold text-slate-900">{statistics.avgSolarIrradiance} W/m²</div>
-                <div className="text-xs text-slate-600 mt-1">
-                  Potencial: {statistics.avgDailyEnergyPotential} kWh/m²/dia
-                </div>
-              </div>
-              <div className="p-3 sm:p-4 bg-cyan-50 rounded-lg">
-                <div className="flex items-center justify-between mb-1 sm:mb-2">
-                  <Droplets className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-600" />
-                  <span className="text-xs sm:text-sm text-slate-600">Precipitação</span>
-                </div>
-                <div className="text-xl sm:text-2xl font-bold text-slate-900">{statistics.totalRainfall} mm</div>
-                <div className="text-xs text-slate-600 mt-1">
-                  Total no Período
-                </div>
-              </div>
-            </div>
-
-            {/* Advanced Statistics */}
-            <div className="border-t border-slate-200 pt-3 sm:pt-4">
-              <h3 className="text-sm font-semibold text-slate-900 mb-2 sm:mb-3">Análise Avançada</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-                <div className="p-2 sm:p-3 bg-slate-50 rounded-lg">
-                  <div className="flex items-center gap-1 sm:gap-2 mb-1">
-                    <Sun className="w-3 h-3 sm:w-4 sm:h-4 text-amber-600" />
-                    <span className="text-xs text-slate-600">Dias Ensolarados</span>
+              {/* Main Statistics Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-4 sm:mb-6">
+                <div className="p-3 sm:p-4 bg-red-50 rounded-lg">
+                  <div className="flex items-center justify-between mb-1 sm:mb-2">
+                    <Thermometer className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
+                    <span className="text-xs sm:text-sm text-slate-600">
+                      Temperatura
+                    </span>
                   </div>
-                  <div className="text-lg sm:text-xl font-bold text-slate-900">{statistics.sunnyDays}</div>
-                  <div className="text-xs text-slate-500">
-                    {((statistics.sunnyDays / statistics.dataPoints) * 100).toFixed(1)}% do período
+                  <div className="text-xl sm:text-2xl font-bold text-slate-900">
+                    {statistics.avgTemperature}°C
+                  </div>
+                  <div className="text-xs text-slate-600 mt-1">
+                    Max: {statistics.maxTemperature}°C | Min:{" "}
+                    {statistics.minTemperature}°C
+                  </div>
+                  <div className="text-xs text-slate-500 mt-1">
+                    Desvio Padrão: ±{statistics.tempStdDev}°C
                   </div>
                 </div>
-
-                <div className="p-2 sm:p-3 bg-slate-50 rounded-lg">
-                  <div className="flex items-center gap-1 sm:gap-2 mb-1">
-                    <CloudRain className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
-                    <span className="text-xs text-slate-600">Dias Chuvosos</span>
+                <div className="p-3 sm:p-4 bg-blue-50 rounded-lg">
+                  <div className="flex items-center justify-between mb-1 sm:mb-2">
+                    <Droplets className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                    <span className="text-xs sm:text-sm text-slate-600">
+                      Umidade
+                    </span>
                   </div>
-                  <div className="text-lg sm:text-xl font-bold text-slate-900">{statistics.rainyDays}</div>
-                  <div className="text-xs text-slate-500">
-                    {((statistics.rainyDays / statistics.dataPoints) * 100).toFixed(1)}% do período
+                  <div className="text-xl sm:text-2xl font-bold text-slate-900">
+                    {statistics.avgHumidity}%
                   </div>
-                </div>
-
-                <div className="p-2 sm:p-3 bg-slate-50 rounded-lg">
-                  <div className="flex items-center gap-1 sm:gap-2 mb-1">
-                    <Activity className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-600" />
-                    <span className="text-xs text-slate-600">Pontos de Dados</span>
-                  </div>
-                  <div className="text-lg sm:text-xl font-bold text-slate-900">{statistics.dataPoints}</div>
-                  <div className="text-xs text-slate-500">
-                    Registros analisados
+                  <div className="text-xs text-slate-600 mt-1">
+                    Média do Período
                   </div>
                 </div>
-
-                <div className="p-2 sm:p-3 bg-slate-50 rounded-lg">
-                  <div className="flex items-center gap-1 sm:gap-2 mb-1">
-                    <Gauge className="w-3 h-3 sm:w-4 sm:h-4 text-slate-600" />
-                    <span className="text-xs text-slate-600">Pressão Média</span>
+                <div className="p-3 sm:p-4 bg-green-50 rounded-lg">
+                  <div className="flex items-center justify-between mb-1 sm:mb-2">
+                    <Wind className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
+                    <span className="text-xs sm:text-sm text-slate-600">
+                      Vento
+                    </span>
                   </div>
-                  <div className="text-lg sm:text-xl font-bold text-slate-900">{statistics.avgPressure}</div>
-                  <div className="text-xs text-slate-500">
-                    hPa
+                  <div className="text-xl sm:text-2xl font-bold text-slate-900">
+                    {statistics.avgWindSpeed} m/s
+                  </div>
+                  <div className="text-xs text-slate-600 mt-1">
+                    Max: {statistics.maxWindSpeed} m/s
+                  </div>
+                  <div className="text-xs text-slate-500 mt-1">
+                    Desvio Padrão: ±{statistics.windSpeedStdDev} m/s
+                  </div>
+                </div>
+                <div className="p-3 sm:p-4 bg-amber-50 rounded-lg">
+                  <div className="flex items-center justify-between mb-1 sm:mb-2">
+                    <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
+                    <span className="text-xs sm:text-sm text-slate-600">
+                      Solar
+                    </span>
+                  </div>
+                  <div className="text-xl sm:text-2xl font-bold text-slate-900">
+                    {statistics.avgSolarIrradiance} W/m²
+                  </div>
+                  <div className="text-xs text-slate-600 mt-1">
+                    Potencial: {statistics.avgDailyEnergyPotential} kWh/m²/dia
+                  </div>
+                </div>
+                <div className="p-3 sm:p-4 bg-cyan-50 rounded-lg">
+                  <div className="flex items-center justify-between mb-1 sm:mb-2">
+                    <Droplets className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-600" />
+                    <span className="text-xs sm:text-sm text-slate-600">
+                      Precipitação
+                    </span>
+                  </div>
+                  <div className="text-xl sm:text-2xl font-bold text-slate-900">
+                    {statistics.totalRainfall} mm
+                  </div>
+                  <div className="text-xs text-slate-600 mt-1">
+                    Total no Período
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Energy Potential Analysis */}
-            <div className="border-t border-slate-200 pt-3 sm:pt-4 mt-3 sm:mt-4">
-              <h3 className="text-sm font-semibold text-slate-900 mb-2 sm:mb-3">Potencial Energético</h3>
-              <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg p-3 sm:p-4">
-                <div className="flex items-start gap-2 sm:gap-3">
-                  <Sun className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 mt-0.5 sm:mt-1" />
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-slate-900 mb-1">
-                      Potencial Solar: {statistics.avgDailyEnergyPotential} kWh/m²/dia
-                    </p>
-                    <p className="text-xs text-slate-600 mb-2">
-                      Com base na irradiação solar média de {statistics.avgSolarIrradiance} W/m² durante o período analisado.
-                    </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                      <div className="bg-white/60 rounded px-2 py-1">
-                        <span className="text-slate-600">Geração estimada (1 kWp):</span>
-                        <span className="font-semibold text-slate-900 ml-1">
-                          {(statistics.avgDailyEnergyPotential * 0.8).toFixed(2)} kWh/dia
-                        </span>
-                      </div>
-                      <div className="bg-white/60 rounded px-2 py-1">
-                        <span className="text-slate-600">Geração mensal (1 kWp):</span>
-                        <span className="font-semibold text-slate-900 ml-1">
-                          {(statistics.avgDailyEnergyPotential * 0.8 * 30).toFixed(0)} kWh/mês
-                        </span>
+              {/* Advanced Statistics */}
+              <div className="border-t border-slate-200 pt-3 sm:pt-4">
+                <h3 className="text-sm font-semibold text-slate-900 mb-2 sm:mb-3">
+                  Análise Avançada
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                  <div className="p-2 sm:p-3 bg-slate-50 rounded-lg">
+                    <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                      <Sun className="w-3 h-3 sm:w-4 sm:h-4 text-amber-600" />
+                      <span className="text-xs text-slate-600">
+                        Dias Ensolarados
+                      </span>
+                    </div>
+                    <div className="text-lg sm:text-xl font-bold text-slate-900">
+                      {statistics.sunnyDays}
+                    </div>
+                    <div className="text-xs text-slate-500">
+                      {(
+                        (statistics.sunnyDays / statistics.dataPoints) *
+                        100
+                      ).toFixed(1)}
+                      % do período
+                    </div>
+                  </div>
+
+                  <div className="p-2 sm:p-3 bg-slate-50 rounded-lg">
+                    <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                      <CloudRain className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
+                      <span className="text-xs text-slate-600">
+                        Dias Chuvosos
+                      </span>
+                    </div>
+                    <div className="text-lg sm:text-xl font-bold text-slate-900">
+                      {statistics.rainyDays}
+                    </div>
+                    <div className="text-xs text-slate-500">
+                      {(
+                        (statistics.rainyDays / statistics.dataPoints) *
+                        100
+                      ).toFixed(1)}
+                      % do período
+                    </div>
+                  </div>
+
+                  <div className="p-2 sm:p-3 bg-slate-50 rounded-lg">
+                    <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                      <Activity className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-600" />
+                      <span className="text-xs text-slate-600">
+                        Pontos de Dados
+                      </span>
+                    </div>
+                    <div className="text-lg sm:text-xl font-bold text-slate-900">
+                      {statistics.dataPoints}
+                    </div>
+                    <div className="text-xs text-slate-500">
+                      Registros analisados
+                    </div>
+                  </div>
+
+                  <div className="p-2 sm:p-3 bg-slate-50 rounded-lg">
+                    <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                      <Gauge className="w-3 h-3 sm:w-4 sm:h-4 text-slate-600" />
+                      <span className="text-xs text-slate-600">
+                        Pressão Média
+                      </span>
+                    </div>
+                    <div className="text-lg sm:text-xl font-bold text-slate-900">
+                      {statistics.avgPressure}
+                    </div>
+                    <div className="text-xs text-slate-500">hPa</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Energy Potential Analysis */}
+              <div className="border-t border-slate-200 pt-3 sm:pt-4 mt-3 sm:mt-4">
+                <h3 className="text-sm font-semibold text-slate-900 mb-2 sm:mb-3">
+                  Potencial Energético
+                </h3>
+                <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg p-3 sm:p-4">
+                  <div className="flex items-start gap-2 sm:gap-3">
+                    <Sun className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 mt-0.5 sm:mt-1" />
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-slate-900 mb-1">
+                        Potencial Solar: {statistics.avgDailyEnergyPotential}{" "}
+                        kWh/m²/dia
+                      </p>
+                      <p className="text-xs text-slate-600 mb-2">
+                        Com base na irradiação solar média de{" "}
+                        {statistics.avgSolarIrradiance} W/m² durante o período
+                        analisado.
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        <div className="bg-white/60 rounded px-2 py-1">
+                          <span className="text-slate-600">
+                            Geração estimada (1 kWp):
+                          </span>
+                          <span className="font-semibold text-slate-900 ml-1">
+                            {(statistics.avgDailyEnergyPotential * 0.8).toFixed(
+                              2
+                            )}{" "}
+                            kWh/dia
+                          </span>
+                        </div>
+                        <div className="bg-white/60 rounded px-2 py-1">
+                          <span className="text-slate-600">
+                            Geração mensal (1 kWp):
+                          </span>
+                          <span className="font-semibold text-slate-900 ml-1">
+                            {(
+                              statistics.avgDailyEnergyPotential *
+                              0.8 *
+                              30
+                            ).toFixed(0)}{" "}
+                            kWh/mês
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Data Table */}
-        {!loading && historicalData.length > 0 && (
-          <div className="bg-white rounded-xl shadow-lg border border-emerald-100 p-4 sm:p-6">
-            <h2 className="text-base sm:text-lg font-semibold text-slate-900 mb-3 sm:mb-4 flex items-center">
-              <Activity className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-emerald-600" />
-              Dados Históricos
-            </h2>
+          {/* Data Table */}
+          {!loading && historicalData.length > 0 && (
+            <div className="bg-white rounded-xl shadow-lg border border-emerald-100 p-4 sm:p-6">
+              <h2 className="text-base sm:text-lg font-semibold text-slate-900 mb-3 sm:mb-4 flex items-center">
+                <Activity className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-emerald-600" />
+                Dados Históricos
+              </h2>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs sm:text-sm">
-                <thead>
-                  <tr className="border-b border-slate-200">
-                    <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-slate-900">Data</th>
-                    {selectedParameters.map(paramId => {
-                      const param = parameters.find(p => p.id === paramId);
-                      return param ? (
-                        <th key={paramId} className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-slate-900 min-w-[80px]">
-                          <div className="truncate">{param.name}</div>
-                          <div className="text-xs text-slate-500">({param.unit})</div>
-                        </th>
-                      ) : null;
-                    })}
-                  </tr>
-                </thead>
-                <tbody>
-                  {historicalData.slice(-10).reverse().map((item, index) => (
-                    <tr key={index} className="border-b border-slate-100 hover:bg-slate-50">
-                      <td className="py-2 sm:py-3 px-2 sm:px-4 font-medium text-slate-900">
-                        {format(item.date, 'dd/MM/yyyy')}
-                      </td>
-                      {selectedParameters.map(paramId => {
-                        const param = parameters.find(p => p.id === paramId);
-                        const value = item[paramId as keyof HistoricalData] as number;
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs sm:text-sm">
+                  <thead>
+                    <tr className="border-b border-slate-200">
+                      <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-slate-900">
+                        Data
+                      </th>
+                      {selectedParameters.map((paramId) => {
+                        const param = parameters.find((p) => p.id === paramId);
                         return param ? (
-                          <td key={paramId} className="py-2 sm:py-3 px-2 sm:px-4 text-slate-700">
-                            {parseFloat(value.toFixed(1))}
-                          </td>
+                          <th
+                            key={paramId}
+                            className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-slate-900 min-w-[80px]"
+                          >
+                            <div className="truncate">{param.name}</div>
+                            <div className="text-xs text-slate-500">
+                              ({param.unit})
+                            </div>
+                          </th>
                         ) : null;
                       })}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {historicalData.length > 10 && (
-              <div className="mt-3 sm:mt-4 text-center text-xs sm:text-sm text-slate-600">
-                Mostrando últimos 10 registros de {historicalData.length} totais
+                  </thead>
+                  <tbody>
+                    {historicalData
+                      .slice(-10)
+                      .reverse()
+                      .map((item, index) => (
+                        <tr
+                          key={index}
+                          className="border-b border-slate-100 hover:bg-slate-50"
+                        >
+                          <td className="py-2 sm:py-3 px-2 sm:px-4 font-medium text-slate-900">
+                            {format(item.date, "dd/MM/yyyy")}
+                          </td>
+                          {selectedParameters.map((paramId) => {
+                            const param = parameters.find(
+                              (p) => p.id === paramId
+                            );
+                            const value = item[
+                              paramId as keyof HistoricalData
+                            ] as number;
+                            return param ? (
+                              <td
+                                key={paramId}
+                                className="py-2 sm:py-3 px-2 sm:px-4 text-slate-700"
+                              >
+                                {parseFloat(value.toFixed(1))}
+                              </td>
+                            ) : null;
+                          })}
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
               </div>
-            )}
-          </div>
-        )}
 
-        {/* Empty State */}
-        {!loading && !historicalData.length && (
-          <div className="bg-white rounded-xl shadow-lg border border-emerald-100 p-12 text-center">
-            <AlertCircle className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">Nenhum Dado Disponível</h3>
-            <p className="text-slate-600 mb-4">
-              Selecione uma localização e período para visualizar as estatísticas
-            </p>
-            <button
-              onClick={() => setSelectedLocation(locations[0])}
-              className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
-            >
-              Selecionar São Paulo
-            </button>
-          </div>
-        )}
+              {historicalData.length > 10 && (
+                <div className="mt-3 sm:mt-4 text-center text-xs sm:text-sm text-slate-600">
+                  Mostrando últimos 10 registros de {historicalData.length}{" "}
+                  totais
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!loading && !historicalData.length && (
+            <div className="bg-white rounded-xl shadow-lg border border-emerald-100 p-12 text-center">
+              <AlertCircle className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                Nenhum Dado Disponível
+              </h3>
+              <p className="text-slate-600 mb-4">
+                Selecione uma localização e período para visualizar as
+                estatísticas
+              </p>
+              <button
+                onClick={() => setSelectedLocation(locations[0])}
+                className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
+              >
+                Selecionar São Paulo
+              </button>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
     </>
   );
 };
