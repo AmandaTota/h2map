@@ -74,52 +74,56 @@ export default function Dashboard() {
         <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 max-w-7xl">
           {/* Layout: Sidebar (Search + Favorites) | Main Content (Weather) | News Sidebar */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
-            {/* Left Sidebar: Location Search, Alerts & News */}
+            {/* Left Sidebar: Location Search, Alerts & News (fixed) */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-xl shadow-md p-3 sm:p-5 sticky top-20">
-                <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-3 sm:mb-4 flex items-center gap-2">
-                  <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
-                  Localização
-                </h3>
-
-                <LocationSearch
-                  onLocationSelect={handleLocationSelect}
-                  initialLocation={localLocation}
-                />
-
-                <Button
-                  onClick={handleAddFavorite}
-                  variant="outline"
-                  size="sm"
-                  className="w-full mt-3 sm:mt-4 border-amber-300 hover:bg-amber-50 hover:border-amber-400 transition-colors text-sm sm:text-base"
-                >
-                  <Star
-                    className={`w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 transition-all ${
-                      isFavorite(localLocation.name)
-                        ? "fill-amber-500 text-amber-500"
-                        : "text-amber-500"
-                    }`}
-                  />
-                  {isFavorite(localLocation.name)
-                    ? "Favoritado"
-                    : "Adicionar Favorito"}
-                </Button>
-
-                <div className="border-t border-slate-200 mt-5 pt-5">
-                  <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-                    <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                    Favoritos
+              <div className="sticky top-20 z-30 space-y-4">
+                <div className="bg-white rounded-xl shadow-md p-3 sm:p-5">
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-3 sm:mb-4 flex items-center gap-2">
+                    <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
+                    Localização
                   </h3>
-                  <FavoritesList onLocationSelect={handleLocationSelect} />
+
+                  <LocationSearch
+                    onLocationSelect={handleLocationSelect}
+                    initialLocation={localLocation}
+                  />
+
+                  <Button
+                    onClick={handleAddFavorite}
+                    variant="outline"
+                    size="sm"
+                    className="w-full mt-3 sm:mt-4 border-amber-300 hover:bg-amber-50 hover:border-amber-400 transition-colors text-sm sm:text-base"
+                  >
+                    <Star
+                      className={`w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 transition-all ${
+                        isFavorite(localLocation.name)
+                          ? "fill-amber-500 text-amber-500"
+                          : "text-amber-500"
+                      }`}
+                    />
+                    {isFavorite(localLocation.name)
+                      ? "Favoritado"
+                      : "Adicionar Favorito"}
+                  </Button>
+
+                  <div className="border-t border-slate-200 mt-5 pt-5">
+                    <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+                      <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                      Favoritos
+                    </h3>
+                    <FavoritesList onLocationSelect={handleLocationSelect} />
+                  </div>
                 </div>
-              </div>
 
-              {/* Dicas e Alertas Dinâmicos */}
-              <WeatherAlerts location={localLocation} />
+                {/* Dicas e Alertas Dinâmicos */}
+                <div>
+                  <WeatherAlerts location={localLocation} />
+                </div>
 
-              {/* Notícias Recentes */}
-              <div className="mt-4">
-                <NewsSidebar compact maxItems={6} />
+                {/* Notícias Recentes */}
+                <div>
+                  <NewsSidebar compact maxItems={6} />
+                </div>
               </div>
             </div>
 

@@ -4160,6 +4160,7 @@ const FeasibilityAnalysis = () => {
                     </Button>
                   </div>
                   <RegionFilters
+                    key={regionFiltersKey}
                     onMacroregiaoChange={(macro) =>
                       setSelectedRegion(macro === "all" ? "Nordeste" : macro)
                     }
