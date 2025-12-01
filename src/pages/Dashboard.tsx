@@ -74,7 +74,7 @@ export default function Dashboard() {
         <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 max-w-7xl">
           {/* Layout: Sidebar (Search + Favorites) | Main Content (Weather) | News Sidebar */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
-            {/* Left Sidebar: Location Search & Favorites */}
+            {/* Left Sidebar: Location Search, Alerts & News */}
             <div className="lg:col-span-1">
               <div className="bg-white rounded-xl shadow-md p-3 sm:p-5 sticky top-20">
                 <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-3 sm:mb-4 flex items-center gap-2">
@@ -116,10 +116,15 @@ export default function Dashboard() {
 
               {/* Dicas e Alertas Dinâmicos */}
               <WeatherAlerts location={localLocation} />
+
+              {/* Notícias Recentes */}
+              <div className="mt-4">
+                <NewsSidebar compact maxItems={6} />
+              </div>
             </div>
 
             {/* Main Content: Weather Forecast */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-3 mx-auto space-y-6">
               {/* Inline Weather Forecast */}
               <WeatherForecast location={localLocation} />
 
@@ -133,10 +138,8 @@ export default function Dashboard() {
               </div> */}
             </div>
 
-            {/* Right Sidebar: News */}
-            <div className="lg:col-span-1">
-              <NewsSidebar compact maxItems={4} />
-            </div>
+            {/* Right Sidebar: (was News) — reserved for future widgets */}
+            <div className="lg:col-span-1" />
           </div>
         </div>
       </div>

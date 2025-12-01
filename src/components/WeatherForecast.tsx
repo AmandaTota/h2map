@@ -167,7 +167,7 @@ const WeatherForecastComponent = ({ location }: WeatherForecastProps) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-xl shadow-md border border-emerald-100 p-3 sm:p-4"
+      className="bg-white rounded-xl shadow-md border border-emerald-100 p-6 sm:p-8 w-full mx-auto"
     >
       <h2 className="text-sm sm:text-base font-semibold text-slate-900 mb-2 sm:mb-3 flex items-center">
         <Sun className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-emerald-600" />
@@ -197,10 +197,10 @@ const WeatherForecastComponent = ({ location }: WeatherForecastProps) => {
               <span className="text-xs text-slate-600">Temperatura</span>
             </div>
             <p className="text-xl font-bold text-slate-900">
-              {forecast.current.temp.toFixed(2)}°C
+              {forecast.current.temp.toFixed(0)}°C
             </p>
             <p className="text-xs text-slate-500">
-              Sensação: {forecast.current.feelsLike.toFixed(2)}°C
+              Sensação: {forecast.current.feelsLike.toFixed(0)}°C
             </p>
           </div>
 
@@ -280,14 +280,14 @@ const WeatherForecastComponent = ({ location }: WeatherForecastProps) => {
         <h3 className="text-sm font-semibold text-slate-900 mb-2">
           Próximos 5 Dias
         </h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 min-w-0">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 min-w-0">
           {forecast.forecast.map((day, index) => (
             <motion.div
               key={day.date}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-2 sm:p-3 border border-slate-200 hover:shadow-md transition-shadow min-w-[140px] sm:min-w-0"
+              className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-md p-3 sm:p-4 border border-slate-200 hover:shadow-md transition-shadow min-w-[200px] sm:min-w-0 aspect-square flex flex-col justify-between"
             >
               <div className="text-center mb-2">
                 <p className="text-xs sm:text-sm font-semibold text-slate-900 truncate">
