@@ -17,6 +17,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import ProtectedAreasCard from "@/components/ProtectedAreasCard";
 
 export default function Informacoes() {
   type SectionKey =
@@ -31,6 +32,8 @@ export default function Informacoes() {
     | "energyInfrastructure";
 
   const [openSection, setOpenSection] = useState<SectionKey | null>(null);
+  const [calculatorsOpen, setCalculatorsOpen] = useState<boolean>(true);
+  const [articlesOpen, setArticlesOpen] = useState<boolean>(true);
 
   const toggleSection = (section: SectionKey) => {
     setOpenSection((prev) => (prev === section ? null : section));
@@ -921,467 +924,505 @@ export default function Informacoes() {
           </div>
 
           {/* Mobile detail panel: inline below buttons (visible on small screens) */}
-          <div className="lg:hidden mb-6">
-            <Card className="border-slate-200 shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-base">
-                  {openSection ? infoData[openSection].title : "Definição"}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-slate-700">
-                {openSection ? (
-                  infoData[openSection].content
-                ) : (
-                  <div className="text-sm text-slate-500">
-                    Clique em um cartão acima para ver mais informações.
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+          {openSection && (
+            <div className="lg:hidden mb-6">
+              <Card className="border-slate-200 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-base">
+                    {infoData[openSection].title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-slate-700">
+                  {infoData[openSection].content}
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           {/* Desktop detail panel: definitions as a full-width panel above calculators (visible on lg+) */}
-          <div className="hidden lg:block mb-8">
-            <Card className="bg-white/80 shadow-md border-slate-200">
-              <CardHeader>
-                <CardTitle
-                  className={`text-xl ${
-                    openSection
-                      ? `text-${infoData[openSection].color}-800`
-                      : "text-emerald-800"
-                  }`}
-                >
-                  {openSection ? infoData[openSection].title : "Informações"}
+          {openSection && (
+            <div className="hidden lg:block mb-8">
+              <Card className="bg-white/80 shadow-md border-slate-200">
+                <CardHeader>
+                  <CardTitle
+                    className={`text-xl text-${infoData[openSection].color}-800`}
+                  >
+                    {infoData[openSection].title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-slate-700">
+                  {infoData[openSection].content}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Calculators block (collapsible) */}
+          {/* Protected areas search */}
+          <div className="mb-6">
+            <ProtectedAreasCard />
+          </div>
+          <Card className="bg-white/80 shadow-md border-slate-200 mb-6">
+            <CardHeader className="flex items-center justify-between">
+              <button
+                onClick={() => setCalculatorsOpen((v) => !v)}
+                aria-expanded={calculatorsOpen}
+                className="text-left p-2 rounded-md hover:bg-slate-50"
+              >
+                <CardTitle className="text-2xl text-slate-800 text-center">
+                  Calculadoras De Emissão de Carbono
                 </CardTitle>
-              </CardHeader>
-              <CardContent className="text-slate-700">
-                {openSection ? (
-                  infoData[openSection].content
+                <div className="text-sm text-slate-600 text-center m-3">
+                  Estime suas emissões e veja como compensar
+                </div>
+              </button>
+              <button
+                onClick={() => setCalculatorsOpen((v) => !v)}
+                aria-expanded={calculatorsOpen}
+                className="p-2 rounded-md hover:bg-slate-100"
+              >
+                {calculatorsOpen ? (
+                  <ChevronUp className="w-5 h-5 text-slate-700" />
                 ) : (
-                  <div className="text-slate-500 italic">
-                    Selecione um dos tópicos acima para visualizar os detalhes.
-                  </div>
+                  <ChevronDown className="w-5 h-5 text-slate-700" />
                 )}
+              </button>
+            </CardHeader>
+            {calculatorsOpen && (
+              <CardContent className="p-6">
+                <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:divide-x-2 lg:divide-emerald-200">
+                  <div className="bg-white/70 backdrop-blur-sm p-6 rounded-lg shadow-sm lg:pr-8 h-full flex flex-col">
+                    <Calculator />
+                  </div>
+                  <div className="bg-white/70 backdrop-blur-sm p-6 rounded-lg shadow-sm lg:pl-8 h-full flex flex-col">
+                    <ElectricityCalculator />
+                  </div>
+                </div>
               </CardContent>
-            </Card>
-          </div>
+            )}
+          </Card>
 
-          {/* Calculators block */}
-          <div className="bg-white/80 rounded-xl shadow-md border border-slate-200 p-6 mb-8">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-slate-800 mb-2">
-                Calculadoras De Emissão de Carbono
-              </h2>
-              <p className="text-slate-600">
-                Estime suas emissões e veja como compensar
-              </p>
-            </div>
-
-            <div className="flex flex-col lg:flex-row gap-8 lg:gap-0 lg:divide-x-2 lg:divide-emerald-200">
-              <div className="bg-white/70 backdrop-blur-sm p-4 lg:pr-8">
-                <Calculator />
-              </div>
-              <div className="bg-white/70 backdrop-blur-sm p-4 lg:pl-8">
-                <ElectricityCalculator />
-              </div>
-            </div>
-          </div>
-
-          {/* Seção de Artigos e Recursos */}
+          {/* Seção de Artigos e Recursos (collapsible) */}
           <div className="mt-12">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-slate-900 mb-2">
-                Artigos e Recursos
-              </h2>
-              <p className="text-slate-600">
-                Conheça mais sobre energias renováveis e hidrogênio verde
-              </p>
-            </div>
+            <Card className="bg-white/80 shadow-md border-slate-200">
+              <CardHeader className="flex items-center justify-between">
+                <button
+                  onClick={() => setArticlesOpen((v) => !v)}
+                  aria-expanded={articlesOpen}
+                  className="text-left p-2 rounded-md hover:bg-slate-50"
+                >
+                  <CardTitle className="text-3xl text-slate-900 text-center">
+                    Artigos e Recursos
+                  </CardTitle>
+                  <div className="text-sm text-slate-600 text-center m-3">
+                    Conheça mais sobre energias renováveis e hidrogênio verde
+                  </div>
+                </button>
+                <button
+                  onClick={() => setArticlesOpen((v) => !v)}
+                  aria-expanded={articlesOpen}
+                  className="p-2 rounded-md hover:bg-slate-100"
+                >
+                  {articlesOpen ? (
+                    <ChevronUp className="w-6 h-6 text-slate-700" />
+                  ) : (
+                    <ChevronDown className="w-6 h-6 text-slate-700" />
+                  )}
+                </button>
+              </CardHeader>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* Artigo 1 */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow"
-              >
-                <div className="p-4">
-                  <div className="flex items-center mb-2">
-                    <Sun className="w-5 h-5 text-emerald-600 mr-2" />
-                    <span className="text-xs font-medium text-emerald-700 bg-emerald-100 px-2 py-1 rounded">
-                      Sustentabilidade
-                    </span>
-                  </div>
-                  <h3 className="text-base font-semibold text-slate-900 mb-2">
-                    Impacto das Energias Renováveis na Sustentabilidade Global
-                  </h3>
-                  <p className="text-slate-600 text-sm mb-3">
-                    Analisa tecnologias renováveis (solar, eólica,
-                    hidrelétrica), seus impactos ambientais e benefícios
-                    econômicos.
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-500">
-                      Fonte: repositori...gna.com.br
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-emerald-600 border-emerald-200 hover:bg-emerald-50"
-                      onClick={() =>
-                        window.open(
-                          "https://repositori.ufla.br/handle/123456789/12345",
-                          "_blank"
-                        )
-                      }
+              {articlesOpen && (
+                <CardContent className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {/* Artigo 1 */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 }}
+                      className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow flex flex-col h-full"
                     >
-                      Leia aqui
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
+                      <div className="p-4 flex flex-col flex-1">
+                        <div className="flex items-center mb-2">
+                          <Sun className="w-5 h-5 text-emerald-600 mr-2" />
+                          <span className="text-xs font-medium text-emerald-700 bg-emerald-100 px-2 py-1 rounded">
+                            Sustentabilidade
+                          </span>
+                        </div>
+                        <h3 className="text-base font-semibold text-slate-900 mb-2">
+                          Impacto das Energias Renováveis na Sustentabilidade
+                          Global
+                        </h3>
+                        <p className="text-slate-600 text-sm mb-3">
+                          Analisa tecnologias renováveis (solar, eólica,
+                          hidrelétrica), seus impactos ambientais e benefícios
+                          econômicos.
+                        </p>
+                        <div className="flex items-center justify-between mt-auto">
+                          <span className="text-xs text-slate-500">
+                            Fonte: repositori...gna.com.br
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-emerald-600 border-emerald-200 hover:bg-emerald-50"
+                            onClick={() =>
+                              window.open(
+                                "https://repositori.ufla.br/handle/123456789/12345",
+                                "_blank"
+                              )
+                            }
+                          >
+                            Leia aqui
+                          </Button>
+                        </div>
+                      </div>
+                    </motion.div>
 
-              {/* Artigo 2 */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow"
-              >
-                <div className="p-4">
-                  <div className="flex items-center mb-2">
-                    <Wind className="w-5 h-5 text-blue-600 mr-2" />
-                    <span className="text-xs font-medium text-blue-700 bg-blue-100 px-2 py-1 rounded">
-                      Transição Energética
-                    </span>
-                  </div>
-                  <h3 className="text-base font-semibold text-slate-900 mb-2">
-                    A Transição Para Energias Renováveis: Impactos Econômicos e
-                    Ambientais
-                  </h3>
-                  <p className="text-slate-600 text-sm mb-3">
-                    Explora como fontes limpas remodelam sistemas energéticos
-                    globais e os desafios da adoção.
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-500">
-                      Fonte: iosrjournals.org
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-blue-600 border-blue-200 hover:bg-blue-50"
-                      onClick={() =>
-                        window.open(
-                          "https://iosrjournals.org/iosr-jestft/papers/vol7-issue1/Version-1/G0711010106.pdf",
-                          "_blank"
-                        )
-                      }
+                    {/* Artigo 2 */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                      className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow flex flex-col h-full"
                     >
-                      Leia aqui
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
+                      <div className="p-4 flex flex-col flex-1">
+                        <div className="flex items-center mb-2">
+                          <Wind className="w-5 h-5 text-blue-600 mr-2" />
+                          <span className="text-xs font-medium text-blue-700 bg-blue-100 px-2 py-1 rounded">
+                            Transição Energética
+                          </span>
+                        </div>
+                        <h3 className="text-base font-semibold text-slate-900 mb-2">
+                          A Transição Para Energias Renováveis: Impactos
+                          Econômicos e Ambientais
+                        </h3>
+                        <p className="text-slate-600 text-sm mb-3">
+                          Explora como fontes limpas remodelam sistemas
+                          energéticos globais e os desafios da adoção.
+                        </p>
+                        <div className="flex items-center justify-between mt-auto">
+                          <span className="text-xs text-slate-500">
+                            Fonte: iosrjournals.org
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                            onClick={() =>
+                              window.open(
+                                "https://iosrjournals.org/iosr-jestft/papers/vol7-issue1/Version-1/G0711010106.pdf",
+                                "_blank"
+                              )
+                            }
+                          >
+                            Leia aqui
+                          </Button>
+                        </div>
+                      </div>
+                    </motion.div>
 
-              {/* Artigo 3 */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow"
-              >
-                <div className="p-6">
-                  <div className="flex items-center mb-3">
-                    <TreePine className="w-6 h-6 text-green-600 mr-2" />
-                    <span className="text-sm font-medium text-green-700 bg-green-100 px-2 py-1 rounded">
-                      Sociedade de Baixo Carbono
-                    </span>
-                  </div>
-                  <h3 className="text-lg font-semibold text-slate-900 mb-3">
-                    A geração de energia no contexto da sustentabilidade
-                  </h3>
-                  <p className="text-slate-600 text-sm mb-4">
-                    Livro da SciELO sobre transição para sociedade de baixo
-                    carbono e planejamento energético.
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-500">
-                      Fonte: books.scielo.org
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-green-600 border-green-200 hover:bg-green-50"
-                      onClick={() =>
-                        window.open(
-                          "https://books.scielo.org/id/srchb/pdf/costa-9788575412352.pdf",
-                          "_blank"
-                        )
-                      }
+                    {/* Artigo 3 */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow flex flex-col h-full"
                     >
-                      Leia aqui
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
+                      <div className="p-6 flex flex-col flex-1">
+                        <div className="flex items-center mb-3">
+                          <TreePine className="w-6 h-6 text-green-600 mr-2" />
+                          <span className="text-sm font-medium text-green-700 bg-green-100 px-2 py-1 rounded">
+                            Sociedade de Baixo Carbono
+                          </span>
+                        </div>
+                        <h3 className="text-lg font-semibold text-slate-900 mb-3">
+                          A geração de energia no contexto da sustentabilidade
+                        </h3>
+                        <p className="text-slate-600 text-sm mb-4">
+                          Livro da SciELO sobre transição para sociedade de
+                          baixo carbono e planejamento energético.
+                        </p>
+                        <div className="flex items-center justify-between mt-auto">
+                          <span className="text-xs text-slate-500">
+                            Fonte: books.scielo.org
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-green-600 border-green-200 hover:bg-green-50"
+                            onClick={() =>
+                              window.open(
+                                "https://books.scielo.org/id/srchb/pdf/costa-9788575412352.pdf",
+                                "_blank"
+                              )
+                            }
+                          >
+                            Leia aqui
+                          </Button>
+                        </div>
+                      </div>
+                    </motion.div>
 
-              {/* Artigo 4 */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow"
-              >
-                <div className="p-6">
-                  <div className="flex items-center mb-3">
-                    <Activity className="w-6 h-6 text-purple-600 mr-2" />
-                    <span className="text-sm font-medium text-purple-700 bg-purple-100 px-2 py-1 rounded">
-                      Fontes Limpas
-                    </span>
-                  </div>
-                  <h3 className="text-lg font-semibold text-slate-900 mb-3">
-                    Energias Renováveis: Fonte de Energia Limpa?
-                  </h3>
-                  <p className="text-slate-600 text-sm mb-4">
-                    Analisa impactos ambientais e pontos fortes das tecnologias
-                    solar, eólica e biomassa.
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-500">
-                      Fonte: ibeas.org.br
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-purple-600 border-purple-200 hover:bg-purple-50"
-                      onClick={() =>
-                        window.open(
-                          "https://www.ibeas.org.br/energias-renovaveis-fonte-de-energia-limpa/",
-                          "_blank"
-                        )
-                      }
+                    {/* Artigo 4 */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.4 }}
+                      className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow flex flex-col h-full"
                     >
-                      Leia aqui
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
+                      <div className="p-6 flex flex-col flex-1">
+                        <div className="flex items-center mb-3">
+                          <Activity className="w-6 h-6 text-purple-600 mr-2" />
+                          <span className="text-sm font-medium text-purple-700 bg-purple-100 px-2 py-1 rounded">
+                            Fontes Limpas
+                          </span>
+                        </div>
+                        <h3 className="text-lg font-semibold text-slate-900 mb-3">
+                          Energias Renováveis: Fonte de Energia Limpa?
+                        </h3>
+                        <p className="text-slate-600 text-sm mb-4">
+                          Analisa impactos ambientais e pontos fortes das
+                          tecnologias solar, eólica e biomassa.
+                        </p>
+                        <div className="flex items-center justify-between mt-auto">
+                          <span className="text-xs text-slate-500">
+                            Fonte: ibeas.org.br
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-purple-600 border-purple-200 hover:bg-purple-50"
+                            onClick={() =>
+                              window.open(
+                                "https://www.ibeas.org.br/energias-renovaveis-fonte-de-energia-limpa/",
+                                "_blank"
+                              )
+                            }
+                          >
+                            Leia aqui
+                          </Button>
+                        </div>
+                      </div>
+                    </motion.div>
 
-              {/* Artigo 5 - Hidrogênio */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow"
-              >
-                <div className="p-6">
-                  <div className="flex items-center mb-3">
-                    <Droplets className="w-6 h-6 text-cyan-600 mr-2" />
-                    <span className="text-sm font-medium text-cyan-700 bg-cyan-100 px-2 py-1 rounded">
-                      Hidrogênio Verde
-                    </span>
-                  </div>
-                  <h3 className="text-lg font-semibold text-slate-900 mb-3">
-                    Hidrogênio Verde: A Fonte de Energia do Futuro
-                  </h3>
-                  <p className="text-slate-600 text-sm mb-4">
-                    Discute potencial energético, redução de CO₂ e vantagens
-                    para países com alta geração renovável.
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-500">
-                      Fonte: periodicos.ufpa.br
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-cyan-600 border-cyan-200 hover:bg-cyan-50"
-                      onClick={() =>
-                        window.open(
-                          "https://periodicos.ufpa.br/index.php/revistaamazonia/article/view/12345",
-                          "_blank"
-                        )
-                      }
+                    {/* Artigo 5 - Hidrogênio */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5 }}
+                      className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow flex flex-col h-full"
                     >
-                      Leia aqui
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
+                      <div className="p-6 flex flex-col flex-1">
+                        <div className="flex items-center mb-3">
+                          <Droplets className="w-6 h-6 text-cyan-600 mr-2" />
+                          <span className="text-sm font-medium text-cyan-700 bg-cyan-100 px-2 py-1 rounded">
+                            Hidrogênio Verde
+                          </span>
+                        </div>
+                        <h3 className="text-lg font-semibold text-slate-900 mb-3">
+                          Hidrogênio Verde: A Fonte de Energia do Futuro
+                        </h3>
+                        <p className="text-slate-600 text-sm mb-4">
+                          Discute potencial energético, redução de CO₂ e
+                          vantagens para países com alta geração renovável.
+                        </p>
+                        <div className="flex items-center justify-between mt-auto">
+                          <span className="text-xs text-slate-500">
+                            Fonte: periodicos.ufpa.br
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-cyan-600 border-cyan-200 hover:bg-cyan-50"
+                            onClick={() =>
+                              window.open(
+                                "https://periodicos.ufpa.br/index.php/revistaamazonia/article/view/12345",
+                                "_blank"
+                              )
+                            }
+                          >
+                            Leia aqui
+                          </Button>
+                        </div>
+                      </div>
+                    </motion.div>
 
-              {/* Artigo 6 - Hidrogênio Sustentabilidade */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
-                className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow"
-              >
-                <div className="p-6">
-                  <div className="flex items-center mb-3">
-                    <Zap className="w-6 h-6 text-orange-600 mr-2" />
-                    <span className="text-sm font-medium text-orange-700 bg-orange-100 px-2 py-1 rounded">
-                      Visão Integrada
-                    </span>
-                  </div>
-                  <h3 className="text-lg font-semibold text-slate-900 mb-3">
-                    Hidrogênio Verde e Sustentabilidade: Uma Visão Integrada
-                  </h3>
-                  <p className="text-slate-600 text-sm mb-4">
-                    Aborda desafios tecnológicos, econômicos e regulatórios,
-                    além de oportunidades para o Brasil.
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-500">
-                      Fonte: bing.com
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-orange-600 border-orange-200 hover:bg-orange-50"
-                      onClick={() =>
-                        window.open(
-                          "https://www.bing.com/search?q=hidrogenio+verde+sustentabilidade+visao+integrada",
-                          "_blank"
-                        )
-                      }
+                    {/* Artigo 6 - Hidrogênio Sustentabilidade */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.6 }}
+                      className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow flex flex-col h-full"
                     >
-                      Leia aqui
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
+                      <div className="p-6 flex flex-col flex-1">
+                        <div className="flex items-center mb-3">
+                          <Zap className="w-6 h-6 text-orange-600 mr-2" />
+                          <span className="text-sm font-medium text-orange-700 bg-orange-100 px-2 py-1 rounded">
+                            Visão Integrada
+                          </span>
+                        </div>
+                        <h3 className="text-lg font-semibold text-slate-900 mb-3">
+                          Hidrogênio Verde e Sustentabilidade: Uma Visão
+                          Integrada
+                        </h3>
+                        <p className="text-slate-600 text-sm mb-4">
+                          Aborda desafios tecnológicos, econômicos e
+                          regulatórios, além de oportunidades para o Brasil.
+                        </p>
+                        <div className="flex items-center justify-between mt-auto">
+                          <span className="text-xs text-slate-500">
+                            Fonte: bing.com
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-orange-600 border-orange-200 hover:bg-orange-50"
+                            onClick={() =>
+                              window.open(
+                                "https://www.bing.com/search?q=hidrogenio+verde+sustentabilidade+visao+integrada",
+                                "_blank"
+                              )
+                            }
+                          >
+                            Leia aqui
+                          </Button>
+                        </div>
+                      </div>
+                    </motion.div>
 
-              {/* Artigo 7 - Transição Brasileira */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 }}
-                className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow"
-              >
-                <div className="p-6">
-                  <div className="flex items-center mb-3">
-                    <BarChart3 className="w-6 h-6 text-indigo-600 mr-2" />
-                    <span className="text-sm font-medium text-indigo-700 bg-indigo-100 px-2 py-1 rounded">
-                      Transição Brasileira
-                    </span>
-                  </div>
-                  <h3 className="text-lg font-semibold text-slate-900 mb-3">
-                    Hidrogênio Verde: O Seu Potencial na Transição Energética
-                    Brasileira
-                  </h3>
-                  <p className="text-slate-600 text-sm mb-4">
-                    Analisa rotas de produção, vantagens e desafios para adoção
-                    em larga escala.
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-500">
-                      Fonte: revistaft.com.br
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-indigo-600 border-indigo-200 hover:bg-indigo-50"
-                      onClick={() =>
-                        window.open(
-                          "https://www.revistaft.com.br/hidrogenio-verde-transicao-energetica-brasileira",
-                          "_blank"
-                        )
-                      }
+                    {/* Artigo 7 - Transição Brasileira */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.7 }}
+                      className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow flex flex-col h-full"
                     >
-                      Leia aqui
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
+                      <div className="p-6 flex flex-col flex-1">
+                        <div className="flex items-center mb-3">
+                          <BarChart3 className="w-6 h-6 text-indigo-600 mr-2" />
+                          <span className="text-sm font-medium text-indigo-700 bg-indigo-100 px-2 py-1 rounded">
+                            Transição Brasileira
+                          </span>
+                        </div>
+                        <h3 className="text-lg font-semibold text-slate-900 mb-3">
+                          Hidrogênio Verde: O Seu Potencial na Transição
+                          Energética Brasileira
+                        </h3>
+                        <p className="text-slate-600 text-sm mb-4">
+                          Analisa rotas de produção, vantagens e desafios para
+                          adoção em larga escala.
+                        </p>
+                        <div className="flex items-center justify-between mt-auto">
+                          <span className="text-xs text-slate-500">
+                            Fonte: revistaft.com.br
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                            onClick={() =>
+                              window.open(
+                                "https://www.revistaft.com.br/hidrogenio-verde-transicao-energetica-brasileira",
+                                "_blank"
+                              )
+                            }
+                          >
+                            Leia aqui
+                          </Button>
+                        </div>
+                      </div>
+                    </motion.div>
 
-              {/* Artigo 8 - Contexto Global */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 }}
-                className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow"
-              >
-                <div className="p-6">
-                  <div className="flex items-center mb-3">
-                    <FileText className="w-6 h-6 text-teal-600 mr-2" />
-                    <span className="text-sm font-medium text-teal-700 bg-teal-100 px-2 py-1 rounded">
-                      Revisão Sistemática
-                    </span>
-                  </div>
-                  <h3 className="text-lg font-semibold text-slate-900 mb-3">
-                    A Produção de Hidrogênio Verde no Contexto da Transição
-                    Energética Global
-                  </h3>
-                  <p className="text-slate-600 text-sm mb-4">
-                    Revisão sistemática sobre papel do H₂V na mitigação das
-                    mudanças climáticas.
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-500">
-                      Fonte: submissao....gep.org.br
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-teal-600 border-teal-200 hover:bg-teal-50"
-                      onClick={() =>
-                        window.open(
-                          "https://submissao.gep.org.br/anais/article/view/12345",
-                          "_blank"
-                        )
-                      }
+                    {/* Artigo 8 - Contexto Global */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.8 }}
+                      className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow flex flex-col h-full"
                     >
-                      Leia aqui
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
+                      <div className="p-6 flex flex-col flex-1">
+                        <div className="flex items-center mb-3">
+                          <FileText className="w-6 h-6 text-teal-600 mr-2" />
+                          <span className="text-sm font-medium text-teal-700 bg-teal-100 px-2 py-1 rounded">
+                            Revisão Sistemática
+                          </span>
+                        </div>
+                        <h3 className="text-lg font-semibold text-slate-900 mb-3">
+                          A Produção de Hidrogênio Verde no Contexto da
+                          Transição Energética Global
+                        </h3>
+                        <p className="text-slate-600 text-sm mb-4">
+                          Revisão sistemática sobre papel do H₂V na mitigação
+                          das mudanças climáticas.
+                        </p>
+                        <div className="flex items-center justify-between mt-auto">
+                          <span className="text-xs text-slate-500">
+                            Fonte: submissao....gep.org.br
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-teal-600 border-teal-200 hover:bg-teal-50"
+                            onClick={() =>
+                              window.open(
+                                "https://submissao.gep.org.br/anais/article/view/12345",
+                                "_blank"
+                              )
+                            }
+                          >
+                            Leia aqui
+                          </Button>
+                        </div>
+                      </div>
+                    </motion.div>
 
-              {/* Artigo 9 - Eletrólise e Tecnologia */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.9 }}
-                className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow"
-              >
-                <div className="p-6">
-                  <div className="flex items-center mb-3">
-                    <Activity className="w-6 h-6 text-violet-600 mr-2" />
-                    <span className="text-sm font-medium text-violet-700 bg-violet-100 px-2 py-1 rounded">
-                      Tecnologia
-                    </span>
-                  </div>
-                  <h3 className="text-lg font-semibold text-slate-900 mb-3">
-                    Eletrólise da Água: Tecnologias e Aplicações para Produção
-                    de H₂
-                  </h3>
-                  <p className="text-slate-600 text-sm mb-4">
-                    Análise das principais tecnologias de eletrólise, eficiência
-                    energética e desafios para produção em larga escala.
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-500">
-                      Fonte: scielo.br
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-violet-600 border-violet-200 hover:bg-violet-50"
-                      onClick={() =>
-                        window.open(
-                          "https://www.scielo.br/j/qn/a/eletrolise-hidrogenio-verde/",
-                          "_blank"
-                        )
-                      }
+                    {/* Artigo 9 - Eletrólise e Tecnologia */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.9 }}
+                      className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-shadow flex flex-col h-full"
                     >
-                      Leia aqui
-                    </Button>
+                      <div className="p-6 flex flex-col flex-1">
+                        <div className="flex items-center mb-3">
+                          <Activity className="w-6 h-6 text-violet-600 mr-2" />
+                          <span className="text-sm font-medium text-violet-700 bg-violet-100 px-2 py-1 rounded">
+                            Tecnologia
+                          </span>
+                        </div>
+                        <h3 className="text-lg font-semibold text-slate-900 mb-3">
+                          Eletrólise da Água: Tecnologias e Aplicações para
+                          Produção de H₂
+                        </h3>
+                        <p className="text-slate-600 text-sm mb-4">
+                          Análise das principais tecnologias de eletrólise,
+                          eficiência energética e desafios para produção em
+                          larga escala.
+                        </p>
+                        <div className="flex items-center justify-between mt-auto">
+                          <span className="text-xs text-slate-500">
+                            Fonte: scielo.br
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-violet-600 border-violet-200 hover:bg-violet-50"
+                            onClick={() =>
+                              window.open(
+                                "https://www.scielo.br/j/qn/a/eletrolise-hidrogenio-verde/",
+                                "_blank"
+                              )
+                            }
+                          >
+                            Leia aqui
+                          </Button>
+                        </div>
+                      </div>
+                    </motion.div>
                   </div>
-                </div>
-              </motion.div>
-            </div>
+                </CardContent>
+              )}
+            </Card>
           </div>
         </div>
       </div>

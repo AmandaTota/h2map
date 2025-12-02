@@ -40,6 +40,7 @@ import Navigation from "@/components/Navigation";
 import LocationSearch from "@/components/LocationSearch";
 import RegionFilters from "@/components/RegionFilters";
 import Map from "@/components/Map";
+// LayerControls removed — layers no longer toggled per-map
 import { useLocationStore } from "@/store/locationStore";
 import { supabase } from "@/integrations/supabase/client";
 import { format, subDays } from "date-fns";
@@ -4178,64 +4179,67 @@ const FeasibilityAnalysis = () => {
 
               {/* Tipologias Regionais - Accordion (apenas após escolhas) */}
               {selectedRegion || selectedEstado || selectedMicrorregiao ? (
-                <Accordion
-                  type="multiple"
-                  defaultValue={["tipologias"]}
-                  className="mb-4"
-                >
-                  <AccordionItem value="tipologias" className="border-none">
-                    <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden">
-                      <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-emerald-50/50 transition-colors">
-                        <div className="flex items-center space-x-3 w-full">
-                          <Zap className="w-6 h-6 text-emerald-600" />
-                          <h2 className="text-2xl font-bold text-slate-900">
-                            Tipologias Regionais
-                          </h2>
-                          <Badge className="ml-auto bg-blue-100 text-blue-800 border-blue-300">
-                            {selectedRegion || "—"}
-                          </Badge>
-                        </div>
-                      </AccordionTrigger>
-                      <AccordionContent className="px-6 pb-6">
-                        <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-4">
-                          {getTechnologyFactors(
-                            selectedRegion || "Nordeste"
-                          ).map((tech, tIndex) => (
-                            <div
-                              key={`tech-${tIndex}`}
-                              className="p-4 rounded-lg border hover:shadow-sm transition-shadow"
-                            >
-                              <div className="flex items-center space-x-3 mb-3">
-                                <tech.icon className="w-5 h-5 text-emerald-600" />
-                                <h3 className="font-semibold text-slate-900">
-                                  {tech.title}
-                                </h3>
-                              </div>
-                              <div className="grid grid-cols-1 gap-2">
-                                {tech.factors.map((f, fIndex: number) => (
-                                  <div
-                                    key={`f-${tIndex}-${fIndex}`}
-                                    className="flex items-center justify-between"
-                                  >
-                                    <span className="text-sm text-slate-700">
-                                      {f.label}
-                                    </span>
-                                    <Badge
-                                      variant="outline"
-                                      className={getPriorityColor(f.status)}
+                <>
+                  <Accordion
+                    type="multiple"
+                    defaultValue={["tipologias"]}
+                    className="mb-4"
+                  >
+                    <AccordionItem value="tipologias" className="border-none">
+                      <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden">
+                        <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-emerald-50/50 transition-colors">
+                          <div className="flex items-center space-x-3 w-full">
+                            <Zap className="w-6 h-6 text-emerald-600" />
+                            <h2 className="text-2xl font-bold text-slate-900">
+                              Tipologias Regionais
+                            </h2>
+                            <Badge className="ml-auto bg-blue-100 text-blue-800 border-blue-300">
+                              {selectedRegion || "—"}
+                            </Badge>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-6 pb-6">
+                          <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-4">
+                            {getTechnologyFactors(
+                              selectedRegion || "Nordeste"
+                            ).map((tech, tIndex) => (
+                              <div
+                                key={`tech-${tIndex}`}
+                                className="p-4 rounded-lg border hover:shadow-sm transition-shadow"
+                              >
+                                <div className="flex items-center space-x-3 mb-3">
+                                  <tech.icon className="w-5 h-5 text-emerald-600" />
+                                  <h3 className="font-semibold text-slate-900">
+                                    {tech.title}
+                                  </h3>
+                                </div>
+                                <div className="grid grid-cols-1 gap-2">
+                                  {tech.factors.map((f, fIndex: number) => (
+                                    <div
+                                      key={`f-${tIndex}-${fIndex}`}
+                                      className="flex items-center justify-between"
                                     >
-                                      {f.value}
-                                    </Badge>
-                                  </div>
-                                ))}
+                                      <span className="text-sm text-slate-700">
+                                        {f.label}
+                                      </span>
+                                      <Badge
+                                        variant="outline"
+                                        className={getPriorityColor(f.status)}
+                                      >
+                                        {f.value}
+                                      </Badge>
+                                    </div>
+                                  ))}
+                                </div>
                               </div>
-                            </div>
-                          ))}
-                        </div>
-                      </AccordionContent>
-                    </Card>
-                  </AccordionItem>
-                </Accordion>
+                            ))}
+                          </div>
+                        </AccordionContent>
+                      </Card>
+                    </AccordionItem>
+                  </Accordion>
+                  {/* Áreas de Proteção Ambiental movidas para `ProtectedAreasCard` component. */}
+                </>
               ) : (
                 <div className="mb-4 text-sm text-slate-500 italic">
                   Selecione filtros regionais para exibir as Tipologias

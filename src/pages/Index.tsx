@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import LocationSearch from "@/components/LocationSearch";
 import AuthDialog from "@/components/AuthDialog";
+import Footer from "@/components/Footer";
 
 import {
   MapPin,
@@ -59,9 +60,15 @@ export default function Index() {
               >
                 Dados Verdes
               </Link>
+              <button
+                onClick={() => setAuthDialogOpen(true)}
+                className="bg-emerald-600 text-white font-medium px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
+              >
+                Cadastrar/Entrar
+              </button>
               <Link
                 to="/feasibility"
-                className="bg-[#0da9ff] opacity-60 text-white font-medium px-4 py-2 rounded-lg hover:bg-[#73cb94] transition-colors"
+                className="bg-emerald-600 text-white font-medium px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
               >
                 Demonstração
               </Link>
@@ -108,6 +115,12 @@ export default function Index() {
               >
                 Demonstração
               </Link>
+              <button
+                onClick={() => setAuthDialogOpen(true)}
+                className="w-full text-left block px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+              >
+                Cadastrar/Entrar
+              </button>
             </div>
           </div>
         )}
@@ -138,22 +151,6 @@ export default function Index() {
                 usando mapas climáticos avançados. Incluindo unidades de
                 conservação da fauna e flora para desenvolvimento sustentável.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <button
-                  onClick={() => setAuthDialogOpen(true)}
-                  className="bg-[#0da9ff] opacity-60 w-full sm:w-auto text-white px-6 py-3 rounded-lg hover:bg-[#73cb94] transition-colors flex items-center justify-center space-x-2"
-                >
-                  <span>Cadastrar-se</span>
-                </button>
-
-                <button
-                  onClick={() => setAuthDialogOpen(true)}
-                  className="bg-[#0da9ff] opacity-60 w-full sm:w-auto text-white px-6 py-3 rounded-lg hover:bg-[#73cb94] transition-colors flex items-center justify-center space-x-2"
-                >
-                  <span>Entrar</span>
-                </button>
-              </div>
-
               <AuthDialog
                 open={authDialogOpen}
                 onOpenChange={setAuthDialogOpen}
@@ -421,90 +418,7 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-slate-900 text-slate-300 py-8 sm:py-12 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-6 sm:mb-8">
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <Droplets className="w-6 h-6 text-emerald-500" />
-                <span className="text-xl font-bold text-white">H2maps</span>
-              </div>
-              <p className="text-sm text-slate-400">
-                Georreferenciamento inteligente para um futuro energético
-                sustentável.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-white font-semibold mb-4">Links Rápidos</h3>
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <a
-                    href="#features"
-                    className="hover:text-emerald-400 transition-colors"
-                  >
-                    Recursos
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#conservation"
-                    className="hover:text-emerald-400 transition-colors"
-                  >
-                    Conservação
-                  </a>
-                </li>
-                <li>
-                  <Link
-                    to="/dashboard"
-                    className="hover:text-[#73cb94] transition-colors opacity-100"
-                  >
-                    Demonstração
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/feasibility"
-                    className="hover:text-emerald-400 transition-colors"
-                  >
-                    Análise de Viabilidade
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-white font-semibold mb-4">Tecnologias</h3>
-              <ul className="space-y-2 text-sm text-slate-400">
-                <li className="flex items-center space-x-2">
-                  <MapPin className="w-4 h-4" />
-                  <span>Georreferenciamento GIS</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <Sun className="w-4 h-4" />
-                  <span>Análise Solar</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <Wind className="w-4 h-4" />
-                  <span>Análise Eólica</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <TreePine className="w-4 h-4" />
-                  <span>Conservação Ambiental</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="border-t border-slate-800 pt-8 text-center">
-            <p className="text-sm text-slate-400">
-              © 2025 H2maps. Todos os direitos reservados. | Desenvolvido para
-              um futuro sustentável.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
