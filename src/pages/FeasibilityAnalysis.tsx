@@ -19,6 +19,7 @@ import {
   X,
   ChevronDown,
 } from "lucide-react";
+import { formatNumber, formatCurrency } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -283,8 +284,8 @@ const FeasibilityAnalysis = () => {
 
           if (!error && data && data.latitude && data.longitude) {
             return {
-              lat: parseFloat(data.latitude),
-              lng: parseFloat(data.longitude),
+              lat: Number(data.latitude),
+              lng: Number(data.longitude),
             };
           }
 
@@ -303,8 +304,8 @@ const FeasibilityAnalysis = () => {
               .single();
 
             if (mData && mData.latitude && mData.longitude) {
-              totalLat += parseFloat(mData.latitude);
-              totalLng += parseFloat(mData.longitude);
+              totalLat += Number(mData.latitude);
+              totalLng += Number(mData.longitude);
               count++;
             }
           }
@@ -352,8 +353,8 @@ const FeasibilityAnalysis = () => {
 
           if (!error && data && data.latitude && data.longitude) {
             return {
-              lat: parseFloat(data.latitude),
-              lng: parseFloat(data.longitude),
+              lat: Number(data.latitude),
+              lng: Number(data.longitude),
             };
           }
 
@@ -372,8 +373,8 @@ const FeasibilityAnalysis = () => {
               .single();
 
             if (mData && mData.latitude && mData.longitude) {
-              totalLat += parseFloat(mData.latitude);
-              totalLng += parseFloat(mData.longitude);
+              totalLat += Number(mData.latitude);
+              totalLng += Number(mData.longitude);
               count++;
             }
           }
@@ -1884,7 +1885,7 @@ const FeasibilityAnalysis = () => {
                                       Energia Diária
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {energyCalc1Year.dailyEnergy.toFixed(0)}
+                                      {formatNumber(Math.round(energyCalc1Year.dailyEnergy))}
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       kWh/dia
@@ -1896,9 +1897,7 @@ const FeasibilityAnalysis = () => {
                                       Energia Anual
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {(
-                                        energyCalc1Year.annualEnergy / 1000
-                                      ).toFixed(1)}
+                                      {formatNumber(Math.round(energyCalc1Year.annualEnergy / 1000))}
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       MWh/ano
@@ -1919,10 +1918,7 @@ const FeasibilityAnalysis = () => {
                                       💧 <strong>Produção Diária:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {energyCalc1Year.dailyH2Production.toFixed(
-                                        1
-                                      )}{" "}
-                                      kg/dia
+                                      {formatNumber(Math.round(energyCalc1Year.dailyH2Production))} kg/dia
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
                                       <strong>Consumo eletrolisador:</strong> 65
@@ -1939,14 +1935,11 @@ const FeasibilityAnalysis = () => {
                                       📊 <strong>Produção Anual:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {energyCalc1Year.annualH2Production.toFixed(
-                                        1
-                                      )}{" "}
-                                      ton/ano
+                                      {formatNumber(Math.round(energyCalc1Year.annualH2Production))} kg/ano
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
                                       <strong>Fórmula:</strong> H₂ (kg) = E
-                                      <sub>disponível</sub> / 50 kWh/kg
+                                      <sub>disponível</sub> × η / 65 kWh/kg
                                     </p>
                                   </Card>
                                 </div>
@@ -2062,9 +2055,7 @@ const FeasibilityAnalysis = () => {
                                       Energia Anual
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {(
-                                        energyCalc3Years.annualEnergy / 1000
-                                      ).toFixed(1)}
+                                      {formatNumber(Math.round(energyCalc3Years.annualEnergy / 1000))}
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       MWh/ano
@@ -2085,10 +2076,7 @@ const FeasibilityAnalysis = () => {
                                       💧 <strong>Produção Diária:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {energyCalc3Years.dailyH2Production.toFixed(
-                                        1
-                                      )}{" "}
-                                      kg/dia
+                                      {formatNumber(Math.round(energyCalc3Years.dailyH2Production))} kg/dia
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
                                       <strong>Consumo eletrolisador:</strong> 65
@@ -2105,14 +2093,11 @@ const FeasibilityAnalysis = () => {
                                       📊 <strong>Produção Anual:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {energyCalc3Years.annualH2Production.toFixed(
-                                        1
-                                      )}{" "}
-                                      ton/ano
+                                      {formatNumber(Math.round(energyCalc3Years.annualH2Production))} kg/ano
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
                                       <strong>Fórmula:</strong> H₂ (kg) = E
-                                      <sub>disponível</sub> / 50 kWh/kg
+                                      <sub>disponível</sub> × η / 65 kWh/kg
                                     </p>
                                   </Card>
                                 </div>
@@ -2216,7 +2201,7 @@ const FeasibilityAnalysis = () => {
                                       Energia Diária
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {energyCalc5Years.dailyEnergy.toFixed(0)}
+                                      {formatNumber(Math.round(energyCalc5Years.dailyEnergy))}
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       kWh/dia
@@ -2228,9 +2213,7 @@ const FeasibilityAnalysis = () => {
                                       Energia Anual
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {(
-                                        energyCalc5Years.annualEnergy / 1000
-                                      ).toFixed(1)}
+                                      {formatNumber(Math.round(energyCalc5Years.annualEnergy / 1000))}
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       MWh/ano
@@ -2251,10 +2234,7 @@ const FeasibilityAnalysis = () => {
                                       💧 <strong>Produção Diária:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {energyCalc5Years.dailyH2Production.toFixed(
-                                        1
-                                      )}{" "}
-                                      kg/dia
+                                      {formatNumber(Math.round(energyCalc5Years.dailyH2Production))} kg/dia
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
                                       <strong>Consumo eletrolisador:</strong> 65
@@ -2271,14 +2251,11 @@ const FeasibilityAnalysis = () => {
                                       📊 <strong>Produção Anual:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {energyCalc5Years.annualH2Production.toFixed(
-                                        1
-                                      )}{" "}
-                                      ton/ano
+                                      {formatNumber(Math.round(energyCalc5Years.annualH2Production))} kg/ano
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
                                       <strong>Fórmula:</strong> H₂ (kg) = E
-                                      <sub>disponível</sub> / 50 kWh/kg
+                                      <sub>disponível</sub> × η / 65 kWh/kg
                                     </p>
                                   </Card>
                                 </div>
@@ -2740,8 +2717,7 @@ const FeasibilityAnalysis = () => {
                                     </span>
                                   </div>
                                   <p className="text-3xl font-bold text-slate-900">
-                                    R${" "}
-                                    {simulationResults.oneYear.lcoh.toFixed(2)}
+                                    R$ {formatNumber(simulationResults.oneYear.lcoh, 2)}
                                   </p>
                                   <p className="text-xs text-slate-600 mt-1">
                                     por kg de H₂
@@ -2763,10 +2739,7 @@ const FeasibilityAnalysis = () => {
                                     </span>
                                   </div>
                                   <p className="text-3xl font-bold text-slate-900">
-                                    {simulationResults.oneYear.capacityFactor.toFixed(
-                                      1
-                                    )}
-                                    %
+                                    {formatNumber(simulationResults.oneYear.capacityFactor, 1)}%
                                   </p>
                                   <p className="text-xs text-slate-600 mt-1">
                                     Eficiência operacional
@@ -2790,9 +2763,7 @@ const FeasibilityAnalysis = () => {
                                     </span>
                                   </div>
                                   <p className="text-3xl font-bold text-slate-900">
-                                    {simulationResults.oneYear.h2Production.toFixed(
-                                      2
-                                    )}
+                                    {formatNumber(Math.round(simulationResults.oneYear.h2Production))}
                                   </p>
                                   <p className="text-xs text-slate-600 mt-1">
                                     kg H₂/ano
@@ -2807,14 +2778,7 @@ const FeasibilityAnalysis = () => {
                                     </span>
                                   </div>
                                   <p className="text-3xl font-bold text-slate-900">
-                                    R${" "}
-                                    {(
-                                      simulationResults.oneYear.h2Production *
-                                      25
-                                    ).toLocaleString("pt-BR", {
-                                      minimumFractionDigits: 0,
-                                      maximumFractionDigits: 0,
-                                    })}
+                                    {formatCurrency(Math.round(simulationResults.oneYear.h2Production * 25))}
                                   </p>
                                   <p className="text-xs text-slate-600 mt-1">
                                     Por ano (R$ 25/kg H₂)
@@ -3284,7 +3248,7 @@ const FeasibilityAnalysis = () => {
                         <AccordionContent className="px-6 pb-6">
                           <Tabs
                             value={scenario}
-                            onValueChange={(v) => setScenario(v)}
+                            onValueChange={(v) => setScenario(v as "1" | "3" | "5")}
                             className="w-full"
                           >
                             <TabsList className="relative grid w-full grid-cols-3 mb-6 bg-gradient-to-r from-emerald-100 to-teal-100 p-1 h-[50px] rounded-xl border border-emerald-200 shadow-sm overflow-hidden">
@@ -3414,26 +3378,21 @@ const FeasibilityAnalysis = () => {
                                 {/* Produção e Escala */}
                                 <div className="flex items-start space-x-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
                                   <BarChart3 className="w-5 h-5 text-blue-600 mt-0.5" />
-                                  <div>
+                                <div>
                                     <h3 className="font-semibold text-slate-900 mb-1">
                                       Produção e Escala
                                     </h3>
                                     <p className="text-sm text-slate-700">
                                       Produção anual estimada de{" "}
-                                      {(
-                                        simulationResults.oneYear.h2Production /
-                                        1000
-                                      ).toFixed(2)}{" "}
+                                      {formatNumber(Math.round(simulationResults.oneYear.h2Production))}{" "}
                                       kg de H₂ verde no cenário de 100 kW.
                                       Potencial de expansão para{" "}
-                                      {simulationResults.fiveYears!.h2Production.toFixed(
-                                        2
-                                      )}{" "}
+                                      {formatNumber(Math.round(simulationResults.fiveYears!.h2Production))}{" "}
                                       kg/ano com eletrolisador de 500 kW.
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
                                       💡 Projeto adequado para fase piloto.
-                                      Escala comercial típica: 10–50 mil kg/ano.
+                                      Escala comercial típica: 10.000–50.000 kg/ano.
                                     </p>
                                   </div>
                                 </div>
