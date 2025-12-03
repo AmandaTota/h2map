@@ -125,33 +125,32 @@ const RegionFilters = ({
             signal: AbortSignal.timeout(10000), // timeout de 10s
           }
         );
-
+        
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }
-
+        
         const data = await response.json();
-
+        
         // Armazenar no cache
         microrregiaoCache.set(selectedEstado, data);
-
+        
         setMicrorregioes(data);
         setSelectedMicrorregiao("");
       } catch (error) {
         console.error("Error fetching microrregiões:", error);
-
+        
         // Mensagem de erro mais específica
-        const errorMessage =
-          error instanceof Error && error.name === "TimeoutError"
-            ? "Tempo limite excedido. Tente novamente."
-            : "Não foi possível carregar as microrregiões";
-
+        const errorMessage = error instanceof Error && error.name === 'TimeoutError' 
+          ? "Tempo limite excedido. Tente novamente."
+          : "Não foi possível carregar as microrregiões";
+          
         toast({
           variant: "destructive",
           title: "Erro ao carregar microrregiões",
           description: errorMessage,
         });
-
+        
         setMicrorregioes([]);
       } finally {
         setLoadingMicro(false);
@@ -233,20 +232,15 @@ const RegionFilters = ({
         </div>
 
         <div>
+        <div>
           <p className="text-sm text-slate-600 mb-2">Microrregião</p>
           <Select
             value={selectedMicrorregiao}
             onValueChange={setSelectedMicrorregiao}
-            disabled={
-              !selectedEstado || selectedEstado === "all" || loadingMicro
-            }
+            disabled={!selectedEstado || selectedEstado === "all" || loadingMicro}
           >
             <SelectTrigger className="h-12 border-emerald-200 focus:border-emerald-500 bg-white">
-              <SelectValue
-                placeholder={
-                  loadingMicro ? "Carregando..." : "Selecione a microrregião"
-                }
-              />
+              <SelectValue placeholder={loadingMicro ? "Carregando..." : "Selecione a microrregião"} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas as microrregiões</SelectItem>
@@ -258,7 +252,6 @@ const RegionFilters = ({
             </SelectContent>
           </Select>
         </div>
-      </div>
     </div>
   );
 };

@@ -19,7 +19,6 @@ import {
   X,
   ChevronDown,
 } from "lucide-react";
-import { formatNumber, formatCurrency } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -41,7 +40,6 @@ import Navigation from "@/components/Navigation";
 import LocationSearch from "@/components/LocationSearch";
 import RegionFilters from "@/components/RegionFilters";
 import Map from "@/components/Map";
-// LayerControls removed — layers no longer toggled per-map
 import { useLocationStore } from "@/store/locationStore";
 import { supabase } from "@/integrations/supabase/client";
 import { format, subDays } from "date-fns";
@@ -284,8 +282,8 @@ const FeasibilityAnalysis = () => {
 
           if (!error && data && data.latitude && data.longitude) {
             return {
-              lat: Number(data.latitude),
-              lng: Number(data.longitude),
+              lat: parseFloat(data.latitude),
+              lng: parseFloat(data.longitude),
             };
           }
 
@@ -304,8 +302,8 @@ const FeasibilityAnalysis = () => {
               .single();
 
             if (mData && mData.latitude && mData.longitude) {
-              totalLat += Number(mData.latitude);
-              totalLng += Number(mData.longitude);
+              totalLat += parseFloat(mData.latitude);
+              totalLng += parseFloat(mData.longitude);
               count++;
             }
           }
@@ -353,8 +351,8 @@ const FeasibilityAnalysis = () => {
 
           if (!error && data && data.latitude && data.longitude) {
             return {
-              lat: Number(data.latitude),
-              lng: Number(data.longitude),
+              lat: parseFloat(data.latitude),
+              lng: parseFloat(data.longitude),
             };
           }
 
@@ -373,8 +371,8 @@ const FeasibilityAnalysis = () => {
               .single();
 
             if (mData && mData.latitude && mData.longitude) {
-              totalLat += Number(mData.latitude);
-              totalLng += Number(mData.longitude);
+              totalLat += parseFloat(mData.latitude);
+              totalLng += parseFloat(mData.longitude);
               count++;
             }
           }
@@ -1885,7 +1883,7 @@ const FeasibilityAnalysis = () => {
                                       Energia Diária
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {formatNumber(Math.round(energyCalc1Year.dailyEnergy))}
+                                      {energyCalc1Year.dailyEnergy.toFixed(0)}
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       kWh/dia
@@ -1897,7 +1895,9 @@ const FeasibilityAnalysis = () => {
                                       Energia Anual
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {formatNumber(Math.round(energyCalc1Year.annualEnergy / 1000))}
+                                      {(
+                                        energyCalc1Year.annualEnergy / 1000
+                                      ).toFixed(1)}
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       MWh/ano
@@ -1918,7 +1918,10 @@ const FeasibilityAnalysis = () => {
                                       💧 <strong>Produção Diária:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {formatNumber(Math.round(energyCalc1Year.dailyH2Production))} kg/dia
+                                      {energyCalc1Year.dailyH2Production.toFixed(
+                                        1
+                                      )}{" "}
+                                      kg/dia
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
                                       <strong>Consumo eletrolisador:</strong> 65
@@ -1935,11 +1938,14 @@ const FeasibilityAnalysis = () => {
                                       📊 <strong>Produção Anual:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {formatNumber(Math.round(energyCalc1Year.annualH2Production))} kg/ano
+                                      {energyCalc1Year.annualH2Production.toFixed(
+                                        1
+                                      )}{" "}
+                                      ton/ano
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
                                       <strong>Fórmula:</strong> H₂ (kg) = E
-                                      <sub>disponível</sub> × η / 65 kWh/kg
+                                      <sub>disponível</sub> / 50 kWh/kg
                                     </p>
                                   </Card>
                                 </div>
@@ -2055,7 +2061,9 @@ const FeasibilityAnalysis = () => {
                                       Energia Anual
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {formatNumber(Math.round(energyCalc3Years.annualEnergy / 1000))}
+                                      {(
+                                        energyCalc3Years.annualEnergy / 1000
+                                      ).toFixed(1)}
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       MWh/ano
@@ -2076,7 +2084,10 @@ const FeasibilityAnalysis = () => {
                                       💧 <strong>Produção Diária:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {formatNumber(Math.round(energyCalc3Years.dailyH2Production))} kg/dia
+                                      {energyCalc3Years.dailyH2Production.toFixed(
+                                        1
+                                      )}{" "}
+                                      kg/dia
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
                                       <strong>Consumo eletrolisador:</strong> 65
@@ -2093,11 +2104,14 @@ const FeasibilityAnalysis = () => {
                                       📊 <strong>Produção Anual:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {formatNumber(Math.round(energyCalc3Years.annualH2Production))} kg/ano
+                                      {energyCalc3Years.annualH2Production.toFixed(
+                                        1
+                                      )}{" "}
+                                      ton/ano
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
                                       <strong>Fórmula:</strong> H₂ (kg) = E
-                                      <sub>disponível</sub> × η / 65 kWh/kg
+                                      <sub>disponível</sub> / 50 kWh/kg
                                     </p>
                                   </Card>
                                 </div>
@@ -2201,7 +2215,7 @@ const FeasibilityAnalysis = () => {
                                       Energia Diária
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {formatNumber(Math.round(energyCalc5Years.dailyEnergy))}
+                                      {energyCalc5Years.dailyEnergy.toFixed(0)}
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       kWh/dia
@@ -2213,7 +2227,9 @@ const FeasibilityAnalysis = () => {
                                       Energia Anual
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {formatNumber(Math.round(energyCalc5Years.annualEnergy / 1000))}
+                                      {(
+                                        energyCalc5Years.annualEnergy / 1000
+                                      ).toFixed(1)}
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       MWh/ano
@@ -2234,7 +2250,10 @@ const FeasibilityAnalysis = () => {
                                       💧 <strong>Produção Diária:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {formatNumber(Math.round(energyCalc5Years.dailyH2Production))} kg/dia
+                                      {energyCalc5Years.dailyH2Production.toFixed(
+                                        1
+                                      )}{" "}
+                                      kg/dia
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
                                       <strong>Consumo eletrolisador:</strong> 65
@@ -2251,11 +2270,14 @@ const FeasibilityAnalysis = () => {
                                       📊 <strong>Produção Anual:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {formatNumber(Math.round(energyCalc5Years.annualH2Production))} kg/ano
+                                      {energyCalc5Years.annualH2Production.toFixed(
+                                        1
+                                      )}{" "}
+                                      ton/ano
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
                                       <strong>Fórmula:</strong> H₂ (kg) = E
-                                      <sub>disponível</sub> × η / 65 kWh/kg
+                                      <sub>disponível</sub> / 50 kWh/kg
                                     </p>
                                   </Card>
                                 </div>
@@ -2717,7 +2739,8 @@ const FeasibilityAnalysis = () => {
                                     </span>
                                   </div>
                                   <p className="text-3xl font-bold text-slate-900">
-                                    R$ {formatNumber(simulationResults.oneYear.lcoh, 2)}
+                                    R${" "}
+                                    {simulationResults.oneYear.lcoh.toFixed(2)}
                                   </p>
                                   <p className="text-xs text-slate-600 mt-1">
                                     por kg de H₂
@@ -2739,7 +2762,10 @@ const FeasibilityAnalysis = () => {
                                     </span>
                                   </div>
                                   <p className="text-3xl font-bold text-slate-900">
-                                    {formatNumber(simulationResults.oneYear.capacityFactor, 1)}%
+                                    {simulationResults.oneYear.capacityFactor.toFixed(
+                                      1
+                                    )}
+                                    %
                                   </p>
                                   <p className="text-xs text-slate-600 mt-1">
                                     Eficiência operacional
@@ -2763,7 +2789,9 @@ const FeasibilityAnalysis = () => {
                                     </span>
                                   </div>
                                   <p className="text-3xl font-bold text-slate-900">
-                                    {formatNumber(Math.round(simulationResults.oneYear.h2Production))}
+                                    {simulationResults.oneYear.h2Production.toFixed(
+                                      2
+                                    )}
                                   </p>
                                   <p className="text-xs text-slate-600 mt-1">
                                     kg H₂/ano
@@ -2778,7 +2806,14 @@ const FeasibilityAnalysis = () => {
                                     </span>
                                   </div>
                                   <p className="text-3xl font-bold text-slate-900">
-                                    {formatCurrency(Math.round(simulationResults.oneYear.h2Production * 25))}
+                                    R${" "}
+                                    {(
+                                      simulationResults.oneYear.h2Production *
+                                      25
+                                    ).toLocaleString("pt-BR", {
+                                      minimumFractionDigits: 0,
+                                      maximumFractionDigits: 0,
+                                    })}
                                   </p>
                                   <p className="text-xs text-slate-600 mt-1">
                                     Por ano (R$ 25/kg H₂)
@@ -3248,7 +3283,7 @@ const FeasibilityAnalysis = () => {
                         <AccordionContent className="px-6 pb-6">
                           <Tabs
                             value={scenario}
-                            onValueChange={(v) => setScenario(v as "1" | "3" | "5")}
+                            onValueChange={(v) => setScenario(v)}
                             className="w-full"
                           >
                             <TabsList className="relative grid w-full grid-cols-3 mb-6 bg-gradient-to-r from-emerald-100 to-teal-100 p-1 h-[50px] rounded-xl border border-emerald-200 shadow-sm overflow-hidden">
@@ -3378,21 +3413,26 @@ const FeasibilityAnalysis = () => {
                                 {/* Produção e Escala */}
                                 <div className="flex items-start space-x-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
                                   <BarChart3 className="w-5 h-5 text-blue-600 mt-0.5" />
-                                <div>
+                                  <div>
                                     <h3 className="font-semibold text-slate-900 mb-1">
                                       Produção e Escala
                                     </h3>
                                     <p className="text-sm text-slate-700">
                                       Produção anual estimada de{" "}
-                                      {formatNumber(Math.round(simulationResults.oneYear.h2Production))}{" "}
+                                      {(
+                                        simulationResults.oneYear.h2Production /
+                                        1000
+                                      ).toFixed(2)}{" "}
                                       kg de H₂ verde no cenário de 100 kW.
                                       Potencial de expansão para{" "}
-                                      {formatNumber(Math.round(simulationResults.fiveYears!.h2Production))}{" "}
+                                      {simulationResults.fiveYears!.h2Production.toFixed(
+                                        2
+                                      )}{" "}
                                       kg/ano com eletrolisador de 500 kW.
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
                                       💡 Projeto adequado para fase piloto.
-                                      Escala comercial típica: 10.000–50.000 kg/ano.
+                                      Escala comercial típica: 10–50 mil kg/ano.
                                     </p>
                                   </div>
                                 </div>
@@ -4138,67 +4178,64 @@ const FeasibilityAnalysis = () => {
 
               {/* Tipologias Regionais - Accordion (apenas após escolhas) */}
               {selectedRegion || selectedEstado || selectedMicrorregiao ? (
-                <>
-                  <Accordion
-                    type="multiple"
-                    defaultValue={["tipologias"]}
-                    className="mb-4"
-                  >
-                    <AccordionItem value="tipologias" className="border-none">
-                      <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden">
-                        <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-emerald-50/50 transition-colors">
-                          <div className="flex items-center space-x-3 w-full">
-                            <Zap className="w-6 h-6 text-emerald-600" />
-                            <h2 className="text-2xl font-bold text-slate-900">
-                              Tipologias Regionais
-                            </h2>
-                            <Badge className="ml-auto bg-blue-100 text-blue-800 border-blue-300">
-                              {selectedRegion || "—"}
-                            </Badge>
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent className="px-6 pb-6">
-                          <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-4">
-                            {getTechnologyFactors(
-                              selectedRegion || "Nordeste"
-                            ).map((tech, tIndex) => (
-                              <div
-                                key={`tech-${tIndex}`}
-                                className="p-4 rounded-lg border hover:shadow-sm transition-shadow"
-                              >
-                                <div className="flex items-center space-x-3 mb-3">
-                                  <tech.icon className="w-5 h-5 text-emerald-600" />
-                                  <h3 className="font-semibold text-slate-900">
-                                    {tech.title}
-                                  </h3>
-                                </div>
-                                <div className="grid grid-cols-1 gap-2">
-                                  {tech.factors.map((f, fIndex: number) => (
-                                    <div
-                                      key={`f-${tIndex}-${fIndex}`}
-                                      className="flex items-center justify-between"
-                                    >
-                                      <span className="text-sm text-slate-700">
-                                        {f.label}
-                                      </span>
-                                      <Badge
-                                        variant="outline"
-                                        className={getPriorityColor(f.status)}
-                                      >
-                                        {f.value}
-                                      </Badge>
-                                    </div>
-                                  ))}
-                                </div>
+                <Accordion
+                  type="multiple"
+                  defaultValue={["tipologias"]}
+                  className="mb-4"
+                >
+                  <AccordionItem value="tipologias" className="border-none">
+                    <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden">
+                      <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-emerald-50/50 transition-colors">
+                        <div className="flex items-center space-x-3 w-full">
+                          <Zap className="w-6 h-6 text-emerald-600" />
+                          <h2 className="text-2xl font-bold text-slate-900">
+                            Tipologias Regionais
+                          </h2>
+                          <Badge className="ml-auto bg-blue-100 text-blue-800 border-blue-300">
+                            {selectedRegion || "—"}
+                          </Badge>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="px-6 pb-6">
+                        <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-4">
+                          {getTechnologyFactors(
+                            selectedRegion || "Nordeste"
+                          ).map((tech, tIndex) => (
+                            <div
+                              key={`tech-${tIndex}`}
+                              className="p-4 rounded-lg border hover:shadow-sm transition-shadow"
+                            >
+                              <div className="flex items-center space-x-3 mb-3">
+                                <tech.icon className="w-5 h-5 text-emerald-600" />
+                                <h3 className="font-semibold text-slate-900">
+                                  {tech.title}
+                                </h3>
                               </div>
-                            ))}
-                          </div>
-                        </AccordionContent>
-                      </Card>
-                    </AccordionItem>
-                  </Accordion>
-                  {/* Áreas de Proteção Ambiental movidas para `ProtectedAreasCard` component. */}
-                </>
+                              <div className="grid grid-cols-1 gap-2">
+                                {tech.factors.map((f, fIndex: number) => (
+                                  <div
+                                    key={`f-${tIndex}-${fIndex}`}
+                                    className="flex items-center justify-between"
+                                  >
+                                    <span className="text-sm text-slate-700">
+                                      {f.label}
+                                    </span>
+                                    <Badge
+                                      variant="outline"
+                                      className={getPriorityColor(f.status)}
+                                    >
+                                      {f.value}
+                                    </Badge>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </AccordionContent>
+                    </Card>
+                  </AccordionItem>
+                </Accordion>
               ) : (
                 <div className="mb-4 text-sm text-slate-500 italic">
                   Selecione filtros regionais para exibir as Tipologias
