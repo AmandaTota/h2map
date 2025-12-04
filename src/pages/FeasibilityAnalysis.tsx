@@ -4277,56 +4277,63 @@ const FeasibilityAnalysis = () => {
                         {(() => {
                           const scores = getEstadoViability(selectedEstado);
                           return (
-                            <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-4">
-                              <div className="p-4 rounded-lg border border-amber-200 bg-amber-50/50">
-                                <div className="flex items-center space-x-2 mb-2">
-                                  <Sun className="w-5 h-5 text-amber-600" />
-                                  <span className="font-semibold text-slate-900">
-                                    Solar
-                                  </span>
-                                </div>
-                                <div className="mt-2">
-                                  <div className="text-3xl font-bold text-amber-700">
-                                    {scores.solar}
+                            <>
+                              <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-4">
+                                <div className="p-4 rounded-lg border border-amber-200 bg-amber-50/50">
+                                  <div className="flex items-center space-x-2 mb-2">
+                                    <Sun className="w-5 h-5 text-amber-600" />
+                                    <span className="font-semibold text-slate-900">
+                                      Solar
+                                    </span>
                                   </div>
-                                  <div className="text-xs text-slate-600 mt-1">
-                                    Pontuação de viabilidade
+                                  <div className="mt-2">
+                                    <div className="text-3xl font-bold text-amber-700">
+                                      {scores.solar}
+                                    </div>
+                                    <div className="text-xs text-slate-600 mt-1">
+                                      Pontuação de viabilidade
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="p-4 rounded-lg border border-sky-200 bg-sky-50/50">
+                                  <div className="flex items-center space-x-2 mb-2">
+                                    <Wind className="w-5 h-5 text-sky-600" />
+                                    <span className="font-semibold text-slate-900">
+                                      Eólica
+                                    </span>
+                                  </div>
+                                  <div className="mt-2">
+                                    <div className="text-3xl font-bold text-sky-700">
+                                      {scores.wind}
+                                    </div>
+                                    <div className="text-xs text-slate-600 mt-1">
+                                      Pontuação de viabilidade
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="p-4 rounded-lg border border-emerald-200 bg-emerald-50/50">
+                                  <div className="flex items-center space-x-2 mb-2">
+                                    <Zap className="w-5 h-5 text-emerald-600" />
+                                    <span className="font-semibold text-slate-900">
+                                      Hidrogênio Verde
+                                    </span>
+                                  </div>
+                                  <div className="mt-2">
+                                    <div className="text-3xl font-bold text-emerald-700">
+                                      {scores.h2}
+                                    </div>
+                                    <div className="text-xs text-slate-600 mt-1">
+                                      Pontuação de viabilidade
+                                    </div>
                                   </div>
                                 </div>
                               </div>
-                              <div className="p-4 rounded-lg border border-sky-200 bg-sky-50/50">
-                                <div className="flex items-center space-x-2 mb-2">
-                                  <Wind className="w-5 h-5 text-sky-600" />
-                                  <span className="font-semibold text-slate-900">
-                                    Eólica
-                                  </span>
-                                </div>
-                                <div className="mt-2">
-                                  <div className="text-3xl font-bold text-sky-700">
-                                    {scores.wind}
-                                  </div>
-                                  <div className="text-xs text-slate-600 mt-1">
-                                    Pontuação de viabilidade
-                                  </div>
-                                </div>
+                              <div className="mt-4 pt-4 border-t border-emerald-100">
+                                <p className="text-xs text-slate-500 italic text-center">
+                                  * As notas são ponderadas de 0 a 100, sendo 100 a maior nota de viabilidade.
+                                </p>
                               </div>
-                              <div className="p-4 rounded-lg border border-emerald-200 bg-emerald-50/50">
-                                <div className="flex items-center space-x-2 mb-2">
-                                  <Zap className="w-5 h-5 text-emerald-600" />
-                                  <span className="font-semibold text-slate-900">
-                                    Hidrogênio Verde
-                                  </span>
-                                </div>
-                                <div className="mt-2">
-                                  <div className="text-3xl font-bold text-emerald-700">
-                                    {scores.h2}
-                                  </div>
-                                  <div className="text-xs text-slate-600 mt-1">
-                                    Pontuação de viabilidade
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
+                            </>
                           );
                         })()}
                       </AccordionContent>
@@ -4362,56 +4369,63 @@ const FeasibilityAnalysis = () => {
                             selectedMicrorregiaoNome
                           );
                           return (
-                            <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-4">
-                              <div className="p-4 rounded-lg border border-amber-200 bg-amber-50/50">
-                                <div className="flex items-center space-x-2 mb-2">
-                                  <Sun className="w-5 h-5 text-amber-600" />
-                                  <span className="font-semibold text-slate-900">
-                                    Solar
-                                  </span>
-                                </div>
-                                <div className="mt-2">
-                                  <div className="text-3xl font-bold text-amber-700">
-                                    {scores.solar}
+                            <>
+                              <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-4">
+                                <div className="p-4 rounded-lg border border-amber-200 bg-amber-50/50">
+                                  <div className="flex items-center space-x-2 mb-2">
+                                    <Sun className="w-5 h-5 text-amber-600" />
+                                    <span className="font-semibold text-slate-900">
+                                      Solar
+                                    </span>
                                   </div>
-                                  <div className="text-xs text-slate-600 mt-1">
-                                    Pontuação de viabilidade
+                                  <div className="mt-2">
+                                    <div className="text-3xl font-bold text-amber-700">
+                                      {scores.solar}
+                                    </div>
+                                    <div className="text-xs text-slate-600 mt-1">
+                                      Pontuação de viabilidade
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="p-4 rounded-lg border border-sky-200 bg-sky-50/50">
+                                  <div className="flex items-center space-x-2 mb-2">
+                                    <Wind className="w-5 h-5 text-sky-600" />
+                                    <span className="font-semibold text-slate-900">
+                                      Eólica
+                                    </span>
+                                  </div>
+                                  <div className="mt-2">
+                                    <div className="text-3xl font-bold text-sky-700">
+                                      {scores.wind}
+                                    </div>
+                                    <div className="text-xs text-slate-600 mt-1">
+                                      Pontuação de viabilidade
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="p-4 rounded-lg border border-emerald-200 bg-emerald-50/50">
+                                  <div className="flex items-center space-x-2 mb-2">
+                                    <Zap className="w-5 h-5 text-emerald-600" />
+                                    <span className="font-semibold text-slate-900">
+                                      Hidrogênio Verde
+                                    </span>
+                                  </div>
+                                  <div className="mt-2">
+                                    <div className="text-3xl font-bold text-emerald-700">
+                                      {scores.h2}
+                                    </div>
+                                    <div className="text-xs text-slate-600 mt-1">
+                                      Pontuação de viabilidade
+                                    </div>
                                   </div>
                                 </div>
                               </div>
-                              <div className="p-4 rounded-lg border border-sky-200 bg-sky-50/50">
-                                <div className="flex items-center space-x-2 mb-2">
-                                  <Wind className="w-5 h-5 text-sky-600" />
-                                  <span className="font-semibold text-slate-900">
-                                    Eólica
-                                  </span>
-                                </div>
-                                <div className="mt-2">
-                                  <div className="text-3xl font-bold text-sky-700">
-                                    {scores.wind}
-                                  </div>
-                                  <div className="text-xs text-slate-600 mt-1">
-                                    Pontuação de viabilidade
-                                  </div>
-                                </div>
+                              <div className="mt-4 pt-4 border-t border-teal-100">
+                                <p className="text-xs text-slate-500 italic text-center">
+                                  * As notas são ponderadas de 0 a 100, sendo 100 a maior nota de viabilidade.
+                                </p>
                               </div>
-                              <div className="p-4 rounded-lg border border-emerald-200 bg-emerald-50/50">
-                                <div className="flex items-center space-x-2 mb-2">
-                                  <Zap className="w-5 h-5 text-emerald-600" />
-                                  <span className="font-semibold text-slate-900">
-                                    Hidrogênio Verde
-                                  </span>
-                                </div>
-                                <div className="mt-2">
-                                  <div className="text-3xl font-bold text-emerald-700">
-                                    {scores.h2}
-                                  </div>
-                                  <div className="text-xs text-slate-600 mt-1">
-                                    Pontuação de viabilidade
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
+                            </>
                           );
                         })()}
                       </AccordionContent>
@@ -4565,6 +4579,11 @@ const FeasibilityAnalysis = () => {
                                 </div>
                               </div>
                             ))}
+                            <div className="mt-4 pt-4 border-t border-emerald-100">
+                              <p className="text-xs text-slate-500 italic text-center">
+                                * As notas são ponderadas de 0 a 100, sendo 100 a maior nota de viabilidade.
+                              </p>
+                            </div>
                           </div>
                         );
                       })()}
@@ -4775,6 +4794,11 @@ const FeasibilityAnalysis = () => {
                                     </div>
                                   </div>
                                 ))}
+                                <div className="mt-4 pt-4 border-t border-emerald-100">
+                                  <p className="text-xs text-slate-500 italic text-center">
+                                    * As notas são ponderadas de 0 a 100, sendo 100 a maior nota de viabilidade.
+                                  </p>
+                                </div>
                               </div>
                             );
                           })()}
