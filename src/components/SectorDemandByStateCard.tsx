@@ -333,7 +333,7 @@ function ForecastCard({ estado }: { estado: string }) {
         <div className="flex items-end">
           <div className="text-right w-full pb-2">
             <p className="text-sm text-slate-600 mb-1">
-              Total {scope === "estado" ? "ano" : "região"}
+              Total {scope === "estado" ? "estado/ano" : "região/ano"}
             </p>
             <p className="text-lg font-bold text-slate-900">
               {(series[year] || 0).toFixed(1)} kt
