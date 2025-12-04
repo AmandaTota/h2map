@@ -12,6 +12,7 @@ import ImportMunicipalities from "./pages/ImportMunicipalities";
 import Informacoes from "./pages/Informacoes";
 import NotFound from "./pages/NotFound";
 import Previsao from "./pages/Previsao";
+import H2DemandSliders from "./pages/H2DemandSliders";
 {
   /*import Auth from "./pages/Auth";*/
 }
@@ -27,6 +28,7 @@ function App() {
         <Route path="/previsao" element={<Previsao />} />
         <Route path="/statistics" element={<Statistics />} />
         <Route path="/feasibility" element={<FeasibilityAnalysis />} />
+        <Route path="/h2-demand-sliders" element={<H2DemandSliders />} />
         <Route
           path="/import-municipalities"
           element={<ImportMunicipalities />}

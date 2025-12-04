@@ -40,6 +40,8 @@ import Navigation from "@/components/Navigation";
 import LocationSearch from "@/components/LocationSearch";
 import RegionFilters from "@/components/RegionFilters";
 import Map from "@/components/Map";
+import SectorDemandByStateCard from "@/components/SectorDemandByStateCard";
+// LayerControls removed — layers no longer toggled per-map
 import { useLocationStore } from "@/store/locationStore";
 import { supabase } from "@/integrations/supabase/client";
 import { format, subDays } from "date-fns";
@@ -4176,6 +4178,13 @@ const FeasibilityAnalysis = () => {
                 </div>
               </Card>
 
+              {/* Demanda setorial por estado (qualitativa) - mostra quando um estado ou 'all' estiver selecionado */}
+              {selectedEstado && (
+                <SectorDemandByStateCard
+                  estado={selectedEstado}
+                  estadoNome={selectedEstadoNome}
+                />
+              )}
               {/* Tipologias Regionais - Accordion (apenas após escolhas) */}
               {selectedRegion || selectedEstado || selectedMicrorregiao ? (
                 <Accordion

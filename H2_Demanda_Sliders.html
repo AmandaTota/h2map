@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>H2Maps • Demanda de H₂ por UF e Setor (2025–2050) • Versão com Sliders</title>
+<style>
+  :root{
+    --bg:#0b1220; --card:#111a2c; --ink:#e7efff; --muted:#a9b6d1; --accent:#41c9a8; --accent2:#4ea1ff; --warn:#ffb454;
+  }
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+  header{padding:16px 20px;border-bottom:1px solid #1f2a44}
+  h1{font-size:20px;margin:0 0 4px 0}
+  h2{font-size:16px;margin:16px 0 8px}
+  .wrap{display:grid;grid-template-columns:320px 1fr;gap:16px; padding:16px}
+  .panel{background:var(--card);border:1px solid #1e2a46;border-radius:10px;padding:14px}
+  label{display:block;font-size:12px;color:var(--muted);margin:10px 0 6px}
+  input[type=range]{width:100%}
+  .row{display:grid;grid-template-columns:1fr 70px;gap:8px;align-items:center}
+  .badge{display:inline-block;padding:2px 8px;border-radius:20px;background:#1a253e;color:#cfe1ff;font-size:11px;margin-left:8px}
+  select, input[type=number]{width:100%;padding:6px 8px;border-radius:8px;border:1px solid #2a2f48;background:#0f1830;color:var(--ink)}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .grid-r{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+  .kpi{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
+  .kpi strong{font-size:18px}
+  canvas{background:#0e162b;border:1px solid #223056;border-radius:10px}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}
+  th,td{border-bottom:1px solid #223056;padding:6px 8px;text-align:left}
+  th{color:#b9c7e8}
+  .btn{display:inline-block;margin-top:10px;padding:8px 12px;border-radius:8px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#0a1020;font-weight:600;border:none;cursor:pointer}
+  .note{font-size:12px;color:#9eb0d6;margin-top:8px}
+  footer{padding:10px 16px;border-top:1px solid #1f2a44;color:#9fb2d9;font-size:12px}
+  .inline{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+</style>
+</head>
+<body>
+<header>
+  <h1>H2Maps • Demanda de H₂ por UF e Setor (2025–2050) <span class="badge">versão com sliders • offline</span></h1>
+  <div class="note">Ajuste metas nacionais, participação setorial e vieses regionais. A alocação por UF usa pesos setoriais calibrados por ativos (refino, fertilizantes, siderurgia, mobilidade). Tudo roda no navegador, sem dependências externas.</div>
+</header>
+<div class="wrap">
+  <section class="panel" id="controls">
+    <h2>1) Cenário & Totais Brasil</h2>
+    <div class="row">
+      <label>Escolha o cenário</label>
+      <select id="scenario">
+        <option value="Base">Base (take-off → consolidação)</option>
+        <option value="Aceleracao">Aceleração (compatível com Net-Zero)</option>
+      </select>
+    </div>
+    <div class="grid-2">
+      <div>
+        <label>Total Brasil 2030 (Mt) <span id="mt2030"></span></label>
+        <input type="range" id="total2030" min="0.5" max="6" step="0.1" value="1.5"/>
+      </div>
+      <div>
+        <label>Total Brasil 2050 (Mt) <span id="mt2050"></span></label>
+        <input type="range" id="total2050" min="2" max="30" step="0.5" value="8"/>
+      </div>
+    </div>
+
+    <h2>2) Participação setorial (%)</h2>
+    <div class="note">A soma é normalizada para 100%. Você pode propor perfis distintos para 2030 e 2050.</div>
+    <div class="grid-4">
+      <div>
+        <label>2030 Refino <span id="s2030_ref"></span></label>
+        <input type="range" id="s2030_refino" min="0" max="70" step="1" value="30"/>
+      </div>
+      <div>
+        <label>2030 Fertilizantes <span id="s2030_fert"></span></label>
+        <input type="range" id="s2030_fert" min="0" max="70" step="1" value="40"/>
+      </div>
+      <div>
+        <label>2030 Siderurgia <span id="s2030_sid"></span></label>
+        <input type="range" id="s2030_sid" min="0" max="70" step="1" value="25"/>
+      </div>
+      <div>
+        <label>2030 Mobilidade <span id="s2030_mob"></span></label>
+        <input type="range" id="s2030_mob" min="0" max="40" step="1" value="5"/>
+      </div>
+    </div>
+    <div class="grid-4">
+      <div>
+        <label>2050 Refino <span id="s2050_ref"></span></label>
+        <input type="range" id="s2050_refino" min="0" max="50" step="1" value="25"/>
+      </div>
+      <div>
+        <label>2050 Fertilizantes <span id="s2050_fert"></span></label>
+        <input type="range" id="s2050_fert" min="0" max="60" step="1" value="35"/>
+      </div>
+      <div>
+        <label>2050 Siderurgia <span id="s2050_sid"></span></label>
+        <input type="range" id="s2050_sid" min="0" max="70" step="1" value="30"/>
+      </div>
+      <div>
+        <label>2050 Mobilidade <span id="s2050_mob"></span></label>
+        <input type="range" id="s2050_mob" min="0" max="30" step="1" value="10"/>
+      </div>
+    </div>
+
+    <h2>3) Vieses regionais (multiplicadores)</h2>
+    <div class="note">Ajuste o peso relativo das regiões. Valores multiplicam os pesos por UF (padrão = 1,00).</div>
+    <div class="grid-r">
+      <div>
+        <label>Norte <span id="rN"></span></label>
+        <input type="range" id="biasN" min="0.5" max="1.5" step="0.05" value="1.0"/>
+      </div>
+      <div>
+        <label>Nordeste <span id="rNE"></span></label>
+        <input type="range" id="biasNE" min="0.5" max="1.5" step="0.05" value="1.0"/>
+      </div>
+      <div>
+        <label>Centro-Oeste <span id="rCO"></span></label>
+        <input type="range" id="biasCO" min="0.5" max="1.5" step="0.05" value="1.0"/>
+      </div>
+      <div>
+        <label>Sudeste <span id="rSE"></span></label>
+        <input type="range" id="biasSE" min="0.5" max="1.5" step="0.05" value="1.0"/>
+      </div>
+      <div>
+        <label>Sul <span id="rS"></span></label>
+        <input type="range" id="biasS" min="0.5" max="1.5" step="0.05" value="1.0"/>
+      </div>
+    </div>
+
+    <h2>4) Visualização</h2>
+    <div class="grid-2">
+      <div>
+        <label>Ano <span id="yearLbl"></span></label>
+        <input type="range" id="year" min="2025" max="2050" step="1" value="2030"/>
+      </div>
+      <div>
+        <label>Setor</label>
+        <select id="sector">
+          <option>Refino</option>
+          <option>Fertilizantes</option>
+          <option>Siderurgia</option>
+          <option>Mobilidade</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn" id="exportCsv">Exportar CSV (parâmetros atuais)</button>
+    <div class="note">Dica: incorpore este HTML na landing do H2Maps (sem dependências). Você pode versionar os presets de cenário alterando os valores padrão acima.</div>
+  </section>
+
+  <section class="panel">
+    <div class="kpi">
+      <div>
+        <h2>Demanda nacional (kt H₂/ano)</h2>
+        <div class="inline"><div>Total <strong id="totalNow">–</strong></div><div class="badge">por cenário & sliders</div></div>
+      </div>
+      <div style="text-align:right">
+        <div>Refino: <strong id="kRef">–</strong></div>
+        <div>Fertilizantes: <strong id="kFert">–</strong></div>
+        <div>Siderurgia: <strong id="kSid">–</strong></div>
+        <div>Mobilidade: <strong id="kMob">–</strong></div>
+      </div>
+    </div>
+    <canvas id="chart" width="900" height="340"></canvas>
+    <h2>Top 10 UFs – <span id="titleUF"></span></h2>
+    <table id="tbl"><thead><tr><th>#</th><th>UF</th><th>Região</th><th>Demanda (kt)</th></tr></thead><tbody></tbody></table>
+  </section>
+</div>
+<footer>
+  Fontes de calibração qualitativa: ANP (refino), EPE (Fact Sheet H₂), Instituto Aço Brasil/FIESP (siderurgia), MDIC/Petrobras/Unigel (fertilizantes), EMTU/USP e Neoenergia/Honda (mobilidade). Este simulador gera cenários para planejamento — não são medições oficiais.
+</footer>
+
+<script>
+const ufs = ["SP","RJ","MG","ES","BA","SE","PR","RS","PE","CE","AM","MS","DF"];
+const regions = {SP:"SE", RJ:"SE", MG:"SE", ES:"SE", BA:"NE", SE:"NE", PE:"NE", CE:"NE", PR:"S", RS:"S", AM:"N", MS:"CO", DF:"CO"};
+const sectors = ["Refino","Fertilizantes","Siderurgia","Mobilidade"];
+
+// Pesos setoriais por UF (derivados de ativos) – baseline
+const weights = {
+  Refino:{SP:1.0,RJ:1.0,MG:0.6,ES:0.2,BA:1.0,SE:0.2,PR:1.0,RS:1.0,PE:1.0,CE:0.6,AM:0.6,MS:0.2,DF:0.2},
+  Fertilizantes:{SP:0.6,RJ:0.2,MG:0.6,ES:0.2,BA:1.0,SE:1.0,PR:1.0,RS:0.2,PE:0.6,CE:0.6,AM:0.2,MS:1.0,DF:0.2},
+  Siderurgia:{SP:1.0,RJ:1.0,MG:1.0,ES:1.0,BA:0.6,SE:0.2,PR:0.6,RS:0.6,PE:0.2,CE:0.6,AM:0.2,MS:0.2,DF:0.2},
+  Mobilidade:{SP:1.2,RJ:0.8,MG:0.2,ES:0.2,BA:0.2,SE:0.2,PR:0.2,RS:0.2,PE:0.2,CE:0.2,AM:0.2,MS:0.2,DF:1.2}
+};
+
+// Baselines 2025 (kt, Brasil)
+const baseline2025 = {Refino:480, Fertilizantes:224, Siderurgia:88, Mobilidade:8};
+
+// Presets de cenário (padrão; o usuário altera via sliders)
+const presets = {
+  Base : { total2030:1500, total2050:8000,
+           s2030:{Refino:30,Fertilizantes:40,Siderurgia:25,Mobilidade:5},
+           s2050:{Refino:25,Fertilizantes:35,Siderurgia:30,Mobilidade:10}},
+  Aceleracao : { total2030:4000, total2050:20000,
+           s2030:{Refino:28,Fertilizantes:35,Siderurgia:30,Mobilidade:7},
+           s2050:{Refino:20,Fertilizantes:30,Siderurgia:40,Mobilidade:10}}
+};
+
+function normShares(obj){
+  const sum = Object.values(obj).reduce((a,b)=>a+b,0) || 1;
+  const out = {}; sectors.forEach(s=> out[s] = (obj[s]/sum));
+  return out; // frações (0..1)
+}
+
+function piecewiseSeries(v2025, v2030, v2050){
+  const years = Array.from({length:26},(_,i)=>2025+i);
+  const cagr1 = Math.pow(v2030/Math.max(v2025,1e-6), 1/5) - 1;
+  const cagr2 = Math.pow(v2050/Math.max(v2030,1e-6), 1/20) - 1;
+  const yval = {};
+  years.forEach(y=>{
+    if(y<=2030) yval[y] = v2025 * Math.pow(1+cagr1, y-2025);
+    else yval[y] = v2030 * Math.pow(1+cagr2, y-2030);
+  });
+  return yval;
+}
+
+function compute(){
+  // ler UI
+  const scenario = document.getElementById('scenario').value;
+  let total2030 = parseFloat(document.getElementById('total2030').value)*1000; // converter Mt -> kt
+  let total2050 = parseFloat(document.getElementById('total2050').value)*1000;
+  const s2030 = {Refino: +document.getElementById('s2030_refino').value,
+                 Fertilizantes:+document.getElementById('s2030_fert').value,
+                 Siderurgia:+document.getElementById('s2030_sid').value,
+                 Mobilidade:+document.getElementById('s2030_mob').value};
+  const s2050 = {Refino: +document.getElementById('s2050_refino').value,
+                 Fertilizantes:+document.getElementById('s2050_fert').value,
+                 Siderurgia:+document.getElementById('s2050_sid').value,
+                 Mobilidade:+document.getElementById('s2050_mob').value};
+  const f2030 = normShares(s2030); // frações
+  const f2050 = normShares(s2050);
+
+  // Atualizar labels
+  document.getElementById('mt2030').textContent = `→ ${ (total2030/1000).toFixed(1)} Mt`;
+  document.getElementById('mt2050').textContent = `→ ${ (total2050/1000).toFixed(1)} Mt`;
+  document.getElementById('s2030_ref').textContent = `${s2030.Refino}%`;
+  document.getElementById('s2030_fert').textContent = `${s2030.Fertilizantes}%`;
+  document.getElementById('s2030_sid').textContent = `${s2030.Siderurgia}%`;
+  document.getElementById('s2030_mob').textContent = `${s2030.Mobilidade}%`;
+  document.getElementById('s2050_ref').textContent = `${s2050.Refino}%`;
+  document.getElementById('s2050_fert').textContent = `${s2050.Fertilizantes}%`;
+  document.getElementById('s2050_sid').textContent = `${s2050.Siderurgia}%`;
+  document.getElementById('s2050_mob').textContent = `${s2050.Mobilidade}%`;
+
+  // vieses regionais
+  const bias = {N:+document.getElementById('biasN').value,
+                NE:+document.getElementById('biasNE').value,
+                CO:+document.getElementById('biasCO').value,
+                SE:+document.getElementById('biasSE').value,
+                S:+document.getElementById('biasS').value};
+  document.getElementById('rN').textContent = `× ${bias.N.toFixed(2)}`;
+  document.getElementById('rNE').textContent = `× ${bias.NE.toFixed(2)}`;
+  document.getElementById('rCO').textContent = `× ${bias.CO.toFixed(2)}`;
+  document.getElementById('rSE').textContent = `× ${bias.SE.toFixed(2)}`;
+  document.getElementById('rS').textContent = `× ${bias.S.toFixed(2)}`;
+
+  // Totais setoriais 2030/2050
+  const targ2030 = {}, targ2050 = {};
+  sectors.forEach(s=>{
+    targ2030[s] = total2030 * f2030[s];
+    targ2050[s] = total2050 * f2050[s];
+  });
+
+  // Séries por setor (kt)
+  const series = {}; // series[setor][ano] = kt
+  sectors.forEach(s=>{
+    series[s] = piecewiseSeries(baseline2025[s], targ2030[s], targ2050[s]);
+  });
+
+  // Alocação por UF com vieses regionais
+  const alloc = {}; // alloc[setor][ano][uf] = kt
+  sectors.forEach(s=>{
+    alloc[s] = {};
+    // construir shares ajustados por região
+    const sh = {};
+    let sumW = 0;
+    ufs.forEach(uf=>{ const w = weights[s][uf] * bias[regions[uf]]; sh[uf]=w; sumW+=w; });
+    ufs.forEach(uf=> sh[uf] = sh[uf]/sumW );
+
+    Object.keys(series[s]).forEach(y=>{
+      alloc[s][y] = {};
+      ufs.forEach(uf=>{
+        alloc[s][y][uf] = series[s][y] * sh[uf];
+      });
+    });
+  });
+
+  // UI: ano + setor selecionado
+  const year = +document.getElementById('year').value;
+  const sector = document.getElementById('sector').value;
+  document.getElementById('yearLbl').textContent = year;
+  document.getElementById('titleUF').textContent = `${sector} • ${year}`;
+
+  // KPI nacionais no ano
+  let totalNow=0, kRef=0,kFert=0,kSid=0,kMob=0;
+  ufs.forEach(uf=>{ kRef += alloc.Refino[year][uf]; });
+  ufs.forEach(uf=>{ kFert += alloc.Fertilizantes[year][uf]; });
+  ufs.forEach(uf=>{ kSid += alloc.Siderurgia[year][uf]; });
+  ufs.forEach(uf=>{ kMob += alloc.Mobilidade[year][uf]; });
+  totalNow = kRef + kFert + kSid + kMob;
+  const f = x=> (x).toLocaleString('pt-BR', {maximumFractionDigits:0});
+  document.getElementById('totalNow').textContent = f(totalNow);
+  document.getElementById('kRef').textContent = f(kRef);
+  document.getElementById('kFert').textContent = f(kFert);
+  document.getElementById('kSid').textContent = f(kSid);
+  document.getElementById('kMob').textContent = f(kMob);
+
+  // Tabela top 10 UFs do setor/ano
+  const arr = ufs.map(uf=>({uf, reg:regions[uf], val: alloc[sector][year][uf]}));
+  arr.sort((a,b)=>b.val-a.val);
+  const tb = document.querySelector('#tbl tbody');
+  tb.innerHTML = '';
+  arr.slice(0,10).forEach((r,i)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${i+1}</td><td>${r.uf}</td><td>${r.reg}</td><td>${(r.val).toFixed(1)}</td>`;
+    tb.appendChild(tr);
+  });
+
+  // Chart – top 10 barras simples em canvas
+  drawChart(arr.slice(0,10));
+
+  // export handler
+  document.getElementById('exportCsv').onclick = ()=> exportCsv(alloc);
+}
+
+function drawChart(list){
+  const c = document.getElementById('chart');
+  const ctx = c.getContext('2d');
+  ctx.clearRect(0,0,c.width,c.height);
+  const pad = {l:60,r:20,t:20,b:40};
+  const W=c.width - pad.l - pad.r, H=c.height - pad.t - pad.b;
+  const max = Math.max(...list.map(d=>d.val))*1.15 || 1;
+  const bw = W / list.length * 0.7;
+
+  // axes
+  ctx.strokeStyle = '#2a3a60'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t+H); ctx.lineTo(pad.l+W, pad.t+H); ctx.stroke();
+  ctx.fillStyle = '#bcd1ff'; ctx.font='12px system-ui';
+
+  list.forEach((d,i)=>{
+    const x = pad.l + (i+0.5)*(W/list.length) - bw/2;
+    const h = (d.val/max)*H;
+    const y = pad.t + H - h;
+    const grad = ctx.createLinearGradient(0,y,0,y+h);
+    grad.addColorStop(0,'#41c9a8'); grad.addColorStop(1,'#4ea1ff');
+    ctx.fillStyle = grad; ctx.fillRect(x,y,bw,h);
+
+    ctx.fillStyle='#9fb2d9'; ctx.textAlign='center';
+    ctx.fillText(d.uf, x+bw/2, pad.t+H+16);
+    ctx.fillStyle='#e7efff'; ctx.fillText(d.val.toFixed(0), x+bw/2, y-6);
+  });
+}
+
+function exportCsv(alloc){
+  const years = Array.from({length:26},(_,i)=>2025+i);
+  let rows = ['Ano,UF,Regiao,Setor,Demanda_kt'];
+  years.forEach(y=>{
+    ufs.forEach(uf=>{
+      sectors.forEach(s=>{
+        rows.push([y, uf, regions[uf], s, alloc[s][y][uf].toFixed(3)].join(','));
+      });
+    });
+  });
+  const blob = new Blob([rows.join('\n')], {type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'H2_demanda_UF_setor_'+Date.now()+'.csv';
+  a.click();
+}
+
+// init defaults based on scenario
+function applyScenarioDefaults(){
+  const sc = document.getElementById('scenario').value;
+  const p = presets[sc];
+  document.getElementById('total2030').value = (p.total2030/1000).toFixed(1);
+  document.getElementById('total2050').value = (p.total2050/1000).toFixed(1);
+  document.getElementById('s2030_refino').value = p.s2030.Refino;
+  document.getElementById('s2030_fert').value = p.s2030.Fertilizantes;
+  document.getElementById('s2030_sid').value = p.s2030.Siderurgia;
+  document.getElementById('s2030_mob').value = p.s2030.Mobilidade;
+  document.getElementById('s2050_refino').value = p.s2050.Refino;
+  document.getElementById('s2050_fert').value = p.s2050.Fertilizantes;
+  document.getElementById('s2050_sid').value = p.s2050.Siderurgia;
+  document.getElementById('s2050_mob').value = p.s2050.Mobilidade;
+}
+
+// listeners
+['scenario','total2030','total2050','s2030_refino','s2030_fert','s2030_sid','s2030_mob','s2050_refino','s2050_fert','s2050_sid','s2050_mob','biasN','biasNE','biasCO','biasSE','biasS','year','sector']
+  .forEach(id=> document.addEventListener('input', e=>{ if(e.target.id===id) compute(); }));
+
+document.getElementById('scenario').addEventListener('change', ()=>{applyScenarioDefaults(); compute();});
+
+// boot
+applyScenarioDefaults();
+compute();
+</script>
+</body>
+</html>
