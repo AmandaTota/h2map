@@ -234,7 +234,7 @@ function ForecastCard({ estado }: { estado: string }) {
   };
 
   const [scope, setScope] = useState<"estado" | "regiao">("estado");
-  const [year, setYear] = useState<number>(2030);
+  const [year, setYear] = useState<number>(2025);
   const [scenario, setScenario] = useState<string>("ipea_low");
   const [customKt, setCustomKt] = useState<number | "">("");
   const [isOpen, setIsOpen] = useState(true);
@@ -489,6 +489,7 @@ export default function SectorDemandByStateCard({
 
   const [isForecastOpen, setIsForecastOpen] = useState(true);
   const [isQualitativeOpen, setIsQualitativeOpen] = useState(true);
+  const [isOxygenOpen, setIsOxygenOpen] = useState(true);
 
   return (
     <>
@@ -603,6 +604,87 @@ export default function SectorDemandByStateCard({
                       ))}
                     </div>
                   )}
+                </div>
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </Card>
+
+      <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden mb-4">
+        <Collapsible open={isOxygenOpen} onOpenChange={setIsOxygenOpen}>
+          <CollapsibleTrigger className="w-full">
+            <div className="px-6 py-4 flex items-center hover:bg-slate-50 transition-colors">
+              <FileText className="w-6 h-6 text-emerald-600 mr-3" />
+              <h2 className="text-2xl font-bold text-slate-900">
+                Demanda do Oxigênio Gerado na Produção de Hidrogênio
+              </h2>
+              <Badge className="ml-auto mr-3 bg-emerald-100 text-emerald-800 border-emerald-200">
+                {estado.toUpperCase()}
+                {estadoNome ? ` — ${estadoNome}` : ""}
+              </Badge>
+              <ChevronDown
+                className={`w-5 h-5 text-slate-600 transition-transform duration-200 ${
+                  isOxygenOpen ? "rotate-180" : ""
+                }`}
+              />
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="px-6 pb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="p-3 rounded border bg-white">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-sm font-semibold">Aplicações Médicas</div>
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    <p>Oxigênio medicinal para hospitais e clínicas</p>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded border bg-white">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-sm font-semibold">Processamento Químico</div>
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    <p>Oxidação controlada em síntese química</p>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded border bg-white">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-sm font-semibold">Indústria Metalúrgica</div>
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    <p>Corte e soldagem, tratamento de minérios</p>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded border bg-white">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-sm font-semibold">Tratamento de Efluentes</div>
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    <p>Oxidação biológica e química de resíduos</p>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded border bg-white">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-sm font-semibold">Indústria de Alimentos</div>
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    <p>Esterilização, oxidação controlada em bebidas</p>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded border bg-white">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-sm font-semibold">Combustão Aprimorada</div>
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    <p>Queimadores de alta eficiência</p>
+                  </div>
                 </div>
               </div>
             </div>
