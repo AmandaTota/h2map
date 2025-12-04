@@ -1,7 +1,12 @@
 import React, { useMemo, useState } from "react";
-import { FileText } from "lucide-react";
+import { FileText, ChevronDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   Select,
   SelectTrigger,
@@ -232,6 +237,7 @@ function ForecastCard({ estado }: { estado: string }) {
   const [year, setYear] = useState<number>(2030);
   const [scenario, setScenario] = useState<string>("ipea_low");
   const [customKt, setCustomKt] = useState<number | "">("");
+  const [isOpen, setIsOpen] = useState(true);
 
   const series = useMemo(() => {
     // helper: compute state's series 2025..2030
@@ -294,35 +300,45 @@ function ForecastCard({ estado }: { estado: string }) {
 
   return (
     <div className="mt-4">
-      <div className="flex items-center gap-3 mb-3">
-        <div className="text-sm">Escopo:</div>
-        <Select value={scope} onValueChange={(v) => setScope(v as any)}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="estado">Estado</SelectItem>
-            <SelectItem value="regiao">Região</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+        <div>
+          <p className="text-sm text-slate-600 mb-2">Escopo</p>
+          <Select value={scope} onValueChange={(v) => setScope(v as any)}>
+            <SelectTrigger className="h-10 bg-white">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="estado">Estado</SelectItem>
+              <SelectItem value="regiao">Região</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-        <div className="text-sm">Ano:</div>
-        <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {years.map((y) => (
-              <SelectItem key={y} value={String(y)}>
-                {y}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div>
+          <p className="text-sm text-slate-600 mb-2">Ano</p>
+          <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
+            <SelectTrigger className="h-10 bg-white">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {years.map((y) => (
+                <SelectItem key={y} value={String(y)}>
+                  {y}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-        <div className="ml-auto text-sm">
-          Total {scope === "estado" ? "ano" : "região"}:{" "}
-          <strong>{(series[year] || 0).toFixed(1)} kt</strong>
+        <div className="flex items-end">
+          <div className="text-right w-full pb-2">
+            <p className="text-sm text-slate-600 mb-1">
+              Total {scope === "estado" ? "ano" : "região"}
+            </p>
+            <p className="text-lg font-bold text-slate-900">
+              {(series[year] || 0).toFixed(1)} kt
+            </p>
+          </div>
         </div>
       </div>
 
@@ -330,19 +346,19 @@ function ForecastCard({ estado }: { estado: string }) {
         <table className="w-full table-fixed text-sm">
           <thead>
             <tr>
-              <th className="w-32 text-left">Ano</th>
-              <th className="text-right">Demanda (kt)</th>
-              <th className="w-48 text-right">Cumulativo até o ano (kt)</th>
+              <th className="w-32 text-center">Ano</th>
+              <th className="text-center">Demanda (kt)</th>
+              <th className="w-48 text-center">Cumulativo até o ano (kt)</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="text-center">
             {years.map((y) => (
               <tr key={y} className={y === year ? "bg-slate-50" : ""}>
                 <td className="py-1">{y}</td>
-                <td className="py-1 text-right">
+                <td className="py-1 text-center">
                   {(series[y] || 0).toFixed(1)}
                 </td>
-                <td className="py-1 text-right">
+                <td className="py-1 text-center">
                   {cumulativeToYear(y).toFixed(1)}
                 </td>
               </tr>
@@ -471,102 +487,127 @@ export default function SectorDemandByStateCard({
     );
   }
 
+  const [isForecastOpen, setIsForecastOpen] = useState(true);
+  const [isQualitativeOpen, setIsQualitativeOpen] = useState(true);
+
   return (
     <>
-      <div className="mb-4">
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium">
-              Previsão da Demanda do Estado até 2030
-            </h3>
-            <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200">
-              {estado.toUpperCase()}
-            </Badge>
-          </div>
-
-          <ForecastCard estado={estado.toUpperCase()} />
-        </Card>
-      </div>
+      <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden mb-4">
+        <Collapsible open={isForecastOpen} onOpenChange={setIsForecastOpen}>
+          <CollapsibleTrigger className="w-full">
+            <div className="px-6 py-4 flex items-center hover:bg-slate-50 transition-colors">
+              <FileText className="w-6 h-6 text-emerald-600 mr-3" />
+              <h2 className="text-2xl font-bold text-slate-900">
+                Previsão da Demanda de H2 de 2025 até 2030
+              </h2>
+              <Badge className="ml-auto mr-3 bg-emerald-100 text-emerald-800 border-emerald-200">
+                {estado.toUpperCase()}
+              </Badge>
+              <ChevronDown
+                className={`w-5 h-5 text-slate-600 transition-transform duration-200 ${
+                  isForecastOpen ? "rotate-180" : ""
+                }`}
+              />
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="px-6 pb-6">
+              <ForecastCard estado={estado.toUpperCase()} />
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </Card>
 
       <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden mb-4">
-        <div className="px-6 py-4 flex items-center">
-          <FileText className="w-6 h-6 text-emerald-600 mr-3" />
-          <h2 className="text-2xl font-bold text-slate-900">
-            Demanda setorial por estado (qualitativa)
-          </h2>
-          <Badge className="ml-auto bg-emerald-100 text-emerald-800 border-emerald-200">
-            {estado.toUpperCase()}
-            {estadoNome ? ` — ${estadoNome}` : ""}
-          </Badge>
-        </div>
-
-        <div className="px-6 pb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div className="p-3 rounded border bg-white">
-              <div className="flex items-center justify-between mb-2">
-                <div className="text-sm font-semibold">Refino</div>
-                <Badge className={getBadgeClass(s.refino.level)}>
-                  {s.refino.level}
-                </Badge>
-              </div>
-              {s.refino.notes && (
-                <div className="text-xs text-slate-500">
-                  {s.refino.notes.map((n, i) => (
-                    <div key={i}>{n}</div>
-                  ))}
-                </div>
-              )}
+        <Collapsible open={isQualitativeOpen} onOpenChange={setIsQualitativeOpen}>
+          <CollapsibleTrigger className="w-full">
+            <div className="px-6 py-4 flex items-center hover:bg-slate-50 transition-colors">
+              <FileText className="w-6 h-6 text-emerald-600 mr-3" />
+              <h2 className="text-2xl font-bold text-slate-900">
+                Demanda Setorial por Estado (Qualitativa)
+              </h2>
+              <Badge className="ml-auto mr-3 bg-emerald-100 text-emerald-800 border-emerald-200">
+                {estado.toUpperCase()}
+                {estadoNome ? ` — ${estadoNome}` : ""}
+              </Badge>
+              <ChevronDown
+                className={`w-5 h-5 text-slate-600 transition-transform duration-200 ${
+                  isQualitativeOpen ? "rotate-180" : ""
+                }`}
+              />
             </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
 
-            <div className="p-3 rounded border bg-white">
-              <div className="flex items-center justify-between mb-2">
-                <div className="text-sm font-semibold">Fertilizantes</div>
-                <Badge className={getBadgeClass(s.fertilizantes.level)}>
-                  {s.fertilizantes.level}
-                </Badge>
-              </div>
-              {s.fertilizantes.notes && (
-                <div className="text-xs text-slate-500">
-                  {s.fertilizantes.notes.map((n, i) => (
-                    <div key={i}>{n}</div>
-                  ))}
+            <div className="px-6 pb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="p-3 rounded border bg-white">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-sm font-semibold">Refino</div>
+                    <Badge className={getBadgeClass(s.refino.level)}>
+                      {s.refino.level}
+                    </Badge>
+                  </div>
+                  {s.refino.notes && (
+                    <div className="text-xs text-slate-500">
+                      {s.refino.notes.map((n, i) => (
+                        <div key={i}>{n}</div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            <div className="p-3 rounded border bg-white">
-              <div className="flex items-center justify-between mb-2">
-                <div className="text-sm font-semibold">Siderurgia</div>
-                <Badge className={getBadgeClass(s.siderurgia.level)}>
-                  {s.siderurgia.level}
-                </Badge>
-              </div>
-              {s.siderurgia.notes && (
-                <div className="text-xs text-slate-500">
-                  {s.siderurgia.notes.map((n, i) => (
-                    <div key={i}>{n}</div>
-                  ))}
+                <div className="p-3 rounded border bg-white">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-sm font-semibold">Fertilizantes</div>
+                    <Badge className={getBadgeClass(s.fertilizantes.level)}>
+                      {s.fertilizantes.level}
+                    </Badge>
+                  </div>
+                  {s.fertilizantes.notes && (
+                    <div className="text-xs text-slate-500">
+                      {s.fertilizantes.notes.map((n, i) => (
+                        <div key={i}>{n}</div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            <div className="p-3 rounded border bg-white">
-              <div className="flex items-center justify-between mb-2">
-                <div className="text-sm font-semibold">Mobilidade</div>
-                <Badge className={getBadgeClass(s.mobilidade.level)}>
-                  {s.mobilidade.level}
-                </Badge>
-              </div>
-              {s.mobilidade.notes && (
-                <div className="text-xs text-slate-500">
-                  {s.mobilidade.notes.map((n, i) => (
-                    <div key={i}>{n}</div>
-                  ))}
+                <div className="p-3 rounded border bg-white">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-sm font-semibold">Siderurgia</div>
+                    <Badge className={getBadgeClass(s.siderurgia.level)}>
+                      {s.siderurgia.level}
+                    </Badge>
+                  </div>
+                  {s.siderurgia.notes && (
+                    <div className="text-xs text-slate-500">
+                      {s.siderurgia.notes.map((n, i) => (
+                        <div key={i}>{n}</div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
+
+                <div className="p-3 rounded border bg-white">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-sm font-semibold">Mobilidade</div>
+                    <Badge className={getBadgeClass(s.mobilidade.level)}>
+                      {s.mobilidade.level}
+                    </Badge>
+                  </div>
+                  {s.mobilidade.notes && (
+                    <div className="text-xs text-slate-500">
+                      {s.mobilidade.notes.map((n, i) => (
+                        <div key={i}>{n}</div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </CollapsibleContent>
+        </Collapsible>
       </Card>
     </>
   );
