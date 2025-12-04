@@ -232,7 +232,6 @@ const RegionFilters = ({
         </div>
 
         <div>
-        <div>
           <p className="text-sm text-slate-600 mb-2">Microrregião</p>
           <Select
             value={selectedMicrorregiao}
@@ -252,6 +251,7 @@ const RegionFilters = ({
             </SelectContent>
           </Select>
         </div>
+      </div>
     </div>
   );
 };
