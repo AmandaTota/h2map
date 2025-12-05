@@ -1,0 +1,238 @@
+{
+    "version": "2025-12-05",
+    "legal_framework": {
+        "laws": [
+            {
+                "id": "14.948/2024",
+                "title": "Marco Legal do Hidrogênio de Baixa Emissão",
+                "source": "https://www.gov.br/mme/pt-br/acesso-a-informacao/legislacao/leis/lei-n-14-948-2024.pdf"
+            },
+            {
+                "id": "14.990/2024",
+                "title": "Programa de Desenvolvimento do Hidrogênio (PHBC) e incentivos",
+                "source": "https://www.gov.br/mme/pt-br/brasil-lider-mundial-na-transicao-energetica/transicao-energetica/marco-legal-do-hidrogenio-de-baixa-emissao-de-carbono"
+            }
+        ],
+        "decree_status": {
+            "status": "anunciado",
+            "date": "2025-11-13",
+            "source": "https://www.gov.br/mme/pt-br/assuntos/noticias/silveira-anuncia-decreto-que-regulamenta-hidrogenio-de-baixa-emissao-de-carbono"
+        },
+        "regulator": {
+            "agency": "ANP",
+            "manual": "https://www.gov.br/anp/pt-br/canais_atendimento/imprensa/noticias-comunicados/hidrogenio-anp-divulga-manual-de-orientacoes-sobre-solicitacao-de-autorizacoes",
+            "cert_threshold_kgco2eq_per_kgH2": 7,
+            "threshold_source": "https://www.gov.br/anp/en/hydrogen"
+        }
+    },
+    "international": {
+        "corridor_netherlands": {
+            "report": "https://www.government.nl/binaries/government/documenten/reports/2025/01/24/green-hydrogen-corridor-between-northeast-brazil-and-the-netherlands/Green-Hydrogen-Corridor-between-Northeast-Brazil-and-the-Netherlands.pdf",
+            "states": [
+                "CE",
+                "PI"
+            ],
+            "2030_supply_vs_demand_percent": 158
+        }
+    },
+    "states": {
+        "AC": {
+            "hub_status": "no_specific_official_hub",
+            "sources": {
+                "epe_painel": "https://www.epe.gov.br/pt/imprensa/noticias/epe-publica-ferramenta-interativa-painel-de-dados-de-potencial-tecnico-de-producao-de-hidrogenio-",
+                "ons_open_data": "https://dados.ons.org.br/dataset/linha-transmissao"
+            }
+        },
+        "AL": {
+            "hub_status": "no_specific_official_hub",
+            "sources": {
+                "epe_painel": "https://www.epe.gov.br/pt/imprensa/noticias/epe-publica-ferramenta-interativa-painel-de-dados-de-potencial-tecnico-de-producao-de-hidrogenio-",
+                "ons_open_data": "https://dados.ons.org.br/dataset/linha-transmissao"
+            }
+        },
+        "AP": {
+            "hub_status": "no_specific_official_hub",
+            "sources": {
+                "epe_painel": "https://www.epe.gov.br/pt/imprensa/noticias/epe-publica-ferramenta-interativa-painel-de-dados-de-potencial-tecnico-de-producao-de-hidrogenio-",
+                "ons_open_data": "https://dados.ons.org.br/dataset/linha-transmissao"
+            }
+        },
+        "AM": {
+            "hub_status": "no_specific_official_hub",
+            "sources": {
+                "epe_painel": "https://www.epe.gov.br/pt/imprensa/noticias/epe-publica-ferramenta-interativa-painel-de-dados-de-potencial-tecnico-de-producao-de-hidrogenio-",
+                "ons_open_data": "https://dados.ons.org.br/dataset/linha-transmissao"
+            }
+        },
+        "BA": {
+            "hub_status": "prioritized_PNH2",
+            "projects": [
+                {
+                    "name": "Projeto estadual de H2V (escala industrial)",
+                    "source": "https://www.bahia.ba.gov.br/2023/01/destaques/b1-destaque-sem-foto/com-investimento-total-de-us-15-bilhao-bahia-tera-primeiro-projeto-de-hidrogenio-verde-em-escala-industrial-no-brasil/"
+                }
+            ],
+            "grid": {
+                "par_pel_investment_brl_billion": 13.6,
+                "source": "https://www.ons.org.br/Paginas/Noticias/20230102-ONS-divulga-os-resultados-do-estudo-do-Planejamento-da-Operacao-para-o-Setor-El%C3%A9trico-at%C3%A9-2027.aspx"
+            }
+        },
+        "CE": {
+            "hub_status": "prioritized_PNH2",
+            "projects": [
+                {
+                    "name": "Fortescue - ZPE Pecém",
+                    "investment_brl_billion": 17.5,
+                    "op_start": "2028-08",
+                    "capacity_gw_phase1": 1.2,
+                    "source": "https://www.gov.br/secom/pt-br/assuntos/noticias/2024/10/governo-federal-aprova-instalacao-de-projeto-de-hidrogenio-verde-de-r-17-5-bilhoes-na-zpe-de-pecem-ce"
+                },
+                {
+                    "name": "CIPP - pré-contratos (EDF, Auren, Casa dos Ventos, FRV, Voltalia, Fuella, Fortescue)",
+                    "investment_usd_billion": 24,
+                    "production_start_target": "2030",
+                    "source": "https://www.ceara.gov.br/2025/05/21/complexo-do-pecem-firma-pre-contrato-com-edf-para-producao-de-hidrogenio-verde/"
+                },
+                {
+                    "name": "EDP - Planta piloto H2V",
+                    "investment_brl_million": 42,
+                    "first_molecule_date": "2023-01-19",
+                    "source": "https://www.gov.br/mme/pt-br/assuntos/noticias/alexandre-silveira-participa-de-lancamento-de-planta-de-hidrogenio-verde-do-complexo-pecem-no-ceara-e-reforca-compromisso-com-a-transicao-energetica-no-pais"
+                }
+            ],
+            "multilateral_support": {
+                "world_bank_press": "https://www.worldbank.org/pt/news/press-release/2025/07/09/world-bank-supports-cearas-green-hydrogen-strategy-to-boost-economic-transformation",
+                "project_pid": "https://documents.worldbank.org/en/publication/documents-reports/documentdetail/099061925092737813"
+            },
+            "grid": {
+                "2024_deliveries": {
+                    "ne_to_se_co_mw": 7200,
+                    "ne_to_n_mw": 6200,
+                    "export_ne_total_mw": 12500,
+                    "source": "https://www.ons.org.br/paginas/noticias/details.aspx?i=10137"
+                },
+                "open_data": "https://dados.ons.org.br/dataset/linha-transmissao"
+            }
+        },
+        "DF": {
+            "hub_status": "no_specific_official_hub",
+            "sources": {
+                "epe_painel": "https://www.epe.gov.br/pt/imprensa/noticias/epe-publica-ferramenta-interativa-painel-de-dados-de-potencial-tecnico-de-producao-de-hidrogenio-",
+                "ons_open_data": "https://dados.ons.org.br/dataset/linha-transmissao"
+            }
+        },
+        "ES": {
+            "hub_status": "no_specific_official_hub",
+            "sources": {
+                "epe_painel": "https://www.epe.gov.br/pt/imprensa/noticias/epe-publica-ferramenta-interativa-painel-de-dados-de-potencial-tecnico-de-producao-de-hidrogenio-",
+                "ons_open_data": "https://dados.ons.org.br/dataset/linha-transmissao"
+            }
+        },
+        "GO": {
+            "hub_status": "prioritized_PNH2",
+            "grid": {
+                "par_pel_investment_brl_billion": 8.5,
+                "source": "https://www.ons.org.br/Paginas/Noticias/20230102-ONS-divulga-os-resultados-do-estudo-do-Planejamento-da-Operacao-para-o-Setor-El%C3%A9trico-at%C3%A9-2027.aspx"
+            }
+        },
+        "MA": {
+            "hub_status": "prioritized_PNH2",
+            "derivatives": [
+                {
+                    "name": "Fábrica SAF (ZPE)",
+                    "source": "https://www.gov.br/mdic/pt-br/assuntos/noticias/2024/outubro/aprovado-o-maior-projeto-de-producao-de-hidrogenio-verde-em-larga-escala-do-pais"
+                }
+            ],
+            "grid": {
+                "par_pel_investment_brl_billion": 10.3,
+                "source": "https://www.ons.org.br/Paginas/Noticias/20230102-ONS-divulga-os-resultados-do-estudo-do-Planejamento-da-Operacao-para-o-Setor-El%C3%A9trico-at%C3%A9-2027.aspx"
+            }
+        },
+        "MT": {
+            "hub_status": "no_specific_official_hub",
+            "sources": {
+                "epe_painel": "https://www.epe.gov.br/pt/imprensa/noticias/epe-publica-ferramenta-interativa-painel-de-dados-de-potencial-tecnico-de-producao-de-hidrogenio-",
+                "ons_open_data": "https://dados.ons.org.br/dataset/linha-transmissao"
+            }
+        },
+        "MS": {
+            "hub_status": "prioritized_PNH2"
+        },
+        "MG": {
+            "hub_status": "prioritized_PNH2",
+            "grid": {
+                "par_pel_investment_brl_billion": 13.1,
+                "source": "https://www.ons.org.br/Paginas/Noticias/20230102-ONS-divulga-os-resultados-do-estudo-do-Planejamento-da-Operacao-para-o-Setor-El%C3%A9trico-at%C3%A9-2027.aspx"
+            }
+        },
+        "PA": {
+            "hub_status": "prioritized_PNH2"
+        },
+        "PB": {
+            "hub_status": "no_specific_official_hub",
+            "sources": {
+                "epe_painel": "https://www.epe.gov.br/pt/imprensa/noticias/epe-publica-ferramenta-interativa-painel-de-dados-de-potencial-tecnico-de-producao-de-hidrogenio-",
+                "ons_open_data": "https://dados.ons.org.br/dataset/linha-transmissao"
+            }
+        },
+        "PR": {
+            "hub_status": "prioritized_PNH2"
+        },
+        "PE": {
+            "hub_status": "prioritized_PNH2"
+        },
+        "PI": {
+            "hub_status": "prioritized_PNH2",
+            "grid": {
+                "par_pel_investment_brl_billion": 4.0,
+                "source": "https://www.ons.org.br/Paginas/Noticias/20230102-ONS-divulga-os-resultados-do-estudo-do-Planejamento-da-Operacao-para-o-Setor-El%C3%A9trico-at%C3%A9-2027.aspx"
+            },
+            "international_corridor": "https://www.government.nl/binaries/government/documenten/reports/2025/01/24/green-hydrogen-corridor-between-northeast-brazil-and-the-netherlands/Green-Hydrogen-Corridor-between-Northeast-Brazil-and-the-Netherlands.pdf"
+        },
+        "RJ": {
+            "hub_status": "prioritized_PNH2",
+            "regulator": "https://www.gov.br/anp/pt-br/assuntos/hidrogenio"
+        },
+        "RN": {
+            "hub_status": "prioritized_PNH2",
+            "grid_deliveries_2024": "https://www.ons.org.br/paginas/noticias/details.aspx?i=10137"
+        },
+        "RS": {
+            "hub_status": "prioritized_PNH2"
+        },
+        "RO": {
+            "hub_status": "no_specific_official_hub",
+            "sources": {
+                "epe_painel": "https://www.epe.gov.br/pt/imprensa/noticias/epe-publica-ferramenta-interativa-painel-de-dados-de-potencial-tecnico-de-producao-de-hidrogenio-",
+                "ons_open_data": "https://dados.ons.org.br/dataset/linha-transmissao"
+            }
+        },
+        "RR": {
+            "hub_status": "no_specific_official_hub",
+            "sources": {
+                "epe_painel": "https://www.epe.gov.br/pt/imprensa/noticias/epe-publica-ferramenta-interativa-painel-de-dados-de-potencial-tecnico-de-producao-de-hidrogenio-",
+                "ons_open_data": "https://dados.ons.org.br/dataset/linha-transmissao"
+            }
+        },
+        "SC": {
+            "hub_status": "prioritized_PNH2"
+        },
+        "SE": {
+            "hub_status": "prioritized_PNH2"
+        },
+        "SP": {
+            "hub_status": "prioritized_PNH2"
+        },
+        "TO": {
+            "hub_status": "no_specific_official_hub",
+            "sources": {
+                "epe_painel": "https://www.epe.gov.br/pt/imprensa/noticias/epe-publica-ferramenta-interativa-painel-de-dados-de-potencial-tecnico-de-producao-de-hidrogenio-",
+                "ons_open_data": "https://dados.ons.org.br/dataset/linha-transmissao"
+            }
+        }
+    },
+    "data_panels": {
+        "epe_painel_potencial": "https://www.epe.gov.br/pt/imprensa/noticias/epe-publica-ferramenta-interativa-painel-de-dados-de-potencial-tecnico-de-producao-de-hidrogenio-",
+        "epe_fact_sheet": "https://www.epe.gov.br/pt/publicacoes-dados-abertos/publicacoes/fact-sheet-panorama-atual-do-hidrogenio-no-brasil"
+    }
+}

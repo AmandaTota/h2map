@@ -46,6 +46,7 @@ import { useLocationStore } from "@/store/locationStore";
 import { supabase } from "@/integrations/supabase/client";
 import { format, subDays } from "date-fns";
 import { toast } from "sonner";
+import { formatNumber } from "@/lib/utils";
 
 interface AnalysisPeriod {
   years: number;
@@ -124,6 +125,23 @@ interface TopographyData {
   timestamp: string;
   recommendations: string[];
 }
+
+// Helper function to format numbers with locale and remove unnecessary decimals
+const formatCurrency = (value: number, decimals: number = 2): string => {
+  const formatted = value.toLocaleString("pt-BR", { 
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  });
+  // Remove ".0" if the number has no significant decimal places
+  if (decimals > 0 && formatted.endsWith(",0".repeat(decimals / 1))) {
+    return formatted.substring(0, formatted.lastIndexOf(","));
+  }
+  // Remove trailing zeros after comma but keep at least one decimal place if decimals > 0
+  if (decimals > 0) {
+    return formatted.replace(/,?0+$/, "");
+  }
+  return formatted;
+};
 
 const FeasibilityAnalysis = () => {
   const { selectedLocation, setSelectedLocation } = useLocationStore();
@@ -2462,10 +2480,7 @@ const FeasibilityAnalysis = () => {
                                       </p>
                                       <p className="text-xl font-bold text-indigo-600">
                                         R${" "}
-                                        {simulationResults.oneYear.capexAnnualized.toLocaleString(
-                                          "pt-BR",
-                                          { minimumFractionDigits: 2 }
-                                        )}
+                                        {formatCurrency(simulationResults.oneYear.capexAnnualized, 2)}
                                       </p>
                                     </div>
                                     <div>
@@ -2474,10 +2489,7 @@ const FeasibilityAnalysis = () => {
                                       </p>
                                       <p className="text-xl font-bold text-indigo-600">
                                         R${" "}
-                                        {simulationResults.oneYear.opexAnnual.toLocaleString(
-                                          "pt-BR",
-                                          { minimumFractionDigits: 2 }
-                                        )}
+                                        {formatCurrency(simulationResults.oneYear.opexAnnual, 2)}
                                       </p>
                                     </div>
                                   </div>
@@ -2549,17 +2561,13 @@ const FeasibilityAnalysis = () => {
                                     <div>
                                       <p className="text-sm text-slate-700">
                                         CAPEX Anualizado: R${" "}
-                                        {simulationResults.threeYears!.capexAnnualized.toLocaleString(
-                                          "pt-BR"
-                                        )}
+                                        {formatCurrency(simulationResults.threeYears!.capexAnnualized, 0)}
                                       </p>
                                     </div>
                                     <div>
                                       <p className="text-sm text-slate-700">
                                         OPEX Anual: R${" "}
-                                        {simulationResults.threeYears!.opexAnnual.toLocaleString(
-                                          "pt-BR"
-                                        )}
+                                        {formatCurrency(simulationResults.threeYears!.opexAnnual, 0)}
                                       </p>
                                     </div>
                                   </div>
@@ -2626,17 +2634,13 @@ const FeasibilityAnalysis = () => {
                                     <div>
                                       <p className="text-sm text-slate-700">
                                         CAPEX Anualizado: R${" "}
-                                        {simulationResults.fiveYears!.capexAnnualized.toLocaleString(
-                                          "pt-BR"
-                                        )}
+                                        {formatCurrency(simulationResults.fiveYears!.capexAnnualized, 0)}
                                       </p>
                                     </div>
                                     <div>
                                       <p className="text-sm text-slate-700">
                                         OPEX Anual: R${" "}
-                                        {simulationResults.fiveYears!.opexAnnual.toLocaleString(
-                                          "pt-BR"
-                                        )}
+                                        {formatCurrency(simulationResults.fiveYears!.opexAnnual, 0)}
                                       </p>
                                     </div>
                                   </div>

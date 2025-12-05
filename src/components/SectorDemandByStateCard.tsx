@@ -366,6 +366,14 @@ function ForecastCard({ estado }: { estado: string }) {
           </tbody>
         </table>
       </div>
+      
+      <div className="mt-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
+        <p className="text-xs text-slate-600">
+          <strong>Fonte dos dados:</strong> Projeções baseadas em dados setoriais oficiais (Refino, Fertilizantes, Siderurgia, Mobilidade) 
+          combinados com baseline IPEA e tendências regionais. Os valores refletem estimativas qualitativas ajustadas por nível de demanda 
+          (Alta/Média/Baixa) observado em cada estado.
+        </p>
+      </div>
     </div>
   );
 }

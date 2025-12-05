@@ -6,6 +6,7 @@ import {
   ThermometerSun,
   BarChart3,
   LineChart,
+  Truck,
   LogIn,
   LogOut,
   User,
@@ -43,6 +44,7 @@ const Navigation = () => {
 
   const navItems = [
     { path: "/feasibility", label: "Análise de Viabilidade", icon: BarChart3 },
+    { path: "/viabilidade-transporte", label: "Viabilidade de transporte", icon: Truck },
     { path: "/statistics", label: "Estatísticas", icon: LineChart },
     { path: "/dashboard", label: "Previsão do Tempo", icon: ThermometerSun },
     { path: "/informacoes", label: "Dados Verdes", icon: FileText },

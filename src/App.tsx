@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Statistics from "./pages/Statistics";
 import FeasibilityAnalysis from "./pages/FeasibilityAnalysis";
+import ViabilidadeTransporte from "./pages/ViabilidadeTransporte";
 import ImportMunicipalities from "./pages/ImportMunicipalities";
 import Informacoes from "./pages/Informacoes";
 import NotFound from "./pages/NotFound";
@@ -28,6 +29,7 @@ function App() {
         <Route path="/previsao" element={<Previsao />} />
         <Route path="/statistics" element={<Statistics />} />
         <Route path="/feasibility" element={<FeasibilityAnalysis />} />
+        <Route path="/viabilidade-transporte" element={<ViabilidadeTransporte />} />
         <Route path="/h2-demand-sliders" element={<H2DemandSliders />} />
         <Route
           path="/import-municipalities"
