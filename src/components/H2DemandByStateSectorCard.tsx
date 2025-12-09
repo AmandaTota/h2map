@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import h2QualitativeByState from "@/data/h2_qualitative_by_state";
 
 type SectorKey = "refino" | "fertilizantes" | "siderurgia" | "mobilidade";
 
@@ -162,6 +163,20 @@ const qualitativeWeight = (level: string) => {
   }
 };
 
+const levelToMultiplier = (level: string) => {
+  switch (level.toLowerCase()) {
+    case "alta":
+      return 1.2;
+    case "média":
+    case "media":
+      return 1.0;
+    case "baixa":
+      return 0.8;
+    default:
+      return 1.0;
+  }
+};
+
 const getBadgeClass = (value: number, max: number) => {
   const ratio = max > 0 ? value / max : 0;
   if (ratio > 0.66) return "bg-red-100 text-red-800 border-red-200";
@@ -196,13 +211,23 @@ export default function H2DemandByStateSectorCard({
 }: {
   estado?: string | null;
 }) {
+  const [alpha, setAlpha] = useState<number>(1);
   const [year, setYear] = useState<string>("2025");
   const [sector, setSector] = useState<string>("All");
   const [ufFilter, setUfFilter] = useState<string>(estado || "all");
   const [scenario, setScenario] = useState<string>("base");
 
-  // list of UFs from qualitative map
-  const ufs = useMemo(() => Object.keys(ufQualitative), []);
+  // list of UFs from qualitative map and from h2 qualitative dataset
+  const ufs = useMemo(
+    () =>
+      Array.from(
+        new Set([
+          ...Object.keys(ufQualitative),
+          ...Object.keys(h2QualitativeByState),
+        ])
+      ),
+    []
+  );
 
   const yearNum = Number(year);
 
@@ -232,9 +257,25 @@ export default function H2DemandByStateSectorCard({
       mobilidade: {},
     };
 
-    Object.entries(ufQualitative).forEach(([uf, sectors]) => {
-      (Object.keys(sectors) as SectorKey[]).forEach((sec) => {
-        let w = qualitativeWeight(sectors[sec].level);
+    const allUfs = ufs;
+    allUfs.forEach((uf) => {
+      (Object.keys(weightsPerSector) as SectorKey[]).forEach((sec) => {
+        const sectorKeyName = sec === "mobilidade" ? "mobilidade_powertox" : sec;
+        // prefer data from h2QualitativeByState when available
+        const external = (h2QualitativeByState as any)[uf];
+        const externalSector = external?.sectors?.[sectorKeyName];
+        const levelFromExternal = externalSector?.level;
+        const multiplierFromExternal = externalSector?.multiplier;
+
+        const levelFromLocal = ufQualitative[uf]?.[sec]?.level;
+        const level = levelFromExternal ?? levelFromLocal ?? "Baixa";
+
+        const base = qualitativeWeight(level);
+        const multiplier =
+          multiplierFromExternal ?? levelToMultiplier(levelFromLocal ?? level);
+        const intensityEff = 1 + alpha * (multiplier - 1);
+
+        let w = base * intensityEff;
         // bonus mobilidade for SP and DF
         if (sec === "mobilidade" && (uf === "SP" || uf === "DF")) w *= 1.2;
         weightsPerSector[sec][uf] = w;
@@ -359,6 +400,21 @@ export default function H2DemandByStateSectorCard({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div>
+            <p className="text-sm text-slate-600 mb-2">Alpha (influência qualitativa)</p>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                step={0.05}
+                min={0}
+                max={1}
+                value={alpha}
+                onChange={(e) => setAlpha(Number(e.target.value))}
+                className="w-20 px-2 py-1 border rounded"
+              />
+              <Badge className="bg-emerald-50 text-emerald-700">× {alpha.toFixed(2)}</Badge>
+            </div>
           </div>
         </div>
 

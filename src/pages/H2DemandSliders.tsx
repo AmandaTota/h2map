@@ -11,36 +11,66 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 const ufs = [
-  "SP",
-  "RJ",
-  "MG",
-  "ES",
-  "BA",
-  "SE",
-  "PR",
-  "RS",
-  "PE",
-  "CE",
+  "AC",
+  "AL",
+  "AP",
   "AM",
-  "MS",
+  "BA",
+  "CE",
   "DF",
+  "ES",
+  "GO",
+  "MA",
+  "MT",
+  "MS",
+  "MG",
+  "PA",
+  "PB",
+  "PR",
+  "PE",
+  "PI",
+  "RJ",
+  "RN",
+  "RS",
+  "RO",
+  "RR",
+  "SC",
+  "SP",
+  "SE",
+  "TO",
 ];
 const regions: Record<string, string> = {
-  SP: "SE",
-  RJ: "SE",
-  MG: "SE",
-  ES: "SE",
-  BA: "NE",
-  SE: "NE",
-  PE: "NE",
-  CE: "NE",
-  PR: "S",
-  RS: "S",
+  AC: "N",
+  AL: "NE",
+  AP: "N",
   AM: "N",
-  MS: "CO",
+  BA: "NE",
+  CE: "NE",
   DF: "CO",
+  ES: "SE",
+  GO: "CO",
+  MA: "NE",
+  MT: "CO",
+  MS: "CO",
+  MG: "SE",
+  PA: "N",
+  PB: "NE",
+  PR: "S",
+  PE: "NE",
+  PI: "NE",
+  RJ: "SE",
+  RN: "NE",
+  RS: "S",
+  RO: "N",
+  RR: "N",
+  SC: "S",
+  SP: "SE",
+  SE: "NE",
+  TO: "N",
 };
 const sectors = ["Refino", "Fertilizantes", "Siderurgia", "Mobilidade"];
+
+import h2QualitativeByState from "@/data/h2_qualitative_by_state";
 
 const weights: Record<string, Record<string, number>> = {
   Refino: {
@@ -57,6 +87,20 @@ const weights: Record<string, Record<string, number>> = {
     AM: 0.6,
     MS: 0.2,
     DF: 0.2,
+    AC: 0.2,
+    AL: 0.2,
+    AP: 0.2,
+    GO: 0.2,
+    MA: 0.2,
+    MT: 0.2,
+    PA: 0.2,
+    PB: 0.2,
+    PI: 0.2,
+    RN: 1.0,
+    RO: 0.2,
+    RR: 0.2,
+    SC: 0.2,
+    TO: 0.2,
   },
   Fertilizantes: {
     SP: 0.6,
@@ -72,6 +116,20 @@ const weights: Record<string, Record<string, number>> = {
     AM: 0.2,
     MS: 1.0,
     DF: 0.2,
+    AC: 0.2,
+    AL: 0.2,
+    AP: 0.2,
+    GO: 1.0,
+    MA: 0.2,
+    MT: 1.0,
+    PA: 0.2,
+    PB: 0.6,
+    PI: 1.0,
+    RN: 1.0,
+    RO: 0.2,
+    RR: 0.2,
+    SC: 1.0,
+    TO: 1.0,
   },
   Siderurgia: {
     SP: 1.0,
@@ -87,6 +145,20 @@ const weights: Record<string, Record<string, number>> = {
     AM: 0.2,
     MS: 0.2,
     DF: 0.2,
+    AC: 0.2,
+    AL: 0.2,
+    AP: 0.2,
+    GO: 0.2,
+    MA: 1.0,
+    MT: 0.2,
+    PA: 1.0,
+    PB: 0.2,
+    PI: 1.0,
+    RN: 0.8,
+    RO: 0.2,
+    RR: 0.2,
+    SC: 0.2,
+    TO: 0.2,
   },
   Mobilidade: {
     SP: 1.2,
@@ -102,6 +174,20 @@ const weights: Record<string, Record<string, number>> = {
     AM: 0.2,
     MS: 0.2,
     DF: 1.2,
+    AC: 0.2,
+    AL: 0.2,
+    AP: 0.2,
+    GO: 1.0,
+    MA: 1.0,
+    MT: 1.0,
+    PA: 1.0,
+    PB: 1.0,
+    PI: 1.0,
+    RN: 1.0,
+    RO: 0.2,
+    RR: 0.2,
+    SC: 1.0,
+    TO: 0.2,
   },
 };
 
@@ -163,6 +249,25 @@ export default function H2DemandSliders() {
     SE: 1,
     S: 1,
   });
+  const [alpha, setAlpha] = useState<number>(1); // controla influência do qualitativo (0 = desligado, 1 = ligado)
+  const [showTargetOnly, setShowTargetOnly] = useState<boolean>(false);
+
+  const targetUFs = [
+    "AC",
+    "AP",
+    "PA",
+    "RO",
+    "RR",
+    "TO",
+    "AL",
+    "MA",
+    "PB",
+    "PI",
+    "RN",
+    "GO",
+    "MT",
+    "SC",
+  ];
   const [year, setYear] = useState<number>(2030);
   const [sector, setSector] = useState<string>(sectors[0]);
   const selectedShares = year <= 2030 ? s2030 : s2050;
@@ -183,19 +288,33 @@ export default function H2DemandSliders() {
   const maxVal = Math.max(...tableRows.map((r) => r.val), 1);
 
   const ufFull: Record<string, string> = {
-    SP: "São Paulo",
-    RJ: "Rio de Janeiro",
-    MG: "Minas Gerais",
-    ES: "Espírito Santo",
-    BA: "Bahia",
-    SE: "Sergipe",
-    PR: "Paraná",
-    RS: "Rio Grande do Sul",
-    PE: "Pernambuco",
-    CE: "Ceará",
+    AC: "Acre",
+    AL: "Alagoas",
+    AP: "Amapá",
     AM: "Amazonas",
-    MS: "Mato Grosso do Sul",
+    BA: "Bahia",
+    CE: "Ceará",
     DF: "Distrito Federal",
+    ES: "Espírito Santo",
+    GO: "Goiás",
+    MA: "Maranhão",
+    MT: "Mato Grosso",
+    MS: "Mato Grosso do Sul",
+    MG: "Minas Gerais",
+    PA: "Pará",
+    PB: "Paraíba",
+    PR: "Paraná",
+    PE: "Pernambuco",
+    PI: "Piauí",
+    RJ: "Rio de Janeiro",
+    RN: "Rio Grande do Norte",
+    RS: "Rio Grande do Sul",
+    RO: "Rondônia",
+    RR: "Roraima",
+    SC: "Santa Catarina",
+    SP: "São Paulo",
+    SE: "Sergipe",
+    TO: "Tocantins",
   };
 
   const regionFull: Record<string, string> = {
@@ -237,7 +356,21 @@ export default function H2DemandSliders() {
       const sh: Record<string, number> = {};
       let sumW = 0;
       ufs.forEach((uf) => {
-        const w = (weights as any)[s][uf] * (bias as any)[regions[uf]];
+        // map sector name to qualitative key
+        const sectorKey =
+          s === "Refino"
+            ? "refino"
+            : s === "Fertilizantes"
+            ? "fertilizantes"
+            : s === "Siderurgia"
+            ? "siderurgia"
+            : "mobilidade_powertox";
+
+        const baseW = (weights as any)[s][uf] * (bias as any)[regions[uf]];
+        const intensity =
+          h2QualitativeByState[uf]?.sectors?.[sectorKey]?.multiplier ?? 1.0;
+        const intensityEff = 1 + alpha * (intensity - 1);
+        const w = baseW * intensityEff;
         sh[uf] = w;
         sumW += w;
       });
@@ -264,11 +397,17 @@ export default function H2DemandSliders() {
     arr.sort((a, b) => b.val - a.val);
 
     return { alloc, series, arr, kpis: { totalNow, kRef, kFert, kSid, kMob } };
-  }, [total2030, total2050, s2030, s2050, bias, year, sector]);
+  }, [total2030, total2050, s2030, s2050, bias, year, sector, alpha]);
 
   useEffect(() => {
+    let rows = compute.arr.slice();
+    if (showTargetOnly) {
+      rows = rows.filter((r) => targetUFs.includes(r.uf));
+    }
+    // if not showing targetOnly, keep top 10 for compact view
+    const final = showTargetOnly ? rows : rows.slice(0, 10);
     setTableRows(
-      compute.arr.slice(0, 10).map((r) => ({
+      final.map((r) => ({
         ...r,
         name: ufFull[r.uf],
         regionName: regionFull[r.reg],
@@ -468,6 +607,34 @@ export default function H2DemandSliders() {
                   </div>
                 </div>
               ))}
+            </div>
+
+            <div className="mt-4">
+              <h3 className="font-medium">Alpha: influência qualitativa</h3>
+              <p className="text-sm text-muted-foreground">
+                Controle a força do multiplicador qualitativo por UF (0 = desligado, 1 = total)
+              </p>
+              <div className="mt-2 flex items-center gap-4">
+                <Stepper
+                  value={alpha}
+                  onChange={(val) => setAlpha(val)}
+                  min={0}
+                  max={1}
+                  step={0.05}
+                />
+                <Badge className="bg-emerald-50 text-emerald-700">× {alpha.toFixed(2)}</Badge>
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <label className="inline-flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={showTargetOnly}
+                  onChange={(e) => setShowTargetOnly(e.target.checked)}
+                />
+                <span className="text-sm">Mostrar apenas os 14 UFs listados</span>
+              </label>
             </div>
 
             <h3 className="mt-4 font-medium">4) Visualização</h3>
