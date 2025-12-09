@@ -41,6 +41,91 @@ const data: Record<
     mobilidade: SectorEntry;
   }
 > = {
+  // User-provided states (14) - follow same UI logic as SP
+  AC: {
+    refino: { level: 'Baixa' },
+    fertilizantes: { level: 'Baixa' },
+    siderurgia: { level: 'Baixa' },
+    mobilidade: { level: 'Baixa', notes: ['Projetos locais listados nas fontes'] },
+  },
+  AP: {
+    refino: { level: 'Baixa' },
+    fertilizantes: { level: 'Média', notes: ['Negociações NextGen Hydrogen / governo estadual'] },
+    siderurgia: { level: 'Baixa' },
+    mobilidade: { level: 'Média' },
+  },
+  PA: {
+    refino: { level: 'Baixa' },
+    fertilizantes: { level: 'Baixa' },
+    siderurgia: { level: 'Alta', notes: ['Hydro, Sinobras, Vale / expansão siderúrgica'] },
+    mobilidade: { level: 'Média' },
+  },
+  RO: {
+    refino: { level: 'Baixa' },
+    fertilizantes: { level: 'Média' },
+    siderurgia: { level: 'Baixa' },
+    mobilidade: { level: 'Baixa', notes: ['SENAI/SEDEC - roadmap H2V'] },
+  },
+  RR: {
+    refino: { level: 'Baixa' },
+    fertilizantes: { level: 'Baixa' },
+    siderurgia: { level: 'Baixa' },
+    mobilidade: { level: 'Baixa', notes: ['RBCIP - hubs e projetos H2V'] },
+  },
+  TO: {
+    refino: { level: 'Baixa' },
+    fertilizantes: { level: 'Média' },
+    siderurgia: { level: 'Baixa' },
+    mobilidade: { level: 'Baixa', notes: ['Projetos PNH2 / iniciativas locais'] },
+  },
+  AL: {
+    refino: { level: 'Baixa' },
+    fertilizantes: { level: 'Baixa' },
+    siderurgia: { level: 'Baixa' },
+    mobilidade: { level: 'Baixa', notes: ['Braskem (unidade hibernada)'] },
+  },
+  MA: {
+    refino: { level: 'Baixa' },
+    fertilizantes: { level: 'Baixa' },
+    siderurgia: { level: 'Alta', notes: ['AVB / projetos de aço verde'] },
+    mobilidade: { level: 'Média', notes: ['Stegra / negociações e investimentos'] },
+  },
+  PB: {
+    refino: { level: 'Baixa' },
+    fertilizantes: { level: 'Média' },
+    siderurgia: { level: 'Baixa' },
+    mobilidade: { level: 'Média', notes: ['UFPB, PetroSolGas, iniciativas locais'] },
+  },
+  PI: {
+    refino: { level: 'Baixa' },
+    fertilizantes: { level: 'Alta', notes: ['ZPE Parnaíba / Hub IND / Green Energy Park'] },
+    siderurgia: { level: 'Média' },
+    mobilidade: { level: 'Média' },
+  },
+  RN: {
+    refino: { level: 'Média' },
+    fertilizantes: { level: 'Média' },
+    siderurgia: { level: 'Baixa' },
+    mobilidade: { level: 'Média', notes: ['Marco legal estadual e projetos Petrobras'] },
+  },
+  GO: {
+    refino: { level: 'Baixa' },
+    fertilizantes: { level: 'Média' },
+    siderurgia: { level: 'Baixa' },
+    mobilidade: { level: 'Média', notes: ['Itumbiara (planta piloto) / ATVOS'] },
+  },
+  MT: {
+    refino: { level: 'Baixa' },
+    fertilizantes: { level: 'Alta', notes: ['ATVOS - fábrica de amônia verde'] },
+    siderurgia: { level: 'Baixa' },
+    mobilidade: { level: 'Média' },
+  },
+  SC: {
+    refino: { level: 'Baixa' },
+    fertilizantes: { level: 'Média' },
+    siderurgia: { level: 'Baixa' },
+    mobilidade: { level: 'Média', notes: ['WEG / Celesc / UFSC - projetos-piloto'] },
+  },
   SP: {
     refino: { level: "Alta", notes: ["REPLAN/REVAP/RECAP"] },
     fertilizantes: { level: "Média" },
