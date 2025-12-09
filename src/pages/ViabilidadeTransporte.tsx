@@ -171,6 +171,16 @@ const TOLL_DATABASE: TollData[] = [
   { id: "3", name: "Pedágio SP-280 - Raposo", lat: -23.5, lon: -47.2, direction: "both", vehicleClass: "truck", priceBRL: 45.80 },
 ];
 
+// Função para formatar valores em reais (formato brasileiro)
+const formatarReais = (valor: number): string => {
+  return valor.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
+};
+
 export default function ViabilidadeTransporte() {
   const mapRef = useRef<HTMLDivElement>(null);
   const [origin, setOrigin] = useState("");
@@ -189,9 +199,9 @@ export default function ViabilidadeTransporte() {
   });
   
   const [vehicleParams, setVehicleParams] = useState<VehicleParams>({
-    avgKmPerLiter: 10,
-    fuelType: "gasolina",
-    pricePerLiter: 5.89
+    avgKmPerLiter: 4.5, // Caminhão pesado transportador de H₂
+    fuelType: "diesel",
+    pricePerLiter: 6.00 // Preço médio do diesel
   });
 
   const [routeResult, setRouteResult] = useState<RouteResult | null>(null);
@@ -722,158 +732,29 @@ export default function ViabilidadeTransporte() {
                   <DollarSign className="w-4 h-4" />
                   Custo Total
                 </div>
-                <div className="text-2xl font-bold text-emerald-900">R$ {Math.round(routeResult.totalCost)}</div>
+                <div className="text-2xl font-bold text-emerald-900">{formatarReais(Math.round(routeResult.totalCost))}</div>
               </div>
             </div>
 
             {/* Detalhamento de custos */}
             <div className="p-4 bg-white rounded-lg border mb-6">
-              <h3 className="font-semibold mb-3">Detalhamento de Custos (Veículo Convencional)</h3>
+              <h3 className="font-semibold mb-3">Detalhamento de Custos (Caminhão Diesel Transportador)</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-slate-600">Combustível:</span>
-                  <span className="font-medium">R$ {Math.round(routeResult.fuelCost)}</span>
+                  <span className="font-medium">{formatarReais(Math.round(routeResult.fuelCost))}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Pedágios:</span>
-                  <span className="font-medium">R$ {Math.round(routeResult.tollCost)}</span>
+                  <span className="font-medium">{formatarReais(Math.round(routeResult.tollCost))}</span>
                 </div>
                 <div className="flex justify-between pt-2 border-t font-semibold">
                   <span>Total:</span>
-                  <span className="text-emerald-600">R$ {Math.round(routeResult.totalCost)}</span>
+                  <span className="text-emerald-600">{formatarReais(Math.round(routeResult.totalCost))}</span>
                 </div>
               </div>
             </div>
 
-
-            {/* Análise de Custo/Benefício H2 */}
-            <div className="p-4 bg-white rounded-lg border">
-              <h3 className="font-semibold mb-4">Análise de Custo/Benefício - Transporte H₂</h3>
-              
-              {/* Cards dos tipos de transporte */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                {/* Caminhão Cilindros (H₂ gasoso) */}
-                <div className="p-4 rounded-lg border-2 border-slate-200 bg-slate-50 transition-all">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Truck className="w-5 h-5 text-blue-600" />
-                    <h4 className="font-semibold text-blue-900">H₂ Gasoso</h4>
-                  </div>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Preço/kg:</span>
-                      <span className="font-medium">R$ 2.75 - 8.25</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Capacidade:</span>
-                      <span className="font-medium">600 kg</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Consumo:</span>
-                      <span className="font-medium">2.5 km/kg H₂</span>
-                    </div>
-                    <div className="flex justify-between border-t pt-2">
-                      <span className="text-slate-600">Custo Total:</span>
-                      <span className="font-bold text-blue-700">R$ 1650 - 4950</span>
-                    </div>
-                    {routeResult && (
-                      <div className="flex justify-between pt-2 border-t">
-                        <span className="text-slate-600">Consumo H₂ rota:</span>
-                        <span className="font-medium">{(routeResult.distance / 2.5).toFixed(1)} kg</span>
-                      </div>
-                    )}
-                    {routeResult && (
-                      <div className="flex justify-between">
-                        <span className="text-slate-600">Custo/rota:</span>
-                        <span className="font-bold text-blue-800">
-                          R$ {Math.round((routeResult.distance / 2.5) * 2.75)} - {Math.round((routeResult.distance / 2.5) * 8.25)}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Caminhão Criogênico (H₂ líquido) */}
-                <div className="p-4 rounded-lg border-2 border-slate-200 bg-slate-50 transition-all">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Truck className="w-5 h-5 text-cyan-600" />
-                    <h4 className="font-semibold text-cyan-900">H₂ Líquido</h4>
-                  </div>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Preço/kg:</span>
-                      <span className="font-medium">R$ 2.75</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Capacidade:</span>
-                      <span className="font-medium">4000 kg</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Consumo:</span>
-                      <span className="font-medium">2.5 km/kg H₂</span>
-                    </div>
-                    <div className="flex justify-between border-t pt-2">
-                      <span className="text-slate-600">Custo Total:</span>
-                      <span className="font-bold text-cyan-700">R$ 11000</span>
-                    </div>
-                    {routeResult && (
-                      <div className="flex justify-between pt-2 border-t">
-                        <span className="text-slate-600">Consumo H₂ rota:</span>
-                        <span className="font-medium">{(routeResult.distance / 2.5).toFixed(1)} kg</span>
-                      </div>
-                    )}
-                    {routeResult && (
-                      <div className="flex justify-between">
-                        <span className="text-slate-600">Custo/rota:</span>
-                        <span className="font-bold text-cyan-800">
-                          R$ {Math.round((routeResult.distance / 2.5) * 2.75)}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* LOHC */}
-                <div className="p-4 rounded-lg border-2 border-slate-200 bg-slate-50 transition-all">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Truck className="w-5 h-5 text-purple-600" />
-                    <h4 className="font-semibold text-purple-900">LOHC</h4>
-                  </div>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Preço/kg:</span>
-                      <span className="font-medium">R$ 6.05 - 10.45</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Capacidade:</span>
-                      <span className="font-medium">600 kg</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Consumo:</span>
-                      <span className="font-medium">2.5 km/kg H₂</span>
-                    </div>
-                    <div className="flex justify-between border-t pt-2">
-                      <span className="text-slate-600">Custo Total:</span>
-                      <span className="font-bold text-purple-700">R$ 3630 - 6270</span>
-                    </div>
-                    {routeResult && (
-                      <div className="flex justify-between pt-2 border-t">
-                        <span className="text-slate-600">Consumo H₂ rota:</span>
-                        <span className="font-medium">{(routeResult.distance / 2.5).toFixed(1)} kg</span>
-                      </div>
-                    )}
-                    {routeResult && (
-                      <div className="flex justify-between">
-                        <span className="text-slate-600">Custo/rota:</span>
-                        <span className="font-bold text-purple-800">
-                          R$ {Math.round((routeResult.distance / 2.5) * 6.05)} - {Math.round((routeResult.distance / 2.5) * 10.45)}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-            </div>
           </Card>
         )}
       </div>
