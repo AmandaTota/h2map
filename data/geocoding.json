@@ -1,0 +1,398 @@
+[
+    {
+        "id": "city_br_sp_001",
+        "name": "São Paulo",
+        "state": "SP",
+        "region": "Sudeste",
+        "fullName": "São Paulo, SP",
+        "lat": -23.5505,
+        "lon": -46.6333,
+        "population": 12325232,
+        "aliases": [
+            "SP",
+            "Sampa",
+            "São Paulo Capital",
+            "Pauliceia"
+        ]
+    },
+    {
+        "id": "city_br_rj_001",
+        "name": "Rio de Janeiro",
+        "state": "RJ",
+        "region": "Sudeste",
+        "fullName": "Rio de Janeiro, RJ",
+        "lat": -22.9068,
+        "lon": -43.1729,
+        "population": 6747815,
+        "aliases": [
+            "RJ",
+            "Rio",
+            "Cidade Maravilhosa"
+        ]
+    },
+    {
+        "id": "city_br_mg_001",
+        "name": "Belo Horizonte",
+        "state": "MG",
+        "region": "Sudeste",
+        "fullName": "Belo Horizonte, MG",
+        "lat": -19.9167,
+        "lon": -43.9345,
+        "population": 2521564,
+        "aliases": [
+            "BH",
+            "Beagá",
+            "Belô"
+        ]
+    },
+    {
+        "id": "city_br_df_001",
+        "name": "Brasília",
+        "state": "DF",
+        "region": "Centro-Oeste",
+        "fullName": "Brasília, DF",
+        "lat": -15.7801,
+        "lon": -47.9292,
+        "population": 3055149,
+        "aliases": [
+            "BSB",
+            "Capital Federal"
+        ]
+    },
+    {
+        "id": "city_br_pr_001",
+        "name": "Curitiba",
+        "state": "PR",
+        "region": "Sul",
+        "fullName": "Curitiba, PR",
+        "lat": -25.4284,
+        "lon": -49.2733,
+        "population": 1963726,
+        "aliases": [
+            "Cwb",
+            "Curitiboca"
+        ]
+    },
+    {
+        "id": "city_br_sc_001",
+        "name": "Florianópolis",
+        "state": "SC",
+        "region": "Sul",
+        "fullName": "Florianópolis, SC",
+        "lat": -27.5954,
+        "lon": -48.5480,
+        "population": 508826,
+        "aliases": [
+            "Floripa",
+            "Ilha da Magia"
+        ]
+    },
+    {
+        "id": "city_br_rs_001",
+        "name": "Porto Alegre",
+        "state": "RS",
+        "region": "Sul",
+        "fullName": "Porto Alegre, RS",
+        "lat": -30.0346,
+        "lon": -51.2177,
+        "population": 1488252,
+        "aliases": [
+            "POA",
+            "Poa"
+        ]
+    },
+    {
+        "id": "city_br_ba_001",
+        "name": "Salvador",
+        "state": "BA",
+        "region": "Nordeste",
+        "fullName": "Salvador, BA",
+        "lat": -12.9714,
+        "lon": -38.5014,
+        "population": 2886698,
+        "aliases": [
+            "Soteropolis",
+            "Bahia"
+        ]
+    },
+    {
+        "id": "city_br_pe_001",
+        "name": "Recife",
+        "state": "PE",
+        "region": "Nordeste",
+        "fullName": "Recife, PE",
+        "lat": -8.0476,
+        "lon": -34.8770,
+        "population": 1653461,
+        "aliases": [
+            "Veneza Brasileira"
+        ]
+    },
+    {
+        "id": "city_br_ce_001",
+        "name": "Fortaleza",
+        "state": "CE",
+        "region": "Nordeste",
+        "fullName": "Fortaleza, CE",
+        "lat": -3.7172,
+        "lon": -38.5433,
+        "population": 2686612,
+        "aliases": [
+            "Fortal"
+        ]
+    },
+    {
+        "id": "city_br_am_001",
+        "name": "Manaus",
+        "state": "AM",
+        "region": "Norte",
+        "fullName": "Manaus, AM",
+        "lat": -3.1190,
+        "lon": -60.0217,
+        "population": 2219580,
+        "aliases": [
+            "Paris dos Trópicos"
+        ]
+    },
+    {
+        "id": "city_br_pa_001",
+        "name": "Belém",
+        "state": "PA",
+        "region": "Norte",
+        "fullName": "Belém, PA",
+        "lat": -1.4558,
+        "lon": -48.5039,
+        "population": 1499641,
+        "aliases": [
+            "Cidade das Mangueiras"
+        ]
+    },
+    {
+        "id": "city_br_go_001",
+        "name": "Goiânia",
+        "state": "GO",
+        "region": "Centro-Oeste",
+        "fullName": "Goiânia, GO",
+        "lat": -16.6869,
+        "lon": -49.2648,
+        "population": 1536097,
+        "aliases": [
+            "Capital do Cerrado"
+        ]
+    },
+    {
+        "id": "city_br_sp_002",
+        "name": "Campinas",
+        "state": "SP",
+        "region": "Sudeste",
+        "fullName": "Campinas, SP",
+        "lat": -22.9099,
+        "lon": -47.0626,
+        "population": 1213792,
+        "aliases": [
+            "Princesa d'Oeste"
+        ]
+    },
+    {
+        "id": "city_br_sp_003",
+        "name": "Santos",
+        "state": "SP",
+        "region": "Sudeste",
+        "fullName": "Santos, SP",
+        "lat": -23.9608,
+        "lon": -46.3336,
+        "population": 433656,
+        "aliases": [
+            "Cidade do Café"
+        ]
+    },
+    {
+        "id": "city_br_sp_004",
+        "name": "Sorocaba",
+        "state": "SP",
+        "region": "Sudeste",
+        "fullName": "Sorocaba, SP",
+        "lat": -23.5015,
+        "lon": -47.4526,
+        "population": 687357,
+        "aliases": [
+            "Manchester Paulista"
+        ]
+    },
+    {
+        "id": "city_br_sp_005",
+        "name": "Ribeirão Preto",
+        "state": "SP",
+        "region": "Sudeste",
+        "fullName": "Ribeirão Preto, SP",
+        "lat": -21.1704,
+        "lon": -47.8103,
+        "population": 711825,
+        "aliases": [
+            "Capital do Agronegócio"
+        ]
+    },
+    {
+        "id": "city_br_rj_002",
+        "name": "Niterói",
+        "state": "RJ",
+        "region": "Sudeste",
+        "fullName": "Niterói, RJ",
+        "lat": -22.8833,
+        "lon": -43.1036,
+        "population": 515317,
+        "aliases": [
+            "Cidade Sorriso"
+        ]
+    },
+    {
+        "id": "city_br_mg_002",
+        "name": "Contagem",
+        "state": "MG",
+        "region": "Sudeste",
+        "fullName": "Contagem, MG",
+        "lat": -19.9320,
+        "lon": -44.0539,
+        "population": 668949,
+        "aliases": []
+    },
+    {
+        "id": "city_br_mg_003",
+        "name": "Uberlândia",
+        "state": "MG",
+        "region": "Sudeste",
+        "fullName": "Uberlândia, MG",
+        "lat": -18.9189,
+        "lon": -48.2772,
+        "population": 699097,
+        "aliases": []
+    },
+    {
+        "id": "city_br_pr_002",
+        "name": "Londrina",
+        "state": "PR",
+        "region": "Sul",
+        "fullName": "Londrina, PR",
+        "lat": -23.3045,
+        "lon": -51.1696,
+        "population": 575377,
+        "aliases": [
+            "Pequena Londres"
+        ]
+    },
+    {
+        "id": "city_br_pr_003",
+        "name": "Maringá",
+        "state": "PR",
+        "region": "Sul",
+        "fullName": "Maringá, PR",
+        "lat": -23.4273,
+        "lon": -51.9375,
+        "population": 430157,
+        "aliases": [
+            "Cidade Verde"
+        ]
+    },
+    {
+        "id": "city_br_sc_002",
+        "name": "Joinville",
+        "state": "SC",
+        "region": "Sul",
+        "fullName": "Joinville, SC",
+        "lat": -26.3045,
+        "lon": -48.8487,
+        "population": 597658,
+        "aliases": [
+            "Cidade das Flores"
+        ]
+    },
+    {
+        "id": "city_br_rs_002",
+        "name": "Caxias do Sul",
+        "state": "RS",
+        "region": "Sul",
+        "fullName": "Caxias do Sul, RS",
+        "lat": -29.1634,
+        "lon": -51.1797,
+        "population": 517451,
+        "aliases": [
+            "Pérola das Colônias"
+        ]
+    },
+    {
+        "id": "city_br_ba_002",
+        "name": "Feira de Santana",
+        "state": "BA",
+        "region": "Nordeste",
+        "fullName": "Feira de Santana, BA",
+        "lat": -12.2664,
+        "lon": -38.9663,
+        "population": 619609,
+        "aliases": [
+            "Princesa do Sertão"
+        ]
+    },
+    {
+        "id": "city_br_pe_002",
+        "name": "Jaboatão dos Guararapes",
+        "state": "PE",
+        "region": "Nordeste",
+        "fullName": "Jaboatão dos Guararapes, PE",
+        "lat": -8.1128,
+        "lon": -35.0148,
+        "population": 706867,
+        "aliases": [
+            "Jaboatão"
+        ]
+    },
+    {
+        "id": "city_br_ce_002",
+        "name": "Caucaia",
+        "state": "CE",
+        "region": "Nordeste",
+        "fullName": "Caucaia, CE",
+        "lat": -3.7361,
+        "lon": -38.6531,
+        "population": 368918,
+        "aliases": []
+    },
+    {
+        "id": "city_br_mt_001",
+        "name": "Cuiabá",
+        "state": "MT",
+        "region": "Centro-Oeste",
+        "fullName": "Cuiabá, MT",
+        "lat": -15.6014,
+        "lon": -56.0979,
+        "population": 618124,
+        "aliases": [
+            "Cidade Verde"
+        ]
+    },
+    {
+        "id": "city_br_ms_001",
+        "name": "Campo Grande",
+        "state": "MS",
+        "region": "Centro-Oeste",
+        "fullName": "Campo Grande, MS",
+        "lat": -20.4697,
+        "lon": -54.6201,
+        "population": 906092,
+        "aliases": [
+            "Cidade Morena"
+        ]
+    },
+    {
+        "id": "city_br_es_001",
+        "name": "Vitória",
+        "state": "ES",
+        "region": "Sudeste",
+        "fullName": "Vitória, ES",
+        "lat": -20.3155,
+        "lon": -40.3128,
+        "population": 365855,
+        "aliases": [
+            "Cidade Presépio"
+        ]
+    }
+]
