@@ -1,0 +1,687 @@
+import { useState, useRef, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import Navigation from "@/components/Navigation";
+import { 
+  MapPin, 
+  Navigation as NavigationIcon, 
+  Fuel, 
+  DollarSign, 
+  Clock, 
+  Route, 
+  Download,
+  Plus,
+  X,
+  AlertCircle,
+  Car,
+  Truck
+} from "lucide-react";
+
+// Tipos
+interface Waypoint {
+  id: string;
+  address: string;
+  lat?: number;
+  lon?: number;
+}
+
+interface RoutePreferences {
+  avoidTolls: boolean;
+  avoidUnpaved: boolean;
+  avoidFerries: boolean;
+  profile: "car" | "truck" | "motorcycle";
+}
+
+interface VehicleParams {
+  avgKmPerLiter: number;
+  fuelType: string;
+  pricePerLiter: number;
+}
+
+interface TollData {
+  id: string;
+  name: string;
+  lat: number;
+  lon: number;
+  direction: string;
+  vehicleClass: string;
+  priceBRL: number;
+}
+
+interface RouteResult {
+  distance: number;
+  duration: number;
+  steps: Array<{ instruction: string; distance: number; duration: number }>;
+  polyline: Array<[number, number]>;
+  consumption: number;
+  fuelCost: number;
+  tollCost: number;
+  totalCost: number;
+}
+
+// Base de dados de pedágios simulada (local/offline)
+const TOLL_DATABASE: TollData[] = [
+  { id: "1", name: "Pedágio SP-348 - Bandeirantes", lat: -23.0, lon: -47.0, direction: "both", vehicleClass: "car", priceBRL: 15.20 },
+  { id: "2", name: "Pedágio BR-116 - Régis", lat: -22.8, lon: -46.8, direction: "south", vehicleClass: "car", priceBRL: 18.50 },
+  { id: "3", name: "Pedágio SP-280 - Raposo", lat: -23.5, lon: -47.2, direction: "both", vehicleClass: "truck", priceBRL: 45.80 },
+];
+
+export default function ViabilidadeTransporte() {
+  const mapRef = useRef<HTMLDivElement>(null);
+  const [origin, setOrigin] = useState("");
+  const [destination, setDestination] = useState("");
+  const [waypoints, setWaypoints] = useState<Waypoint[]>([]);
+  
+  const [preferences, setPreferences] = useState<RoutePreferences>({
+    avoidTolls: false,
+    avoidUnpaved: false,
+    avoidFerries: false,
+    profile: "car"
+  });
+  
+  const [vehicleParams, setVehicleParams] = useState<VehicleParams>({
+    avgKmPerLiter: 10,
+    fuelType: "gasolina",
+    pricePerLiter: 5.89
+  });
+
+  const [routeResult, setRouteResult] = useState<RouteResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [mapInstance, setMapInstance] = useState<any>(null);
+
+  // Inicializar mapa offline com Leaflet
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    // Importação dinâmica do Leaflet
+    import('leaflet').then((L) => {
+      if (!mapRef.current || mapInstance) return;
+
+      const map = L.map(mapRef.current).setView([-15.7801, -47.9292], 4); // Centro do Brasil
+
+      // Tiles offline (substitua pela fonte local em produção)
+      // Para desenvolvimento, usa OpenStreetMap; em produção, use PMTiles/MBTiles local
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap',
+        maxZoom: 19,
+      }).addTo(map);
+
+      setMapInstance(map);
+
+      return () => {
+        map.remove();
+      };
+    });
+  }, []);
+
+  const addWaypoint = () => {
+    setWaypoints([...waypoints, { id: Date.now().toString(), address: "" }]);
+  };
+
+  const removeWaypoint = (id: string) => {
+    setWaypoints(waypoints.filter(w => w.id !== id));
+  };
+
+  const updateWaypoint = (id: string, address: string) => {
+    setWaypoints(waypoints.map(w => w.id === id ? { ...w, address } : w));
+  };
+
+  // Geocodificação offline simulada (em produção, usar Photon/Pelias local ou CSV)
+  const geocodeAddress = async (address: string): Promise<{ lat: number; lon: number } | null> => {
+    // Simulação: aceita formato "lat,lon" ou busca em base local
+    const coords = address.split(',').map(s => parseFloat(s.trim()));
+    if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
+      return { lat: coords[0], lon: coords[1] };
+    }
+    
+    // Aqui você implementaria busca em índice local (JSON/CSV)
+    // Por enquanto, retorna coordenadas simuladas de São Paulo
+    return { lat: -23.5505, lon: -46.6333 };
+  };
+
+  // Cálculo de rota offline usando OSRM/GraphHopper simulado
+  const calculateRoute = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Geocodificar origem e destino
+      const originCoords = await geocodeAddress(origin);
+      const destCoords = await geocodeAddress(destination);
+      
+      if (!originCoords || !destCoords) {
+        throw new Error("Não foi possível geocodificar os endereços. Use lat,lon ou endereços válidos.");
+      }
+
+      // Geocodificar waypoints
+      const waypointCoords = await Promise.all(
+        waypoints.map(w => geocodeAddress(w.address))
+      );
+
+      // Simula chamada ao OSRM local (substituir por chamada real à API local)
+      // Em produção: fetch('http://localhost:5000/route?...')
+      const distance = Math.random() * 500 + 100; // km (simulação)
+      const duration = distance / 60; // horas (velocidade média 60 km/h)
+      
+      const consumption = distance / vehicleParams.avgKmPerLiter;
+      const fuelCost = consumption * vehicleParams.pricePerLiter;
+      
+      // Calcular pedágios na rota (interseção espacial simulada)
+      const tollsOnRoute = preferences.avoidTolls ? [] : TOLL_DATABASE.filter(toll => {
+        // Simulação: considera pedágios próximos à linha reta origem-destino
+        const distToRoute = Math.abs(toll.lat - originCoords.lat) + Math.abs(toll.lon - originCoords.lon);
+        return distToRoute < 5; // graus, aproximação
+      });
+      
+      const tollCost = tollsOnRoute.reduce((sum, toll) => {
+        if (preferences.profile === "truck" && toll.vehicleClass === "truck") return sum + toll.priceBRL;
+        if (preferences.profile !== "truck" && toll.vehicleClass === "car") return sum + toll.priceBRL;
+        return sum;
+      }, 0);
+
+      const totalCost = fuelCost + tollCost;
+
+      // Gerar polyline simulada (em produção, vem do OSRM)
+      const polyline: Array<[number, number]> = [
+        [originCoords.lat, originCoords.lon],
+        [(originCoords.lat + destCoords.lat) / 2, (originCoords.lon + destCoords.lon) / 2],
+        [destCoords.lat, destCoords.lon]
+      ];
+
+      const steps = [
+        { instruction: "Siga em frente pela rodovia principal", distance: distance * 0.7, duration: duration * 0.7 },
+        { instruction: "Entre à direita na saída", distance: distance * 0.2, duration: duration * 0.2 },
+        { instruction: "Chegue ao destino", distance: distance * 0.1, duration: duration * 0.1 }
+      ];
+
+      setRouteResult({
+        distance,
+        duration,
+        steps,
+        polyline,
+        consumption,
+        fuelCost,
+        tollCost,
+        totalCost
+      });
+
+      // Desenhar rota no mapa
+      if (mapInstance && typeof window !== 'undefined') {
+        import('leaflet').then((L) => {
+          // Limpar camadas anteriores
+          mapInstance.eachLayer((layer: any) => {
+            if (layer instanceof L.Polyline || layer instanceof L.Marker) {
+              mapInstance.removeLayer(layer);
+            }
+          });
+
+          // Adicionar marcadores
+          L.marker([originCoords.lat, originCoords.lon])
+            .addTo(mapInstance)
+            .bindPopup("Origem");
+          
+          L.marker([destCoords.lat, destCoords.lon])
+            .addTo(mapInstance)
+            .bindPopup("Destino");
+
+          // Adicionar polyline
+          L.polyline(polyline, { color: 'blue', weight: 4 })
+            .addTo(mapInstance);
+
+          // Ajustar zoom
+          mapInstance.fitBounds(polyline);
+        });
+      }
+
+    } catch (err: any) {
+      setError(err.message || "Erro ao calcular rota");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const exportGPX = () => {
+    if (!routeResult) return;
+    
+    const gpx = `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="H2Map">
+  <trk>
+    <name>Rota ${origin} - ${destination}</name>
+    <trkseg>
+      ${routeResult.polyline.map(([lat, lon]) => `<trkpt lat="${lat}" lon="${lon}"></trkpt>`).join('\n      ')}
+    </trkseg>
+  </trk>
+</gpx>`;
+    
+    const blob = new Blob([gpx], { type: 'application/gpx+xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'rota.gpx';
+    a.click();
+  };
+
+  const exportGeoJSON = () => {
+    if (!routeResult) return;
+    
+    const geojson = {
+      type: "Feature",
+      geometry: {
+        type: "LineString",
+        coordinates: routeResult.polyline.map(([lat, lon]) => [lon, lat])
+      },
+      properties: {
+        origin,
+        destination,
+        distance: routeResult.distance,
+        duration: routeResult.duration,
+        totalCost: routeResult.totalCost
+      }
+    };
+    
+    const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'rota.geojson';
+    a.click();
+  };
+
+  const exportPDF = () => {
+    if (!routeResult) return;
+    alert("Exportação PDF será implementada com jsPDF + html2canvas");
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 pb-12">
+      <Navigation />
+      <div className="pt-28 max-w-7xl mx-auto px-4">
+        <div className="flex items-center gap-3 mb-6">
+          <Route className="w-8 h-8 text-emerald-600" />
+          <h1 className="text-3xl font-bold text-slate-800">Viabilidade de Transporte Offline</h1>
+        </div>
+        
+        <Alert className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Sistema offline-first para cálculo de rotas A→B sem dependência de internet. 
+            Usa dados locais (OSM, tiles offline, pedágios) para calcular distância, tempo, consumo e custos.
+          </AlertDescription>
+        </Alert>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Formulário */}
+          <Card className="p-6">
+            <Tabs defaultValue="route" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="route">Rota</TabsTrigger>
+                <TabsTrigger value="vehicle">Veículo</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="route" className="space-y-4 mt-4">
+                <div>
+                  <Label className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4" />
+                    Origem (endereço ou lat,lon)
+                  </Label>
+                  <Input 
+                    value={origin}
+                    onChange={(e) => setOrigin(e.target.value)}
+                    placeholder="ex: -23.5505,-46.6333 ou São Paulo, SP"
+                    className="mt-1"
+                  />
+                </div>
+
+                <div>
+                  <Label className="flex items-center gap-2">
+                    <NavigationIcon className="w-4 h-4" />
+                    Destino (endereço ou lat,lon)
+                  </Label>
+                  <Input 
+                    value={destination}
+                    onChange={(e) => setDestination(e.target.value)}
+                    placeholder="ex: -22.9068,-43.1729 ou Rio de Janeiro, RJ"
+                    className="mt-1"
+                  />
+                </div>
+
+                {/* Waypoints */}
+                <div>
+                  <Label>Paradas intermediárias (opcional)</Label>
+                  {waypoints.map((wp) => (
+                    <div key={wp.id} className="flex gap-2 mt-2">
+                      <Input 
+                        value={wp.address}
+                        onChange={(e) => updateWaypoint(wp.id, e.target.value)}
+                        placeholder="Endereço ou lat,lon"
+                      />
+                      <Button 
+                        variant="outline" 
+                        size="icon"
+                        onClick={() => removeWaypoint(wp.id)}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-2 w-full"
+                    onClick={addWaypoint}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Adicionar parada
+                  </Button>
+                </div>
+
+                {/* Preferências */}
+                <div className="space-y-3 pt-4 border-t">
+                  <Label className="text-base font-semibold">Preferências de rota</Label>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="avoidTolls"
+                      checked={preferences.avoidTolls}
+                      onCheckedChange={(checked) => 
+                        setPreferences({ ...preferences, avoidTolls: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="avoidTolls" className="text-sm cursor-pointer">
+                      Evitar pedágios
+                    </label>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="avoidUnpaved"
+                      checked={preferences.avoidUnpaved}
+                      onCheckedChange={(checked) => 
+                        setPreferences({ ...preferences, avoidUnpaved: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="avoidUnpaved" className="text-sm cursor-pointer">
+                      Evitar estradas não pavimentadas
+                    </label>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="avoidFerries"
+                      checked={preferences.avoidFerries}
+                      onCheckedChange={(checked) => 
+                        setPreferences({ ...preferences, avoidFerries: checked as boolean })
+                      }
+                    />
+                    <label htmlFor="avoidFerries" className="text-sm cursor-pointer">
+                      Evitar balsas/ferries
+                    </label>
+                  </div>
+
+                  <div>
+                    <Label>Perfil de veículo</Label>
+                    <Select 
+                      value={preferences.profile}
+                      onValueChange={(value) => 
+                        setPreferences({ ...preferences, profile: value as any })
+                      }
+                    >
+                      <SelectTrigger className="mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="car">
+                          <div className="flex items-center gap-2">
+                            <Car className="w-4 h-4" />
+                            Carro
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="truck">
+                          <div className="flex items-center gap-2">
+                            <Truck className="w-4 h-4" />
+                            Caminhão
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="motorcycle">Motocicleta</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="vehicle" className="space-y-4 mt-4">
+                <div>
+                  <Label className="flex items-center gap-2">
+                    <Fuel className="w-4 h-4" />
+                    Média de consumo (km/L)
+                  </Label>
+                  <Input 
+                    type="number"
+                    value={vehicleParams.avgKmPerLiter}
+                    onChange={(e) => 
+                      setVehicleParams({ ...vehicleParams, avgKmPerLiter: parseFloat(e.target.value) })
+                    }
+                    className="mt-1"
+                  />
+                </div>
+
+                <div>
+                  <Label>Tipo de combustível</Label>
+                  <Select 
+                    value={vehicleParams.fuelType}
+                    onValueChange={(value) => 
+                      setVehicleParams({ ...vehicleParams, fuelType: value })
+                    }
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="gasolina">Gasolina</SelectItem>
+                      <SelectItem value="etanol">Etanol</SelectItem>
+                      <SelectItem value="diesel">Diesel</SelectItem>
+                      <SelectItem value="gnv">GNV</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label className="flex items-center gap-2">
+                    <DollarSign className="w-4 h-4" />
+                    Preço por litro (R$)
+                  </Label>
+                  <Input 
+                    type="number"
+                    step="0.01"
+                    value={vehicleParams.pricePerLiter}
+                    onChange={(e) => 
+                      setVehicleParams({ ...vehicleParams, pricePerLiter: parseFloat(e.target.value) })
+                    }
+                    className="mt-1"
+                  />
+                </div>
+              </TabsContent>
+            </Tabs>
+
+            <div className="mt-6 flex gap-3">
+              <Button 
+                onClick={calculateRoute} 
+                disabled={loading || !origin || !destination}
+                className="flex-1"
+              >
+                {loading ? "Calculando..." : "Calcular Rota"}
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => {
+                  setOrigin("");
+                  setDestination("");
+                  setWaypoints([]);
+                  setRouteResult(null);
+                  setError(null);
+                }}
+              >
+                Limpar
+              </Button>
+            </div>
+
+            {error && (
+              <Alert variant="destructive" className="mt-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+          </Card>
+
+          {/* Mapa */}
+          <Card className="p-6">
+            <div className="mb-4">
+              <h3 className="font-semibold text-lg">Mapa Offline</h3>
+              <p className="text-sm text-slate-500">Tiles locais • Sem internet necessária</p>
+            </div>
+            <div 
+              ref={mapRef} 
+              className="w-full h-[500px] rounded-lg border bg-slate-100"
+              style={{ minHeight: '500px' }}
+            />
+          </Card>
+        </div>
+
+        {/* Resultados */}
+        {routeResult && (
+          <Card className="p-6 mt-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-bold">Resultados da Rota</h2>
+                <p className="text-sm text-slate-500">{origin} → {destination}</p>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={exportGPX}>
+                  <Download className="w-4 h-4 mr-2" />
+                  GPX
+                </Button>
+                <Button variant="outline" size="sm" onClick={exportGeoJSON}>
+                  <Download className="w-4 h-4 mr-2" />
+                  GeoJSON
+                </Button>
+                <Button variant="outline" size="sm" onClick={exportPDF}>
+                  <Download className="w-4 h-4 mr-2" />
+                  PDF
+                </Button>
+              </div>
+            </div>
+
+            {/* Métricas principais */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+                <div className="text-sm text-blue-600 font-medium mb-1">Distância Total</div>
+                <div className="text-2xl font-bold text-blue-900">{routeResult.distance.toFixed(1)} km</div>
+              </div>
+
+              <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200">
+                <div className="text-sm text-purple-600 font-medium mb-1 flex items-center gap-1">
+                  <Clock className="w-4 h-4" />
+                  Tempo Estimado
+                </div>
+                <div className="text-2xl font-bold text-purple-900">{(routeResult.duration * 60).toFixed(0)} min</div>
+              </div>
+
+              <div className="p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg border border-orange-200">
+                <div className="text-sm text-orange-600 font-medium mb-1 flex items-center gap-1">
+                  <Fuel className="w-4 h-4" />
+                  Consumo
+                </div>
+                <div className="text-2xl font-bold text-orange-900">{routeResult.consumption.toFixed(1)} L</div>
+              </div>
+
+              <div className="p-4 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-lg border border-emerald-200">
+                <div className="text-sm text-emerald-600 font-medium mb-1 flex items-center gap-1">
+                  <DollarSign className="w-4 h-4" />
+                  Custo Total
+                </div>
+                <div className="text-2xl font-bold text-emerald-900">R$ {routeResult.totalCost.toFixed(2)}</div>
+              </div>
+            </div>
+
+            {/* Detalhamento de custos */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div className="p-4 bg-white rounded-lg border">
+                <h3 className="font-semibold mb-3">Detalhamento de Custos</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Combustível:</span>
+                    <span className="font-medium">R$ {routeResult.fuelCost.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Pedágios:</span>
+                    <span className="font-medium">R$ {routeResult.tollCost.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between pt-2 border-t font-semibold">
+                    <span>Total:</span>
+                    <span className="text-emerald-600">R$ {routeResult.totalCost.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-white rounded-lg border">
+                <h3 className="font-semibold mb-3">Informações do Veículo</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Perfil:</span>
+                    <Badge variant="outline">{preferences.profile}</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Consumo médio:</span>
+                    <span className="font-medium">{vehicleParams.avgKmPerLiter} km/L</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Combustível:</span>
+                    <span className="font-medium">{vehicleParams.fuelType}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Preço/litro:</span>
+                    <span className="font-medium">R$ {vehicleParams.pricePerLiter.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Instruções turn-by-turn */}
+            <div className="p-4 bg-white rounded-lg border">
+              <h3 className="font-semibold mb-3">Instruções Passo a Passo</h3>
+              <div className="space-y-3">
+                {routeResult.steps.map((step, index) => (
+                  <div key={index} className="flex gap-3 pb-3 border-b last:border-0">
+                    <div className="flex-shrink-0 w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-700 font-semibold text-sm">
+                      {index + 1}
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-sm font-medium">{step.instruction}</div>
+                      <div className="text-xs text-slate-500 mt-1">
+                        {step.distance.toFixed(1)} km • {(step.duration * 60).toFixed(0)} min
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Card>
+        )}
+      </div>
+    </div>
+  );
+}

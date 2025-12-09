@@ -1,0 +1,305 @@
+[
+    {
+        "id": "toll_sp_001",
+        "name": "Pedágio Bandeirantes - KM 23",
+        "lat": -23.0893,
+        "lon": -47.2189,
+        "direction": "both",
+        "highway": "SP-348",
+        "state": "SP",
+        "operator": "AutoBan",
+        "vehicleClass": {
+            "car": 15.20,
+            "motorcycle": 7.60,
+            "truck": 45.80,
+            "truck-2axles": 30.40,
+            "truck-3axles": 45.80,
+            "truck-4axles": 61.20,
+            "truck-5axles": 76.00,
+            "truck-6axles": 91.20
+        },
+        "operatingHours": "24/7",
+        "paymentMethods": [
+            "cash",
+            "debit",
+            "credit",
+            "pix",
+            "sem-parar",
+            "veloe"
+        ],
+        "lastUpdate": "2024-12-01"
+    },
+    {
+        "id": "toll_sp_002",
+        "name": "Pedágio Anhanguera - KM 48",
+        "lat": -23.1245,
+        "lon": -47.0567,
+        "direction": "both",
+        "highway": "SP-330",
+        "state": "SP",
+        "operator": "AutoBan",
+        "vehicleClass": {
+            "car": 16.50,
+            "motorcycle": 8.25,
+            "truck": 49.50,
+            "truck-2axles": 33.00,
+            "truck-3axles": 49.50,
+            "truck-4axles": 66.00,
+            "truck-5axles": 82.50,
+            "truck-6axles": 99.00
+        },
+        "operatingHours": "24/7",
+        "paymentMethods": [
+            "cash",
+            "debit",
+            "credit",
+            "pix",
+            "sem-parar",
+            "veloe"
+        ],
+        "lastUpdate": "2024-12-01"
+    },
+    {
+        "id": "toll_sp_003",
+        "name": "Pedágio Castelo Branco - KM 56",
+        "lat": -23.5234,
+        "lon": -47.4567,
+        "direction": "both",
+        "highway": "SP-280",
+        "state": "SP",
+        "operator": "Via Oeste",
+        "vehicleClass": {
+            "car": 14.80,
+            "motorcycle": 7.40,
+            "truck": 44.40,
+            "truck-2axles": 29.60,
+            "truck-3axles": 44.40,
+            "truck-4axles": 59.20,
+            "truck-5axles": 74.00,
+            "truck-6axles": 88.80
+        },
+        "operatingHours": "24/7",
+        "paymentMethods": [
+            "cash",
+            "debit",
+            "credit",
+            "pix",
+            "sem-parar",
+            "veloe",
+            "conectcar"
+        ],
+        "lastUpdate": "2024-12-01"
+    },
+    {
+        "id": "toll_rj_001",
+        "name": "Pedágio Dutra - KM 165",
+        "lat": -22.8956,
+        "lon": -43.3245,
+        "direction": "both",
+        "highway": "BR-116",
+        "state": "RJ",
+        "operator": "CCR NovaDutra",
+        "vehicleClass": {
+            "car": 13.70,
+            "motorcycle": 6.85,
+            "truck": 41.10,
+            "truck-2axles": 27.40,
+            "truck-3axles": 41.10,
+            "truck-4axles": 54.80,
+            "truck-5axles": 68.50,
+            "truck-6axles": 82.20
+        },
+        "operatingHours": "24/7",
+        "paymentMethods": [
+            "cash",
+            "debit",
+            "credit",
+            "pix",
+            "sem-parar",
+            "veloe",
+            "conectcar"
+        ],
+        "lastUpdate": "2024-12-01"
+    },
+    {
+        "id": "toll_rj_002",
+        "name": "Pedágio Rio-Teresópolis",
+        "lat": -22.7234,
+        "lon": -42.9876,
+        "direction": "both",
+        "highway": "BR-116",
+        "state": "RJ",
+        "operator": "CRT",
+        "vehicleClass": {
+            "car": 12.30,
+            "motorcycle": 6.15,
+            "truck": 36.90,
+            "truck-2axles": 24.60,
+            "truck-3axles": 36.90,
+            "truck-4axles": 49.20,
+            "truck-5axles": 61.50,
+            "truck-6axles": 73.80
+        },
+        "operatingHours": "24/7",
+        "paymentMethods": [
+            "cash",
+            "debit",
+            "credit",
+            "sem-parar",
+            "veloe"
+        ],
+        "lastUpdate": "2024-12-01"
+    },
+    {
+        "id": "toll_mg_001",
+        "name": "Pedágio Fernão Dias - KM 72",
+        "lat": -22.4567,
+        "lon": -45.9234,
+        "direction": "both",
+        "highway": "BR-381",
+        "state": "MG",
+        "operator": "Arteris",
+        "vehicleClass": {
+            "car": 15.90,
+            "motorcycle": 7.95,
+            "truck": 47.70,
+            "truck-2axles": 31.80,
+            "truck-3axles": 47.70,
+            "truck-4axles": 63.60,
+            "truck-5axles": 79.50,
+            "truck-6axles": 95.40
+        },
+        "operatingHours": "24/7",
+        "paymentMethods": [
+            "cash",
+            "debit",
+            "credit",
+            "pix",
+            "sem-parar",
+            "veloe",
+            "conectcar"
+        ],
+        "lastUpdate": "2024-12-01"
+    },
+    {
+        "id": "toll_pr_001",
+        "name": "Pedágio Régis Bittencourt - KM 432",
+        "lat": -25.4234,
+        "lon": -49.2678,
+        "direction": "both",
+        "highway": "BR-116",
+        "state": "PR",
+        "operator": "Arteris",
+        "vehicleClass": {
+            "car": 14.50,
+            "motorcycle": 7.25,
+            "truck": 43.50,
+            "truck-2axles": 29.00,
+            "truck-3axles": 43.50,
+            "truck-4axles": 58.00,
+            "truck-5axles": 72.50,
+            "truck-6axles": 87.00
+        },
+        "operatingHours": "24/7",
+        "paymentMethods": [
+            "cash",
+            "debit",
+            "credit",
+            "pix",
+            "sem-parar",
+            "veloe",
+            "conectcar"
+        ],
+        "lastUpdate": "2024-12-01"
+    },
+    {
+        "id": "toll_pr_002",
+        "name": "Pedágio Santos Dumont - Curitiba",
+        "lat": -25.5123,
+        "lon": -49.1456,
+        "direction": "both",
+        "highway": "BR-277",
+        "state": "PR",
+        "operator": "Ecocataratas",
+        "vehicleClass": {
+            "car": 13.20,
+            "motorcycle": 6.60,
+            "truck": 39.60,
+            "truck-2axles": 26.40,
+            "truck-3axles": 39.60,
+            "truck-4axles": 52.80,
+            "truck-5axles": 66.00,
+            "truck-6axles": 79.20
+        },
+        "operatingHours": "24/7",
+        "paymentMethods": [
+            "cash",
+            "debit",
+            "credit",
+            "sem-parar",
+            "veloe"
+        ],
+        "lastUpdate": "2024-12-01"
+    },
+    {
+        "id": "toll_sc_001",
+        "name": "Pedágio BR-101 - Palhoça",
+        "lat": -27.6445,
+        "lon": -48.6712,
+        "direction": "both",
+        "highway": "BR-101",
+        "state": "SC",
+        "operator": "Autopista Litoral Sul",
+        "vehicleClass": {
+            "car": 12.80,
+            "motorcycle": 6.40,
+            "truck": 38.40,
+            "truck-2axles": 25.60,
+            "truck-3axles": 38.40,
+            "truck-4axles": 51.20,
+            "truck-5axles": 64.00,
+            "truck-6axles": 76.80
+        },
+        "operatingHours": "24/7",
+        "paymentMethods": [
+            "cash",
+            "debit",
+            "credit",
+            "pix",
+            "sem-parar",
+            "veloe"
+        ],
+        "lastUpdate": "2024-12-01"
+    },
+    {
+        "id": "toll_rs_001",
+        "name": "Pedágio Freeway - Porto Alegre",
+        "lat": -30.0346,
+        "lon": -51.2177,
+        "direction": "both",
+        "highway": "BR-290",
+        "state": "RS",
+        "operator": "CCR ViaSul",
+        "vehicleClass": {
+            "car": 11.90,
+            "motorcycle": 5.95,
+            "truck": 35.70,
+            "truck-2axles": 23.80,
+            "truck-3axles": 35.70,
+            "truck-4axles": 47.60,
+            "truck-5axles": 59.50,
+            "truck-6axles": 71.40
+        },
+        "operatingHours": "24/7",
+        "paymentMethods": [
+            "cash",
+            "debit",
+            "credit",
+            "pix",
+            "sem-parar",
+            "veloe",
+            "conectcar"
+        ],
+        "lastUpdate": "2024-12-01"
+    }
+]
