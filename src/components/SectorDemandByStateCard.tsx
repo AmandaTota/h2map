@@ -449,6 +449,12 @@ export default function SectorDemandByStateCard({
   if (!estado) return null;
   const estadoNorm = estado.toLowerCase();
 
+  // States for which we hide the "Fontes/Empresas" visual (user request)
+  const hiddenSourceStates = new Set([
+    'AC','AP','PA','RO','RR','TO','AL','MA','PB','PI','RN','GO','MT','SC'
+  ]);
+  const hideSourcesForThisState = hiddenSourceStates.has(estado.toUpperCase());
+
   // Quando for 'all' agregamos os dados qualitativos
   if (estadoNorm === "all") {
     const sectors = ["refino", "fertilizantes", "siderurgia", "mobilidade"];
@@ -628,7 +634,7 @@ export default function SectorDemandByStateCard({
                     </div>
                   )}
                   {/* Fontes qualitativas */}
-                  {s.refino.sources && (
+                  {s.refino.sources && !hideSourcesForThisState && (
                     <div className="text-xs text-emerald-700 mt-1">
                       <b>Fontes/Empresas:</b>
                       <ul>
@@ -654,7 +660,7 @@ export default function SectorDemandByStateCard({
                       ))}
                     </div>
                   )}
-                  {s.fertilizantes.sources && (
+                  {s.fertilizantes.sources && !hideSourcesForThisState && (
                     <div className="text-xs text-emerald-700 mt-1">
                       <b>Fontes/Empresas:</b>
                       <ul>
@@ -680,7 +686,7 @@ export default function SectorDemandByStateCard({
                       ))}
                     </div>
                   )}
-                  {s.siderurgia.sources && (
+                  {s.siderurgia.sources && !hideSourcesForThisState && (
                     <div className="text-xs text-emerald-700 mt-1">
                       <b>Fontes/Empresas:</b>
                       <ul>
@@ -706,7 +712,7 @@ export default function SectorDemandByStateCard({
                       ))}
                     </div>
                   )}
-                  {s.mobilidade.sources && (
+                  {s.mobilidade.sources && !hideSourcesForThisState && (
                     <div className="text-xs text-emerald-700 mt-1">
                       <b>Fontes/Empresas:</b>
                       <ul>
