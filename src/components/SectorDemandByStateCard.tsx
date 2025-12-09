@@ -2,6 +2,18 @@ import React, { useMemo, useState } from "react";
 import { FileText, ChevronDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import h2QualitativeByState from "@/data/h2_qualitative_by_state";
+import { officialSources } from "@/data/officialSources";
+// Função utilitária para buscar títulos das fontes
+function getSourceTitles(sourceIds?: string[]): string[] {
+  if (!sourceIds) return [];
+  return sourceIds
+    .map(id => {
+      const found = officialSources.find(s => s.id === id);
+      return found ? found.title : id;
+    })
+    .filter(Boolean);
+}
 import {
   Collapsible,
   CollapsibleContent,
@@ -115,6 +127,37 @@ const data: Record<
   },
 };
 
+// Merge local `data` with external qualitative dataset to cover additional UFs
+const combinedData: Record<string, any> = (() => {
+  const out: Record<string, any> = { ...data };
+  Object.entries(h2QualitativeByState).forEach(([uf, obj]) => {
+    const sectors = obj.sectors || {};
+    out[uf] = out[uf] || { refino: { level: 'Baixa' }, fertilizantes: { level: 'Baixa' }, siderurgia: { level: 'Baixa' }, mobilidade: { level: 'Baixa' } };
+    // Map keys
+    out[uf].refino = out[uf].refino || {};
+    out[uf].fertilizantes = out[uf].fertilizantes || {};
+    out[uf].siderurgia = out[uf].siderurgia || {};
+    out[uf].mobilidade = out[uf].mobilidade || {};
+    if (sectors.refino) {
+      out[uf].refino.level = sectors.refino.level || out[uf].refino.level;
+      if (sectors.refino.sources) out[uf].refino.sources = sectors.refino.sources;
+    }
+    if (sectors.fertilizantes) {
+      out[uf].fertilizantes.level = sectors.fertilizantes.level || out[uf].fertilizantes.level;
+      if (sectors.fertilizantes.sources) out[uf].fertilizantes.sources = sectors.fertilizantes.sources;
+    }
+    if (sectors.siderurgia) {
+      out[uf].siderurgia.level = sectors.siderurgia.level || out[uf].siderurgia.level;
+      if (sectors.siderurgia.sources) out[uf].siderurgia.sources = sectors.siderurgia.sources;
+    }
+    if (sectors.mobilidade_powertox) {
+      out[uf].mobilidade.level = sectors.mobilidade_powertox.level || out[uf].mobilidade.level;
+      if (sectors.mobilidade_powertox.sources) out[uf].mobilidade.sources = sectors.mobilidade_powertox.sources;
+    }
+  });
+  return out;
+})();
+
 const getBadgeClass = (level: string) => {
   switch (level.toLowerCase()) {
     case "alta":
@@ -131,36 +174,13 @@ const getBadgeClass = (level: string) => {
 
 // ForecastCard: calcula previsão anual 2025-2030 para um UF ou Região
 function ForecastCard({ estado }: { estado: string }) {
+  // UFs ampliados para todos os 27 estados
   const ufs = [
-    "SP",
-    "RJ",
-    "MG",
-    "ES",
-    "BA",
-    "SE",
-    "PR",
-    "RS",
-    "PE",
-    "CE",
-    "AM",
-    "MS",
-    "DF",
+    "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"
   ];
 
   const regions: Record<string, string> = {
-    SP: "SE",
-    RJ: "SE",
-    MG: "SE",
-    ES: "SE",
-    BA: "NE",
-    SE: "NE",
-    PE: "NE",
-    CE: "NE",
-    PR: "S",
-    RS: "S",
-    AM: "N",
-    MS: "CO",
-    DF: "CO",
+    AC: "N", AL: "NE", AP: "N", AM: "N", BA: "NE", CE: "NE", DF: "CO", ES: "SE", GO: "CO", MA: "NE", MT: "CO", MS: "CO", MG: "SE", PA: "N", PB: "NE", PR: "S", PE: "NE", PI: "NE", RJ: "SE", RN: "NE", RS: "S", RO: "N", RR: "N", SC: "S", SP: "SE", SE: "NE", TO: "N"
   };
 
   const baseline2025: Record<string, number> = {
@@ -170,66 +190,23 @@ function ForecastCard({ estado }: { estado: string }) {
     Mobilidade: 8,
   };
 
+  // Pesos ampliados para todos os UFs
   const weights: Record<string, Record<string, number>> = {
     Refino: {
-      SP: 1.0,
-      RJ: 1.0,
-      MG: 0.6,
-      ES: 0.2,
-      BA: 1.0,
-      SE: 0.2,
-      PR: 1.0,
-      RS: 1.0,
-      PE: 1.0,
-      CE: 0.6,
-      AM: 0.6,
-      MS: 0.2,
-      DF: 0.2,
+      SP: 1.0, RJ: 1.0, MG: 0.6, ES: 0.2, BA: 1.0, SE: 0.2, PR: 1.0, RS: 1.0, PE: 1.0, CE: 0.6, AM: 0.6, MS: 0.2, DF: 0.2,
+      AC: 0.2, AL: 0.2, AP: 0.2, GO: 0.2, MA: 0.2, MT: 0.2, PA: 0.2, PB: 0.2, PI: 0.2, RN: 1.0, RO: 0.2, RR: 0.2, SC: 0.2, TO: 0.2
     },
     Fertilizantes: {
-      SP: 0.6,
-      RJ: 0.2,
-      MG: 0.6,
-      ES: 0.2,
-      BA: 1.0,
-      SE: 1.0,
-      PR: 1.0,
-      RS: 0.2,
-      PE: 0.6,
-      CE: 0.6,
-      AM: 0.2,
-      MS: 1.0,
-      DF: 0.2,
+      SP: 0.6, RJ: 0.2, MG: 0.6, ES: 0.2, BA: 1.0, SE: 1.0, PR: 1.0, RS: 0.2, PE: 0.6, CE: 0.6, AM: 0.2, MS: 1.0, DF: 0.2,
+      AC: 0.2, AL: 0.2, AP: 0.2, GO: 1.0, MA: 0.2, MT: 1.0, PA: 0.2, PB: 0.6, PI: 1.0, RN: 1.0, RO: 0.2, RR: 0.2, SC: 1.0, TO: 1.0
     },
     Siderurgia: {
-      SP: 1.0,
-      RJ: 1.0,
-      MG: 1.0,
-      ES: 1.0,
-      BA: 0.6,
-      SE: 0.2,
-      PR: 0.6,
-      RS: 0.6,
-      PE: 0.2,
-      CE: 0.6,
-      AM: 0.2,
-      MS: 0.2,
-      DF: 0.2,
+      SP: 1.0, RJ: 1.0, MG: 1.0, ES: 1.0, BA: 0.6, SE: 0.2, PR: 0.6, RS: 0.6, PE: 0.2, CE: 0.6, AM: 0.2, MS: 0.2, DF: 0.2,
+      AC: 0.2, AL: 0.2, AP: 0.2, GO: 0.2, MA: 1.0, MT: 0.2, PA: 1.0, PB: 0.2, PI: 1.0, RN: 0.8, RO: 0.2, RR: 0.2, SC: 0.2, TO: 0.2
     },
     Mobilidade: {
-      SP: 1.2,
-      RJ: 0.8,
-      MG: 0.2,
-      ES: 0.2,
-      BA: 0.2,
-      SE: 0.2,
-      PR: 0.2,
-      RS: 0.2,
-      PE: 0.2,
-      CE: 0.2,
-      AM: 0.2,
-      MS: 0.2,
-      DF: 1.2,
+      SP: 1.2, RJ: 0.8, MG: 0.2, ES: 0.2, BA: 0.2, SE: 0.2, PR: 0.2, RS: 0.2, PE: 0.2, CE: 0.2, AM: 0.2, MS: 0.2, DF: 1.2,
+      AC: 0.2, AL: 0.2, AP: 0.2, GO: 1.0, MA: 1.0, MT: 1.0, PA: 1.0, PB: 1.0, PI: 1.0, RN: 1.0, RO: 0.2, RR: 0.2, SC: 1.0, TO: 0.2
     },
   };
 
@@ -254,9 +231,9 @@ function ForecastCard({ estado }: { estado: string }) {
         const v2025 =
           (baseline2025 as any)[s] *
           ((weights as any)[s][uf] / Math.max(1, sumWeights[s]));
-        // qualitative level from `data` if available
+        // qualitative level from combinedData if available
         const lvlRaw = (
-          (data as any)[uf]?.[s.toLowerCase()]?.level || "Baixa"
+          (combinedData as any)[uf]?.[s.toLowerCase()]?.level || "Baixa"
         ).toLowerCase();
         let targetMultiplier = 1.5; // default
         if (lvlRaw === "alta") targetMultiplier = 3;
@@ -398,7 +375,7 @@ export default function SectorDemandByStateCard({
       topStates[sec] = [];
     });
 
-    Object.entries(data).forEach(([uf, values]) => {
+    Object.entries(combinedData).forEach(([uf, values]) => {
       sectors.forEach((sec) => {
         // @ts-ignore
         const levelRaw = values[sec]?.level || "Baixa";
@@ -475,7 +452,7 @@ export default function SectorDemandByStateCard({
     );
   }
 
-  const s = data[estado.toUpperCase()];
+  const s = combinedData[estado.toUpperCase()];
   if (!s) {
     return (
       <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden mb-4">
@@ -557,11 +534,23 @@ export default function SectorDemandByStateCard({
                       {s.refino.level}
                     </Badge>
                   </div>
+                  {/* Notas locais */}
                   {s.refino.notes && (
                     <div className="text-xs text-slate-500">
                       {s.refino.notes.map((n, i) => (
                         <div key={i}>{n}</div>
                       ))}
+                    </div>
+                  )}
+                  {/* Fontes qualitativas */}
+                  {s.refino.sources && (
+                    <div className="text-xs text-emerald-700 mt-1">
+                      <b>Fontes/Empresas:</b>
+                      <ul>
+                        {getSourceTitles(s.refino.sources).map((title, idx) => (
+                          <li key={idx}>{title}</li>
+                        ))}
+                      </ul>
                     </div>
                   )}
                 </div>
@@ -580,6 +569,16 @@ export default function SectorDemandByStateCard({
                       ))}
                     </div>
                   )}
+                  {s.fertilizantes.sources && (
+                    <div className="text-xs text-emerald-700 mt-1">
+                      <b>Fontes/Empresas:</b>
+                      <ul>
+                        {getSourceTitles(s.fertilizantes.sources).map((title, idx) => (
+                          <li key={idx}>{title}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
 
                 <div className="p-3 rounded border bg-white">
@@ -596,6 +595,16 @@ export default function SectorDemandByStateCard({
                       ))}
                     </div>
                   )}
+                  {s.siderurgia.sources && (
+                    <div className="text-xs text-emerald-700 mt-1">
+                      <b>Fontes/Empresas:</b>
+                      <ul>
+                        {getSourceTitles(s.siderurgia.sources).map((title, idx) => (
+                          <li key={idx}>{title}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
 
                 <div className="p-3 rounded border bg-white">
@@ -610,6 +619,16 @@ export default function SectorDemandByStateCard({
                       {s.mobilidade.notes.map((n, i) => (
                         <div key={i}>{n}</div>
                       ))}
+                    </div>
+                  )}
+                  {s.mobilidade.sources && (
+                    <div className="text-xs text-emerald-700 mt-1">
+                      <b>Fontes/Empresas:</b>
+                      <ul>
+                        {getSourceTitles(s.mobilidade.sources).map((title, idx) => (
+                          <li key={idx}>{title}</li>
+                        ))}
+                      </ul>
                     </div>
                   )}
                 </div>
