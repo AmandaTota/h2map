@@ -2817,7 +2817,7 @@ const FeasibilityAnalysis = () => {
                                   </div>
                                   <p className="text-3xl font-bold text-slate-900">
                                     R${" "}
-                                    {Math.ceil(simulationResults.oneYear.lcoh)}
+                                    {simulationResults.oneYear.lcoh.toFixed(2)}
                                   </p>
                                   <p className="text-xs text-slate-600 mt-1">
                                     por kg de H₂
@@ -2888,8 +2888,8 @@ const FeasibilityAnalysis = () => {
                                       simulationResults.oneYear.h2Production *
                                       25
                                     ).toLocaleString("pt-BR", {
-                                      minimumFractionDigits: 0,
-                                      maximumFractionDigits: 0,
+                                      minimumFractionDigits: 2,
+                                      maximumFractionDigits: 2,
                                     })}
                                   </p>
                                   <p className="text-xs text-slate-600 mt-1">
@@ -2914,7 +2914,8 @@ const FeasibilityAnalysis = () => {
                                         simulationResults.oneYear
                                           .capexAnnualized / 0.117
                                       ).toLocaleString("pt-BR", {
-                                        maximumFractionDigits: 0,
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2,
                                       })}
                                     </p>
                                   </div>
@@ -2923,7 +2924,7 @@ const FeasibilityAnalysis = () => {
                                       Payback Estimado:
                                     </p>
                                     <p className="text-xl font-bold text-green-600">
-                                      {Math.ceil((
+                                      {(
                                         simulationResults.oneYear
                                           .capexAnnualized /
                                         0.117 /
@@ -2931,7 +2932,7 @@ const FeasibilityAnalysis = () => {
                                           .h2Production *
                                           25 -
                                           simulationResults.oneYear.opexAnnual)
-                                      ))}{" "}
+                                      ).toFixed(2)}{" "}
                                       anos
                                     </p>
                                   </div>
@@ -2940,7 +2941,7 @@ const FeasibilityAnalysis = () => {
                                       ROI Anual:
                                     </p>
                                     <p className="text-xl font-bold text-green-600">
-                                      {Math.ceil((
+                                      {(
                                         ((simulationResults.oneYear
                                           .h2Production *
                                           25 -
@@ -2950,7 +2951,7 @@ const FeasibilityAnalysis = () => {
                                             .capexAnnualized /
                                             0.117)) *
                                         100
-                                      ))}
+                                      ).toFixed(2)}
                                       %
                                     </p>
                                   </div>
@@ -2974,9 +2975,7 @@ const FeasibilityAnalysis = () => {
                                   </div>
                                   <p className="text-3xl font-bold text-slate-900">
                                     R${" "}
-                                    {simulationResults.threeYears!.lcoh.toFixed(
-                                      2
-                                    )}
+                                    {simulationResults.threeYears!.lcoh.toFixed(2)}
                                   </p>
                                   <p className="text-xs text-slate-600 mt-1">
                                     por kg de H₂
@@ -3047,8 +3046,8 @@ const FeasibilityAnalysis = () => {
                                       simulationResults.threeYears!
                                         .h2Production * 25
                                     ).toLocaleString("pt-BR", {
-                                      minimumFractionDigits: 0,
-                                      maximumFractionDigits: 0,
+                                      minimumFractionDigits: 2,
+                                      maximumFractionDigits: 2,
                                     })}
                                   </p>
                                   <p className="text-xs text-slate-600 mt-1">
@@ -3073,7 +3072,8 @@ const FeasibilityAnalysis = () => {
                                         simulationResults.threeYears!
                                           .capexAnnualized / 0.117
                                       ).toLocaleString("pt-BR", {
-                                        maximumFractionDigits: 0,
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2,
                                       })}
                                     </p>
                                   </div>
@@ -3082,7 +3082,7 @@ const FeasibilityAnalysis = () => {
                                       Payback Estimado:
                                     </p>
                                     <p className="text-xl font-bold text-green-600">
-                                      {Math.ceil((
+                                      {(
                                         simulationResults.threeYears!
                                           .capexAnnualized /
                                         0.117 /
@@ -3091,7 +3091,7 @@ const FeasibilityAnalysis = () => {
                                           25 -
                                           simulationResults.threeYears!
                                             .opexAnnual)
-                                      ))}{" "}
+                                      ).toFixed(2)}{" "}
                                       anos
                                     </p>
                                   </div>
@@ -3100,7 +3100,7 @@ const FeasibilityAnalysis = () => {
                                       ROI Anual:
                                     </p>
                                     <p className="text-xl font-bold text-green-600">
-                                      {Math.ceil((
+                                      {(
                                         ((simulationResults.threeYears!
                                           .h2Production *
                                           25 -
@@ -3110,7 +3110,7 @@ const FeasibilityAnalysis = () => {
                                             .capexAnnualized /
                                             0.117)) *
                                         100
-                                      ))}
+                                      ).toFixed(2)}
                                       %
                                     </p>
                                   </div>
@@ -3134,9 +3134,7 @@ const FeasibilityAnalysis = () => {
                                   </div>
                                   <p className="text-3xl font-bold text-slate-900">
                                     R${" "}
-                                    {simulationResults.fiveYears!.lcoh.toFixed(
-                                      2
-                                    )}
+                                    {simulationResults.fiveYears!.lcoh.toFixed(2)}
                                   </p>
                                   <p className="text-xs text-slate-600 mt-1">
                                     por kg de H₂
@@ -3207,8 +3205,8 @@ const FeasibilityAnalysis = () => {
                                       simulationResults.fiveYears!
                                         .h2Production * 25
                                     ).toLocaleString("pt-BR", {
-                                      minimumFractionDigits: 0,
-                                      maximumFractionDigits: 0,
+                                      minimumFractionDigits: 2,
+                                      maximumFractionDigits: 2,
                                     })}
                                   </p>
                                   <p className="text-xs text-slate-600 mt-1">
@@ -3233,7 +3231,8 @@ const FeasibilityAnalysis = () => {
                                         simulationResults.fiveYears!
                                           .capexAnnualized / 0.117
                                       ).toLocaleString("pt-BR", {
-                                        maximumFractionDigits: 0,
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2,
                                       })}
                                     </p>
                                   </div>
@@ -3242,7 +3241,7 @@ const FeasibilityAnalysis = () => {
                                       Payback Estimado:
                                     </p>
                                     <p className="text-xl font-bold text-green-600">
-                                      {Math.ceil((
+                                      {(
                                         simulationResults.fiveYears!
                                           .capexAnnualized /
                                         0.117 /
@@ -3251,7 +3250,7 @@ const FeasibilityAnalysis = () => {
                                           25 -
                                           simulationResults.fiveYears!
                                             .opexAnnual)
-                                      ))}{" "}
+                                      ).toFixed(2)}{" "}
                                       anos
                                     </p>
                                   </div>
@@ -3260,7 +3259,7 @@ const FeasibilityAnalysis = () => {
                                       ROI Anual:
                                     </p>
                                     <p className="text-xl font-bold text-green-600">
-                                      {Math.ceil((
+                                      {(
                                         ((simulationResults.fiveYears!
                                           .h2Production *
                                           25 -
@@ -3270,7 +3269,7 @@ const FeasibilityAnalysis = () => {
                                             .capexAnnualized /
                                             0.117)) *
                                         100
-                                      ))}
+                                      ).toFixed(2)}
                                       %
                                     </p>
                                   </div>
@@ -3467,9 +3466,7 @@ const FeasibilityAnalysis = () => {
                                     </h3>
                                     <p className="text-sm text-slate-700">
                                       LCOH de R${" "}
-                                      {simulationResults.oneYear.lcoh.toFixed(
-                                        2
-                                      )}
+                                      {simulationResults.oneYear.lcoh.toFixed(2)}
                                       /kg
                                       {simulationResults.oneYear.lcoh < 8 &&
                                         " - Altamente competitivo! Abaixo do H₂ cinza (R$ 8-10/kg)."}
@@ -3636,9 +3633,7 @@ const FeasibilityAnalysis = () => {
                                     </h3>
                                     <p className="text-sm text-slate-700">
                                       LCOH de R${" "}
-                                      {simulationResults.threeYears!.lcoh.toFixed(
-                                        2
-                                      )}
+                                      {simulationResults.threeYears!.lcoh.toFixed(2)}
                                       /kg
                                       {simulationResults.threeYears!.lcoh < 8 &&
                                         " - Altamente competitivo! Abaixo do H₂ cinza (R$ 8-10/kg)."}
@@ -3811,9 +3806,7 @@ const FeasibilityAnalysis = () => {
                                     </h3>
                                     <p className="text-sm text-slate-700">
                                       LCOH de R${" "}
-                                      {simulationResults.fiveYears!.lcoh.toFixed(
-                                        2
-                                      )}
+                                      {simulationResults.fiveYears!.lcoh.toFixed(2)}
                                       /kg
                                       {simulationResults.fiveYears!.lcoh < 8 &&
                                         " - Altamente competitivo! Abaixo do H₂ cinza (R$ 8-10/kg)."}
