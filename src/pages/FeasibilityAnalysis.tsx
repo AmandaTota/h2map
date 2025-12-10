@@ -1950,7 +1950,7 @@ const FeasibilityAnalysis = () => {
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
                                       {Math.ceil(energyCalc1Year.annualH2Production)}{" "}
-                                      t/ano
+                                      Ton/ano
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
                                       <strong>Fórmula:</strong> H₂ (kg) = E
@@ -2113,7 +2113,7 @@ const FeasibilityAnalysis = () => {
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
                                       {Math.ceil(energyCalc3Years.annualH2Production)}{" "}
-                                      t/ano
+                                      Toneladas/ano
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
                                       <strong>Fórmula:</strong> H₂ (kg) = E
@@ -2276,7 +2276,7 @@ const FeasibilityAnalysis = () => {
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
                                       {Math.ceil(energyCalc5Years.annualH2Production)}{" "}
-                                      t/ano
+                                      Toneladas/ano
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
                                       <strong>Fórmula:</strong> H₂ (kg) = E
@@ -2370,7 +2370,7 @@ const FeasibilityAnalysis = () => {
                                       {simulationResults.oneYear.lcoh.toFixed(2).replace('.', ',')}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
-                                      por kg de H₂
+                                      Por kg de H₂
                                     </p>
                                   </Card>
 
@@ -2400,7 +2400,7 @@ const FeasibilityAnalysis = () => {
                                       ))}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
-                                      t/ano
+                                      Toneladas/ano
                                     </p>
                                   </Card>
                                 </div>
@@ -2415,7 +2415,7 @@ const FeasibilityAnalysis = () => {
                                       {simulationResults.oneYear.operatingHours.toLocaleString()}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
-                                      horas/ano de{" "}
+                                      Horas/ano de{" "}
                                       {(weatherData?.dataPoints || 365) * 24}{" "}
                                       total
                                     </p>
@@ -2512,7 +2512,7 @@ const FeasibilityAnalysis = () => {
                                       )}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
-                                      por kg de H₂
+                                      por Kg de H₂
                                     </p>
                                   </Card>
                                   <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
@@ -2542,7 +2542,7 @@ const FeasibilityAnalysis = () => {
                                       t
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
-                                      t/ano
+                                      Toneladas/ano
                                     </p>
                                   </Card>
                                 </div>
@@ -2629,7 +2629,7 @@ const FeasibilityAnalysis = () => {
                                       )}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
-                                      por kg de H₂
+                                      por Kg de H₂
                                     </p>
                                   </Card>
                                   <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
@@ -2659,7 +2659,7 @@ const FeasibilityAnalysis = () => {
                                       t
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
-                                      t/ano
+                                      Toneladas/ano
                                     </p>
                                   </Card>
                                 </div>
@@ -2869,7 +2869,7 @@ const FeasibilityAnalysis = () => {
                                     )}
                                   </p>
                                   <p className="text-xs text-slate-600 mt-1">
-                                    kg H₂/ano
+                                    Kg H₂/ano
                                   </p>
                                 </Card>
 
@@ -2955,7 +2955,7 @@ const FeasibilityAnalysis = () => {
                                   </div>
                                 </div>
                                 <p className="text-xs text-slate-600 mt-3 p-2 bg-white/50 rounded">
-                                  💡 Assumindo preço de venda de R$ 25/kg e taxa
+                                  💡 Assumindo preço de venda de R$ 25/Kg e taxa
                                   de desconto de 10% ao ano
                                 </p>
                               </Card>
@@ -2976,7 +2976,7 @@ const FeasibilityAnalysis = () => {
                                     {simulationResults.threeYears!.lcoh.toFixed(2).replace('.', ',')}
                                   </p>
                                   <p className="text-xs text-slate-600 mt-1">
-                                    por kg de H₂
+                                    por Kg de H₂
                                   </p>
                                   <Badge className="mt-2 bg-blue-100 text-blue-800 text-xs">
                                     {simulationResults.threeYears!.lcoh < 8
@@ -3027,7 +3027,7 @@ const FeasibilityAnalysis = () => {
                                     )}
                                   </p>
                                   <p className="text-xs text-slate-600 mt-1">
-                                    kg H₂/ano
+                                    Kg H₂/ano
                                   </p>
                                 </Card>
 
@@ -3049,7 +3049,7 @@ const FeasibilityAnalysis = () => {
                                     })}
                                   </p>
                                   <p className="text-xs text-slate-600 mt-1">
-                                    Por ano (R$ 25/kg H₂)
+                                    Por ano (R$ 25/Kg H₂)
                                   </p>
                                 </Card>
                               </div>
