@@ -2922,7 +2922,7 @@ const FeasibilityAnalysis = () => {
                                       Payback Estimado:
                                     </p>
                                     <p className="text-xl font-bold text-green-600">
-                                      {Math.ceil(
+                                      {Math.floor(
                                         simulationResults.oneYear
                                           .capexAnnualized /
                                         0.117 /
@@ -3080,7 +3080,7 @@ const FeasibilityAnalysis = () => {
                                       Payback Estimado:
                                     </p>
                                     <p className="text-xl font-bold text-green-600">
-                                      {Math.ceil(
+                                      {Math.floor(
                                         simulationResults.threeYears!
                                           .capexAnnualized /
                                         0.117 /
@@ -3239,7 +3239,7 @@ const FeasibilityAnalysis = () => {
                                       Payback Estimado:
                                     </p>
                                     <p className="text-xl font-bold text-green-600">
-                                      {Math.ceil(
+                                      {Math.floor(
                                         simulationResults.fiveYears!
                                           .capexAnnualized /
                                         0.117 /
