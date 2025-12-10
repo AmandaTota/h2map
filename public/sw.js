@@ -10,8 +10,6 @@ const PRECACHE_URLS = [
     '/index.html',
     '/src/main.tsx',
     '/src/App.tsx',
-    '/src/pages/ViabilidadeTransporte.tsx',
-    '/data/tolls.json',
     '/data/geocoding.json',
     // Adicionar tiles e outros recursos estáticos aqui
 ];

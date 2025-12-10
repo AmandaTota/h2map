@@ -1,7 +1,7 @@
 {
-    "name": "H2Map - Sistema de Transporte Offline",
-    "short_name": "H2Map Transport",
-    "description": "Sistema offline-first para cálculo de viabilidade de transporte, rotas e custos sem dependência de internet",
+    "name": "H2Map - Análise de Hidrogênio Verde",
+    "short_name": "H2Map",
+    "description": "Sistema de análise e viabilidade de produção de hidrogênio verde no Brasil",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#ffffff",
@@ -77,21 +77,7 @@
             "form_factor": "narrow"
         }
     ],
-    "shortcuts": [
-        {
-            "name": "Nova Rota",
-            "short_name": "Rota",
-            "description": "Calcular nova rota de transporte",
-            "url": "/viabilidade-transporte",
-            "icons": [
-                {
-                    "src": "/icon-route.png",
-                    "sizes": "96x96",
-                    "type": "image/png"
-                }
-            ]
-        }
-    ],
+    "shortcuts": [],
     "prefer_related_applications": false,
     "related_applications": [],
     "offline_enabled": true,
