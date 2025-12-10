@@ -676,13 +676,13 @@ const FeasibilityAnalysis = () => {
       const systemEfficiency = 0.85; // 85% eficiência do sistema
 
       // Custos OTIMISTAS (curva de aprendizado)
-      const solarCapexPerKW = 2800; // R$/kW (-20%)
-      const windCapexPerKW = 8500; // R$/kW (-15%)
-      const electrolyzerCapexPerKW = 15000; // R$/kW (-17%)
-      const infrastructureMultiplier = 0.30; // -30% por otimizações
+      const solarCapexPerKW = 2400; // R$/kW (-40%)
+      const windCapexPerKW = 7500; // R$/kW (-25%)
+      const electrolyzerCapexPerKW = 12000; // R$/kW (-25%)
+      const infrastructureMultiplier = 0.25; // -25% por otimizações avançadas
       const projectLifetime = 20; // anos
-      const discountRate = 0.08; // 8% taxa de desconto
-      const opexPercentage = 0.02; // 2% do CAPEX por ano
+      const discountRate = 0.06; // 6% taxa de desconto
+      const opexPercentage = 0.015; // 1.5% do CAPEX por ano
       const waterCostPerKg = 0.01; // R$/kg H2
 
       // Variáveis da simulação
@@ -694,7 +694,7 @@ const FeasibilityAnalysis = () => {
       for (const day of dailyData) {
         // Maior capacidade de solar/eólica graças a otimizações
         const dailySolarEnergy =
-          day.solarIrradiance * solarPanelArea * solarEfficiency * 1.15; // +15% por otimizações
+          day.solarIrradiance * solarPanelArea * solarEfficiency * 1.25; // +25% por otimizações
         const solarPowerPerHour = dailySolarEnergy / 12;
 
         const windPowerPeak =
@@ -704,8 +704,8 @@ const FeasibilityAnalysis = () => {
             Math.pow(day.windSpeed, 3) *
             windEfficiency) /
           1000;
-        // Fator de capacidade otimista: 35% em vez de 30%
-        const windPowerPerHour = windPowerPeak * 0.35;
+        // Fator de capacidade otimista: 40% em vez de 30%
+        const windPowerPerHour = windPowerPeak * 0.40;
 
         // Simular 24 horas com curtailment REDUZIDO
         for (let hour = 0; hour < 24; hour++) {
@@ -719,8 +719,8 @@ const FeasibilityAnalysis = () => {
             // Utilizar 95% da potência nominal (com buffer para controle)
             const utilizableEnergy = electrolyzerNominalPower * 0.95;
             totalEnergyConsumed += utilizableEnergy;
-            // Curtailment reduzido: apenas 50% do excesso é perdido
-            totalCurtailment += (totalPowerAvailable - utilizableEnergy) * 0.5;
+            // Curtailment reduzido: apenas 35% do excesso é perdido
+            totalCurtailment += (totalPowerAvailable - utilizableEnergy) * 0.35;
             operatingHours += 1;
           } else if (totalPowerAvailable >= electrolyzerMinPower) {
             totalEnergyConsumed += totalPowerAvailable;
@@ -762,8 +762,8 @@ const FeasibilityAnalysis = () => {
       const opexAnnual =
         totalCapex * opexPercentage + annualH2Production * waterCostPerKg;
 
-      // LCOH com bônus de escala (-10% para cenários 3 e 5 anos)
-      const scalingBonus = scenario.years <= 1 ? 1.0 : 0.90;
+      // LCOH com bônus de escala (-15% para cenários 3 e 5 anos, -20% para 5 anos)
+      const scalingBonus = scenario.years === 5 ? 0.80 : scenario.years === 3 ? 0.85 : 1.0;
       const lcoh = ((capexAnnualized + opexAnnual) / annualH2Production) * scalingBonus;
 
       results.push({
@@ -777,7 +777,7 @@ const FeasibilityAnalysis = () => {
         opexAnnual: opexAnnual,
       });
 
-      const h2Price = 35;
+      const h2Price = 40;
       const annualRevenue = annualH2Production * h2Price;
       const netAnnual = annualRevenue - opexAnnual;
       const payback = netAnnual > 0 ? totalCapex / netAnnual : 999;
