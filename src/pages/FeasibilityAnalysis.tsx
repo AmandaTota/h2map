@@ -2516,6 +2516,9 @@ const FeasibilityAnalysis = () => {
                                       )}
                                       %
                                     </p>
+                                    <p className="text-xs text-slate-600 mt-2">
+                                      Eficiência operacional do eletrolisador
+                                    </p>
                                   </Card>
                                   <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
                                     <p className="text-sm text-slate-700 mb-1">
@@ -2526,6 +2529,9 @@ const FeasibilityAnalysis = () => {
                                       {simulationResults.threeYears!.lcoh.toFixed(
                                         2
                                       )}
+                                    </p>
+                                    <p className="text-xs text-slate-600 mt-2">
+                                      por kg de H₂
                                     </p>
                                   </Card>
                                   <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
@@ -2539,6 +2545,9 @@ const FeasibilityAnalysis = () => {
                                       ).toFixed(1)}{" "}
                                       MWh
                                     </p>
+                                    <p className="text-xs text-slate-600 mt-2">
+                                      MWh/ano
+                                    </p>
                                   </Card>
                                   <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
                                     <p className="text-sm text-slate-700 mb-1">
@@ -2551,8 +2560,43 @@ const FeasibilityAnalysis = () => {
                                       ).toFixed(2)}{" "}
                                       ton
                                     </p>
+                                    <p className="text-xs text-slate-600 mt-2">
+                                      ton/ano
+                                    </p>
                                   </Card>
                                 </div>
+
+                                {/* Métricas Operacionais - Cenário 3 Anos */}
+                                <div className="grid md:grid-cols-3 gap-4">
+                                  <Card className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
+                                    <p className="text-sm text-slate-700 mb-1">
+                                      ⏰ Horas de Operação
+                                    </p>
+                                    <p className="text-2xl font-bold text-amber-600">
+                                      {simulationResults.threeYears!.operatingHours.toLocaleString()}
+                                    </p>
+                                    <p className="text-xs text-slate-600 mt-2">
+                                      horas/ano de {(weatherData?.dataPoints || 365) * 24} total
+                                    </p>
+                                  </Card>
+
+                                  <Card className="p-4 bg-gradient-to-br from-red-50 to-rose-50 border-red-200">
+                                    <p className="text-sm text-slate-700 mb-1">
+                                      ⚠️ Curtailment
+                                    </p>
+                                    <p className="text-2xl font-bold text-red-600">
+                                      {(simulationResults.threeYears!.curtailment / 1000).toFixed(1)}
+                                    </p>
+                                    <p className="text-xs text-slate-600 mt-2">MWh perdido/ano</p>
+                                  </Card>
+
+                                  <Card className="p-4 bg-gradient-to-br from-slate-50 to-gray-50 border-slate-200">
+                                    <p className="text-sm text-slate-700 mb-1">📊 Potência Nominal</p>
+                                    <p className="text-2xl font-bold text-slate-600">300 kW</p>
+                                    <p className="text-xs text-slate-600 mt-2">Eletrolisador dimensionado</p>
+                                  </Card>
+                                </div>
+
                                 <Card className="p-4 bg-gradient-to-br from-indigo-50 to-blue-50 border-indigo-200">
                                   <h3 className="text-lg font-semibold text-slate-900 mb-3">
                                     💵 Custos (300 kW)
@@ -2589,6 +2633,9 @@ const FeasibilityAnalysis = () => {
                                       )}
                                       %
                                     </p>
+                                    <p className="text-xs text-slate-600 mt-2">
+                                      Eficiência operacional do eletrolisador
+                                    </p>
                                   </Card>
                                   <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
                                     <p className="text-sm text-slate-700 mb-1">
@@ -2599,6 +2646,9 @@ const FeasibilityAnalysis = () => {
                                       {simulationResults.fiveYears!.lcoh.toFixed(
                                         2
                                       )}
+                                    </p>
+                                    <p className="text-xs text-slate-600 mt-2">
+                                      por kg de H₂
                                     </p>
                                   </Card>
                                   <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
@@ -2612,6 +2662,9 @@ const FeasibilityAnalysis = () => {
                                       ).toFixed(1)}{" "}
                                       MWh
                                     </p>
+                                    <p className="text-xs text-slate-600 mt-2">
+                                      MWh/ano
+                                    </p>
                                   </Card>
                                   <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
                                     <p className="text-sm text-slate-700 mb-1">
@@ -2624,8 +2677,43 @@ const FeasibilityAnalysis = () => {
                                       ).toFixed(2)}{" "}
                                       ton
                                     </p>
+                                    <p className="text-xs text-slate-600 mt-2">
+                                      ton/ano
+                                    </p>
                                   </Card>
                                 </div>
+
+                                {/* Métricas Operacionais - Cenário 5 Anos */}
+                                <div className="grid md:grid-cols-3 gap-4">
+                                  <Card className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
+                                    <p className="text-sm text-slate-700 mb-1">
+                                      ⏰ Horas de Operação
+                                    </p>
+                                    <p className="text-2xl font-bold text-amber-600">
+                                      {simulationResults.fiveYears!.operatingHours.toLocaleString()}
+                                    </p>
+                                    <p className="text-xs text-slate-600 mt-2">
+                                      horas/ano de {(weatherData?.dataPoints || 365) * 24} total
+                                    </p>
+                                  </Card>
+
+                                  <Card className="p-4 bg-gradient-to-br from-red-50 to-rose-50 border-red-200">
+                                    <p className="text-sm text-slate-700 mb-1">
+                                      ⚠️ Curtailment
+                                    </p>
+                                    <p className="text-2xl font-bold text-red-600">
+                                      {(simulationResults.fiveYears!.curtailment / 1000).toFixed(1)}
+                                    </p>
+                                    <p className="text-xs text-slate-600 mt-2">MWh perdido/ano</p>
+                                  </Card>
+
+                                  <Card className="p-4 bg-gradient-to-br from-slate-50 to-gray-50 border-slate-200">
+                                    <p className="text-sm text-slate-700 mb-1">📊 Potência Nominal</p>
+                                    <p className="text-2xl font-bold text-slate-600">500 kW</p>
+                                    <p className="text-xs text-slate-600 mt-2">Eletrolisador dimensionado</p>
+                                  </Card>
+                                </div>
+
                                 <Card className="p-4 bg-gradient-to-br from-indigo-50 to-blue-50 border-indigo-200">
                                   <h3 className="text-lg font-semibold text-slate-900 mb-3">
                                     💵 Custos (500 kW)
