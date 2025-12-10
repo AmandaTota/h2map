@@ -24,6 +24,11 @@ interface Microrregiao {
   };
 }
 
+interface Municipio {
+  id: number;
+  nome: string;
+}
+
 interface RegionFiltersProps {
   onMacroregiaoChange?: (macrorregiao: string) => void;
   onEstadoChange?: (estado: string, estadoNome: string) => void;
@@ -31,6 +36,7 @@ interface RegionFiltersProps {
     microrregiao: string,
     microrregiaoNome: string
   ) => void;
+  onCidadeChange?: (cidade: string, cidadeNome: string) => void;
 }
 
 const MACROREGIOES = [
@@ -51,19 +57,25 @@ const REGION_UF_MAP: Record<string, string[]> = {
 
 // Cache para microrregiões já carregadas
 const microrregiaoCache = new Map<string, Microrregiao[]>();
+// Cache para cidades já carregadas
+const cidadesCache = new Map<string, Municipio[]>();
 
 const RegionFilters = ({
   onMacroregiaoChange,
   onEstadoChange,
   onMicrorregiaoChange,
+  onCidadeChange,
 }: RegionFiltersProps) => {
   const [estados, setEstados] = useState<Estado[]>([]);
   const [microrregioes, setMicrorregioes] = useState<Microrregiao[]>([]);
+  const [cidades, setCidades] = useState<Municipio[]>([]);
   const [selectedMacrorregiao, setSelectedMacrorregiao] = useState<string>("");
   const [selectedEstado, setSelectedEstado] = useState<string>("");
   const [selectedMicrorregiao, setSelectedMicrorregiao] = useState<string>("");
+  const [selectedCidade, setSelectedCidade] = useState<string>("");
   const [filteredEstados, setFilteredEstados] = useState<Estado[]>([]);
   const [loadingMicro, setLoadingMicro] = useState(false);
+  const [loadingCidades, setLoadingCidades] = useState(false);
   const { toast } = useToast();
 
   // Carregar estados do IBGE
@@ -185,6 +197,71 @@ const RegionFilters = ({
     }
   }, [selectedMicrorregiao, onMicrorregiaoChange, microrregioes]);
 
+  // Carregar cidades quando uma microrregião é selecionada
+  useEffect(() => {
+    if (!selectedMicrorregiao || selectedMicrorregiao === "all") {
+      setCidades([]);
+      setSelectedCidade("");
+      return;
+    }
+
+    setLoadingCidades(true);
+    const fetchCidades = async () => {
+      try {
+        // Verificar cache
+        if (cidadesCache.has(selectedMicrorregiao)) {
+          setCidades(cidadesCache.get(selectedMicrorregiao) || []);
+          setLoadingCidades(false);
+          return;
+        }
+
+        // Encontrar o estado para buscar as cidades
+        const micro = microrregioes.find(
+          (m) => m.id.toString() === selectedMicrorregiao
+        );
+        if (!micro) {
+          setLoadingCidades(false);
+          return;
+        }
+
+        const estadoSigla = micro.mesorregiao.UF.sigla;
+
+        // Buscar todos os municípios do estado
+        const response = await fetch(
+          `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estadoSigla}/municipios`
+        );
+        const data: Municipio[] = await response.json();
+
+        // Para filtrar por microrregião seria necessário mais dados da API,
+        // então retornamos todos os municípios do estado
+        cidadesCache.set(selectedMicrorregiao, data);
+        setCidades(data);
+      } catch (error) {
+        console.error("Error fetching cidades:", error);
+        toast({
+          variant: "destructive",
+          title: "Erro ao carregar cidades",
+          description: "Não foi possível carregar a lista de cidades",
+        });
+        setCidades([]);
+      } finally {
+        setLoadingCidades(false);
+      }
+    };
+
+    fetchCidades();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedMicrorregiao, microrregioes]);
+
+  // Notificar mudanças de cidade
+  useEffect(() => {
+    if (onCidadeChange) {
+      const cidadeObj = cidades.find((c) => c.id.toString() === selectedCidade);
+      const cidadeNome = cidadeObj ? cidadeObj.nome : "";
+      onCidadeChange(selectedCidade, cidadeNome);
+    }
+  }, [selectedCidade, onCidadeChange, cidades]);
+
   return (
     <div className="space-y-3">
       {/* Macrorregião */}
@@ -252,6 +329,29 @@ const RegionFilters = ({
           </Select>
         </div>
       </div>
+
+      {/* Cidade - aparece apenas após seleção de microrregião */}
+      {selectedMicrorregiao && selectedMicrorregiao !== "all" && (
+        <div>
+          <p className="text-sm text-slate-600 mb-2">Cidade</p>
+          <Select
+            value={selectedCidade}
+            onValueChange={setSelectedCidade}
+            disabled={loadingCidades}
+          >
+            <SelectTrigger className="h-12 border-emerald-200 focus:border-emerald-500 bg-white">
+              <SelectValue placeholder={loadingCidades ? "Carregando cidades..." : "Selecione a cidade"} />
+            </SelectTrigger>
+            <SelectContent>
+              {cidades.map((cidade) => (
+                <SelectItem key={cidade.id} value={cidade.id.toString()}>
+                  {cidade.nome}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
     </div>
   );
 };

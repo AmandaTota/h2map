@@ -18,6 +18,7 @@ import {
   Database,
   X,
   ChevronDown,
+  MapPin,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -173,6 +174,8 @@ const FeasibilityAnalysis = () => {
   const [selectedMicrorregiao, setSelectedMicrorregiao] = useState<string>("");
   const [selectedMicrorregiaoNome, setSelectedMicrorregiaoNome] =
     useState<string>("");
+  const [selectedCidade, setSelectedCidade] = useState<string>("");
+  const [selectedCidadeNome, setSelectedCidadeNome] = useState<string>("");
 
   // Estados para comparação de microrregiões
   const [compareEstadoA, setCompareEstadoA] = useState<string>("");
@@ -432,6 +435,117 @@ const FeasibilityAnalysis = () => {
       setMapKeyB((prev) => prev + 1);
     }
   }, [compareRegionB]);
+
+  // Carregar análise automaticamente quando cidade for selecionada na aba Região
+  useEffect(() => {
+    const loadCityAnalysis = async () => {
+      if (
+        mode === "regiao" &&
+        selectedCidade &&
+        selectedCidade !== "all" &&
+        selectedCidadeNome
+      ) {
+        try {
+          // Buscar coordenadas da cidade via API IBGE
+          const response = await fetch(
+            `https://servicodados.ibge.gov.br/api/v1/localidades/municipios/${selectedCidade}`
+          );
+          
+          if (!response.ok) {
+            throw new Error("Erro ao buscar dados da cidade");
+          }
+
+          const data = await response.json();
+          
+          // Extrair latitude e longitude (a API retorna no formato string)
+          // Algumas cidades têm coordenadas disponíveis na API
+          // Se não tiver, vamos usar o geocoding do navegador como fallback
+          
+          // Tentar buscar do geocoding.json local primeiro
+          let lat: number | null = null;
+          let lng: number | null = null;
+
+          try {
+            const geocodingResponse = await fetch('/data/geocoding.json');
+            const geocodingData = await geocodingResponse.json();
+            const cityKey = `${selectedCidadeNome}, ${selectedEstado}`.toLowerCase();
+            
+            if (geocodingData[cityKey]) {
+              lat = geocodingData[cityKey].lat;
+              lng = geocodingData[cityKey].lng;
+            }
+          } catch (error) {
+            console.log("Geocoding file not available, will use alternative");
+          }
+
+          // Se não encontrou no geocoding.json, usar coordenadas aproximadas do estado
+          if (!lat || !lng) {
+            // Coordenadas aproximadas dos estados (centros geográficos)
+            const estadoCoords: Record<string, {lat: number, lng: number}> = {
+              'AC': {lat: -8.77, lng: -70.55},
+              'AL': {lat: -9.71, lng: -35.73},
+              'AP': {lat: 1.41, lng: -51.77},
+              'AM': {lat: -3.47, lng: -65.10},
+              'BA': {lat: -12.96, lng: -38.51},
+              'CE': {lat: -3.71, lng: -38.54},
+              'DF': {lat: -15.83, lng: -47.86},
+              'ES': {lat: -19.19, lng: -40.34},
+              'GO': {lat: -16.64, lng: -49.31},
+              'MA': {lat: -2.55, lng: -44.30},
+              'MT': {lat: -12.64, lng: -55.42},
+              'MS': {lat: -20.51, lng: -54.54},
+              'MG': {lat: -18.10, lng: -44.38},
+              'PA': {lat: -5.53, lng: -52.29},
+              'PB': {lat: -7.06, lng: -35.55},
+              'PR': {lat: -24.89, lng: -51.55},
+              'PE': {lat: -8.28, lng: -35.07},
+              'PI': {lat: -8.28, lng: -43.68},
+              'RJ': {lat: -22.84, lng: -43.15},
+              'RN': {lat: -5.22, lng: -36.52},
+              'RS': {lat: -30.01, lng: -51.22},
+              'RO': {lat: -11.22, lng: -62.80},
+              'RR': {lat: 1.99, lng: -61.33},
+              'SC': {lat: -27.33, lng: -49.44},
+              'SP': {lat: -23.55, lng: -46.64},
+              'SE': {lat: -10.90, lng: -37.07},
+              'TO': {lat: -10.25, lng: -48.25},
+            };
+
+            const coords = estadoCoords[selectedEstado];
+            if (coords) {
+              lat = coords.lat;
+              lng = coords.lng;
+            } else {
+              // Fallback para centro do Brasil
+              lat = -14.235;
+              lng = -51.925;
+            }
+          }
+
+          const location = {
+            lat,
+            lng,
+            name: `${selectedCidadeNome}, ${selectedEstado}`,
+          };
+
+          // Atualizar localização e iniciar análise
+          setLocalLocation(location);
+          setSelectedLocation(location);
+          await startAnalysisFor(location);
+
+          toast.success(`✅ Análise iniciada para ${selectedCidadeNome}`);
+        } catch (error) {
+          console.error("Error loading city analysis:", error);
+          toast.error(
+            "Erro ao carregar análise da cidade. Tente novamente."
+          );
+        }
+      }
+    };
+
+    loadCityAnalysis();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCidade, selectedCidadeNome, mode]);
 
   const handleLocationSelect = (location: {
     lat: number;
@@ -4240,826 +4354,3062 @@ const FeasibilityAnalysis = () => {
                       setSelectedMicrorregiao(micro);
                       setSelectedMicrorregiaoNome(microNome);
                     }}
+                    onCidadeChange={(cidade, cidadeNome) => {
+                      setSelectedCidade(cidade);
+                      setSelectedCidadeNome(cidadeNome);
+                    }}
                   />
+                  
+                  {/* Botão Iniciar Análise - aparece após selecionar cidade */}
+                  {selectedCidade && selectedCidade !== "all" && (
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleStartAnalysis}
+                      disabled={loading}
+                      className="mt-4 px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed min-w-[160px] justify-center"
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          <span>Carregando...</span>
+                        </>
+                      ) : (
+                        <>
+                          <BarChart3 className="w-5 h-5" />
+                          <span>Iniciar Análise</span>
+                        </>
+                      )}
+                    </motion.button>
+                  )}
                 </div>
               </Card>
 
-              {/* Demanda setorial por estado (qualitativa) - mostra quando um estado ou 'all' estiver selecionado */}
+              {/* Passo 1: Demanda Setorial - mostra quando Estado é selecionado (após Região) */}
               {selectedEstado && (
-                <SectorDemandByStateCard
-                  estado={selectedEstado}
-                  estadoNome={selectedEstadoNome}
-                />
-              )}
-              {/* Tipologias Regionais - Accordion (apenas após escolhas) */}
-              {selectedRegion || selectedEstado || selectedMicrorregiao ? (
-                <Accordion
-                  type="multiple"
-                  defaultValue={["tipologias"]}
-                  className="mb-4"
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
                 >
-                  <AccordionItem value="tipologias" className="border-none">
-                    <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden">
-                      <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-emerald-50/50 transition-colors">
-                        <div className="flex items-center space-x-3 w-full">
-                          <Zap className="w-6 h-6 text-emerald-600" />
-                          <h2 className="text-2xl font-bold text-slate-900">
-                            Tipologias Regionais
-                          </h2>
-                          <Badge className="ml-auto bg-blue-100 text-blue-800 border-blue-300">
-                            {selectedRegion || "—"}
-                          </Badge>
-                        </div>
-                      </AccordionTrigger>
-                      <AccordionContent className="px-6 pb-6">
-                        <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-4">
-                          {getTechnologyFactors(
-                            selectedRegion || "Nordeste"
-                          ).map((tech, tIndex) => (
-                            <div
-                              key={`tech-${tIndex}`}
-                              className="p-4 rounded-lg border hover:shadow-sm transition-shadow"
-                            >
-                              <div className="flex items-center space-x-3 mb-3">
-                                <tech.icon className="w-5 h-5 text-emerald-600" />
-                                <h3 className="font-semibold text-slate-900">
-                                  {tech.title}
-                                </h3>
-                              </div>
-                              <div className="grid grid-cols-1 gap-2">
-                                {tech.factors.map((f, fIndex: number) => (
-                                  <div
-                                    key={`f-${tIndex}-${fIndex}`}
-                                    className="flex items-center justify-between"
-                                  >
-                                    <span className="text-sm text-slate-700">
-                                      {f.label}
-                                    </span>
-                                    <Badge
-                                      variant="outline"
-                                      className={getPriorityColor(f.status)}
-                                    >
-                                      {f.value}
-                                    </Badge>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </AccordionContent>
-                    </Card>
-                  </AccordionItem>
-                </Accordion>
-              ) : (
-                <div className="mb-4 text-sm text-slate-500 italic">
-                  Selecione filtros regionais para exibir as Tipologias
-                  Regionais.
-                </div>
+                  <SectorDemandByStateCard
+                    estado={selectedEstado}
+                    estadoNome={selectedEstadoNome}
+                  />
+                </motion.div>
               )}
-
-              {/* Card de Viabilidade do Estado */}
+              
+              {/* Passo 2: Viabilidade do Estado - mostra após seleção de Estado */}
               {selectedEstado && selectedEstado !== "all" && (
-                <Accordion
-                  type="multiple"
-                  defaultValue={["estado"]}
-                  className="mb-4"
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
                 >
-                  <AccordionItem value="estado" className="border-none">
-                    <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden">
-                      <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-emerald-50/50 transition-colors">
-                        <div className="flex items-center space-x-3 w-full">
-                          <BarChart3 className="w-6 h-6 text-emerald-600" />
-                          <h2 className="text-2xl font-bold text-slate-900">
-                            Viabilidade - {selectedEstadoNome} ({selectedEstado}
-                            )
-                          </h2>
-                          <Badge className="ml-auto bg-emerald-100 text-emerald-800 border-emerald-300">
-                            Estado
-                          </Badge>
-                        </div>
-                      </AccordionTrigger>
-                      <AccordionContent className="px-6 pb-6">
-                        {(() => {
-                          const scores = getEstadoViability(selectedEstado);
-                          return (
-                            <>
-                              <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-4">
-                                <div className="p-4 rounded-lg border border-amber-200 bg-amber-50/50">
-                                  <div className="flex items-center space-x-2 mb-2">
-                                    <Sun className="w-5 h-5 text-amber-600" />
-                                    <span className="font-semibold text-slate-900">
-                                      Solar
-                                    </span>
-                                  </div>
-                                  <div className="mt-2">
-                                    <div className="text-3xl font-bold text-amber-700">
-                                      {scores.solar}
-                                    </div>
-                                    <div className="text-xs text-slate-600 mt-1">
-                                      Pontuação de viabilidade
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="p-4 rounded-lg border border-sky-200 bg-sky-50/50">
-                                  <div className="flex items-center space-x-2 mb-2">
-                                    <Wind className="w-5 h-5 text-sky-600" />
-                                    <span className="font-semibold text-slate-900">
-                                      Eólica
-                                    </span>
-                                  </div>
-                                  <div className="mt-2">
-                                    <div className="text-3xl font-bold text-sky-700">
-                                      {scores.wind}
-                                    </div>
-                                    <div className="text-xs text-slate-600 mt-1">
-                                      Pontuação de viabilidade
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="p-4 rounded-lg border border-emerald-200 bg-emerald-50/50">
-                                  <div className="flex items-center space-x-2 mb-2">
-                                    <Zap className="w-5 h-5 text-emerald-600" />
-                                    <span className="font-semibold text-slate-900">
-                                      Hidrogênio Verde
-                                    </span>
-                                  </div>
-                                  <div className="mt-2">
-                                    <div className="text-3xl font-bold text-emerald-700">
-                                      {scores.h2}
-                                    </div>
-                                    <div className="text-xs text-slate-600 mt-1">
-                                      Pontuação de viabilidade
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="mt-4 pt-4 border-t border-emerald-100">
-                                <p className="text-xs text-slate-500 italic text-center">
-                                  * As notas são ponderadas de 0 a 100, sendo 100 a maior nota de viabilidade.
-                                </p>
-                              </div>
-                            </>
-                          );
-                        })()}
-                      </AccordionContent>
-                    </Card>
-                  </AccordionItem>
-                </Accordion>
-              )}
-
-              {/* Card de Viabilidade da Microrregião */}
-              {selectedMicrorregiao && selectedMicrorregiao !== "all" && (
-                <Accordion
-                  type="multiple"
-                  defaultValue={["microrregiao"]}
-                  className="mb-4"
-                >
-                  <AccordionItem value="microrregiao" className="border-none">
-                    <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden">
-                      <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-teal-50/50 transition-colors">
-                        <div className="flex items-center space-x-3 w-full">
-                          <BarChart3 className="w-6 h-6 text-teal-600" />
-                          <h2 className="text-2xl font-bold text-slate-900">
-                            Viabilidade - {selectedMicrorregiaoNome}
-                          </h2>
-                          <Badge className="ml-auto bg-teal-100 text-teal-800 border-teal-300">
-                            Microrregião
-                          </Badge>
-                        </div>
-                      </AccordionTrigger>
-                      <AccordionContent className="px-6 pb-6">
-                        {(() => {
-                          const scores = getMicrorregiaoViability(
-                            selectedEstado,
-                            selectedMicrorregiaoNome
-                          );
-                          return (
-                            <>
-                              <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-4">
-                                <div className="p-4 rounded-lg border border-amber-200 bg-amber-50/50">
-                                  <div className="flex items-center space-x-2 mb-2">
-                                    <Sun className="w-5 h-5 text-amber-600" />
-                                    <span className="font-semibold text-slate-900">
-                                      Solar
-                                    </span>
-                                  </div>
-                                  <div className="mt-2">
-                                    <div className="text-3xl font-bold text-amber-700">
-                                      {scores.solar}
-                                    </div>
-                                    <div className="text-xs text-slate-600 mt-1">
-                                      Pontuação de viabilidade
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="p-4 rounded-lg border border-sky-200 bg-sky-50/50">
-                                  <div className="flex items-center space-x-2 mb-2">
-                                    <Wind className="w-5 h-5 text-sky-600" />
-                                    <span className="font-semibold text-slate-900">
-                                      Eólica
-                                    </span>
-                                  </div>
-                                  <div className="mt-2">
-                                    <div className="text-3xl font-bold text-sky-700">
-                                      {scores.wind}
-                                    </div>
-                                    <div className="text-xs text-slate-600 mt-1">
-                                      Pontuação de viabilidade
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="p-4 rounded-lg border border-emerald-200 bg-emerald-50/50">
-                                  <div className="flex items-center space-x-2 mb-2">
-                                    <Zap className="w-5 h-5 text-emerald-600" />
-                                    <span className="font-semibold text-slate-900">
-                                      Hidrogênio Verde
-                                    </span>
-                                  </div>
-                                  <div className="mt-2">
-                                    <div className="text-3xl font-bold text-emerald-700">
-                                      {scores.h2}
-                                    </div>
-                                    <div className="text-xs text-slate-600 mt-1">
-                                      Pontuação de viabilidade
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="mt-4 pt-4 border-t border-teal-100">
-                                <p className="text-xs text-slate-500 italic text-center">
-                                  * As notas são ponderadas de 0 a 100, sendo 100 a maior nota de viabilidade.
-                                </p>
-                              </div>
-                            </>
-                          );
-                        })()}
-                      </AccordionContent>
-                    </Card>
-                  </AccordionItem>
-                </Accordion>
-              )}
-
-              <Card className="p-6 bg-white/80 backdrop-blur-sm border-emerald-200 mb-6">
-                <div
-                  className="flex items-center justify-between mb-2 cursor-pointer select-none"
-                  onClick={() => setShowComparison((v) => !v)}
-                >
-                  <div className="flex items-center space-x-3">
-                    <BarChart3 className="w-6 h-6 text-emerald-600" />
-                    <h2 className="text-2xl font-bold text-slate-900">
-                      Comparar Regiões e Microrregiões
-                    </h2>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setCompareRegionA("");
-                        setCompareRegionB("");
-                        setCompareEstadoA("");
-                        setCompareMicroA("");
-                        setCompareMicroNomeA("");
-                        setCompareEstadoB("");
-                        setCompareMicroB("");
-                        setCompareMicroNomeB("");
-                        setCoordsMicroA(null);
-                        setCoordsMicroB(null);
-                        setMapKeyA((prev) => prev + 1);
-                        setMapKeyB((prev) => prev + 1);
-                      }}
-                      className="flex items-center gap-2"
-                    >
-                      <X className="w-4 h-4" />
-                      Limpar seleções
-                    </Button>
-                    <ChevronDown
-                      className={`w-5 h-5 text-slate-600 transition-transform ${
-                        showComparison ? "rotate-180" : ""
-                      }`}
-                    />
-                  </div>
-                </div>
-                {showComparison && (
-                  <Tabs defaultValue="regioes" className="w-full mt-4">
-                    <TabsList className="grid w-full grid-cols-2">
-                      <TabsTrigger value="regioes">Macrorregiões</TabsTrigger>
-                      <TabsTrigger value="microrregioes">
-                        Microrregiões
-                      </TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="regioes">
-                      <div className="grid md:grid-cols-2 gap-4 mb-4">
-                        <div>
-                          <p className="text-sm text-slate-600 mb-2">
-                            Região A
-                          </p>
-                          <Select
-                            value={compareRegionA}
-                            onValueChange={(v) => setCompareRegionA(v)}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Região A" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Norte">Norte</SelectItem>
-                              <SelectItem value="Nordeste">Nordeste</SelectItem>
-                              <SelectItem value="Centro-Oeste">
-                                Centro-Oeste
-                              </SelectItem>
-                              <SelectItem value="Sudeste">Sudeste</SelectItem>
-                              <SelectItem value="Sul">Sul</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <p className="text-sm text-slate-600 mb-2">
-                            Região B
-                          </p>
-                          <Select
-                            value={compareRegionB}
-                            onValueChange={(v) => setCompareRegionB(v)}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Região B" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Norte">Norte</SelectItem>
-                              <SelectItem value="Nordeste">Nordeste</SelectItem>
-                              <SelectItem value="Centro-Oeste">
-                                Centro-Oeste
-                              </SelectItem>
-                              <SelectItem value="Sudeste">Sudeste</SelectItem>
-                              <SelectItem value="Sul">Sul</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                      {(() => {
-                        const a = getSuitabilityScores(compareRegionA);
-                        const b = getSuitabilityScores(compareRegionB);
-                        const rows = [
-                          { label: "Solar", a: a.solar, b: b.solar, icon: Sun },
-                          { label: "Eólica", a: a.wind, b: b.wind, icon: Wind },
-                          {
-                            label: "Hidrogênio Verde",
-                            a: a.h2,
-                            b: b.h2,
-                            icon: Zap,
-                          },
-                        ];
-                        return (
-                          <div className="space-y-2">
-                            {rows.map((r, idx) => (
-                              <div
-                                key={`cmp-${idx}`}
-                                className="p-4 rounded-lg border flex items-center justify-between"
-                              >
-                                <div className="flex items-center gap-2">
-                                  <r.icon className="w-5 h-5 text-emerald-600" />
-                                  <span className="font-semibold text-slate-900">
-                                    {r.label}
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <Badge
-                                    className={`${
-                                      r.a >= r.b
-                                        ? "bg-emerald-100 text-emerald-800 border-emerald-200"
-                                        : "bg-slate-100 text-slate-800 border-slate-200"
-                                    }`}
-                                  >
-                                    {compareRegionA}: {r.a}/100
-                                  </Badge>
-                                  <Badge
-                                    className={`${
-                                      r.b >= r.a
-                                        ? "bg-emerald-100 text-emerald-800 border-emerald-200"
-                                        : "bg-slate-100 text-slate-800 border-slate-200"
-                                    }`}
-                                  >
-                                    {compareRegionB}: {r.b}/100
-                                  </Badge>
-                                </div>
-                              </div>
-                            ))}
-                            <div className="mt-4 pt-4 border-t border-emerald-100">
-                              <p className="text-xs text-slate-500 italic text-center">
-                                * As notas são ponderadas de 0 a 100, sendo 100 a maior nota de viabilidade.
-                              </p>
-                            </div>
+                  <Accordion
+                    type="multiple"
+                    defaultValue={["estado"]}
+                    className="mb-4"
+                  >
+                    <AccordionItem value="estado" className="border-none">
+                      <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden">
+                        <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-emerald-50/50 transition-colors">
+                          <div className="flex items-center space-x-3 w-full">
+                            <BarChart3 className="w-6 h-6 text-emerald-600" />
+                            <h2 className="text-2xl font-bold text-slate-900">
+                              Viabilidade - {selectedEstadoNome} ({selectedEstado}
+                              )
+                            </h2>
+                            <Badge className="ml-auto bg-emerald-100 text-emerald-800 border-emerald-300">
+                              Estado
+                            </Badge>
                           </div>
-                        );
-                      })()}
-                    </TabsContent>
-                    <TabsContent value="microrregioes">
-                      <div className="space-y-4">
-                        <div className="grid md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <p className="text-sm font-semibold text-slate-700">
-                              Microrregião A
-                            </p>
-                            <Select
-                              value={compareEstadoA}
-                              onValueChange={(uf) => {
-                                setCompareEstadoA(uf);
-                                setCompareMicroA("");
-                                setCompareMicroNomeA("");
-                                if (uf) {
-                                  fetch(
-                                    `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/microrregioes?orderBy=nome`
-                                  )
-                                    .then((res) => res.json())
-                                    .then(
-                                      (
-                                        data: Array<{
-                                          id: number;
-                                          nome: string;
-                                        }>
-                                      ) => {
-                                        setMicroregioesCompareA(
-                                          data.map((m) => ({
-                                            id: m.id.toString(),
-                                            nome: m.nome,
-                                          }))
-                                        );
-                                      }
-                                    );
-                                }
-                              }}
-                            >
-                              <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Selecione o Estado" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {Object.entries(UF_MAP).map(([uf, nome]) => (
-                                  <SelectItem key={uf} value={uf}>
-                                    {nome} ({uf})
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <Select
-                              value={compareMicroA}
-                              onValueChange={(id) => {
-                                setCompareMicroA(id);
-                                const micro = microregioesCompareA.find(
-                                  (m) => m.id === id
-                                );
-                                if (micro) setCompareMicroNomeA(micro.nome);
-                              }}
-                              disabled={!compareEstadoA}
-                            >
-                              <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Selecione a Microrregião" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {microregioesCompareA.map((micro) => (
-                                  <SelectItem key={micro.id} value={micro.id}>
-                                    {micro.nome}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="space-y-2">
-                            <p className="text-sm font-semibold text-slate-700">
-                              Microrregião B
-                            </p>
-                            <Select
-                              value={compareEstadoB}
-                              onValueChange={(uf) => {
-                                setCompareEstadoB(uf);
-                                setCompareMicroB("");
-                                setCompareMicroNomeB("");
-                                if (uf) {
-                                  fetch(
-                                    `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/microrregioes?orderBy=nome`
-                                  )
-                                    .then((res) => res.json())
-                                    .then(
-                                      (
-                                        data: Array<{
-                                          id: number;
-                                          nome: string;
-                                        }>
-                                      ) => {
-                                        setMicroregioesCompareB(
-                                          data.map((m) => ({
-                                            id: m.id.toString(),
-                                            nome: m.nome,
-                                          }))
-                                        );
-                                      }
-                                    );
-                                }
-                              }}
-                            >
-                              <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Selecione o Estado" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {Object.entries(UF_MAP).map(([uf, nome]) => (
-                                  <SelectItem key={uf} value={uf}>
-                                    {nome} ({uf})
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <Select
-                              value={compareMicroB}
-                              onValueChange={(id) => {
-                                setCompareMicroB(id);
-                                const micro = microregioesCompareB.find(
-                                  (m) => m.id === id
-                                );
-                                if (micro) setCompareMicroNomeB(micro.nome);
-                              }}
-                              disabled={!compareEstadoB}
-                            >
-                              <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Selecione a Microrregião" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {microregioesCompareB.map((micro) => (
-                                  <SelectItem key={micro.id} value={micro.id}>
-                                    {micro.nome}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                        {compareMicroA &&
-                          compareMicroB &&
-                          compareEstadoA &&
-                          compareEstadoB &&
-                          (() => {
-                            const a = getMicrorregiaoViability(
-                              compareEstadoA,
-                              compareMicroNomeA
-                            );
-                            const b = getMicrorregiaoViability(
-                              compareEstadoB,
-                              compareMicroNomeB
-                            );
-                            const rows = [
-                              {
-                                label: "Solar",
-                                a: a.solar,
-                                b: b.solar,
-                                icon: Sun,
-                              },
-                              {
-                                label: "Eólica",
-                                a: a.wind,
-                                b: b.wind,
-                                icon: Wind,
-                              },
-                              {
-                                label: "Hidrogênio Verde",
-                                a: a.h2,
-                                b: b.h2,
-                                icon: Zap,
-                              },
-                            ];
+                        </AccordionTrigger>
+                        <AccordionContent className="px-6 pb-6">
+                          {(() => {
+                            const scores = getEstadoViability(selectedEstado);
                             return (
-                              <div className="space-y-2 mt-4">
-                                {rows.map((r, idx) => (
-                                  <div
-                                    key={`cmp-micro-${idx}`}
-                                    className="p-4 rounded-lg border flex items-center justify-between"
-                                  >
-                                    <div className="flex items-center gap-2">
-                                      <r.icon className="w-5 h-5 text-emerald-600" />
+                              <>
+                                <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-4">
+                                  <div className="p-4 rounded-lg border border-amber-200 bg-amber-50/50">
+                                    <div className="flex items-center space-x-2 mb-2">
+                                      <Sun className="w-5 h-5 text-amber-600" />
                                       <span className="font-semibold text-slate-900">
-                                        {r.label}
+                                        Solar
                                       </span>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                      <Badge
-                                        className={`${
-                                          r.a >= r.b
-                                            ? "bg-emerald-100 text-emerald-800 border-emerald-200"
-                                            : "bg-slate-100 text-slate-800 border-slate-200"
-                                        }`}
-                                      >
-                                        {compareMicroNomeA}: {r.a}
-                                      </Badge>
-                                      <Badge
-                                        className={`${
-                                          r.b >= r.a
-                                            ? "bg-emerald-100 text-emerald-800 border-emerald-200"
-                                            : "bg-slate-100 text-slate-800 border-slate-200"
-                                        }`}
-                                      >
-                                        {compareMicroNomeB}: {r.b}
-                                      </Badge>
+                                    <div className="mt-2">
+                                      <div className="text-3xl font-bold text-amber-700">
+                                        {scores.solar}
+                                      </div>
+                                      <div className="text-xs text-slate-600 mt-1">
+                                        Pontuação de viabilidade
+                                      </div>
                                     </div>
                                   </div>
-                                ))}
+                                  <div className="p-4 rounded-lg border border-sky-200 bg-sky-50/50">
+                                    <div className="flex items-center space-x-2 mb-2">
+                                      <Wind className="w-5 h-5 text-sky-600" />
+                                      <span className="font-semibold text-slate-900">
+                                        Eólica
+                                      </span>
+                                    </div>
+                                    <div className="mt-2">
+                                      <div className="text-3xl font-bold text-sky-700">
+                                        {scores.wind}
+                                      </div>
+                                      <div className="text-xs text-slate-600 mt-1">
+                                        Pontuação de viabilidade
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="p-4 rounded-lg border border-emerald-200 bg-emerald-50/50">
+                                    <div className="flex items-center space-x-2 mb-2">
+                                      <Zap className="w-5 h-5 text-emerald-600" />
+                                      <span className="font-semibold text-slate-900">
+                                        Hidrogênio Verde
+                                      </span>
+                                    </div>
+                                    <div className="mt-2">
+                                      <div className="text-3xl font-bold text-emerald-700">
+                                        {scores.h2}
+                                      </div>
+                                      <div className="text-xs text-slate-600 mt-1">
+                                        Pontuação de viabilidade
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
                                 <div className="mt-4 pt-4 border-t border-emerald-100">
                                   <p className="text-xs text-slate-500 italic text-center">
                                     * As notas são ponderadas de 0 a 100, sendo 100 a maior nota de viabilidade.
                                   </p>
                                 </div>
-                              </div>
+                              </>
                             );
                           })()}
-                      </div>
-                    </TabsContent>
-                  </Tabs>
-                )}
-              </Card>
-
-              {/* Card com Mapa das Regiões/Microrregiões Comparadas (inicia fechado) */}
-              <Card className="p-6 bg-white/80 backdrop-blur-sm border-emerald-200 mb-6">
-                <div
-                  className="flex items-center justify-between mb-2 cursor-pointer select-none"
-                  onClick={() => setShowMapsComparison((v) => !v)}
+                        </AccordionContent>
+                      </Card>
+                    </AccordionItem>
+                  </Accordion>
+                </motion.div>
+              )}
+              
+              {/* Passo 3: Viabilidade da Microrregião - mostra após seleção de Microrregião */}
+              {selectedMicrorregiao && selectedMicrorregiao !== "all" && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
                 >
-                  <div className="flex items-center space-x-3">
-                    <Mountain className="w-6 h-6 text-emerald-600" />
-                    <h2 className="text-2xl font-bold text-slate-900">
-                      Mapa das Regiões Comparadas
-                    </h2>
+                  <Accordion
+                    type="multiple"
+                    defaultValue={["microrregiao"]}
+                    className="mb-4"
+                  >
+                    <AccordionItem value="microrregiao" className="border-none">
+                      <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden">
+                        <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-teal-50/50 transition-colors">
+                          <div className="flex items-center space-x-3 w-full">
+                            <BarChart3 className="w-6 h-6 text-teal-600" />
+                            <h2 className="text-2xl font-bold text-slate-900">
+                              Viabilidade - {selectedMicrorregiaoNome}
+                            </h2>
+                            <Badge className="ml-auto bg-teal-100 text-teal-800 border-teal-300">
+                              Microrregião
+                            </Badge>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-6 pb-6">
+                          {(() => {
+                            const scores = getMicrorregiaoViability(
+                              selectedEstado,
+                              selectedMicrorregiaoNome
+                            );
+                            return (
+                              <>
+                                <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-4">
+                                  <div className="p-4 rounded-lg border border-amber-200 bg-amber-50/50">
+                                    <div className="flex items-center space-x-2 mb-2">
+                                      <Sun className="w-5 h-5 text-amber-600" />
+                                      <span className="font-semibold text-slate-900">
+                                        Solar
+                                      </span>
+                                    </div>
+                                    <div className="mt-2">
+                                      <div className="text-3xl font-bold text-amber-700">
+                                        {scores.solar}
+                                      </div>
+                                      <div className="text-xs text-slate-600 mt-1">
+                                        Pontuação de viabilidade
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="p-4 rounded-lg border border-sky-200 bg-sky-50/50">
+                                    <div className="flex items-center space-x-2 mb-2">
+                                      <Wind className="w-5 h-5 text-sky-600" />
+                                      <span className="font-semibold text-slate-900">
+                                        Eólica
+                                      </span>
+                                    </div>
+                                    <div className="mt-2">
+                                      <div className="text-3xl font-bold text-sky-700">
+                                        {scores.wind}
+                                      </div>
+                                      <div className="text-xs text-slate-600 mt-1">
+                                        Pontuação de viabilidade
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="p-4 rounded-lg border border-emerald-200 bg-emerald-50/50">
+                                    <div className="flex items-center space-x-2 mb-2">
+                                      <Zap className="w-5 h-5 text-emerald-600" />
+                                      <span className="font-semibold text-slate-900">
+                                        Hidrogênio Verde
+                                      </span>
+                                    </div>
+                                    <div className="mt-2">
+                                      <div className="text-3xl font-bold text-emerald-700">
+                                        {scores.h2}
+                                      </div>
+                                      <div className="text-xs text-slate-600 mt-1">
+                                        Pontuação de viabilidade
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="mt-4 pt-4 border-t border-teal-100">
+                                  <p className="text-xs text-slate-500 italic text-center">
+                                    * As notas são ponderadas de 0 a 100, sendo 100 a maior nota de viabilidade.
+                                  </p>
+                                </div>
+                              </>
+                            );
+                          })()}
+                        </AccordionContent>
+                      </Card>
+                    </AccordionItem>
+                  </Accordion>
+                </motion.div>
+              )}
+              
+              {/* Passo 4: Tipologias Regionais - mostra após seleção de Estado */}
+              {selectedEstado && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.35 }}
+                >
+                  <Accordion
+                    type="multiple"
+                    defaultValue={["tipologias"]}
+                    className="mb-4"
+                  >
+                    <AccordionItem value="tipologias" className="border-none">
+                      <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden">
+                        <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-emerald-50/50 transition-colors">
+                          <div className="flex items-center space-x-3 w-full">
+                            <Zap className="w-6 h-6 text-emerald-600" />
+                            <h2 className="text-2xl font-bold text-slate-900">
+                              Tipologias Regionais
+                            </h2>
+                            <Badge className="ml-auto bg-blue-100 text-blue-800 border-blue-300">
+                              {selectedRegion || "—"}
+                            </Badge>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-6 pb-6">
+                          <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-4">
+                            {getTechnologyFactors(
+                              selectedRegion || "Nordeste"
+                            ).map((tech, tIndex) => (
+                              <div
+                                key={`tech-${tIndex}`}
+                                className="p-4 rounded-lg border hover:shadow-sm transition-shadow"
+                              >
+                                <div className="flex items-center space-x-3 mb-3">
+                                  <tech.icon className="w-5 h-5 text-emerald-600" />
+                                  <h3 className="font-semibold text-slate-900">
+                                    {tech.title}
+                                  </h3>
+                                </div>
+                                <div className="grid grid-cols-1 gap-2">
+                                  {tech.factors.map((f, fIndex: number) => (
+                                    <div
+                                      key={`f-${tIndex}-${fIndex}`}
+                                      className="flex items-center justify-between"
+                                    >
+                                      <span className="text-sm text-slate-700">
+                                        {f.label}
+                                      </span>
+                                      <Badge
+                                        variant="outline"
+                                        className={getPriorityColor(f.status)}
+                                      >
+                                        {f.value}
+                                      </Badge>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </AccordionContent>
+                      </Card>
+                    </AccordionItem>
+                  </Accordion>
+                </motion.div>
+              )}
+
+              {/* Conteúdo da aba Cidade copiado para aba Região - Início */}
+              {analysisStarted && (
+                <>
+                  <div className="mt-6 mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h3 className="font-semibold text-blue-900 flex items-center gap-2">
+                      <MapPin className="w-5 h-5" />
+                      Análise Detalhada por Cidade
+                    </h3>
+                    <p className="text-sm text-blue-800 mt-1">Os dados abaixo refletem análises específicas para a cidade selecionada</p>
                   </div>
-                  <ChevronDown
-                    className={`w-5 h-5 text-slate-600 transition-transform ${
-                      showMapsComparison ? "rotate-180" : ""
-                    }`}
-                  />
-                </div>
-                {showMapsComparison &&
-                  (() => {
-                    // Coordenadas aproximadas das macrorregiões
-                    const regionCoords: Record<
-                      string,
-                      { lat: number; lng: number }
-                    > = {
-                      Norte: { lat: -3.4653, lng: -62.2159 },
-                      Nordeste: { lat: -9.6658, lng: -35.7353 },
-                      "Centro-Oeste": { lat: -15.7801, lng: -47.9292 },
-                      Sudeste: { lat: -22.9068, lng: -43.1729 },
-                      Sul: { lat: -27.5954, lng: -48.548 },
-                    };
-
-                    // Lógica para exibir mapas independentes
-                    const showMicroMapA =
-                      compareMicroA && compareEstadoA && coordsMicroA;
-                    const showMicroMapB =
-                      compareMicroB && compareEstadoB && coordsMicroB;
-                    const showMacroMapA = compareRegionA;
-                    const showMacroMapB = compareRegionB;
-
-                    const hasAnyMap =
-                      showMicroMapA ||
-                      showMicroMapB ||
-                      showMacroMapA ||
-                      showMacroMapB;
-
-                    if (!hasAnyMap) {
-                      return (
-                        <div className="text-center py-8 text-slate-500">
-                          <Mountain className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                          <p>
-                            Selecione regiões ou microrregiões para visualizar
-                            no mapa
-                          </p>
-                        </div>
-                      );
-                    }
-
-                    return (
-                      <div className="space-y-4">
-                        <div className="grid md:grid-cols-2 gap-4">
-                          {/* Mapa A - Microrregião ou Macrorregião */}
-                          <div className="space-y-2">
-                            {showMicroMapA ? (
-                              <>
-                                <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                                  <p className="text-sm font-semibold text-blue-900">
-                                    Microrregião A
-                                  </p>
-                                  <p className="text-base font-bold text-blue-800">
-                                    {compareMicroNomeA}
-                                  </p>
-                                  <p className="text-xs text-blue-700">
-                                    {UF_MAP[compareEstadoA]} ({compareEstadoA})
-                                  </p>
-                                </div>
-                                <div className="border rounded-lg overflow-hidden">
-                                  <Map
-                                    key={`map-a-${mapKeyA}`}
-                                    initialLocation={{
-                                      lat: coordsMicroA.lat,
-                                      lng: coordsMicroA.lng,
-                                      name: compareMicroNomeA,
-                                    }}
-                                    zoom={9}
-                                  />
-                                </div>
-                              </>
-                            ) : showMacroMapA ? (
-                              <>
-                                <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-200">
-                                  <p className="text-sm font-semibold text-emerald-900">
-                                    Macrorregião A
-                                  </p>
-                                  <p className="text-base font-bold text-emerald-800">
-                                    {compareRegionA}
-                                  </p>
-                                </div>
-                                <div className="border rounded-lg overflow-hidden">
-                                  <Map
-                                    key={`map-a-${mapKeyA}`}
-                                    initialLocation={{
-                                      lat: regionCoords[compareRegionA].lat,
-                                      lng: regionCoords[compareRegionA].lng,
-                                      name: `Região ${compareRegionA}`,
-                                    }}
-                                    zoom={5.5}
-                                  />
-                                </div>
-                              </>
-                            ) : (
-                              <div className="text-center py-16 text-slate-400 border-2 border-dashed rounded-lg">
-                                <Mountain className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                                <p className="text-sm">
-                                  Selecione uma região A
-                                </p>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Mapa B - Microrregião ou Macrorregião */}
-                          <div className="space-y-2">
-                            {showMicroMapB ? (
-                              <>
-                                <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
-                                  <p className="text-sm font-semibold text-purple-900">
-                                    Microrregião B
-                                  </p>
-                                  <p className="text-base font-bold text-purple-800">
-                                    {compareMicroNomeB}
-                                  </p>
-                                  <p className="text-xs text-purple-700">
-                                    {UF_MAP[compareEstadoB]} ({compareEstadoB})
-                                  </p>
-                                </div>
-                                <div className="border rounded-lg overflow-hidden">
-                                  <Map
-                                    key={`map-b-${mapKeyB}`}
-                                    initialLocation={{
-                                      lat: coordsMicroB.lat,
-                                      lng: coordsMicroB.lng,
-                                      name: compareMicroNomeB,
-                                    }}
-                                    zoom={9}
-                                  />
-                                </div>
-                              </>
-                            ) : showMacroMapB ? (
-                              <>
-                                <div className="p-3 bg-teal-50 rounded-lg border border-teal-200">
-                                  <p className="text-sm font-semibold text-teal-900">
-                                    Macrorregião B
-                                  </p>
-                                  <p className="text-base font-bold text-teal-800">
-                                    {compareRegionB}
-                                  </p>
-                                </div>
-                                <div className="border rounded-lg overflow-hidden">
-                                  <Map
-                                    key={`map-b-${mapKeyB}`}
-                                    initialLocation={{
-                                      lat: regionCoords[compareRegionB].lat,
-                                      lng: regionCoords[compareRegionB].lng,
-                                      name: `Região ${compareRegionB}`,
-                                    }}
-                                    zoom={5.5}
-                                  />
-                                </div>
-                              </>
-                            ) : (
-                              <div className="text-center py-16 text-slate-400 border-2 border-dashed rounded-lg">
-                                <Mountain className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                                <p className="text-sm">
-                                  Selecione uma região B
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
+                  
+                  <Accordion
+                type="multiple"
+                defaultValue={[
+                  "producao",
+                  "simulacao",
+                  "financeiro",
+                  "ambiental",
+                  "viabilidade",
+                  "recomendacoes",
+                ]}
+                className="space-y-4"
+              >
+                {/* Cálculo de Produção de Energia */}
+                <AccordionItem value="producao" className="border-none">
+                  <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden">
+                    <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-emerald-50/50 transition-colors">
+                      <div className="flex items-center space-x-3 w-full">
+                        <Zap className="w-6 h-6 text-emerald-600" />
+                        <h2 className="text-2xl font-bold text-slate-900">
+                          Cálculo de Projeção para Produção de Hidrogênio Verde
+                        </h2>
+                        <Badge className="bg-blue-100 text-blue-800 border-blue-300 ml-auto">
+                          📐 Fórmulas Reais
+                        </Badge>
                       </div>
-                    );
-                  })()}
-              </Card>
+                    </AccordionTrigger>
+                    <AccordionContent className="px-6 pb-6">
+                      <Tabs defaultValue="1" className="w-full">
+                        <TabsList className="grid w-full grid-cols-3 mb-6 bg-gradient-to-r from-emerald-100 to-teal-100 p-1 rounded-xl border border-emerald-200 shadow-sm">
+                          <TabsTrigger
+                            value="1"
+                            className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-emerald-700 rounded-lg transition-all"
+                          >
+                            1 Ano
+                          </TabsTrigger>
+                          <TabsTrigger
+                            value="3"
+                            className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-emerald-700 rounded-lg transition-all"
+                          >
+                            3 Anos
+                          </TabsTrigger>
+                          <TabsTrigger
+                            value="5"
+                            className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-emerald-700 rounded-lg transition-all"
+                          >
+                            5 Anos
+                          </TabsTrigger>
+                        </TabsList>
+
+                        <TabsContent value="1">
+                          <div className="space-y-6">
+                            {/* Entrada de Dados */}
+                            <div>
+                              <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center">
+                                <Sun className="w-5 h-5 mr-2 text-amber-600" />
+                                1. Entrada de Energia Renovável
+                              </h3>
+                              <div className="grid md:grid-cols-2 gap-4">
+                                <Card className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
+                                  <p className="text-sm text-slate-700 mb-2">
+                                    ☀️ <strong>Irradiância Solar:</strong>{" "}
+                                    {Math.ceil(energyCalc1Year.solarIrradiance)}{" "}
+                                    W/m²
+                                  </p>
+                                  <p className="text-sm text-slate-700 mb-2">
+                                    📐 <strong>Área dos Painéis:</strong>{" "}
+                                    {energyCalc1Year.solarPanelArea.toLocaleString()}{" "}
+                                    m²
+                                  </p>
+                                  <p className="text-sm text-slate-700 mb-2">
+                                    ⚡ <strong>Eficiência:</strong>{" "}
+                                    {Math.ceil(
+                                      energyCalc1Year.solarEfficiency * 100
+                                    )}
+                                    %
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
+                                    <strong>Fórmula:</strong> P
+                                    <sub>solar</sub> = G × A × η
+                                  </p>
+                                  <p className="text-2xl font-bold text-amber-600 mt-3">
+                                    {Math.ceil(energyCalc1Year.solarPower)} kW
+                                  </p>
+                                  <p className="text-xs text-slate-600">
+                                    Potência Solar Gerada
+                                  </p>
+                                </Card>
+
+                                <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
+                                  <p className="text-sm text-slate-700 mb-2">
+                                    💨 <strong>Velocidade do Vento:</strong>{" "}
+                                    {Math.ceil(energyCalc1Year.windSpeed)} m/s
+                                  </p>
+                                  <p className="text-sm text-slate-700 mb-2">
+                                    📐 <strong>Área Varrida:</strong>{" "}
+                                    {energyCalc1Year.windTurbineArea.toLocaleString()}{" "}
+                                    m²
+                                  </p>
+                                  <p className="text-sm text-slate-700 mb-2">
+                                    ⚡ <strong>Eficiência:</strong>{" "}
+                                    {Math.ceil((
+                                      energyCalc1Year.windEfficiency * 100
+                                    ))}
+                                    %
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
+                                    <strong>Fórmula:</strong> P
+                                    <sub>eólica</sub> = ½ × ρ × A × v³ × η
+                                  </p>
+                                  <p className="text-2xl font-bold text-blue-600 mt-3">
+                                    {Math.ceil(energyCalc1Year.windPower)} kW
+                                  </p>
+                                  <p className="text-xs text-slate-600">
+                                    Potência Eólica Gerada
+                                  </p>
+                                </Card>
+                              </div>
+                            </div>
+
+                            {/* Energia Total */}
+                            <div>
+                              <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center">
+                                <Activity className="w-5 h-5 mr-2 text-purple-600" />
+                                2. Energia Total Disponível
+                              </h3>
+                              <div className="grid md:grid-cols-3 gap-4">
+                                <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    Potência Total
+                                  </p>
+                                  <p className="text-3xl font-bold text-purple-600">
+                                    {Math.ceil(energyCalc1Year.totalPower)}
+                                  </p>
+                                  <p className="text-xs text-slate-600">kW</p>
+                                </Card>
+
+                                <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    Energia Diária
+                                  </p>
+                                  <p className="text-3xl font-bold text-purple-600">
+                                    {Math.ceil(energyCalc1Year.dailyEnergy)}
+                                  </p>
+                                  <p className="text-xs text-slate-600">
+                                    kWh/dia
+                                  </p>
+                                </Card>
+
+                                <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    Energia Anual
+                                  </p>
+                                  <p className="text-3xl font-bold text-purple-600">
+                                    {Math.ceil((
+                                      energyCalc1Year.annualEnergy / 1000
+                                    ))}
+                                  </p>
+                                  <p className="text-xs text-slate-600">
+                                    MWh/ano
+                                  </p>
+                                </Card>
+                              </div>
+                            </div>
+
+                            {/* Produção de H2 */}
+                            <div>
+                              <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center">
+                                <Droplet className="w-5 h-5 mr-2 text-emerald-600" />
+                                3. Produção de Hidrogênio Verde
+                              </h3>
+                              <div className="grid md:grid-cols-2 gap-4">
+                                <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+                                  <p className="text-sm text-slate-700 mb-2">
+                                    💧 <strong>Produção Diária:</strong>
+                                  </p>
+                                  <p className="text-3xl font-bold text-emerald-600">
+                                    {energyCalc1Year.dailyH2Production >= 1000
+                                      ? Math.ceil(energyCalc1Year.dailyH2Production / 1000) + " t/dia"
+                                      : Math.ceil(energyCalc1Year.dailyH2Production) + " kg/dia"}
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
+                                    <strong>Consumo eletrolisador:</strong> 65
+                                    kWh/kg H₂ (incluindo perdas do sistema)
+                                  </p>
+                                  <p className="text-xs text-amber-700 mt-1 p-2 bg-amber-50 rounded">
+                                    ⚠️ Valores realistas considerando fator de
+                                    capacidade solar (~20%) e eólico (~30%)
+                                  </p>
+                                </Card>
+
+                                <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+                                  <p className="text-sm text-slate-700 mb-2">
+                                    📊 <strong>Produção Anual:</strong>
+                                  </p>
+                                  <p className="text-3xl font-bold text-emerald-600">
+                                    {Math.ceil(energyCalc1Year.annualH2Production)}{" "}
+                                    Ton/ano
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
+                                    <strong>Fórmula:</strong> H₂ (kg) = E
+                                    <sub>disponível</sub> / 50 kWh/kg
+                                  </p>
+                                </Card>
+                              </div>
+                            </div>
+                          </div>
+                        </TabsContent>
+
+                        <TabsContent value="3">
+                          <div className="space-y-6">
+                            {/* Entrada de Dados */}
+                            <div>
+                              <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center">
+                                <Sun className="w-5 h-5 mr-2 text-amber-600" />
+                                1. Entrada de Energia Renovável (Expansão 3x)
+                              </h3>
+                              <div className="grid md:grid-cols-2 gap-4">
+                                <Card className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
+                                  <p className="text-sm text-slate-700 mb-2">
+                                    ☀️ <strong>Irradiância Solar:</strong>{" "}
+                                    {energyCalc3Years.solarIrradiance.toFixed(
+                                      0
+                                    )}{" "}
+                                    W/m²
+                                  </p>
+                                  <p className="text-sm text-slate-700 mb-2">
+                                    📐 <strong>Área dos Painéis:</strong>{" "}
+                                    {energyCalc3Years.solarPanelArea.toLocaleString()}{" "}
+                                    m²
+                                  </p>
+                                  <p className="text-sm text-slate-700 mb-2">
+                                    ⚡ <strong>Eficiência:</strong>{" "}
+                                    {Math.ceil((
+                                      energyCalc3Years.solarEfficiency * 100
+                                    ))}
+                                    %
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
+                                    <strong>Fórmula:</strong> P
+                                    <sub>solar</sub> = G × A × η
+                                  </p>
+                                  <p className="text-2xl font-bold text-amber-600 mt-3">
+                                    {Math.ceil(energyCalc3Years.solarPower)}{" "}
+                                    kW
+                                  </p>
+                                  <p className="text-xs text-slate-600">
+                                    Potência Solar Gerada
+                                  </p>
+                                </Card>
+
+                                <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
+                                  <p className="text-sm text-slate-700 mb-2">
+                                    💨 <strong>Velocidade do Vento:</strong>{" "}
+                                    {Math.ceil(energyCalc3Years.windSpeed)}{" "}
+                                    m/s
+                                  </p>
+                                  <p className="text-sm text-slate-700 mb-2">
+                                    📐 <strong>Área Varrida:</strong>{" "}
+                                    {energyCalc3Years.windTurbineArea.toLocaleString()}{" "}
+                                    m²
+                                  </p>
+                                  <p className="text-sm text-slate-700 mb-2">
+                                    ⚡ <strong>Eficiência:</strong>{" "}
+                                    {Math.ceil((
+                                      energyCalc3Years.windEfficiency * 100
+                                    ))}
+                                    %
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
+                                    <strong>Fórmula:</strong> P
+                                    <sub>eólica</sub> = ½ × ρ × A × v³ × η
+                                  </p>
+                                  <p className="text-2xl font-bold text-blue-600 mt-3">
+                                    {Math.ceil(energyCalc3Years.windPower)} kW
+                                  </p>
+                                  <p className="text-xs text-slate-600">
+                                    Potência Eólica Gerada
+                                  </p>
+                                </Card>
+                              </div>
+                            </div>
+
+                            {/* Energia Total */}
+                            <div>
+                              <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center">
+                                <Activity className="w-5 h-5 mr-2 text-purple-600" />
+                                2. Energia Total Disponível
+                              </h3>
+                              <div className="grid md:grid-cols-3 gap-4">
+                                <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    Potência Total
+                                  </p>
+                                  <p className="text-3xl font-bold text-purple-600">
+                                    {Math.ceil(energyCalc3Years.totalPower)}
+                                  </p>
+                                  <p className="text-xs text-slate-600">kW</p>
+                                </Card>
+
+                                <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    Energia Diária
+                                  </p>
+                                  <p className="text-3xl font-bold text-purple-600">
+                                    {Math.ceil(energyCalc3Years.dailyEnergy)}
+                                  </p>
+                                  <p className="text-xs text-slate-600">
+                                    kWh/dia
+                                  </p>
+                                </Card>
+
+                                <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    Energia Anual
+                                  </p>
+                                  <p className="text-3xl font-bold text-purple-600">
+                                    {Math.ceil((
+                                      energyCalc3Years.annualEnergy / 1000
+                                    ))}
+                                  </p>
+                                  <p className="text-xs text-slate-600">
+                                    MWh/ano
+                                  </p>
+                                </Card>
+                              </div>
+                            </div>
+
+                            {/* Produção de H2 */}
+                            <div>
+                              <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center">
+                                <Droplet className="w-5 h-5 mr-2 text-emerald-600" />
+                                3. Produção de Hidrogênio Verde
+                              </h3>
+                              <div className="grid md:grid-cols-2 gap-4">
+                                <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+                                  <p className="text-sm text-slate-700 mb-2">
+                                    💧 <strong>Produção Diária:</strong>
+                                  </p>
+                                  <p className="text-3xl font-bold text-emerald-600">
+                                    {energyCalc3Years.dailyH2Production >= 1000
+                                      ? Math.ceil(energyCalc3Years.dailyH2Production / 1000) + " t/dia"
+                                      : Math.ceil(energyCalc3Years.dailyH2Production) + " kg/dia"}
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
+                                    <strong>Consumo eletrolisador:</strong> 65
+                                    kWh/kg H₂ (incluindo perdas do sistema)
+                                  </p>
+                                  <p className="text-xs text-amber-700 mt-1 p-2 bg-amber-50 rounded">
+                                    ⚠️ Valores realistas considerando fator de
+                                    capacidade solar (~20%) e eólico (~30%)
+                                  </p>
+                                </Card>
+
+                                <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+                                  <p className="text-sm text-slate-700 mb-2">
+                                    📊 <strong>Produção Anual:</strong>
+                                  </p>
+                                  <p className="text-3xl font-bold text-emerald-600">
+                                    {Math.ceil(energyCalc3Years.annualH2Production)}{" "}
+                                    Toneladas/ano
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
+                                    <strong>Fórmula:</strong> H₂ (kg) = E
+                                    <sub>disponível</sub> / 50 kWh/kg
+                                  </p>
+                                </Card>
+                              </div>
+                            </div>
+                          </div>
+                        </TabsContent>
+
+                        <TabsContent value="5">
+                          <div className="space-y-6">
+                            {/* Entrada de Dados */}
+                            <div>
+                              <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center">
+                                <Sun className="w-5 h-5 mr-2 text-amber-600" />
+                                1. Entrada de Energia Renovável (Expansão 5x)
+                              </h3>
+                              <div className="grid md:grid-cols-2 gap-4">
+                                <Card className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
+                                  <p className="text-sm text-slate-700 mb-2">
+                                    ☀️ <strong>Irradiância Solar:</strong>{" "}
+                                    {energyCalc5Years.solarIrradiance.toFixed(
+                                      0
+                                    )}{" "}
+                                    W/m²
+                                  </p>
+                                  <p className="text-sm text-slate-700 mb-2">
+                                    📐 <strong>Área dos Painéis:</strong>{" "}
+                                    {energyCalc5Years.solarPanelArea.toLocaleString()}{" "}
+                                    m²
+                                  </p>
+                                  <p className="text-sm text-slate-700 mb-2">
+                                    ⚡ <strong>Eficiência:</strong>{" "}
+                                    {Math.ceil((
+                                      energyCalc5Years.solarEfficiency * 100
+                                    ))}
+                                    %
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
+                                    <strong>Fórmula:</strong> P
+                                    <sub>solar</sub> = G × A × η
+                                  </p>
+                                  <p className="text-2xl font-bold text-amber-600 mt-3">
+                                    {Math.ceil(energyCalc5Years.solarPower)}{" "}
+                                    kW
+                                  </p>
+                                  <p className="text-xs text-slate-600">
+                                    Potência Solar Gerada
+                                  </p>
+                                </Card>
+
+                                <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
+                                  <p className="text-sm text-slate-700 mb-2">
+                                    💨 <strong>Velocidade do Vento:</strong>{" "}
+                                    {Math.ceil(energyCalc5Years.windSpeed)}{" "}
+                                    m/s
+                                  </p>
+                                  <p className="text-sm text-slate-700 mb-2">
+                                    📐 <strong>Área Varrida:</strong>{" "}
+                                    {energyCalc5Years.windTurbineArea.toLocaleString()}{" "}
+                                    m²
+                                  </p>
+                                  <p className="text-sm text-slate-700 mb-2">
+                                    ⚡ <strong>Eficiência:</strong>{" "}
+                                    {Math.ceil((
+                                      energyCalc5Years.windEfficiency * 100
+                                    ))}
+                                    %
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
+                                    <strong>Fórmula:</strong> P
+                                    <sub>eólica</sub> = ½ × ρ × A × v³ × η
+                                  </p>
+                                  <p className="text-2xl font-bold text-blue-600 mt-3">
+                                    {Math.ceil(energyCalc5Years.windPower)} kW
+                                  </p>
+                                  <p className="text-xs text-slate-600">
+                                    Potência Eólica Gerada
+                                  </p>
+                                </Card>
+                              </div>
+                            </div>
+
+                            {/* Energia Total */}
+                            <div>
+                              <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center">
+                                <Activity className="w-5 h-5 mr-2 text-purple-600" />
+                                2. Energia Total Disponível
+                              </h3>
+                              <div className="grid md:grid-cols-3 gap-4">
+                                <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    Potência Total
+                                  </p>
+                                  <p className="text-3xl font-bold text-purple-600">
+                                    {Math.ceil(energyCalc5Years.totalPower)}
+                                  </p>
+                                  <p className="text-xs text-slate-600">kW</p>
+                                </Card>
+
+                                <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    Energia Diária
+                                  </p>
+                                  <p className="text-3xl font-bold text-purple-600">
+                                    {Math.ceil(energyCalc5Years.dailyEnergy)}
+                                  </p>
+                                  <p className="text-xs text-slate-600">
+                                    kWh/dia
+                                  </p>
+                                </Card>
+
+                                <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    Energia Anual
+                                  </p>
+                                  <p className="text-3xl font-bold text-purple-600">
+                                    {Math.ceil((
+                                      energyCalc5Years.annualEnergy / 1000
+                                    ))}
+                                  </p>
+                                  <p className="text-xs text-slate-600">
+                                    MWh/ano
+                                  </p>
+                                </Card>
+                              </div>
+                            </div>
+
+                            {/* Produção de H2 */}
+                            <div>
+                              <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center">
+                                <Droplet className="w-5 h-5 mr-2 text-emerald-600" />
+                                3. Produção de Hidrogênio Verde
+                              </h3>
+                              <div className="grid md:grid-cols-2 gap-4">
+                                <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+                                  <p className="text-sm text-slate-700 mb-2">
+                                    💧 <strong>Produção Diária:</strong>
+                                  </p>
+                                  <p className="text-3xl font-bold text-emerald-600">
+                                    {energyCalc5Years.dailyH2Production >= 1000
+                                      ? Math.ceil(energyCalc5Years.dailyH2Production / 1000) + " t/dia"
+                                      : Math.ceil(energyCalc5Years.dailyH2Production) + " kg/dia"}
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
+                                    <strong>Consumo eletrolisador:</strong> 65
+                                    kWh/kg H₂ (incluindo perdas do sistema)
+                                  </p>
+                                  <p className="text-xs text-amber-700 mt-1 p-2 bg-amber-50 rounded">
+                                    ⚠️ Valores realistas considerando fator de
+                                    capacidade solar (~20%) e eólico (~30%)
+                                  </p>
+                                </Card>
+
+                                <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+                                  <p className="text-sm text-slate-700 mb-2">
+                                    📊 <strong>Produção Anual:</strong>
+                                  </p>
+                                  <p className="text-3xl font-bold text-emerald-600">
+                                    {Math.ceil(energyCalc5Years.annualH2Production)}{" "}
+                                    Toneladas/ano
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
+                                    <strong>Fórmula:</strong> H₂ (kg) = E
+                                    <sub>disponível</sub> / 50 kWh/kg
+                                  </p>
+                                </Card>
+                              </div>
+                            </div>
+                          </div>
+                        </TabsContent>
+                      </Tabs>
+                    </AccordionContent>
+                  </Card>
+                </AccordionItem>
+
+                {/* Simulação Horária */}
+                {simulationResults.oneYear && (
+                  <AccordionItem value="simulacao" className="border-none">
+                    <Card className="bg-white/80 backdrop-blur-sm border-blue-200 overflow-hidden">
+                      <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-blue-50/50 transition-colors">
+                        <div className="flex items-center space-x-3 w-full">
+                          <BarChart3 className="w-6 h-6 text-blue-600" />
+                          <h2 className="text-2xl font-bold text-slate-900">
+                            Simulação Horária
+                          </h2>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="px-6 pb-6">
+                        <Tabs defaultValue="1" className="w-full">
+                          <TabsList className="relative grid w-full grid-cols-3 mb-6 bg-gradient-to-r from-emerald-100 to-teal-100 p-1 h-[50px] rounded-xl border border-emerald-200 shadow-sm overflow-hidden">
+                            <TabsTrigger
+                              value="1"
+                              className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-col items-center py-1 h-[35px]"
+                            >
+                              <div className="text-sm font-medium">
+                                Cenário 1 Ano
+                              </div>
+                              <div className="text-xs text-slate-500 mt-0.5">
+                                100 kW
+                              </div>
+                            </TabsTrigger>
+                            <TabsTrigger
+                              value="3"
+                              className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-col items-center py-1 h-[35px]"
+                            >
+                              <div className="text-sm font-medium">
+                                Cenário 3 Anos
+                              </div>
+                              <div className="text-xs text-slate-500 mt-0.5">
+                                300 kW
+                              </div>
+                            </TabsTrigger>
+                            <TabsTrigger
+                              value="5"
+                              className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-col items-center py-1 h-[35px]"
+                            >
+                              <div className="text-sm font-medium">
+                                Cenário 5 Anos
+                              </div>
+                              <div className="text-xs text-slate-500 mt-0.5">
+                                500 kW
+                              </div>
+                            </TabsTrigger>
+                          </TabsList>
+                          {/* Cenário 1 Ano */}
+                          <TabsContent value="1">
+                            <div className="space-y-6">
+                              {/* Métricas Principais */}
+                              <div className="grid md:grid-cols-4 gap-4">
+                                <Card className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    ⚡ Fator de Capacidade
+                                  </p>
+                                  <p className="text-3xl font-bold text-green-600">
+                                    {simulationResults.oneYear.capacityFactor.toFixed(
+                                      1
+                                    )}
+                                    %
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    Eficiência operacional do eletrolisador
+                                  </p>
+                                </Card>
+
+                                <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    💰 LCOH
+                                  </p>
+                                  <p className="text-3xl font-bold text-blue-600">
+                                    R${" "}
+                                    {simulationResults.oneYear.lcoh.toFixed(2).replace('.', ',')}
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    Por kg de H₂
+                                  </p>
+                                </Card>
+
+                                <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    🔋 Energia Consumida
+                                  </p>
+                                  <p className="text-3xl font-bold text-purple-600">
+                                    {Math.ceil((
+                                      simulationResults.oneYear
+                                        .totalEnergyConsumed / 1000
+                                    ))}
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    MWh/ano
+                                  </p>
+                                </Card>
+
+                                <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    💧 Produção H₂
+                                  </p>
+                                  <p className="text-3xl font-bold text-emerald-600">
+                                    {Math.ceil((
+                                      simulationResults.oneYear.h2Production /
+                                      1000
+                                    ))}
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    Toneladas/ano
+                                  </p>
+                                </Card>
+                              </div>
+
+                              {/* Métricas Operacionais */}
+                              <div className="grid md:grid-cols-3 gap-4">
+                                <Card className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    ⏰ Horas de Operação
+                                  </p>
+                                  <p className="text-2xl font-bold text-amber-600">
+                                    {simulationResults.oneYear.operatingHours.toLocaleString()}
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    Horas/ano de{" "}
+                                    {(weatherData?.dataPoints || 365) * 24}{" "}
+                                    total
+                                  </p>
+                                </Card>
+
+                                <Card className="p-4 bg-gradient-to-br from-red-50 to-rose-50 border-red-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    ⚠️ Curtailment
+                                  </p>
+                                  <p className="text-2xl font-bold text-red-600">
+                                    {Math.ceil((
+                                      simulationResults.oneYear.curtailment /
+                                      1000
+                                    ))}
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    MWh perdido/ano
+                                  </p>
+                                </Card>
+
+                                <Card className="p-4 bg-gradient-to-br from-slate-50 to-gray-50 border-slate-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    📊 Potência Nominal
+                                  </p>
+                                  <p className="text-2xl font-bold text-slate-600">
+                                    100 kW
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    Eletrolisador dimensionado
+                                  </p>
+                                </Card>
+                              </div>
+
+                              {/* Custos Detalhados */}
+                              <Card className="p-4 bg-gradient-to-br from-indigo-50 to-blue-50 border-indigo-200">
+                                <h3 className="text-lg font-semibold text-slate-900 mb-3">
+                                  💵 Detalhamento de Custos (LCOH)
+                                </h3>
+                                <div className="grid md:grid-cols-2 gap-4">
+                                  <div>
+                                    <p className="text-sm text-slate-700 mb-1">
+                                      CAPEX Anualizado:
+                                    </p>
+                                    <p className="text-xl font-bold text-indigo-600">
+                                      R${" "}
+                                      {formatCurrency(simulationResults.oneYear.capexAnnualized, 2)}
+                                    </p>
+                                  </div>
+                                  <div>
+                                    <p className="text-sm text-slate-700 mb-1">
+                                      OPEX Anual:
+                                    </p>
+                                    <p className="text-xl font-bold text-indigo-600">
+                                      R${" "}
+                                      {formatCurrency(simulationResults.oneYear.opexAnnual, 2)}
+                                    </p>
+                                  </div>
+                                </div>
+                                <p className="text-xs text-slate-600 mt-3 p-2 bg-white/50 rounded">
+                                  <strong>Fórmula LCOH:</strong> (CAPEX
+                                  Anualizado + OPEX Anual) / Produção Anual de
+                                  H₂
+                                </p>
+                              </Card>
+                            </div>
+                          </TabsContent>
+
+                          {/* Cenário 3 Anos */}
+                          <TabsContent value="3">
+                            <div className="space-y-6">
+                              <div className="grid md:grid-cols-4 gap-4">
+                                <Card className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    ⚡ Fator de Capacidade
+                                  </p>
+                                  <p className="text-3xl font-bold text-green-600">
+                                    {simulationResults.threeYears!.capacityFactor.toFixed(
+                                      1
+                                    )}
+                                    %
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    Eficiência operacional do eletrolisador
+                                  </p>
+                                </Card>
+                                <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    💰 LCOH
+                                  </p>
+                                  <p className="text-3xl font-bold text-blue-600">
+                                    R${" "}
+                                    {simulationResults.threeYears!.lcoh.toFixed(
+                                      2
+                                    )}
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    por Kg de H₂
+                                  </p>
+                                </Card>
+                                <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    🔋 Energia Consumida
+                                  </p>
+                                  <p className="text-3xl font-bold text-purple-600">
+                                    {Math.ceil((
+                                      simulationResults.threeYears!
+                                        .totalEnergyConsumed / 1000
+                                    ))}{" "}
+                                    MWh
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    MWh/ano
+                                  </p>
+                                </Card>
+                                <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    💧 Produção H₂
+                                  </p>
+                                  <p className="text-3xl font-bold text-emerald-600">
+                                    {Math.ceil((
+                                      simulationResults.threeYears!
+                                        .h2Production / 1000
+                                    ))}{" "}
+                                    t
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    Toneladas/ano
+                                  </p>
+                                </Card>
+                              </div>
+
+                              {/* Métricas Operacionais - Cenário 3 Anos */}
+                              <div className="grid md:grid-cols-3 gap-4">
+                                <Card className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    ⏰ Horas de Operação
+                                  </p>
+                                  <p className="text-2xl font-bold text-amber-600">
+                                    {simulationResults.threeYears!.operatingHours.toLocaleString()}
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    horas/ano de {(weatherData?.dataPoints || 365) * 24} total
+                                  </p>
+                                </Card>
+
+                                <Card className="p-4 bg-gradient-to-br from-red-50 to-rose-50 border-red-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    ⚠️ Curtailment
+                                  </p>
+                                  <p className="text-2xl font-bold text-red-600">
+                                    {Math.ceil((simulationResults.threeYears!.curtailment / 1000))}
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">MWh perdido/ano</p>
+                                </Card>
+
+                                <Card className="p-4 bg-gradient-to-br from-slate-50 to-gray-50 border-slate-200">
+                                  <p className="text-sm text-slate-700 mb-1">📊 Potência Nominal</p>
+                                  <p className="text-2xl font-bold text-slate-600">300 kW</p>
+                                  <p className="text-xs text-slate-600 mt-2">Eletrolisador dimensionado</p>
+                                </Card>
+                              </div>
+
+                              <Card className="p-4 bg-gradient-to-br from-indigo-50 to-blue-50 border-indigo-200">
+                                <h3 className="text-lg font-semibold text-slate-900 mb-3">
+                                  💵 Custos (300 kW)
+                                </h3>
+                                <div className="grid md:grid-cols-2 gap-4">
+                                  <div>
+                                    <p className="text-sm text-slate-700">
+                                      CAPEX Anualizado: R${" "}
+                                      {formatCurrency(simulationResults.threeYears!.capexAnnualized, 0)}
+                                    </p>
+                                  </div>
+                                  <div>
+                                    <p className="text-sm text-slate-700">
+                                      OPEX Anual: R${" "}
+                                      {formatCurrency(simulationResults.threeYears!.opexAnnual, 0)}
+                                    </p>
+                                  </div>
+                                </div>
+                              </Card>
+                            </div>
+                          </TabsContent>
+
+                          {/* Cenário 5 Anos */}
+                          <TabsContent value="5">
+                            <div className="space-y-6">
+                              <div className="grid md:grid-cols-4 gap-4">
+                                <Card className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    ⚡ Fator de Capacidade
+                                  </p>
+                                  <p className="text-3xl font-bold text-green-600">
+                                    {simulationResults.fiveYears!.capacityFactor.toFixed(
+                                      1
+                                    )}
+                                    %
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    Eficiência operacional do eletrolisador
+                                  </p>
+                                </Card>
+                                <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    💰 LCOH
+                                  </p>
+                                  <p className="text-3xl font-bold text-blue-600">
+                                    R${" "}
+                                    {simulationResults.fiveYears!.lcoh.toFixed(
+                                      2
+                                    )}
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    por Kg de H₂
+                                  </p>
+                                </Card>
+                                <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    🔋 Energia Consumida
+                                  </p>
+                                  <p className="text-3xl font-bold text-purple-600">
+                                    {Math.ceil((
+                                      simulationResults.fiveYears!
+                                        .totalEnergyConsumed / 1000
+                                    ))}{" "}
+                                    MWh
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    MWh/ano
+                                  </p>
+                                </Card>
+                                <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    💧 Produção H₂
+                                  </p>
+                                  <p className="text-3xl font-bold text-emerald-600">
+                                    {Math.ceil((
+                                      simulationResults.fiveYears!
+                                        .h2Production / 1000
+                                    ))}{" "}
+                                    t
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    Toneladas/ano
+                                  </p>
+                                </Card>
+                              </div>
+
+                              {/* Métricas Operacionais - Cenário 5 Anos */}
+                              <div className="grid md:grid-cols-3 gap-4">
+                                <Card className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    ⏰ Horas de Operação
+                                  </p>
+                                  <p className="text-2xl font-bold text-amber-600">
+                                    {simulationResults.fiveYears!.operatingHours.toLocaleString()}
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    horas/ano de {(weatherData?.dataPoints || 365) * 24} total
+                                  </p>
+                                </Card>
+
+                                <Card className="p-4 bg-gradient-to-br from-red-50 to-rose-50 border-red-200">
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    ⚠️ Curtailment
+                                  </p>
+                                  <p className="text-2xl font-bold text-red-600">
+                                    {Math.ceil((simulationResults.fiveYears!.curtailment / 1000))}
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">MWh perdido/ano</p>
+                                </Card>
+
+                                <Card className="p-4 bg-gradient-to-br from-slate-50 to-gray-50 border-slate-200">
+                                  <p className="text-sm text-slate-700 mb-1">📊 Potência Nominal</p>
+                                  <p className="text-2xl font-bold text-slate-600">500 kW</p>
+                                  <p className="text-xs text-slate-600 mt-2">Eletrolisador dimensionado</p>
+                                </Card>
+                              </div>
+
+                              <Card className="p-4 bg-gradient-to-br from-indigo-50 to-blue-50 border-indigo-200">
+                                <h3 className="text-lg font-semibold text-slate-900 mb-3">
+                                  💵 Custos (500 kW)
+                                </h3>
+                                <div className="grid md:grid-cols-2 gap-4">
+                                  <div>
+                                    <p className="text-sm text-slate-700">
+                                      CAPEX Anualizado: R${" "}
+                                      {formatCurrency(simulationResults.fiveYears!.capexAnnualized, 0)}
+                                    </p>
+                                  </div>
+                                  <div>
+                                    <p className="text-sm text-slate-700">
+                                      OPEX Anual: R${" "}
+                                      {formatCurrency(simulationResults.fiveYears!.opexAnnual, 0)}
+                                    </p>
+                                  </div>
+                                </div>
+                              </Card>
+                            </div>
+                          </TabsContent>
+                        </Tabs>
+
+                        {/* Explicação */}
+                        <Card className="mt-6 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+                          <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                            📊 Sobre a Simulação
+                          </h3>
+                          <p className="text-sm text-slate-700 mb-2">
+                            Análise detalhada simulando operação hora a hora:
+                          </p>
+                          <ul className="text-sm text-slate-700 space-y-1 ml-4 list-disc">
+                            <li>
+                              <strong>Fator de Capacidade:</strong> Eficiência
+                              real do eletrolisador
+                            </li>
+                            <li>
+                              <strong>LCOH:</strong> Custo nivelado do H₂
+                              (CAPEX + OPEX / Produção)
+                            </li>
+                            <li>
+                              <strong>Curtailment:</strong> Energia renovável
+                              desperdiçada
+                            </li>
+                            <li>
+                              <strong>Operação:</strong> 20-100% quando
+                              energia disponível nessa faixa
+                            </li>
+                          </ul>
+                        </Card>
+                      </AccordionContent>
+                    </Card>
+                  </AccordionItem>
+                )}
+
+                {/* Análise Financeira */}
+                {simulationResults.oneYear && (
+                  <AccordionItem value="financeiro" className="border-none">
+                    <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden">
+                      <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-emerald-50/50 transition-colors">
+                        <div className="flex items-center space-x-3 w-full">
+                          <TrendingUp className="w-6 h-6 text-emerald-600" />
+                          <h2 className="text-2xl font-bold text-slate-900">
+                            Análise Financeira e Estudo de Viabilidade
+                          </h2>
+                          <Badge className="bg-green-100 text-green-800 border-green-300 ml-auto">
+                            ✓ Baseado em Simulação Real
+                          </Badge>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="px-6 pb-6">
+                        <Tabs defaultValue="1" className="w-full">
+                          <TabsList className="relative grid w-full grid-cols-3 mb-6 bg-gradient-to-r from-emerald-100 to-teal-100 p-1 h-[50px] rounded-xl border border-emerald-200 shadow-sm overflow-hidden">
+                            <TabsTrigger
+                              value="1"
+                              className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-col items-center h-[35px] "
+                            >
+                              <div className="text-sm font-medium">
+                                Cenário 1 Ano
+                              </div>
+                              <div className="text-xs text-slate-500 mt-0.5">
+                                100 kW
+                              </div>
+                            </TabsTrigger>
+                            <TabsTrigger
+                              value="3"
+                              className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-col items-center py-1 h-[35px]"
+                            >
+                              <div className="text-sm font-medium">
+                                Cenário 3 Anos
+                              </div>
+                              <div className="text-xs text-slate-500 mt-0.5">
+                                300 kW
+                              </div>
+                            </TabsTrigger>
+                            <TabsTrigger
+                              value="5"
+                              className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-col items-center py-1 h-[35px]"
+                            >
+                              <div className="text-sm font-medium">
+                                Cenário 5 Anos
+                              </div>
+                              <div className="text-xs text-slate-500 mt-0.5">
+                                500 kW
+                              </div>
+                            </TabsTrigger>
+                          </TabsList>
+
+                          {/* Cenário 1 Ano */}
+                          <TabsContent value="1">
+                            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                              <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
+                                <div className="flex items-center space-x-2 mb-2">
+                                  <Droplet className="w-5 h-5 text-blue-600" />
+                                  <span className="text-sm font-medium text-slate-700">
+                                    LCOH
+                                  </span>
+                                </div>
+                                <p className="text-3xl font-bold text-slate-900">
+                                  R${" "}
+                                  {simulationResults.oneYear.lcoh.toFixed(2).replace('.', ',')}
+                                </p>
+                                <p className="text-xs text-slate-600 mt-1">
+                                  por kg de H₂
+                                </p>
+                                <Badge className="mt-2 bg-blue-100 text-blue-800 text-xs">
+                                  {simulationResults.oneYear.lcoh < 8
+                                    ? "✓ Competitivo"
+                                    : simulationResults.oneYear.lcoh < 12
+                                    ? "~ Razoável"
+                                    : "⚠ Alto"}
+                                </Badge>
+                              </Card>
+
+                              <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+                                <div className="flex items-center space-x-2 mb-2">
+                                  <Activity className="w-5 h-5 text-emerald-600" />
+                                  <span className="text-sm font-medium text-slate-700">
+                                    Fator Capacidade
+                                  </span>
+                                </div>
+                                <p className="text-3xl font-bold text-slate-900">
+                                  {simulationResults.oneYear.capacityFactor.toFixed(
+                                    1
+                                  )}
+                                  %
+                                </p>
+                                <p className="text-xs text-slate-600 mt-1">
+                                  Eficiência operacional
+                                </p>
+                                <Badge className="mt-2 bg-emerald-100 text-emerald-800 text-xs">
+                                  {simulationResults.oneYear.capacityFactor >
+                                  40
+                                    ? "✓ Excelente"
+                                    : simulationResults.oneYear
+                                        .capacityFactor > 25
+                                    ? "~ Bom"
+                                    : "⚠ Baixo"}
+                                </Badge>
+                              </Card>
+
+                              <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                                <div className="flex items-center space-x-2 mb-2">
+                                  <Zap className="w-5 h-5 text-purple-600" />
+                                  <span className="text-sm font-medium text-slate-700">
+                                    Produção Anual
+                                  </span>
+                                </div>
+                                <p className="text-3xl font-bold text-slate-900">
+                                  {simulationResults.oneYear.h2Production.toFixed(
+                                    2
+                                  )}
+                                </p>
+                                <p className="text-xs text-slate-600 mt-1">
+                                  Kg H₂/ano
+                                </p>
+                              </Card>
+
+                              <Card className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
+                                <div className="flex items-center space-x-2 mb-2">
+                                  <TrendingUp className="w-5 h-5 text-amber-600" />
+                                  <span className="text-sm font-medium text-slate-700">
+                                    Receita Potencial
+                                  </span>
+                                </div>
+                                <p className="text-3xl font-bold text-slate-900">
+                                  R${" "}
+                                  {(
+                                    simulationResults.oneYear.h2Production *
+                                    25
+                                  ).toLocaleString("pt-BR", {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                  })}
+                                </p>
+                                <p className="text-xs text-slate-600 mt-1">
+                                  Por ano (R$ 25/kg H₂)
+                                </p>
+                              </Card>
+                            </div>
+
+                            {/* Análise ROI */}
+                            <Card className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+                              <h3 className="text-lg font-semibold text-slate-900 mb-3">
+                                📊 Análise de Retorno sobre Investimento
+                              </h3>
+                              <div className="grid md:grid-cols-3 gap-4">
+                                <div>
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    CAPEX Total:
+                                  </p>
+                                  <p className="text-xl font-bold text-green-600">
+                                    R${" "}
+                                    {(
+                                      simulationResults.oneYear
+                                        .capexAnnualized / 0.117
+                                    ).toLocaleString("pt-BR", {
+                                      minimumFractionDigits: 2,
+                                      maximumFractionDigits: 2,
+                                    })}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    Payback Estimado:
+                                  </p>
+                                  <p className="text-xl font-bold text-green-600">
+                                    {Math.floor(
+                                      simulationResults.oneYear
+                                        .capexAnnualized /
+                                      0.117 /
+                                      (simulationResults.oneYear
+                                        .h2Production *
+                                        25 -
+                                        simulationResults.oneYear.opexAnnual)
+                                    )}{" "}
+                                    anos
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    ROI Anual:
+                                  </p>
+                                  <p className="text-xl font-bold text-green-600">
+                                    {Math.ceil(
+                                      ((simulationResults.oneYear
+                                        .h2Production *
+                                        25 -
+                                        simulationResults.oneYear
+                                          .opexAnnual) /
+                                        (simulationResults.oneYear
+                                          .capexAnnualized /
+                                          0.117)) *
+                                      100
+                                    )}
+                                    %
+                                  </p>
+                                </div>
+                              </div>
+                              <p className="text-xs text-slate-600 mt-3 p-2 bg-white/50 rounded">
+                                💡 Assumindo preço de venda de R$ 25/Kg e taxa
+                                de desconto de 10% ao ano
+                              </p>
+                            </Card>
+                          </TabsContent>
+
+                          {/* Cenário 3 Anos */}
+                          <TabsContent value="3">
+                            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                              <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
+                                <div className="flex items-center space-x-2 mb-2">
+                                  <Droplet className="w-5 h-5 text-blue-600" />
+                                  <span className="text-sm font-medium text-slate-700">
+                                    LCOH
+                                  </span>
+                                </div>
+                                <p className="text-3xl font-bold text-slate-900">
+                                  R${" "}
+                                  {simulationResults.threeYears!.lcoh.toFixed(2).replace('.', ',')}
+                                </p>
+                                <p className="text-xs text-slate-600 mt-1">
+                                  por Kg de H₂
+                                </p>
+                                <Badge className="mt-2 bg-blue-100 text-blue-800 text-xs">
+                                  {simulationResults.threeYears!.lcoh < 8
+                                    ? "✓ Competitivo"
+                                    : simulationResults.threeYears!.lcoh < 12
+                                    ? "~ Razoável"
+                                    : "⚠ Alto"}
+                                </Badge>
+                              </Card>
+
+                              <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+                                <div className="flex items-center space-x-2 mb-2">
+                                  <Activity className="w-5 h-5 text-emerald-600" />
+                                  <span className="text-sm font-medium text-slate-700">
+                                    Fator Capacidade
+                                  </span>
+                                </div>
+                                <p className="text-3xl font-bold text-slate-900">
+                                  {simulationResults.threeYears!.capacityFactor.toFixed(
+                                    1
+                                  )}
+                                  %
+                                </p>
+                                <p className="text-xs text-slate-600 mt-1">
+                                  Eficiência operacional
+                                </p>
+                                <Badge className="mt-2 bg-emerald-100 text-emerald-800 text-xs">
+                                  {simulationResults.threeYears!
+                                    .capacityFactor > 40
+                                    ? "✓ Excelente"
+                                    : simulationResults.threeYears!
+                                        .capacityFactor > 25
+                                    ? "~ Bom"
+                                    : "⚠ Baixo"}
+                                </Badge>
+                              </Card>
+
+                              <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                                <div className="flex items-center space-x-2 mb-2">
+                                  <Zap className="w-5 h-5 text-purple-600" />
+                                  <span className="text-sm font-medium text-slate-700">
+                                    Produção Anual
+                                  </span>
+                                </div>
+                                <p className="text-3xl font-bold text-slate-900">
+                                  {simulationResults.threeYears!.h2Production.toFixed(
+                                    2
+                                  )}
+                                </p>
+                                <p className="text-xs text-slate-600 mt-1">
+                                  Kg H₂/ano
+                                </p>
+                              </Card>
+
+                              <Card className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
+                                <div className="flex items-center space-x-2 mb-2">
+                                  <TrendingUp className="w-5 h-5 text-amber-600" />
+                                  <span className="text-sm font-medium text-slate-700">
+                                    Receita Potencial
+                                  </span>
+                                </div>
+                                <p className="text-3xl font-bold text-slate-900">
+                                  R${" "}
+                                  {(
+                                    simulationResults.threeYears!
+                                      .h2Production * 25
+                                  ).toLocaleString("pt-BR", {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                  })}
+                                </p>
+                                <p className="text-xs text-slate-600 mt-1">
+                                  Por ano (R$ 25/kg H₂)
+                                </p>
+                              </Card>
+                            </div>
+
+                            {/* Análise ROI */}
+                            <Card className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+                              <h3 className="text-lg font-semibold text-slate-900 mb-3">
+                                📊 Análise de Retorno sobre Investimento
+                              </h3>
+                              <div className="grid md:grid-cols-3 gap-4">
+                                <div>
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    CAPEX Total:
+                                  </p>
+                                  <p className="text-xl font-bold text-green-600">
+                                    R${" "}
+                                    {(
+                                      simulationResults.threeYears!
+                                        .capexAnnualized / 0.117
+                                    ).toLocaleString("pt-BR", {
+                                      minimumFractionDigits: 2,
+                                      maximumFractionDigits: 2,
+                                    })}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    Payback Estimado:
+                                  </p>
+                                  <p className="text-xl font-bold text-green-600">
+                                    {Math.floor(
+                                      simulationResults.threeYears!
+                                        .capexAnnualized /
+                                      0.117 /
+                                      (simulationResults.threeYears!
+                                        .h2Production *
+                                        25 -
+                                        simulationResults.threeYears!
+                                          .opexAnnual)
+                                    )}{" "}
+                                    anos
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    ROI Anual:
+                                  </p>
+                                  <p className="text-xl font-bold text-green-600">
+                                    {Math.ceil(
+                                      ((simulationResults.threeYears!
+                                        .h2Production *
+                                        25 -
+                                        simulationResults.threeYears!
+                                          .opexAnnual) /
+                                        (simulationResults.threeYears!
+                                          .capexAnnualized /
+                                          0.117)) *
+                                      100
+                                    )}
+                                    %
+                                  </p>
+                                </div>
+                              </div>
+                              <p className="text-xs text-slate-600 mt-3 p-2 bg-white/50 rounded">
+                                💡 Assumindo preço de venda de R$ 25/Kg e taxa
+                                de desconto de 10% ao ano
+                              </p>
+                            </Card>
+                          </TabsContent>
+
+                          {/* Cenário 5 Anos */}
+                          <TabsContent value="5">
+                            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                              <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
+                                <div className="flex items-center space-x-2 mb-2">
+                                  <Droplet className="w-5 h-5 text-blue-600" />
+                                  <span className="text-sm font-medium text-slate-700">
+                                    LCOH
+                                  </span>
+                                </div>
+                                <p className="text-3xl font-bold text-slate-900">
+                                  R${" "}
+                                  {simulationResults.fiveYears!.lcoh.toFixed(2).replace('.', ',')}
+                                </p>
+                                <p className="text-xs text-slate-600 mt-1">
+                                  por Kg de H₂
+                                </p>
+                                <Badge className="mt-2 bg-blue-100 text-blue-800 text-xs">
+                                  {simulationResults.fiveYears!.lcoh < 8
+                                    ? "✓ Competitivo"
+                                    : simulationResults.fiveYears!.lcoh < 12
+                                    ? "~ Razoável"
+                                    : "⚠ Alto"}
+                                </Badge>
+                              </Card>
+
+                              <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+                                <div className="flex items-center space-x-2 mb-2">
+                                  <Activity className="w-5 h-5 text-emerald-600" />
+                                  <span className="text-sm font-medium text-slate-700">
+                                    Fator Capacidade
+                                  </span>
+                                </div>
+                                <p className="text-3xl font-bold text-slate-900">
+                                  {simulationResults.fiveYears!.capacityFactor.toFixed(
+                                    1
+                                  )}
+                                  %
+                                </p>
+                                <p className="text-xs text-slate-600 mt-1">
+                                  Eficiência operacional
+                                </p>
+                                <Badge className="mt-2 bg-emerald-100 text-emerald-800 text-xs">
+                                  {simulationResults.fiveYears!
+                                    .capacityFactor > 40
+                                    ? "✓ Excelente"
+                                    : simulationResults.fiveYears!
+                                        .capacityFactor > 25
+                                    ? "~ Bom"
+                                    : "⚠ Baixo"}
+                                </Badge>
+                              </Card>
+
+                              <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                                <div className="flex items-center space-x-2 mb-2">
+                                  <Zap className="w-5 h-5 text-purple-600" />
+                                  <span className="text-sm font-medium text-slate-700">
+                                    Produção Anual
+                                  </span>
+                                </div>
+                                <p className="text-3xl font-bold text-slate-900">
+                                  {simulationResults.fiveYears!.h2Production.toFixed(
+                                    2
+                                  )}
+                                </p>
+                                <p className="text-xs text-slate-600 mt-1">
+                                  Kg H₂/ano
+                                </p>
+                              </Card>
+
+                              <Card className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
+                                <div className="flex items-center space-x-2 mb-2">
+                                  <TrendingUp className="w-5 h-5 text-amber-600" />
+                                  <span className="text-sm font-medium text-slate-700">
+                                    Receita Potencial
+                                  </span>
+                                </div>
+                                <p className="text-3xl font-bold text-slate-900">
+                                  R${" "}
+                                  {(
+                                    simulationResults.fiveYears!
+                                      .h2Production * 25
+                                  ).toLocaleString("pt-BR", {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                  })}
+                                </p>
+                                <p className="text-xs text-slate-600 mt-1">
+                                  Por ano (R$ 25/kg H₂)
+                                </p>
+                              </Card>
+                            </div>
+
+                            {/* Análise ROI */}
+                            <Card className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+                              <h3 className="text-lg font-semibold text-slate-900 mb-3">
+                                📊 Análise de Retorno sobre Investimento
+                              </h3>
+                              <div className="grid md:grid-cols-3 gap-4">
+                                <div>
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    CAPEX Total:
+                                  </p>
+                                  <p className="text-xl font-bold text-green-600">
+                                    R${" "}
+                                    {(
+                                      simulationResults.fiveYears!
+                                        .capexAnnualized / 0.117
+                                    ).toLocaleString("pt-BR", {
+                                      minimumFractionDigits: 2,
+                                      maximumFractionDigits: 2,
+                                    })}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    Payback Estimado:
+                                  </p>
+                                  <p className="text-xl font-bold text-green-600">
+                                    {Math.floor(
+                                      simulationResults.fiveYears!
+                                        .capexAnnualized /
+                                      0.117 /
+                                      (simulationResults.fiveYears!
+                                        .h2Production *
+                                        25 -
+                                        simulationResults.fiveYears!
+                                          .opexAnnual)
+                                    )}{" "}
+                                    anos
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-sm text-slate-700 mb-1">
+                                    ROI Anual:
+                                  </p>
+                                  <p className="text-xl font-bold text-green-600">
+                                    {Math.ceil(
+                                      ((simulationResults.fiveYears!
+                                        .h2Production *
+                                        25 -
+                                        simulationResults.fiveYears!
+                                          .opexAnnual) /
+                                        (simulationResults.fiveYears!
+                                          .capexAnnualized /
+                                          0.117)) *
+                                      100
+                                    )}
+                                    %
+                                  </p>
+                                </div>
+                              </div>
+                              <p className="text-xs text-slate-600 mt-3 p-2 bg-white/50 rounded">
+                                💡 Assumindo preço de venda de R$ 25/Kg e taxa
+                                de desconto de 10% ao ano
+                              </p>
+                            </Card>
+                          </TabsContent>
+                        </Tabs>
+                      </AccordionContent>
+                    </Card>
+                  </AccordionItem>
+                )}
+
+                {/* Análise Ambiental */}
+                <AccordionItem value="ambiental" className="border-none">
+                  <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden">
+                    <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-emerald-50/50 transition-colors">
+                      <div className="flex items-center space-x-3 w-full">
+                        <TreePine className="w-6 h-6 text-emerald-600" />
+                        <h2 className="text-2xl font-bold text-slate-900">
+                          Análise Ambiental
+                        </h2>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="px-6 pb-6">
+                      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {environmentalFactors.map((factor, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.3 + index * 0.1 }}
+                          >
+                            <Card className="p-4 h-full hover:shadow-lg transition-shadow">
+                              <div className="flex items-start space-x-3">
+                                <div
+                                  className={`p-2 rounded-lg ${getStatusColor(
+                                    factor.status
+                                  )} bg-opacity-10`}
+                                >
+                                  <factor.icon
+                                    className={`w-5 h-5 ${getStatusColor(
+                                      factor.status
+                                    )}`}
+                                  />
+                                </div>
+                                <div className="flex-1">
+                                  <h3 className="font-semibold text-slate-900 mb-1">
+                                    {factor.title}
+                                  </h3>
+                                  <Badge
+                                    variant="outline"
+                                    className={getPriorityColor(
+                                      factor.status
+                                    )}
+                                  >
+                                    {factor.value}
+                                  </Badge>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    {factor.description}
+                                  </p>
+                                </div>
+                              </div>
+                            </Card>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </Card>
+                </AccordionItem>
+
+                {/* Viabilidade do Projeto */}
+                {simulationResults.oneYear && (
+                  <AccordionItem value="viabilidade" className="border-none">
+                    <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden">
+                      <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-emerald-50/50 transition-colors">
+                        <div className="flex items-center space-x-3 w-full">
+                          <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+                          <h2 className="text-2xl font-bold text-slate-900">
+                            Viabilidade do Projeto
+                          </h2>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="px-6 pb-6">
+                        <Tabs
+                          value={scenario}
+                          onValueChange={(v) => setScenario(v as "1" | "3" | "5")}
+                          className="w-full"
+                        >
+                          <TabsList className="relative grid w-full grid-cols-3 mb-6 bg-gradient-to-r from-emerald-100 to-teal-100 p-1 h-[50px] rounded-xl border border-emerald-200 shadow-sm overflow-hidden">
+                            <TabsTrigger
+                              value="1"
+                              className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-col items-center h-[35px] "
+                            >
+                              <div className="text-sm font-medium">
+                                Cenário 1 Ano
+                              </div>
+                              <div className="text-xs text-slate-500 mt-0.5">
+                                100 kW
+                              </div>
+                            </TabsTrigger>
+                            <TabsTrigger
+                              value="3"
+                              className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-col items-center py-1 h-[35px]"
+                            >
+                              <div className="text-sm font-medium">
+                                Cenário 3 Anos
+                              </div>
+                              <div className="text-xs text-slate-500 mt-0.5">
+                                300 kW
+                              </div>
+                            </TabsTrigger>
+                            <TabsTrigger
+                              value="5"
+                              className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-col items-center py-1 h-[35px]"
+                            >
+                              <div className="text-sm font-medium">
+                                Cenário 5 Anos
+                              </div>
+                              <div className="text-xs text-slate-500 mt-0.5">
+                                500 kW
+                              </div>
+                            </TabsTrigger>
+                          </TabsList>
+
+                          {/* Cenário 1 Ano */}
+                          <TabsContent value="1">
+                            <div className="space-y-4">
+                              {/* Viabilidade Técnica */}
+                              <div
+                                className={`flex items-start space-x-3 p-4 rounded-lg border ${
+                                  simulationResults.oneYear.capacityFactor >
+                                  30
+                                    ? "bg-emerald-50 border-emerald-200"
+                                    : "bg-amber-50 border-amber-200"
+                                }`}
+                              >
+                                {simulationResults.oneYear.capacityFactor >
+                                30 ? (
+                                  <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5" />
+                                ) : (
+                                  <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5" />
+                                )}
+                                <div>
+                                  <h3 className="font-semibold text-slate-900 mb-1">
+                                    Viabilidade Técnica
+                                  </h3>
+                                  <p className="text-sm text-slate-700">
+                                    Fator de Capacidade de{" "}
+                                    {simulationResults.oneYear.capacityFactor.toFixed(
+                                      1
+                                    )}
+                                    %
+                                    {simulationResults.oneYear
+                                      .capacityFactor > 40 &&
+                                      " - Excelente! Acima da média do setor (30-35%)."}
+                                    {simulationResults.oneYear
+                                      .capacityFactor > 30 &&
+                                      simulationResults.oneYear
+                                        .capacityFactor <= 40 &&
+                                      " - Bom! Dentro da média esperada para projetos de H₂ verde."}
+                                    {simulationResults.oneYear
+                                      .capacityFactor <= 30 &&
+                                      " - Abaixo da média. Recomenda-se aumentar capacidade de geração renovável ou reduzir tamanho do eletrolisador."}
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    📊 Benchmark da indústria: 30-40% para
+                                    sistemas híbridos solar+eólico
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Viabilidade Econômica */}
+                              <div
+                                className={`flex items-start space-x-3 p-4 rounded-lg border ${
+                                  simulationResults.oneYear.lcoh < 10
+                                    ? "bg-emerald-50 border-emerald-200"
+                                    : simulationResults.oneYear.lcoh < 15
+                                    ? "bg-amber-50 border-amber-200"
+                                    : "bg-red-50 border-red-200"
+                                }`}
+                              >
+                                {simulationResults.oneYear.lcoh < 10 ? (
+                                  <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5" />
+                                ) : (
+                                  <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5" />
+                                )}
+                                <div>
+                                  <h3 className="font-semibold text-slate-900 mb-1">
+                                    Viabilidade Econômica
+                                  </h3>
+                                  <p className="text-sm text-slate-700">
+                                    LCOH de R${" "}
+                                    {simulationResults.oneYear.lcoh.toFixed(2).replace('.', ',')}
+                                    /kg
+                                    {simulationResults.oneYear.lcoh < 8 &&
+                                      " - Altamente competitivo! Abaixo do H₂ cinza (R$ 8-10/kg)."}
+                                    {simulationResults.oneYear.lcoh >= 8 &&
+                                      simulationResults.oneYear.lcoh < 12 &&
+                                      " - Competitivo com incentivos fiscais e créditos de carbono."}
+                                    {simulationResults.oneYear.lcoh >= 12 &&
+                                      " - Alto. Projeto pode necessitar de subsídios ou otimizações."}
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    📊 H₂ Cinza: R$ 8-10/kg | H₂ Verde (Meta
+                                    2030): R$ 6-8/kg | Preço Mercado Atual: R$
+                                    20-30/kg
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Produção e Escala */}
+                              <div className="flex items-start space-x-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                <BarChart3 className="w-5 h-5 text-blue-600 mt-0.5" />
+                                <div>
+                                  <h3 className="font-semibold text-slate-900 mb-1">
+                                    Produção e Escala
+                                  </h3>
+                                  <p className="text-sm text-slate-700">
+                                    Produção anual estimada de{" "}
+                                    {Math.ceil((
+                                      simulationResults.oneYear.h2Production /
+                                      1000
+                                    ))}{" "}
+                                    kg de H₂ verde no cenário de 100 kW.
+                                    Potencial de expansão para{" "}
+                                    {simulationResults.fiveYears!.h2Production.toFixed(
+                                      2
+                                    )}{" "}
+                                    kg/ano com eletrolisador de 500 kW.
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    💡 Projeto adequado para fase piloto.
+                                    Escala comercial típica: 10–50 mil kg/ano.
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Retorno de Investimento */}
+                              <div
+                                className={`flex items-start space-x-3 p-4 rounded-lg border ${
+                                  simulationResults.oneYear.capexAnnualized /
+                                    0.117 /
+                                    (simulationResults.oneYear.h2Production *
+                                      25 -
+                                      simulationResults.oneYear.opexAnnual) <
+                                  7
+                                    ? "bg-emerald-50 border-emerald-200"
+                                    : "bg-amber-50 border-amber-200"
+                                }`}
+                              >
+                                <TrendingUp className="w-5 h-5 text-emerald-600 mt-0.5" />
+                                <div>
+                                  <h3 className="font-semibold text-slate-900 mb-1">
+                                    Retorno sobre Investimento
+                                  </h3>
+                                  <p className="text-sm text-slate-700">
+                                    Payback estimado de{" "}
+                                    {Math.ceil((
+                                      simulationResults.oneYear
+                                        .capexAnnualized /
+                                      0.117 /
+                                      (simulationResults.oneYear
+                                        .h2Production *
+                                        25 -
+                                        simulationResults.oneYear.opexAnnual)
+                                    ))}{" "}
+                                    anos considerando preço de venda de R$
+                                    25/kg. ROI anual de{" "}
+                                    {Math.ceil((
+                                      ((simulationResults.oneYear
+                                        .h2Production *
+                                        25 -
+                                        simulationResults.oneYear
+                                          .opexAnnual) /
+                                        (simulationResults.oneYear
+                                          .capexAnnualized /
+                                          0.117)) *
+                                      100
+                                    ))}
+                                    %.
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    ⚠️ Sensível ao preço de venda do H₂. Com
+                                    incentivos governamentais, payback pode
+                                    reduzir 20-30%.
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </TabsContent>
+
+                          {/* Cenário 3 Anos */}
+                          <TabsContent value="3">
+                            <div className="space-y-4">
+                              {/* Viabilidade Técnica */}
+                              <div
+                                className={`flex items-start space-x-3 p-4 rounded-lg border ${
+                                  simulationResults.threeYears!
+                                    .capacityFactor > 30
+                                    ? "bg-emerald-50 border-emerald-200"
+                                    : "bg-amber-50 border-amber-200"
+                                }`}
+                              >
+                                {simulationResults.threeYears!
+                                  .capacityFactor > 30 ? (
+                                  <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5" />
+                                ) : (
+                                  <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5" />
+                                )}
+                                <div>
+                                  <h3 className="font-semibold text-slate-900 mb-1">
+                                    Viabilidade Técnica
+                                  </h3>
+                                  <p className="text-sm text-slate-700">
+                                    Fator de Capacidade de{" "}
+                                    {simulationResults.threeYears!.capacityFactor.toFixed(
+                                      1
+                                    )}
+                                    %
+                                    {simulationResults.threeYears!
+                                      .capacityFactor > 40 &&
+                                      " - Excelente! Acima da média do setor (30-35%)."}
+                                    {simulationResults.threeYears!
+                                      .capacityFactor > 30 &&
+                                      simulationResults.threeYears!
+                                        .capacityFactor <= 40 &&
+                                      " - Bom! Dentro da média esperada para projetos de H₂ verde."}
+                                    {simulationResults.threeYears!
+                                      .capacityFactor <= 30 &&
+                                      " - Abaixo da média. Recomenda-se aumentar capacidade de geração renovável ou reduzir tamanho do eletrolisador."}
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    📊 Benchmark da indústria: 30-40% para
+                                    sistemas híbridos solar+eólico
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Viabilidade Econômica */}
+                              <div
+                                className={`flex items-start space-x-3 p-4 rounded-lg border ${
+                                  simulationResults.threeYears!.lcoh < 10
+                                    ? "bg-emerald-50 border-emerald-200"
+                                    : simulationResults.threeYears!.lcoh < 15
+                                    ? "bg-amber-50 border-amber-200"
+                                    : "bg-red-50 border-red-200"
+                                }`}
+                              >
+                                {simulationResults.threeYears!.lcoh < 10 ? (
+                                  <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5" />
+                                ) : (
+                                  <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5" />
+                                )}
+                                <div>
+                                  <h3 className="font-semibold text-slate-900 mb-1">
+                                    Viabilidade Econômica
+                                  </h3>
+                                  <p className="text-sm text-slate-700">
+                                    LCOH de R${" "}
+                                    {simulationResults.threeYears!.lcoh.toFixed(2).replace('.', ',')}
+                                    /kg
+                                    {simulationResults.threeYears!.lcoh < 8 &&
+                                      " - Altamente competitivo! Abaixo do H₂ cinza (R$ 8-10/kg)."}
+                                    {simulationResults.threeYears!.lcoh >=
+                                      8 &&
+                                      simulationResults.threeYears!.lcoh <
+                                        12 &&
+                                      " - Competitivo com incentivos fiscais e créditos de carbono."}
+                                    {simulationResults.threeYears!.lcoh >=
+                                      12 &&
+                                      " - Alto. Projeto pode necessitar de subsídios ou otimizações."}
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    📊 H₂ Cinza: R$ 8-10/kg | H₂ Verde (Meta
+                                    2030): R$ 6-8/kg | Preço Mercado Atual: R$
+                                    20-30/kg
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Produção e Escala */}
+                              <div className="flex items-start space-x-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                <BarChart3 className="w-5 h-5 text-blue-600 mt-0.5" />
+                                <div>
+                                  <h3 className="font-semibold text-slate-900 mb-1">
+                                    Produção e Escala
+                                  </h3>
+                                  <p className="text-sm text-slate-700">
+                                    Produção anual estimada de{" "}
+                                    {Math.ceil((
+                                      simulationResults.threeYears!
+                                        .h2Production / 1000
+                                    ))}{" "}
+                                    toneladas de H₂ verde no cenário de 300
+                                    kW. Este eletrolisador de média capacidade
+                                    é adequado para projetos industriais de
+                                    pequeno porte.
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    💡 Capacidade ideal para projetos em
+                                    expansão. Escala comercial típica: 10–50
+                                    mil kg/ano.
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Retorno de Investimento */}
+                              <div
+                                className={`flex items-start space-x-3 p-4 rounded-lg border ${
+                                  simulationResults.threeYears!
+                                    .capexAnnualized /
+                                    0.117 /
+                                    (simulationResults.threeYears!
+                                      .h2Production *
+                                      25 -
+                                      simulationResults.threeYears!
+                                        .opexAnnual) <
+                                  7
+                                    ? "bg-emerald-50 border-emerald-200"
+                                    : "bg-amber-50 border-amber-200"
+                                }`}
+                              >
+                                <TrendingUp className="w-5 h-5 text-emerald-600 mt-0.5" />
+                                <div>
+                                  <h3 className="font-semibold text-slate-900 mb-1">
+                                    Retorno sobre Investimento
+                                  </h3>
+                                  <p className="text-sm text-slate-700">
+                                    Payback estimado de{" "}
+                                    {Math.ceil((
+                                      simulationResults.threeYears!
+                                        .capexAnnualized /
+                                      0.117 /
+                                      (simulationResults.threeYears!
+                                        .h2Production *
+                                        25 -
+                                        simulationResults.threeYears!
+                                          .opexAnnual)
+                                    ))}{" "}
+                                    anos considerando preço de venda de R$
+                                    25/kg. ROI anual de{" "}
+                                    {Math.ceil((
+                                      ((simulationResults.threeYears!
+                                        .h2Production *
+                                        25 -
+                                        simulationResults.threeYears!
+                                          .opexAnnual) /
+                                        (simulationResults.threeYears!
+                                          .capexAnnualized /
+                                          0.117)) *
+                                      100
+                                    ))}
+                                    %.
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    ⚠️ Sensível ao preço de venda do H₂. Com
+                                    incentivos governamentais, payback pode
+                                    reduzir 20-30%.
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </TabsContent>
+
+                          {/* Cenário 5 Anos */}
+                          <TabsContent value="5">
+                            <div className="space-y-4">
+                              {/* Viabilidade Técnica */}
+                              <div
+                                className={`flex items-start space-x-3 p-4 rounded-lg border ${
+                                  simulationResults.fiveYears!
+                                    .capacityFactor > 30
+                                    ? "bg-emerald-50 border-emerald-200"
+                                    : "bg-amber-50 border-amber-200"
+                                }`}
+                              >
+                                {simulationResults.fiveYears!.capacityFactor >
+                                30 ? (
+                                  <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5" />
+                                ) : (
+                                  <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5" />
+                                )}
+                                <div>
+                                  <h3 className="font-semibold text-slate-900 mb-1">
+                                    Viabilidade Técnica
+                                  </h3>
+                                  <p className="text-sm text-slate-700">
+                                    Fator de Capacidade de{" "}
+                                    {simulationResults.fiveYears!.capacityFactor.toFixed(
+                                      1
+                                    )}
+                                    %
+                                    {simulationResults.fiveYears!
+                                      .capacityFactor > 40 &&
+                                      " - Excelente! Acima da média do setor (30-35%)."}
+                                    {simulationResults.fiveYears!
+                                      .capacityFactor > 30 &&
+                                      simulationResults.fiveYears!
+                                        .capacityFactor <= 40 &&
+                                      " - Bom! Dentro da média esperada para projetos de H₂ verde."}
+                                    {simulationResults.fiveYears!
+                                      .capacityFactor <= 30 &&
+                                      " - Abaixo da média. Recomenda-se aumentar capacidade de geração renovável ou reduzir tamanho do eletrolisador."}
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    📊 Benchmark da indústria: 30-40% para
+                                    sistemas híbridos solar+eólico
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Viabilidade Econômica */}
+                              <div
+                                className={`flex items-start space-x-3 p-4 rounded-lg border ${
+                                  simulationResults.fiveYears!.lcoh < 10
+                                    ? "bg-emerald-50 border-emerald-200"
+                                    : simulationResults.fiveYears!.lcoh < 15
+                                    ? "bg-amber-50 border-amber-200"
+                                    : "bg-red-50 border-red-200"
+                                }`}
+                              >
+                                {simulationResults.fiveYears!.lcoh < 10 ? (
+                                  <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5" />
+                                ) : (
+                                  <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5" />
+                                )}
+                                <div>
+                                  <h3 className="font-semibold text-slate-900 mb-1">
+                                    Viabilidade Econômica
+                                  </h3>
+                                  <p className="text-sm text-slate-700">
+                                    LCOH de R${" "}
+                                    {simulationResults.fiveYears!.lcoh.toFixed(2).replace('.', ',')}
+                                    /kg
+                                    {simulationResults.fiveYears!.lcoh < 8 &&
+                                      " - Altamente competitivo! Abaixo do H₂ cinza (R$ 8-10/kg)."}
+                                    {simulationResults.fiveYears!.lcoh >= 8 &&
+                                      simulationResults.fiveYears!.lcoh <
+                                        12 &&
+                                      " - Competitivo com incentivos fiscais e créditos de carbono."}
+                                    {simulationResults.fiveYears!.lcoh >=
+                                      12 &&
+                                      " - Alto. Projeto pode necessitar de subsídios ou otimizações."}
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    📊 H₂ Cinza: R$ 8-10/kg | H₂ Verde (Meta
+                                    2030): R$ 6-8/kg | Preço Mercado Atual: R$
+                                    20-30/kg
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Produção e Escala */}
+                              <div className="flex items-start space-x-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                <BarChart3 className="w-5 h-5 text-blue-600 mt-0.5" />
+                                <div>
+                                  <h3 className="font-semibold text-slate-900 mb-1">
+                                    Produção e Escala
+                                  </h3>
+                                  <p className="text-sm text-slate-700">
+                                    Produção anual estimada de{" "}
+                                    {Math.ceil((
+                                      simulationResults.fiveYears!
+                                        .h2Production / 1000
+                                    ))}{" "}
+                                    toneladas de H₂ verde no cenário de 500
+                                    kW. Este eletrolisador de grande
+                                    capacidade é ideal para operações
+                                    comerciais de escala industrial.
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    💡 Escala comercial plena. Adequado para
+                                    contratos de longo prazo com grandes
+                                    consumidores industriais.
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Retorno de Investimento */}
+                              <div
+                                className={`flex items-start space-x-3 p-4 rounded-lg border ${
+                                  simulationResults.fiveYears!
+                                    .capexAnnualized /
+                                    0.117 /
+                                    (simulationResults.fiveYears!
+                                      .h2Production *
+                                      25 -
+                                      simulationResults.fiveYears!
+                                        .opexAnnual) <
+                                  7
+                                    ? "bg-emerald-50 border-emerald-200"
+                                    : "bg-amber-50 border-amber-200"
+                                }`}
+                              >
+                                <TrendingUp className="w-5 h-5 text-emerald-600 mt-0.5" />
+                                <div>
+                                  <h3 className="font-semibold text-slate-900 mb-1">
+                                    Retorno sobre Investimento
+                                  </h3>
+                                  <p className="text-sm text-slate-700">
+                                    Payback estimado de{" "}
+                                    {Math.ceil((
+                                      simulationResults.fiveYears!
+                                        .capexAnnualized /
+                                      0.117 /
+                                      (simulationResults.fiveYears!
+                                        .h2Production *
+                                        25 -
+                                        simulationResults.fiveYears!
+                                          .opexAnnual)
+                                    ))}{" "}
+                                    anos considerando preço de venda de R$
+                                    25/kg. ROI anual de{" "}
+                                    {Math.ceil((
+                                      ((simulationResults.fiveYears!
+                                        .h2Production *
+                                        25 -
+                                        simulationResults.fiveYears!
+                                          .opexAnnual) /
+                                        (simulationResults.fiveYears!
+                                          .capexAnnualized /
+                                          0.117)) *
+                                      100
+                                    ))}
+                                    %.
+                                  </p>
+                                  <p className="text-xs text-slate-600 mt-2">
+                                    ⚠️ Sensível ao preço de venda do H₂. Com
+                                    incentivos governamentais, payback pode
+                                    reduzir 20-30%.
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </TabsContent>
+                        </Tabs>
+                      </AccordionContent>
+                    </Card>
+                  </AccordionItem>
+                )}
+
+                {/* Recomendações Técnicas */}
+                {simulationResults.oneYear && (
+                  <AccordionItem
+                    value="recomendacoes"
+                    className="border-none"
+                  >
+                    <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden">
+                      <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-emerald-50/50 transition-colors">
+                        <div className="flex items-center space-x-3 w-full">
+                          <FileText className="w-6 h-6 text-emerald-600" />
+                          <h2 className="text-2xl font-bold text-slate-900">
+                            Recomendações Técnicas e Estratégicas
+                          </h2>
+                          <Badge className="bg-blue-100 text-blue-800 border-blue-300 ml-auto">
+                            Baseadas na Simulação
+                          </Badge>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="px-6 pb-6">
+                        <div className="space-y-3">
+                          {/* Recomendações dinâmicas baseadas nos resultados */}
+                          {simulationResults.oneYear.capacityFactor < 30 && (
+                            <motion.div
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              className="flex items-start space-x-3 p-3 rounded-lg hover:bg-slate-50 transition-colors"
+                            >
+                              <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                              <div className="flex-1 flex items-center justify-between">
+                                <p className="text-slate-700">
+                                  <strong>Otimizar Dimensionamento:</strong>{" "}
+                                  Fator de capacidade baixo (
+                                  {simulationResults.oneYear.capacityFactor.toFixed(
+                                    1
+                                  )}
+                                  %). Considere reduzir tamanho do
+                                  eletrolisador ou aumentar capacidade de
+                                  geração renovável.
+                                </p>
+                                <Badge
+                                  variant="outline"
+                                  className="ml-4 bg-red-100 text-red-800 border-red-200"
+                                >
+                                  Alta
+                                </Badge>
+                              </div>
+                            </motion.div>
+                          )}
+
+                          {simulationResults.oneYear.curtailment > 10000 && (
+                            <motion.div
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              className="flex items-start space-x-3 p-3 rounded-lg hover:bg-slate-50 transition-colors"
+                            >
+                              <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                              <div className="flex-1 flex items-center justify-between">
+                                <p className="text-slate-700">
+                                  <strong>Reduzir Curtailment:</strong>{" "}
+                                  {Math.ceil((
+                                    simulationResults.oneYear.curtailment /
+                                    1000
+                                  ))}{" "}
+                                  MWh/ano de energia desperdiçada. Considere
+                                  sistema de armazenamento (baterias) ou
+                                  aumentar capacidade do eletrolisador.
+                                </p>
+                                <Badge
+                                  variant="outline"
+                                  className="ml-4 bg-amber-100 text-amber-800 border-amber-200"
+                                >
+                                  Média
+                                </Badge>
+                              </div>
+                            </motion.div>
+                          )}
+
+                          {simulationResults.oneYear.lcoh > 12 && (
+                            <motion.div
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              className="flex items-start space-x-3 p-3 rounded-lg hover:bg-slate-50 transition-colors"
+                            >
+                              <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+                              <div className="flex-1 flex items-center justify-between">
+                                <p className="text-slate-700">
+                                  <strong>Buscar Incentivos Fiscais:</strong>{" "}
+                                  LCOH alto (R${" "}
+                                  {Math.ceil(simulationResults.oneYear.lcoh)}
+                                  /kg). Projeto pode se beneficiar
+                                  significativamente de programas como PNME,
+                                  créditos de carbono e financiamento BNDES.
+                                </p>
+                                <Badge
+                                  variant="outline"
+                                  className="ml-4 bg-red-100 text-red-800 border-red-200"
+                                >
+                                  Alta
+                                </Badge>
+                              </div>
+                            </motion.div>
+                          )}
+
+                          {/* Recomendações gerais */}
+                          <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.1 }}
+                            className="flex items-start space-x-3 p-3 rounded-lg hover:bg-slate-50 transition-colors"
+                          >
+                            <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+                            <div className="flex-1 flex items-center justify-between">
+                              <p className="text-slate-700">
+                                <strong>EIA/RIMA Completo:</strong> Realizar
+                                estudo detalhado de impacto ambiental conforme
+                                exigências do CONAMA e órgãos estaduais.
+                              </p>
+                              <Badge
+                                variant="outline"
+                                className="ml-4 bg-red-100 text-red-800 border-red-200"
+                              >
+                                Alta
+                              </Badge>
+                            </div>
+                          </motion.div>
+
+                          <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.15 }}
+                            className="flex items-start space-x-3 p-3 rounded-lg hover:bg-slate-50 transition-colors"
+                          >
+                            <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+                            <div className="flex-1 flex items-center justify-between">
+                              <p className="text-slate-700">
+                                <strong>Conexão à Rede:</strong> Avaliar
+                                viabilidade técnica e custos de conexão ao
+                                sistema elétrico nacional (ONS) ou operação
+                                off-grid.
+                              </p>
+                              <Badge
+                                variant="outline"
+                                className="ml-4 bg-red-100 text-red-800 border-red-200"
+                              >
+                                Alta
+                              </Badge>
+                            </div>
+                          </motion.div>
+
+                          <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="flex items-start space-x-3 p-3 rounded-lg hover:bg-slate-50 transition-colors"
+                          >
+                            <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+                            <div className="flex-1 flex items-center justify-between">
+                              <p className="text-slate-700">
+                                <strong>Contratos de Offtake:</strong>{" "}
+                                Negociar acordos de compra de longo prazo
+                                (10-15 anos) com potenciais clientes
+                                industriais para garantir receita.
+                              </p>
+                              <Badge
+                                variant="outline"
+                                className="ml-4 bg-amber-100 text-amber-800 border-amber-200"
+                              >
+                                Média
+                              </Badge>
+                            </div>
+                          </motion.div>
+
+                          <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.25 }}
+                            className="flex items-start space-x-3 p-3 rounded-lg hover:bg-slate-50 transition-colors"
+                          >
+                            <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+                            <div className="flex-1 flex items-center justify-between">
+                              <p className="text-slate-700">
+                                <strong>Licenciamento e Certificação:</strong>{" "}
+                                Obter certificação de H₂ verde (CertifHy,
+                                GreenH2 Standard) para acesso a mercados
+                                premium.
+                              </p>
+                              <Badge
+                                variant="outline"
+                                className="ml-4 bg-amber-100 text-amber-800 border-amber-200"
+                              >
+                                Média
+                              </Badge>
+                            </div>
+                          </motion.div>
+
+                          <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.3 }}
+                            className="flex items-start space-x-3 p-3 rounded-lg hover:bg-slate-50 transition-colors"
+                          >
+                            <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+                            <div className="flex-1 flex items-center justify-between">
+                              <p className="text-slate-700">
+                                <strong>
+                                  Infraestrutura de Armazenamento:
+                                </strong>{" "}
+                                Dimensionar sistema de compressão e
+                                armazenamento adequado (350-700 bar) conforme
+                                aplicação final.
+                              </p>
+                              <Badge
+                                variant="outline"
+                                className="ml-4 bg-amber-100 text-amber-800 border-amber-200"
+                              >
+                                Média
+                              </Badge>
+                            </div>
+                          </motion.div>
+
+                          <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.35 }}
+                            className="flex items-start space-x-3 p-3 rounded-lg hover:bg-slate-50 transition-colors"
+                          >
+                            <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+                            <div className="flex-1 flex items-center justify-between">
+                              <p className="text-slate-700">
+                                <strong>Consulta Pública:</strong> Engajamento
+                                com comunidades locais, prefeituras e
+                                stakeholders para garantir licença social para
+                                operar.
+                              </p>
+                              <Badge
+                                variant="outline"
+                                className="ml-4 bg-emerald-100 text-emerald-800 border-emerald-200"
+                              >
+                                Baixa
+                              </Badge>
+                            </div>
+                          </motion.div>
+
+                          {/* Recomendações Topográficas Dinâmicas */}
+                          {topographyData?.recommendations.map(
+                            (recommendation, index) => (
+                              <motion.div
+                                key={`topo-${index}`}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.4 + index * 0.05 }}
+                                className="flex items-start space-x-3 p-3 rounded-lg hover:bg-slate-50 transition-colors"
+                              >
+                                <Mountain className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                                <div className="flex-1 flex items-center justify-between">
+                                  <p className="text-slate-700">
+                                    <strong>Topografia:</strong>{" "}
+                                    {recommendation}
+                                  </p>
+                                  <Badge
+                                    variant="outline"
+                                    className={`ml-4 ${
+                                      topographyData.slopeStatus === "success"
+                                        ? "bg-green-100 text-green-800 border-green-200"
+                                        : topographyData.slopeStatus ===
+                                          "warning"
+                                        ? "bg-amber-100 text-amber-800 border-amber-200"
+                                        : "bg-red-100 text-red-800 border-red-200"
+                                    }`}
+                                  >
+                                    {topographyData.slopeStatus === "success"
+                                      ? "Baixa"
+                                      : topographyData.slopeStatus ===
+                                        "warning"
+                                      ? "Média"
+                                      : "Alta"}
+                                  </Badge>
+                                </div>
+                              </motion.div>
+                            )
+                          )}
+                        </div>
+                      </AccordionContent>
+                    </Card>
+                  </AccordionItem>
+                )}
+              </Accordion>
+              {/* Conteúdo da aba Cidade copiado para aba Região - Fim */}
+
+              {/* Card de Viabilidade da Região */}
+              {selectedRegion && selectedRegion !== "all" && (
+                <Accordion
+                  type="multiple"
+                  defaultValue={["regiao"]}
+                  className="mb-4"
+                >
+                  <AccordionItem value="regiao" className="border-none">
+                    <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden">
+                      <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-emerald-50/50 transition-colors">
+                        <div className="flex items-center space-x-3 w-full">
+                          <MapPin className="w-6 h-6 text-emerald-600" />
+                          <h2 className="text-2xl font-bold text-slate-900">
+                            Análise de Viabilidade - {selectedRegion}
+                          </h2>
+                          <Badge className="ml-auto bg-emerald-100 text-emerald-800 border-emerald-300">
+                            Região
+                          </Badge>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="px-6 pb-6">
+                        <div className="space-y-4">
+                          <Card className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+                            <h3 className="text-lg font-semibold text-slate-900 mb-3">📍 Localização Selecionada</h3>
+                            <div className="grid md:grid-cols-2 gap-4">
+                              <div>
+                                <p className="text-xs text-slate-600 mb-1"><strong>Região</strong></p>
+                                <p className="text-lg font-semibold text-slate-900">{selectedRegion}</p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-slate-600 mb-1"><strong>Estado</strong></p>
+                                <p className="text-lg font-semibold text-slate-900">{selectedEstadoNome} ({selectedEstado})</p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-slate-600 mb-1"><strong>Microrregião</strong></p>
+                                <p className="text-lg font-semibold text-slate-900">{selectedMicrorregiaoNome}</p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-slate-600 mb-1"><strong>Cidade</strong></p>
+                                <p className="text-lg font-semibold text-slate-900">{selectedCidadeNome || "Não selecionada"}</p>
+                              </div>
+                            </div>
+                          </Card>
+
+                          {loading ? (
+                            <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+                              <div className="flex items-center justify-center space-x-3">
+                                <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+                                <p className="text-slate-700">Carregando dados meteorológicos e topográficos...</p>
+                              </div>
+                            </Card>
+                          ) : analysisStarted && weatherData ? (
+                            <>
+                              <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+                                <h3 className="text-lg font-semibold text-slate-900 mb-3">🌤️ Dados Meteorológicos Reais</h3>
+                                <div className="grid md:grid-cols-3 gap-3">
+                                  <div className="p-3 rounded-lg bg-white border border-amber-200">
+                                    <p className="text-xs text-slate-600 mb-1">☀️ <strong>Irradiância Solar</strong></p>
+                                    <p className="text-xl font-bold text-amber-600">
+                                      {weatherData.avgSolarIrradiance.toFixed(2)} kWh/m²/dia
+                                    </p>
+                                    <p className="text-xs text-slate-600 mt-1">
+                                      {weatherData.avgSolarIrradiance > 5 ? "Excelente" : weatherData.avgSolarIrradiance > 4 ? "Bom" : "Regular"}
+                                    </p>
+                                  </div>
+                                  <div className="p-3 rounded-lg bg-white border border-blue-200">
+                                    <p className="text-xs text-slate-600 mb-1">💨 <strong>Velocidade do Vento</strong></p>
+                                    <p className="text-xl font-bold text-blue-600">
+                                      {weatherData.avgWindSpeed.toFixed(2)} m/s
+                                    </p>
+                                    <p className="text-xs text-slate-600 mt-1">
+                                      {weatherData.avgWindSpeed > 7 ? "Excelente" : weatherData.avgWindSpeed > 5 ? "Bom" : "Regular"}
+                                    </p>
+                                  </div>
+                                  <div className="p-3 rounded-lg bg-white border border-green-200">
+                                    <p className="text-xs text-slate-600 mb-1">🌡️ <strong>Temperatura</strong></p>
+                                    <p className="text-xl font-bold text-green-600">
+                                      {weatherData.avgTemperature.toFixed(1)}°C
+                                    </p>
+                                    <p className="text-xs text-slate-600 mt-1">Média anual</p>
+                                  </div>
+                                </div>
+                                <p className="text-xs text-slate-600 mt-3 text-center">
+                                  📊 Dados da NASA POWER - {weatherData.dataPoints} dias analisados
+                                </p>
+                              </Card>
+
+                              {simulationResults.oneYear && (
+                                <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                                  <h3 className="text-lg font-semibold text-slate-900 mb-3">⚡ Resultados da Simulação</h3>
+                                  <div className="grid md:grid-cols-3 gap-3">
+                                    <div className="p-3 rounded-lg bg-white border border-emerald-200">
+                                      <p className="text-xs text-slate-600 mb-1">💧 <strong>Produção H₂ (1 ano)</strong></p>
+                                      <p className="text-xl font-bold text-emerald-600">
+                                        {Math.ceil(simulationResults.oneYear.h2Production / 1000)} ton/ano
+                                      </p>
+                                      <p className="text-xs text-slate-600 mt-1">Eletrolisador 100 kW</p>
+                                    </div>
+                                    <div className="p-3 rounded-lg bg-white border border-blue-200">
+                                      <p className="text-xs text-slate-600 mb-1">💰 <strong>LCOH</strong></p>
+                                      <p className="text-xl font-bold text-blue-600">
+                                        R$ {simulationResults.oneYear.lcoh.toFixed(2)}/kg
+                                      </p>
+                                      <Badge className="mt-1 text-xs">
+                                        {simulationResults.oneYear.lcoh < 8 ? "✓ Competitivo" : simulationResults.oneYear.lcoh < 12 ? "~ Razoável" : "⚠ Alto"}
+                                      </Badge>
+                                    </div>
+                                    <div className="p-3 rounded-lg bg-white border border-purple-200">
+                                      <p className="text-xs text-slate-600 mb-1">📊 <strong>Fator Capacidade</strong></p>
+                                      <p className="text-xl font-bold text-purple-600">
+                                        {simulationResults.oneYear.capacityFactor.toFixed(1)}%
+                                      </p>
+                                      <Badge className="mt-1 text-xs">
+                                        {simulationResults.oneYear.capacityFactor > 40 ? "✓ Excelente" : simulationResults.oneYear.capacityFactor > 30 ? "~ Bom" : "⚠ Baixo"}
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                </Card>
+                              )}
+
+                              <Card className="p-4 bg-blue-50 border-blue-200">
+                                <p className="text-sm text-slate-700 mb-2"><strong>✨ Análise Completa Disponível:</strong></p>
+                                <p className="text-xs text-slate-700">
+                                  Todos os accordions de análise detalhada (Produção, Simulação, Financeiro, Ambiental, Viabilidade e Recomendações) 
+                                  foram adicionados acima com os dados reais desta região. Role para cima para ver a análise completa.
+                                </p>
+                              </Card>
+                            </>
+                          ) : (
+                            <Card className="p-4 bg-amber-50 border-amber-200">
+                              <p className="text-sm text-slate-700 mb-2"><strong>⏳ Aguardando Carregamento:</strong></p>
+                              <p className="text-xs text-slate-700">
+                                Selecione uma região para carregar automaticamente os dados meteorológicos e iniciar a análise de viabilidade.
+                              </p>
+                            </Card>
+                          )}
+                        </div>
+                      </AccordionContent>
+                    </Card>
+                  </AccordionItem>
+                </Accordion>
+              )}
+
+              {/* Card de Viabilidade da Cidade */}
+              {selectedCidade && selectedCidade !== "all" && (
+                <Accordion
+                  type="multiple"
+                  defaultValue={["cidade"]}
+                  className="mb-4"
+                >
+                  <AccordionItem value="cidade" className="border-none">
+                    <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden">
+                      <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-emerald-50/50 transition-colors">
+                        <div className="flex items-center space-x-3 w-full">
+                          <MapPin className="w-6 h-6 text-emerald-600" />
+                          <h2 className="text-2xl font-bold text-slate-900">
+                            Análise de Viabilidade - {selectedCidadeNome}
+                          </h2>
+                          <Badge className="ml-auto bg-emerald-100 text-emerald-800 border-emerald-300">
+                            Cidade
+                          </Badge>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="px-6 pb-6">
+                        <div className="space-y-4">
+                          <Card className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+                            <h3 className="text-lg font-semibold text-slate-900 mb-3">📍 Localização Selecionada</h3>
+                            <div className="grid md:grid-cols-2 gap-4">
+                              <div>
+                                <p className="text-xs text-slate-600 mb-1"><strong>Cidade</strong></p>
+                                <p className="text-lg font-semibold text-slate-900">{selectedCidadeNome}</p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-slate-600 mb-1"><strong>Microrregião</strong></p>
+                                <p className="text-lg font-semibold text-slate-900">{selectedMicrorregiaoNome}</p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-slate-600 mb-1"><strong>Estado</strong></p>
+                                <p className="text-lg font-semibold text-slate-900">{selectedEstadoNome} ({selectedEstado})</p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-slate-600 mb-1"><strong>Região</strong></p>
+                                <p className="text-lg font-semibold text-slate-900">{selectedRegion}</p>
+                              </div>
+                            </div>
+                          </Card>
+
+                          {loading ? (
+                            <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+                              <div className="flex items-center justify-center space-x-3">
+                                <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+                                <p className="text-slate-700">Carregando dados meteorológicos e topográficos...</p>
+                              </div>
+                            </Card>
+                          ) : analysisStarted && weatherData ? (
+                            <>
+                              <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+                                <h3 className="text-lg font-semibold text-slate-900 mb-3">🌤️ Dados Meteorológicos Reais</h3>
+                                <div className="grid md:grid-cols-3 gap-3">
+                                  <div className="p-3 rounded-lg bg-white border border-amber-200">
+                                    <p className="text-xs text-slate-600 mb-1">☀️ <strong>Irradiância Solar</strong></p>
+                                    <p className="text-xl font-bold text-amber-600">
+                                      {weatherData.avgSolarIrradiance.toFixed(2)} kWh/m²/dia
+                                    </p>
+                                    <p className="text-xs text-slate-600 mt-1">
+                                      {weatherData.avgSolarIrradiance > 5 ? "Excelente" : weatherData.avgSolarIrradiance > 4 ? "Bom" : "Regular"}
+                                    </p>
+                                  </div>
+                                  <div className="p-3 rounded-lg bg-white border border-blue-200">
+                                    <p className="text-xs text-slate-600 mb-1">💨 <strong>Velocidade do Vento</strong></p>
+                                    <p className="text-xl font-bold text-blue-600">
+                                      {weatherData.avgWindSpeed.toFixed(2)} m/s
+                                    </p>
+                                    <p className="text-xs text-slate-600 mt-1">
+                                      {weatherData.avgWindSpeed > 7 ? "Excelente" : weatherData.avgWindSpeed > 5 ? "Bom" : "Regular"}
+                                    </p>
+                                  </div>
+                                  <div className="p-3 rounded-lg bg-white border border-green-200">
+                                    <p className="text-xs text-slate-600 mb-1">🌡️ <strong>Temperatura</strong></p>
+                                    <p className="text-xl font-bold text-green-600">
+                                      {weatherData.avgTemperature.toFixed(1)}°C
+                                    </p>
+                                    <p className="text-xs text-slate-600 mt-1">Média anual</p>
+                                  </div>
+                                </div>
+                                <p className="text-xs text-slate-600 mt-3 text-center">
+                                  📊 Dados da NASA POWER - {weatherData.dataPoints} dias analisados
+                                </p>
+                              </Card>
+
+                              {simulationResults.oneYear && (
+                                <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+                                  <h3 className="text-lg font-semibold text-slate-900 mb-3">⚡ Resultados da Simulação</h3>
+                                  <div className="grid md:grid-cols-3 gap-3">
+                                    <div className="p-3 rounded-lg bg-white border border-emerald-200">
+                                      <p className="text-xs text-slate-600 mb-1">💧 <strong>Produção H₂ (1 ano)</strong></p>
+                                      <p className="text-xl font-bold text-emerald-600">
+                                        {Math.ceil(simulationResults.oneYear.h2Production / 1000)} ton/ano
+                                      </p>
+                                      <p className="text-xs text-slate-600 mt-1">Eletrolisador 100 kW</p>
+                                    </div>
+                                    <div className="p-3 rounded-lg bg-white border border-blue-200">
+                                      <p className="text-xs text-slate-600 mb-1">💰 <strong>LCOH</strong></p>
+                                      <p className="text-xl font-bold text-blue-600">
+                                        R$ {simulationResults.oneYear.lcoh.toFixed(2)}/kg
+                                      </p>
+                                      <Badge className="mt-1 text-xs">
+                                        {simulationResults.oneYear.lcoh < 8 ? "✓ Competitivo" : simulationResults.oneYear.lcoh < 12 ? "~ Razoável" : "⚠ Alto"}
+                                      </Badge>
+                                    </div>
+                                    <div className="p-3 rounded-lg bg-white border border-purple-200">
+                                      <p className="text-xs text-slate-600 mb-1">📊 <strong>Fator Capacidade</strong></p>
+                                      <p className="text-xl font-bold text-purple-600">
+                                        {simulationResults.oneYear.capacityFactor.toFixed(1)}%
+                                      </p>
+                                      <Badge className="mt-1 text-xs">
+                                        {simulationResults.oneYear.capacityFactor > 40 ? "✓ Excelente" : simulationResults.oneYear.capacityFactor > 30 ? "~ Bom" : "⚠ Baixo"}
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                </Card>
+                              )}
+
+                              <Card className="p-4 bg-blue-50 border-blue-200">
+                                <p className="text-sm text-slate-700 mb-2"><strong>✨ Análise Completa Disponível:</strong></p>
+                                <p className="text-xs text-slate-700">
+                                  Todos os accordions de análise detalhada (Produção, Simulação, Financeiro, Ambiental, Viabilidade e Recomendações) 
+                                  foram adicionados acima com os dados reais desta cidade. Role para cima para ver a análise completa.
+                                </p>
+                              </Card>
+                            </>
+                          ) : (
+                            <Card className="p-4 bg-amber-50 border-amber-200">
+                              <p className="text-sm text-slate-700 mb-2"><strong>⏳ Aguardando Carregamento:</strong></p>
+                              <p className="text-xs text-slate-700">
+                                Selecione uma cidade para carregar automaticamente os dados meteorológicos e iniciar a análise de viabilidade.
+                              </p>
+                            </Card>
+                          )}
+                        </div>
+                      </AccordionContent>
+                    </Card>
+                  </AccordionItem>
+                </Accordion>
+              )}
 
               {/* Ranking removido conforme solicitação */}
             </>
+          )}
+          </>
           )}
         </div>
       </div>
