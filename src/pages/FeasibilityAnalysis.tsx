@@ -785,10 +785,10 @@ const FeasibilityAnalysis = () => {
 
       console.log(`Scenario ${scenario.years} year(s) [OTIMISTA]:`, {
         electrolyzerPower: electrolyzerNominalPower,
-        energyConsumed: annualEnergyConsumed.toFixed(0),
-        h2Production: annualH2Production.toFixed(2),
-        capacityFactor: capacityFactor.toFixed(1) + "%",
-        lcoh: lcoh.toFixed(2),
+        energyConsumed: Math.ceil(annualEnergyConsumed),
+        h2Production: Math.ceil(annualH2Production),
+        capacityFactor: Math.ceil(capacityFactor) + "%",
+        lcoh: Math.ceil(lcoh),
       });
     }
 
@@ -931,15 +931,15 @@ const FeasibilityAnalysis = () => {
   const analysisPeriods: AnalysisPeriod[] = [
     {
       years: 1,
-      solarPotential: Number(locationData.solarBase.toFixed(2)),
-      windPotential: Number(locationData.windBase.toFixed(2)),
-      hydrogenProduction: Number(energyCalc1Year.annualH2Production.toFixed(2)),
+      solarPotential: Math.ceil(locationData.solarBase),
+      windPotential: Math.ceil(locationData.windBase),
+      hydrogenProduction: Math.ceil(energyCalc1Year.annualH2Production),
       // Custos realistas da indústria 2024-2025:
       // - Painéis solares: R$ 3.000-4.000/kW instalado
       // - Turbinas eólicas pequenas: R$ 8.000-12.000/kW instalado
       // - Eletrolisadores PEM: R$ 15.000-20.000/kW (equipamento mais caro!)
       // - Infraestrutura (armazenamento, compressão, controles): +40%
-      investment: Math.round(
+      investment: Math.ceil(
         energyCalc1Year.solarPower * 3500 + // Solar
           energyCalc1Year.windPower * 10000 + // Eólico (turbinas pequenas são mais caras por kW)
           energyCalc1Year.totalPower * 1.0 * 18000 + // Eletrolisador (dimensionado pela potência total)
@@ -948,8 +948,7 @@ const FeasibilityAnalysis = () => {
             0.4 // Infraestrutura
       ),
       // ROI: Preço do H2 verde no Brasil: R$ 20-30/kg (usando R$ 25/kg)
-      roi: Number(
-        (
+      roi: Math.ceil(
           ((energyCalc1Year.annualH2Production * 25) /
             (energyCalc1Year.solarPower * 3500 +
               energyCalc1Year.windPower * 10000 +
@@ -958,17 +957,14 @@ const FeasibilityAnalysis = () => {
                 energyCalc1Year.windPower * 10000) *
                 0.4)) *
           100
-        ).toFixed(1)
       ),
     },
     {
       years: 3,
-      solarPotential: Number((locationData.solarBase * 0.98).toFixed(2)),
-      windPotential: Number((locationData.windBase * 1.02).toFixed(2)),
-      hydrogenProduction: Number(
-        energyCalc3Years.annualH2Production.toFixed(2)
-      ),
-      investment: Math.round(
+      solarPotential: Math.ceil(locationData.solarBase * 0.98),
+      windPotential: Math.ceil(locationData.windBase * 1.02),
+      hydrogenProduction: Math.ceil(energyCalc3Years.annualH2Production),
+      investment: Math.ceil(
         energyCalc3Years.solarPower * 3500 +
           energyCalc3Years.windPower * 10000 +
           energyCalc3Years.totalPower * 1.0 * 18000 +
@@ -976,8 +972,7 @@ const FeasibilityAnalysis = () => {
             energyCalc3Years.windPower * 10000) *
             0.4
       ),
-      roi: Number(
-        (
+      roi: Math.ceil(
           ((energyCalc3Years.annualH2Production * 25 * 3) /
             (energyCalc3Years.solarPower * 3500 +
               energyCalc3Years.windPower * 10000 +
@@ -986,17 +981,14 @@ const FeasibilityAnalysis = () => {
                 energyCalc3Years.windPower * 10000) *
                 0.4)) *
           100
-        ).toFixed(1)
       ),
     },
     {
       years: 5,
-      solarPotential: Number((locationData.solarBase * 0.96).toFixed(2)),
-      windPotential: Number((locationData.windBase * 1.04).toFixed(2)),
-      hydrogenProduction: Number(
-        energyCalc5Years.annualH2Production.toFixed(2)
-      ),
-      investment: Math.round(
+      solarPotential: Math.ceil(locationData.solarBase * 0.96),
+      windPotential: Math.ceil(locationData.windBase * 1.04),
+      hydrogenProduction: Math.ceil(energyCalc5Years.annualH2Production),
+      investment: Math.ceil(
         energyCalc5Years.solarPower * 3500 +
           energyCalc5Years.windPower * 10000 +
           energyCalc5Years.totalPower * 1.0 * 18000 +
@@ -1004,8 +996,7 @@ const FeasibilityAnalysis = () => {
             energyCalc5Years.windPower * 10000) *
             0.4
       ),
-      roi: Number(
-        (
+      roi: Math.ceil(
           ((energyCalc5Years.annualH2Production * 25 * 5) /
             (energyCalc5Years.solarPower * 3500 +
               energyCalc5Years.windPower * 10000 +
@@ -1014,7 +1005,6 @@ const FeasibilityAnalysis = () => {
                 energyCalc5Years.windPower * 10000) *
                 0.4)) *
           100
-        ).toFixed(1)
       ),
     },
   ];
@@ -1192,14 +1182,14 @@ const FeasibilityAnalysis = () => {
       {
         icon: Sun,
         title: "Solar",
-        value: `${p.solar.toFixed(1)} kWh/m²/dia`,
+        value: `${Math.ceil(p.solar)} kWh/m²/dia`,
         status: "success",
         description: "Irradiância média diária típica",
       },
       {
         icon: Wind,
         title: "Eólica",
-        value: `${p.wind.toFixed(1)} m/s`,
+        value: `${Math.ceil(p.wind)} m/s`,
         status: "success",
         description: "Velocidade média do vento",
       },
@@ -1825,9 +1815,7 @@ const FeasibilityAnalysis = () => {
                                   <Card className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
                                     <p className="text-sm text-slate-700 mb-2">
                                       ☀️ <strong>Irradiância Solar:</strong>{" "}
-                                      {energyCalc1Year.solarIrradiance.toFixed(
-                                        0
-                                      )}{" "}
+                                      {Math.ceil(energyCalc1Year.solarIrradiance)}{" "}
                                       W/m²
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
@@ -1837,9 +1825,9 @@ const FeasibilityAnalysis = () => {
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
                                       ⚡ <strong>Eficiência:</strong>{" "}
-                                      {(
+                                      {Math.ceil(
                                         energyCalc1Year.solarEfficiency * 100
-                                      ).toFixed(0)}
+                                      )}
                                       %
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
@@ -1847,7 +1835,7 @@ const FeasibilityAnalysis = () => {
                                       <sub>solar</sub> = G × A × η
                                     </p>
                                     <p className="text-2xl font-bold text-amber-600 mt-3">
-                                      {energyCalc1Year.solarPower.toFixed(1)} kW
+                                      {Math.ceil(energyCalc1Year.solarPower)} kW
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       Potência Solar Gerada
@@ -1857,7 +1845,7 @@ const FeasibilityAnalysis = () => {
                                   <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
                                     <p className="text-sm text-slate-700 mb-2">
                                       💨 <strong>Velocidade do Vento:</strong>{" "}
-                                      {energyCalc1Year.windSpeed.toFixed(1)} m/s
+                                      {Math.ceil(energyCalc1Year.windSpeed)} m/s
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
                                       📐 <strong>Área Varrida:</strong>{" "}
@@ -1866,9 +1854,9 @@ const FeasibilityAnalysis = () => {
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
                                       ⚡ <strong>Eficiência:</strong>{" "}
-                                      {(
+                                      {Math.ceil((
                                         energyCalc1Year.windEfficiency * 100
-                                      ).toFixed(0)}
+                                      ))}
                                       %
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
@@ -1876,7 +1864,7 @@ const FeasibilityAnalysis = () => {
                                       <sub>eólica</sub> = ½ × ρ × A × v³ × η
                                     </p>
                                     <p className="text-2xl font-bold text-blue-600 mt-3">
-                                      {energyCalc1Year.windPower.toFixed(1)} kW
+                                      {Math.ceil(energyCalc1Year.windPower)} kW
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       Potência Eólica Gerada
@@ -1897,7 +1885,7 @@ const FeasibilityAnalysis = () => {
                                       Potência Total
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {energyCalc1Year.totalPower.toFixed(1)}
+                                      {Math.ceil(energyCalc1Year.totalPower)}
                                     </p>
                                     <p className="text-xs text-slate-600">kW</p>
                                   </Card>
@@ -1907,7 +1895,7 @@ const FeasibilityAnalysis = () => {
                                       Energia Diária
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {energyCalc1Year.dailyEnergy.toFixed(0)}
+                                      {Math.ceil(energyCalc1Year.dailyEnergy)}
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       kWh/dia
@@ -1919,9 +1907,9 @@ const FeasibilityAnalysis = () => {
                                       Energia Anual
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {(
+                                      {Math.ceil((
                                         energyCalc1Year.annualEnergy / 1000
-                                      ).toFixed(1)}
+                                      ))}
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       MWh/ano
@@ -1942,10 +1930,9 @@ const FeasibilityAnalysis = () => {
                                       💧 <strong>Produção Diária:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {energyCalc1Year.dailyH2Production.toFixed(
-                                        1
-                                      )}{" "}
-                                      kg/dia
+                                      {energyCalc1Year.dailyH2Production >= 1000
+                                        ? Math.ceil(energyCalc1Year.dailyH2Production / 1000) + " t/dia"
+                                        : Math.ceil(energyCalc1Year.dailyH2Production) + " kg/dia"}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
                                       <strong>Consumo eletrolisador:</strong> 65
@@ -1962,10 +1949,8 @@ const FeasibilityAnalysis = () => {
                                       📊 <strong>Produção Anual:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {energyCalc1Year.annualH2Production.toFixed(
-                                        1
-                                      )}{" "}
-                                      ton/ano
+                                      {Math.ceil(energyCalc1Year.annualH2Production)}{" "}
+                                      t/ano
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
                                       <strong>Fórmula:</strong> H₂ (kg) = E
@@ -2001,9 +1986,9 @@ const FeasibilityAnalysis = () => {
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
                                       ⚡ <strong>Eficiência:</strong>{" "}
-                                      {(
+                                      {Math.ceil((
                                         energyCalc3Years.solarEfficiency * 100
-                                      ).toFixed(0)}
+                                      ))}
                                       %
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
@@ -2011,7 +1996,7 @@ const FeasibilityAnalysis = () => {
                                       <sub>solar</sub> = G × A × η
                                     </p>
                                     <p className="text-2xl font-bold text-amber-600 mt-3">
-                                      {energyCalc3Years.solarPower.toFixed(1)}{" "}
+                                      {Math.ceil(energyCalc3Years.solarPower)}{" "}
                                       kW
                                     </p>
                                     <p className="text-xs text-slate-600">
@@ -2022,7 +2007,7 @@ const FeasibilityAnalysis = () => {
                                   <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
                                     <p className="text-sm text-slate-700 mb-2">
                                       💨 <strong>Velocidade do Vento:</strong>{" "}
-                                      {energyCalc3Years.windSpeed.toFixed(1)}{" "}
+                                      {Math.ceil(energyCalc3Years.windSpeed)}{" "}
                                       m/s
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
@@ -2032,9 +2017,9 @@ const FeasibilityAnalysis = () => {
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
                                       ⚡ <strong>Eficiência:</strong>{" "}
-                                      {(
+                                      {Math.ceil((
                                         energyCalc3Years.windEfficiency * 100
-                                      ).toFixed(0)}
+                                      ))}
                                       %
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
@@ -2042,7 +2027,7 @@ const FeasibilityAnalysis = () => {
                                       <sub>eólica</sub> = ½ × ρ × A × v³ × η
                                     </p>
                                     <p className="text-2xl font-bold text-blue-600 mt-3">
-                                      {energyCalc3Years.windPower.toFixed(1)} kW
+                                      {Math.ceil(energyCalc3Years.windPower)} kW
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       Potência Eólica Gerada
@@ -2063,7 +2048,7 @@ const FeasibilityAnalysis = () => {
                                       Potência Total
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {energyCalc3Years.totalPower.toFixed(1)}
+                                      {Math.ceil(energyCalc3Years.totalPower)}
                                     </p>
                                     <p className="text-xs text-slate-600">kW</p>
                                   </Card>
@@ -2073,7 +2058,7 @@ const FeasibilityAnalysis = () => {
                                       Energia Diária
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {energyCalc3Years.dailyEnergy.toFixed(0)}
+                                      {Math.ceil(energyCalc3Years.dailyEnergy)}
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       kWh/dia
@@ -2085,9 +2070,9 @@ const FeasibilityAnalysis = () => {
                                       Energia Anual
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {(
+                                      {Math.ceil((
                                         energyCalc3Years.annualEnergy / 1000
-                                      ).toFixed(1)}
+                                      ))}
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       MWh/ano
@@ -2108,10 +2093,9 @@ const FeasibilityAnalysis = () => {
                                       💧 <strong>Produção Diária:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {energyCalc3Years.dailyH2Production.toFixed(
-                                        1
-                                      )}{" "}
-                                      kg/dia
+                                      {energyCalc3Years.dailyH2Production >= 1000
+                                        ? Math.ceil(energyCalc3Years.dailyH2Production / 1000) + " t/dia"
+                                        : Math.ceil(energyCalc3Years.dailyH2Production) + " kg/dia"}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
                                       <strong>Consumo eletrolisador:</strong> 65
@@ -2128,10 +2112,8 @@ const FeasibilityAnalysis = () => {
                                       📊 <strong>Produção Anual:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {energyCalc3Years.annualH2Production.toFixed(
-                                        1
-                                      )}{" "}
-                                      ton/ano
+                                      {Math.ceil(energyCalc3Years.annualH2Production)}{" "}
+                                      t/ano
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
                                       <strong>Fórmula:</strong> H₂ (kg) = E
@@ -2167,9 +2149,9 @@ const FeasibilityAnalysis = () => {
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
                                       ⚡ <strong>Eficiência:</strong>{" "}
-                                      {(
+                                      {Math.ceil((
                                         energyCalc5Years.solarEfficiency * 100
-                                      ).toFixed(0)}
+                                      ))}
                                       %
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
@@ -2177,7 +2159,7 @@ const FeasibilityAnalysis = () => {
                                       <sub>solar</sub> = G × A × η
                                     </p>
                                     <p className="text-2xl font-bold text-amber-600 mt-3">
-                                      {energyCalc5Years.solarPower.toFixed(1)}{" "}
+                                      {Math.ceil(energyCalc5Years.solarPower)}{" "}
                                       kW
                                     </p>
                                     <p className="text-xs text-slate-600">
@@ -2188,7 +2170,7 @@ const FeasibilityAnalysis = () => {
                                   <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
                                     <p className="text-sm text-slate-700 mb-2">
                                       💨 <strong>Velocidade do Vento:</strong>{" "}
-                                      {energyCalc5Years.windSpeed.toFixed(1)}{" "}
+                                      {Math.ceil(energyCalc5Years.windSpeed)}{" "}
                                       m/s
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
@@ -2198,9 +2180,9 @@ const FeasibilityAnalysis = () => {
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
                                       ⚡ <strong>Eficiência:</strong>{" "}
-                                      {(
+                                      {Math.ceil((
                                         energyCalc5Years.windEfficiency * 100
-                                      ).toFixed(0)}
+                                      ))}
                                       %
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
@@ -2208,7 +2190,7 @@ const FeasibilityAnalysis = () => {
                                       <sub>eólica</sub> = ½ × ρ × A × v³ × η
                                     </p>
                                     <p className="text-2xl font-bold text-blue-600 mt-3">
-                                      {energyCalc5Years.windPower.toFixed(1)} kW
+                                      {Math.ceil(energyCalc5Years.windPower)} kW
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       Potência Eólica Gerada
@@ -2229,7 +2211,7 @@ const FeasibilityAnalysis = () => {
                                       Potência Total
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {energyCalc5Years.totalPower.toFixed(1)}
+                                      {Math.ceil(energyCalc5Years.totalPower)}
                                     </p>
                                     <p className="text-xs text-slate-600">kW</p>
                                   </Card>
@@ -2239,7 +2221,7 @@ const FeasibilityAnalysis = () => {
                                       Energia Diária
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {energyCalc5Years.dailyEnergy.toFixed(0)}
+                                      {Math.ceil(energyCalc5Years.dailyEnergy)}
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       kWh/dia
@@ -2251,9 +2233,9 @@ const FeasibilityAnalysis = () => {
                                       Energia Anual
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {(
+                                      {Math.ceil((
                                         energyCalc5Years.annualEnergy / 1000
-                                      ).toFixed(1)}
+                                      ))}
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       MWh/ano
@@ -2274,10 +2256,9 @@ const FeasibilityAnalysis = () => {
                                       💧 <strong>Produção Diária:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {energyCalc5Years.dailyH2Production.toFixed(
-                                        1
-                                      )}{" "}
-                                      kg/dia
+                                      {energyCalc5Years.dailyH2Production >= 1000
+                                        ? Math.ceil(energyCalc5Years.dailyH2Production / 1000) + " t/dia"
+                                        : Math.ceil(energyCalc5Years.dailyH2Production) + " kg/dia"}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
                                       <strong>Consumo eletrolisador:</strong> 65
@@ -2294,10 +2275,8 @@ const FeasibilityAnalysis = () => {
                                       📊 <strong>Produção Anual:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {energyCalc5Years.annualH2Production.toFixed(
-                                        1
-                                      )}{" "}
-                                      ton/ano
+                                      {Math.ceil(energyCalc5Years.annualH2Production)}{" "}
+                                      t/ano
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
                                       <strong>Fórmula:</strong> H₂ (kg) = E
@@ -2402,10 +2381,10 @@ const FeasibilityAnalysis = () => {
                                       🔋 Energia Consumida
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {(
+                                      {Math.ceil((
                                         simulationResults.oneYear
                                           .totalEnergyConsumed / 1000
-                                      ).toFixed(1)}
+                                      ))}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
                                       MWh/ano
@@ -2417,13 +2396,13 @@ const FeasibilityAnalysis = () => {
                                       💧 Produção H₂
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {(
+                                      {Math.ceil((
                                         simulationResults.oneYear.h2Production /
                                         1000
-                                      ).toFixed(2)}
+                                      ))}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
-                                      ton/ano
+                                      t/ano
                                     </p>
                                   </Card>
                                 </div>
@@ -2449,10 +2428,10 @@ const FeasibilityAnalysis = () => {
                                       ⚠️ Curtailment
                                     </p>
                                     <p className="text-2xl font-bold text-red-600">
-                                      {(
+                                      {Math.ceil((
                                         simulationResults.oneYear.curtailment /
                                         1000
-                                      ).toFixed(1)}
+                                      ))}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
                                       MWh perdido/ano
@@ -2543,10 +2522,10 @@ const FeasibilityAnalysis = () => {
                                       🔋 Energia Consumida
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {(
+                                      {Math.ceil((
                                         simulationResults.threeYears!
                                           .totalEnergyConsumed / 1000
-                                      ).toFixed(1)}{" "}
+                                      ))}{" "}
                                       MWh
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
@@ -2558,14 +2537,14 @@ const FeasibilityAnalysis = () => {
                                       💧 Produção H₂
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {(
+                                      {Math.ceil((
                                         simulationResults.threeYears!
                                           .h2Production / 1000
-                                      ).toFixed(2)}{" "}
-                                      ton
+                                      ))}{" "}
+                                      t
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
-                                      ton/ano
+                                      t/ano
                                     </p>
                                   </Card>
                                 </div>
@@ -2589,7 +2568,7 @@ const FeasibilityAnalysis = () => {
                                       ⚠️ Curtailment
                                     </p>
                                     <p className="text-2xl font-bold text-red-600">
-                                      {(simulationResults.threeYears!.curtailment / 1000).toFixed(1)}
+                                      {Math.ceil((simulationResults.threeYears!.curtailment / 1000))}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">MWh perdido/ano</p>
                                   </Card>
@@ -2660,10 +2639,10 @@ const FeasibilityAnalysis = () => {
                                       🔋 Energia Consumida
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {(
+                                      {Math.ceil((
                                         simulationResults.fiveYears!
                                           .totalEnergyConsumed / 1000
-                                      ).toFixed(1)}{" "}
+                                      ))}{" "}
                                       MWh
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
@@ -2675,14 +2654,14 @@ const FeasibilityAnalysis = () => {
                                       💧 Produção H₂
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {(
+                                      {Math.ceil((
                                         simulationResults.fiveYears!
                                           .h2Production / 1000
-                                      ).toFixed(2)}{" "}
-                                      ton
+                                      ))}{" "}
+                                      t
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
-                                      ton/ano
+                                      t/ano
                                     </p>
                                   </Card>
                                 </div>
@@ -2706,7 +2685,7 @@ const FeasibilityAnalysis = () => {
                                       ⚠️ Curtailment
                                     </p>
                                     <p className="text-2xl font-bold text-red-600">
-                                      {(simulationResults.fiveYears!.curtailment / 1000).toFixed(1)}
+                                      {Math.ceil((simulationResults.fiveYears!.curtailment / 1000))}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">MWh perdido/ano</p>
                                   </Card>
@@ -2838,7 +2817,7 @@ const FeasibilityAnalysis = () => {
                                   </div>
                                   <p className="text-3xl font-bold text-slate-900">
                                     R${" "}
-                                    {simulationResults.oneYear.lcoh.toFixed(2)}
+                                    {Math.ceil(simulationResults.oneYear.lcoh)}
                                   </p>
                                   <p className="text-xs text-slate-600 mt-1">
                                     por kg de H₂
@@ -2944,7 +2923,7 @@ const FeasibilityAnalysis = () => {
                                       Payback Estimado:
                                     </p>
                                     <p className="text-xl font-bold text-green-600">
-                                      {(
+                                      {Math.ceil((
                                         simulationResults.oneYear
                                           .capexAnnualized /
                                         0.117 /
@@ -2952,7 +2931,7 @@ const FeasibilityAnalysis = () => {
                                           .h2Production *
                                           25 -
                                           simulationResults.oneYear.opexAnnual)
-                                      ).toFixed(1)}{" "}
+                                      ))}{" "}
                                       anos
                                     </p>
                                   </div>
@@ -2961,7 +2940,7 @@ const FeasibilityAnalysis = () => {
                                       ROI Anual:
                                     </p>
                                     <p className="text-xl font-bold text-green-600">
-                                      {(
+                                      {Math.ceil((
                                         ((simulationResults.oneYear
                                           .h2Production *
                                           25 -
@@ -2971,7 +2950,7 @@ const FeasibilityAnalysis = () => {
                                             .capexAnnualized /
                                             0.117)) *
                                         100
-                                      ).toFixed(1)}
+                                      ))}
                                       %
                                     </p>
                                   </div>
@@ -3103,7 +3082,7 @@ const FeasibilityAnalysis = () => {
                                       Payback Estimado:
                                     </p>
                                     <p className="text-xl font-bold text-green-600">
-                                      {(
+                                      {Math.ceil((
                                         simulationResults.threeYears!
                                           .capexAnnualized /
                                         0.117 /
@@ -3112,7 +3091,7 @@ const FeasibilityAnalysis = () => {
                                           25 -
                                           simulationResults.threeYears!
                                             .opexAnnual)
-                                      ).toFixed(1)}{" "}
+                                      ))}{" "}
                                       anos
                                     </p>
                                   </div>
@@ -3121,7 +3100,7 @@ const FeasibilityAnalysis = () => {
                                       ROI Anual:
                                     </p>
                                     <p className="text-xl font-bold text-green-600">
-                                      {(
+                                      {Math.ceil((
                                         ((simulationResults.threeYears!
                                           .h2Production *
                                           25 -
@@ -3131,7 +3110,7 @@ const FeasibilityAnalysis = () => {
                                             .capexAnnualized /
                                             0.117)) *
                                         100
-                                      ).toFixed(1)}
+                                      ))}
                                       %
                                     </p>
                                   </div>
@@ -3263,7 +3242,7 @@ const FeasibilityAnalysis = () => {
                                       Payback Estimado:
                                     </p>
                                     <p className="text-xl font-bold text-green-600">
-                                      {(
+                                      {Math.ceil((
                                         simulationResults.fiveYears!
                                           .capexAnnualized /
                                         0.117 /
@@ -3272,7 +3251,7 @@ const FeasibilityAnalysis = () => {
                                           25 -
                                           simulationResults.fiveYears!
                                             .opexAnnual)
-                                      ).toFixed(1)}{" "}
+                                      ))}{" "}
                                       anos
                                     </p>
                                   </div>
@@ -3281,7 +3260,7 @@ const FeasibilityAnalysis = () => {
                                       ROI Anual:
                                     </p>
                                     <p className="text-xl font-bold text-green-600">
-                                      {(
+                                      {Math.ceil((
                                         ((simulationResults.fiveYears!
                                           .h2Production *
                                           25 -
@@ -3291,7 +3270,7 @@ const FeasibilityAnalysis = () => {
                                             .capexAnnualized /
                                             0.117)) *
                                         100
-                                      ).toFixed(1)}
+                                      ))}
                                       %
                                     </p>
                                   </div>
@@ -3517,10 +3496,10 @@ const FeasibilityAnalysis = () => {
                                     </h3>
                                     <p className="text-sm text-slate-700">
                                       Produção anual estimada de{" "}
-                                      {(
+                                      {Math.ceil((
                                         simulationResults.oneYear.h2Production /
                                         1000
-                                      ).toFixed(2)}{" "}
+                                      ))}{" "}
                                       kg de H₂ verde no cenário de 100 kW.
                                       Potencial de expansão para{" "}
                                       {simulationResults.fiveYears!.h2Production.toFixed(
@@ -3555,7 +3534,7 @@ const FeasibilityAnalysis = () => {
                                     </h3>
                                     <p className="text-sm text-slate-700">
                                       Payback estimado de{" "}
-                                      {(
+                                      {Math.ceil((
                                         simulationResults.oneYear
                                           .capexAnnualized /
                                         0.117 /
@@ -3563,10 +3542,10 @@ const FeasibilityAnalysis = () => {
                                           .h2Production *
                                           25 -
                                           simulationResults.oneYear.opexAnnual)
-                                      ).toFixed(1)}{" "}
+                                      ))}{" "}
                                       anos considerando preço de venda de R$
                                       25/kg. ROI anual de{" "}
-                                      {(
+                                      {Math.ceil((
                                         ((simulationResults.oneYear
                                           .h2Production *
                                           25 -
@@ -3576,7 +3555,7 @@ const FeasibilityAnalysis = () => {
                                             .capexAnnualized /
                                             0.117)) *
                                         100
-                                      ).toFixed(1)}
+                                      ))}
                                       %.
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
@@ -3689,10 +3668,10 @@ const FeasibilityAnalysis = () => {
                                     </h3>
                                     <p className="text-sm text-slate-700">
                                       Produção anual estimada de{" "}
-                                      {(
+                                      {Math.ceil((
                                         simulationResults.threeYears!
                                           .h2Production / 1000
-                                      ).toFixed(2)}{" "}
+                                      ))}{" "}
                                       toneladas de H₂ verde no cenário de 300
                                       kW. Este eletrolisador de média capacidade
                                       é adequado para projetos industriais de
@@ -3729,7 +3708,7 @@ const FeasibilityAnalysis = () => {
                                     </h3>
                                     <p className="text-sm text-slate-700">
                                       Payback estimado de{" "}
-                                      {(
+                                      {Math.ceil((
                                         simulationResults.threeYears!
                                           .capexAnnualized /
                                         0.117 /
@@ -3738,10 +3717,10 @@ const FeasibilityAnalysis = () => {
                                           25 -
                                           simulationResults.threeYears!
                                             .opexAnnual)
-                                      ).toFixed(1)}{" "}
+                                      ))}{" "}
                                       anos considerando preço de venda de R$
                                       25/kg. ROI anual de{" "}
-                                      {(
+                                      {Math.ceil((
                                         ((simulationResults.threeYears!
                                           .h2Production *
                                           25 -
@@ -3751,7 +3730,7 @@ const FeasibilityAnalysis = () => {
                                             .capexAnnualized /
                                             0.117)) *
                                         100
-                                      ).toFixed(1)}
+                                      ))}
                                       %.
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
@@ -3863,10 +3842,10 @@ const FeasibilityAnalysis = () => {
                                     </h3>
                                     <p className="text-sm text-slate-700">
                                       Produção anual estimada de{" "}
-                                      {(
+                                      {Math.ceil((
                                         simulationResults.fiveYears!
                                           .h2Production / 1000
-                                      ).toFixed(2)}{" "}
+                                      ))}{" "}
                                       toneladas de H₂ verde no cenário de 500
                                       kW. Este eletrolisador de grande
                                       capacidade é ideal para operações
@@ -3903,7 +3882,7 @@ const FeasibilityAnalysis = () => {
                                     </h3>
                                     <p className="text-sm text-slate-700">
                                       Payback estimado de{" "}
-                                      {(
+                                      {Math.ceil((
                                         simulationResults.fiveYears!
                                           .capexAnnualized /
                                         0.117 /
@@ -3912,10 +3891,10 @@ const FeasibilityAnalysis = () => {
                                           25 -
                                           simulationResults.fiveYears!
                                             .opexAnnual)
-                                      ).toFixed(1)}{" "}
+                                      ))}{" "}
                                       anos considerando preço de venda de R$
                                       25/kg. ROI anual de{" "}
-                                      {(
+                                      {Math.ceil((
                                         ((simulationResults.fiveYears!
                                           .h2Production *
                                           25 -
@@ -3925,7 +3904,7 @@ const FeasibilityAnalysis = () => {
                                             .capexAnnualized /
                                             0.117)) *
                                         100
-                                      ).toFixed(1)}
+                                      ))}
                                       %.
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
@@ -4002,10 +3981,10 @@ const FeasibilityAnalysis = () => {
                                 <div className="flex-1 flex items-center justify-between">
                                   <p className="text-slate-700">
                                     <strong>Reduzir Curtailment:</strong>{" "}
-                                    {(
+                                    {Math.ceil((
                                       simulationResults.oneYear.curtailment /
                                       1000
-                                    ).toFixed(1)}{" "}
+                                    ))}{" "}
                                     MWh/ano de energia desperdiçada. Considere
                                     sistema de armazenamento (baterias) ou
                                     aumentar capacidade do eletrolisador.
@@ -4031,7 +4010,7 @@ const FeasibilityAnalysis = () => {
                                   <p className="text-slate-700">
                                     <strong>Buscar Incentivos Fiscais:</strong>{" "}
                                     LCOH alto (R${" "}
-                                    {simulationResults.oneYear.lcoh.toFixed(2)}
+                                    {Math.ceil(simulationResults.oneYear.lcoh)}
                                     /kg). Projeto pode se beneficiar
                                     significativamente de programas como PNME,
                                     créditos de carbono e financiamento BNDES.
