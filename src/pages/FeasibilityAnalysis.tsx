@@ -1402,6 +1402,93 @@ const FeasibilityAnalysis = () => {
           },
         ],
       },
+      {
+        icon: Droplet,
+        title: "Recursos Hídricos",
+        factors: [
+          { label: "Disponibilidade", value: p.water, status: p.waterStatus },
+          {
+            label: "Principais bacias",
+            value:
+              region === "Norte"
+                ? "Amazônica"
+                : region === "Nordeste"
+                ? "São Francisco"
+                : region === "Centro-Oeste"
+                ? "Paraguai/Tocantins"
+                : region === "Sudeste"
+                ? "Paraná/Atlântico"
+                : "Paraná/Uruguai",
+            status: "success",
+          },
+          {
+            label: "Pluviosidade",
+            value:
+              region === "Norte"
+                ? "Muito Alta"
+                : region === "Nordeste"
+                ? "Baixa/Irregular"
+                : region === "Centro-Oeste"
+                ? "Moderada"
+                : region === "Sudeste"
+                ? "Alta"
+                : "Alta",
+            status:
+              region === "Norte" || region === "Sul" || region === "Sudeste"
+                ? "success"
+                : region === "Centro-Oeste"
+                ? "warning"
+                : "error",
+          },
+          {
+            label: "Qualidade da água",
+            value:
+              region === "Norte"
+                ? "Excelente"
+                : region === "Sudeste"
+                ? "Boa"
+                : "Boa/Moderada",
+            status:
+              region === "Norte"
+                ? "success"
+                : region === "Sudeste" || region === "Sul"
+                ? "success"
+                : "warning",
+          },
+          {
+            label: "Competição por uso",
+            value:
+              region === "Sudeste"
+                ? "Alta"
+                : region === "Nordeste"
+                ? "Alta"
+                : region === "Sul"
+                ? "Moderada"
+                : "Baixa",
+            status:
+              region === "Sudeste" || region === "Nordeste"
+                ? "error"
+                : region === "Sul"
+                ? "warning"
+                : "success",
+          },
+          {
+            label: "Infraestrutura hídrica",
+            value:
+              region === "Sudeste"
+                ? "Boa"
+                : region === "Sul" || region === "Nordeste"
+                ? "Moderada"
+                : "Limitada",
+            status:
+              region === "Sudeste"
+                ? "success"
+                : region === "Sul" || region === "Nordeste"
+                ? "warning"
+                : "error",
+          },
+        ],
+      },
     ];
   };
 
@@ -4217,8 +4304,8 @@ const FeasibilityAnalysis = () => {
                         setSelectedRegion("");
                         setSelectedEstado("");
                         setSelectedEstadoNome("");
-                        setSelectedMicrorregiao("");
-                        setSelectedMicrorregiaoNome("");
+                        setSelectedRegiaoIntermediaria("");
+                        setSelectedRegiaoIntermediariaNome("");
                         setRegionFiltersKey((k) => k + 1);
                       }}
                       className="flex items-center gap-2"
@@ -4229,16 +4316,16 @@ const FeasibilityAnalysis = () => {
                   </div>
                   <RegionFilters
                     key={regionFiltersKey}
-                    onMacroregiaoChange={(macro) =>
-                      setSelectedRegion(macro === "all" ? "Nordeste" : macro)
+                    onRegiaoChange={(regiao) =>
+                      setSelectedRegion(regiao === "all" ? "Nordeste" : regiao)
                     }
                     onEstadoChange={(estado, estadoNome) => {
                       setSelectedEstado(estado);
                       setSelectedEstadoNome(estadoNome);
                     }}
-                    onMicrorregiaoChange={(micro, microNome) => {
-                      setSelectedMicrorregiao(micro);
-                      setSelectedMicrorregiaoNome(microNome);
+                    onRegiaoIntermediariaChange={(regiaoIntermediaria, regiaoIntermediariaNome) => {
+                      setSelectedRegiaoIntermediaria(regiaoIntermediaria);
+                      setSelectedRegiaoIntermediariaNome(regiaoIntermediariaNome);
                     }}
                   />
                 </div>
@@ -4252,7 +4339,7 @@ const FeasibilityAnalysis = () => {
                 />
               )}
               {/* Tipologias Regionais - Accordion (apenas após escolhas) */}
-              {selectedRegion || selectedEstado || selectedRegiaoIntermediariaediaria ? (
+              {selectedRegion || selectedEstado || selectedRegiaoIntermediaria ? (
                 <Accordion
                   type="multiple"
                   defaultValue={["tipologias"]}
@@ -4272,7 +4359,7 @@ const FeasibilityAnalysis = () => {
                         </div>
                       </AccordionTrigger>
                       <AccordionContent className="px-6 pb-6">
-                        <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-4">
+                        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                           {getTechnologyFactors(
                             selectedRegion || "Nordeste"
                           ).map((tech, tIndex) => (
