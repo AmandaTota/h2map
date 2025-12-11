@@ -7141,7 +7141,7 @@ const FeasibilityAnalysis = () => {
                   className="mb-4"
                 >
                   <AccordionItem value="cidade" className="border-none">
-                    <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden">
+                    <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden mt-4">
                       <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-emerald-50/50 transition-colors">
                         <div className="flex items-center space-x-3 w-full">
                           <MapPin className="w-6 h-6 text-emerald-600" />
