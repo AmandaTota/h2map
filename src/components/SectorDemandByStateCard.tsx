@@ -851,92 +851,164 @@ export default function SectorDemandByStateCard({
           <CollapsibleContent>
             <div className="px-6 pb-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {/* Aplicações Médicas */}
                 <div className="p-3 rounded border bg-white">
                   <div className="flex items-center justify-between mb-2">
                     <div className="text-sm font-semibold">Aplicações Médicas</div>
                   </div>
-                  <div className="text-xs text-slate-500">
+                  <div className="text-xs text-slate-500 mb-2">
                     <p>Oxigênio medicinal para hospitais e clínicas</p>
                   </div>
+                  {oxygenCompanies[estado.toUpperCase()]?.find(s => s.setor === "Saúde") && (
+                    <div className="mt-2 pt-2 border-t">
+                      <p className="text-xs font-medium text-slate-600 mb-1">Principais empresas:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {oxygenCompanies[estado.toUpperCase()]
+                          .find(s => s.setor === "Saúde")
+                          ?.empresas.map((emp, i) => (
+                            <Badge key={i} variant="outline" className="text-xs bg-emerald-50 text-emerald-800 border-emerald-200">
+                              {emp}
+                            </Badge>
+                          ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
+                {/* Processamento Químico */}
                 <div className="p-3 rounded border bg-white">
                   <div className="flex items-center justify-between mb-2">
                     <div className="text-sm font-semibold">Processamento Químico</div>
                   </div>
-                  <div className="text-xs text-slate-500">
+                  <div className="text-xs text-slate-500 mb-2">
                     <p>Oxidação controlada em síntese química</p>
                   </div>
+                  {oxygenCompanies[estado.toUpperCase()]?.find(s => s.setor === "Química" || s.setor === "Petroquímica") && (
+                    <div className="mt-2 pt-2 border-t">
+                      <p className="text-xs font-medium text-slate-600 mb-1">Principais empresas:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {oxygenCompanies[estado.toUpperCase()]
+                          .filter(s => s.setor === "Química" || s.setor === "Petroquímica")
+                          .flatMap(s => s.empresas)
+                          .map((emp, i) => (
+                            <Badge key={i} variant="outline" className="text-xs bg-emerald-50 text-emerald-800 border-emerald-200">
+                              {emp}
+                            </Badge>
+                          ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
+                {/* Indústria Metalúrgica */}
                 <div className="p-3 rounded border bg-white">
                   <div className="flex items-center justify-between mb-2">
                     <div className="text-sm font-semibold">Indústria Metalúrgica</div>
                   </div>
-                  <div className="text-xs text-slate-500">
+                  <div className="text-xs text-slate-500 mb-2">
                     <p>Corte e soldagem, tratamento de minérios</p>
                   </div>
+                  {oxygenCompanies[estado.toUpperCase()]?.find(s => s.setor === "Metalurgia" || s.setor === "Siderurgia" || s.setor === "Mineração") && (
+                    <div className="mt-2 pt-2 border-t">
+                      <p className="text-xs font-medium text-slate-600 mb-1">Principais empresas:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {oxygenCompanies[estado.toUpperCase()]
+                          .filter(s => s.setor === "Metalurgia" || s.setor === "Siderurgia" || s.setor === "Mineração")
+                          .flatMap(s => s.empresas)
+                          .map((emp, i) => (
+                            <Badge key={i} variant="outline" className="text-xs bg-emerald-50 text-emerald-800 border-emerald-200">
+                              {emp}
+                            </Badge>
+                          ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
+                {/* Tratamento de Efluentes */}
                 <div className="p-3 rounded border bg-white">
                   <div className="flex items-center justify-between mb-2">
                     <div className="text-sm font-semibold">Tratamento de Efluentes</div>
                   </div>
-                  <div className="text-xs text-slate-500">
+                  <div className="text-xs text-slate-500 mb-2">
                     <p>Oxidação biológica e química de resíduos</p>
                   </div>
+                  {oxygenCompanies[estado.toUpperCase()]?.find(s => s.setor === "Saneamento" || s.setor === "Tratamento de Água") && (
+                    <div className="mt-2 pt-2 border-t">
+                      <p className="text-xs font-medium text-slate-600 mb-1">Principais empresas:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {oxygenCompanies[estado.toUpperCase()]
+                          .filter(s => s.setor === "Saneamento" || s.setor === "Tratamento de Água")
+                          .flatMap(s => s.empresas)
+                          .map((emp, i) => (
+                            <Badge key={i} variant="outline" className="text-xs bg-emerald-50 text-emerald-800 border-emerald-200">
+                              {emp}
+                            </Badge>
+                          ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
+                {/* Indústria de Alimentos */}
                 <div className="p-3 rounded border bg-white">
                   <div className="flex items-center justify-between mb-2">
                     <div className="text-sm font-semibold">Indústria de Alimentos</div>
                   </div>
-                  <div className="text-xs text-slate-500">
+                  <div className="text-xs text-slate-500 mb-2">
                     <p>Esterilização, oxidação controlada em bebidas</p>
                   </div>
-                </div>
-
-                <div className="p-3 rounded border bg-white">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="text-sm font-semibold">Combustão Aprimorada</div>
-                  </div>
-                  <div className="text-xs text-slate-500">
-                    <p>Queimadores de alta eficiência</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Principais empresas que usam oxigênio no estado */}
-              {oxygenCompanies[estado.toUpperCase()] && (
-                <div className="mt-6">
-                  <h3 className="text-lg font-semibold text-slate-900 mb-3">
-                    Principais Empresas que Utilizam Oxigênio em {estadoNome || estado.toUpperCase()}
-                  </h3>
-                  <div className="space-y-4">
-                    {oxygenCompanies[estado.toUpperCase()].map((setor, idx) => (
-                      <div key={idx} className="p-4 rounded-lg border bg-emerald-50/30">
-                        <h4 className="text-sm font-semibold text-emerald-900 mb-2">
-                          {setor.setor}
-                        </h4>
-                        <div className="flex flex-wrap gap-2">
-                          {setor.empresas.map((empresa, eIdx) => (
-                            <Badge
-                              key={eIdx}
-                              variant="outline"
-                              className="bg-white text-slate-700 border-slate-300"
-                            >
-                              {empresa}
+                  {oxygenCompanies[estado.toUpperCase()]?.find(s => s.setor === "Alimentos") && (
+                    <div className="mt-2 pt-2 border-t">
+                      <p className="text-xs font-medium text-slate-600 mb-1">Principais empresas:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {oxygenCompanies[estado.toUpperCase()]
+                          .find(s => s.setor === "Alimentos")
+                          ?.empresas.map((emp, i) => (
+                            <Badge key={i} variant="outline" className="text-xs bg-emerald-50 text-emerald-800 border-emerald-200">
+                              {emp}
                             </Badge>
                           ))}
-                        </div>
                       </div>
-                    ))}
-                  </div>
-                  <p className="text-xs text-slate-500 italic mt-3">
-                    * Lista não exaustiva de empresas com potencial demanda por oxigênio industrial
-                  </p>
+                    </div>
+                  )}
                 </div>
-              )}
+
+                {/* Combustão Aprimorada / Outras Indústrias */}
+                <div className="p-3 rounded border bg-white">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-sm font-semibold">Outras Indústrias</div>
+                  </div>
+                  <div className="text-xs text-slate-500 mb-2">
+                    <p>Celulose, papel, têxtil, eletroeletrônicos e outros</p>
+                  </div>
+                  {oxygenCompanies[estado.toUpperCase()]?.find(s => 
+                    s.setor === "Celulose" || 
+                    s.setor === "Papel e Celulose" || 
+                    s.setor === "Têxtil" || 
+                    s.setor === "Eletroeletrônicos"
+                  ) && (
+                    <div className="mt-2 pt-2 border-t">
+                      <p className="text-xs font-medium text-slate-600 mb-1">Principais empresas:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {oxygenCompanies[estado.toUpperCase()]
+                          .filter(s => 
+                            s.setor === "Celulose" || 
+                            s.setor === "Papel e Celulose" || 
+                            s.setor === "Têxtil" || 
+                            s.setor === "Eletroeletrônicos"
+                          )
+                          .flatMap(s => s.empresas)
+                          .map((emp, i) => (
+                            <Badge key={i} variant="outline" className="text-xs bg-emerald-50 text-emerald-800 border-emerald-200">
+                              {emp}
+                            </Badge>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </CollapsibleContent>
         </Collapsible>
