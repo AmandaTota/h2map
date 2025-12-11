@@ -174,23 +174,16 @@ const FeasibilityAnalysis = () => {
   const [selectedRegiaoIntermediaria, setSelectedRegiaoIntermediaria] = useState<string>("");
   const [selectedRegiaoIntermediariaNome, setSelectedRegiaoIntermediariaNome] =
     useState<string>("");
-  const [selectedRegiaoImediata, setSelectedRegiaoImediata] = useState<string>("");
-  const [selectedRegiaoImediataNome, setSelectedRegiaoImediataNome] =
-    useState<string>("");
   const [selectedCidade, setSelectedCidade] = useState<string>("");
   const [selectedCidadeNome, setSelectedCidadeNome] = useState<string>("");
 
-  // Estados para comparação de regiões intermediárias/imediatas
+  // Estados para comparação de regiões intermediárias
   const [compareEstadoA, setCompareEstadoA] = useState<string>("");
   const [compareRegiaoIntermediariaA, setCompareRegiaoIntermediariaA] = useState<string>("");
   const [compareRegiaoIntermediariaNomeA, setCompareRegiaoIntermediariaNomeA] = useState<string>("");
-  const [compareRegiaoImediataA, setCompareRegiaoImediataA] = useState<string>("");
-  const [compareRegiaoImediataNomeA, setCompareRegiaoImediataNomeA] = useState<string>("");
   const [compareEstadoB, setCompareEstadoB] = useState<string>("");
   const [compareRegiaoIntermediariaB, setCompareRegiaoIntermediariaB] = useState<string>("");
   const [compareRegiaoIntermediariaNomeB, setCompareRegiaoIntermediariaNomeB] = useState<string>("");
-  const [compareRegiaoImediataB, setCompareRegiaoImediataB] = useState<string>("");
-  const [compareRegiaoImediataNomeB, setCompareRegiaoImediataNomeB] = useState<string>("");
   // Forçar remontagem de filtros regionais ao limpar
   const [regionFiltersKey, setRegionFiltersKey] = useState<number>(0);
   // Toggles para iniciar fechados
@@ -296,14 +289,14 @@ const FeasibilityAnalysis = () => {
     }
   }, [selectedLocation]);
 
-  // Buscar coordenadas das regiões imediatas quando mudarem
+  // Buscar coordenadas das regiões intermediárias quando mudarem
   useEffect(() => {
-    const fetchRegiaoImediataCoords = async (regiaoId: string) => {
+    const fetchRegiaoIntermediariaCoords = async (regiaoId: string) => {
       if (!regiaoId) return null;
       try {
-        // Buscar municípios da região imediata via IBGE
+        // Buscar municípios da região intermediária via IBGE
         const response = await fetch(
-          `https://servicodados.ibge.gov.br/api/v1/localidades/regioes-imediatas/${regiaoId}/municipios`
+          `https://servicodados.ibge.gov.br/api/v1/localidades/regioes-intermediarias/${regiaoId}/municipios`
         );
         const municipios = await response.json();
 
@@ -354,8 +347,8 @@ const FeasibilityAnalysis = () => {
       return null;
     };
 
-    if (compareRegiaoImediataA) {
-      fetchRegiaoImediataCoords(compareRegiaoImediataA).then((coords) => {
+    if (compareRegiaoIntermediariaA) {
+      fetchRegiaoIntermediariaCoords(compareRegiaoIntermediariaA).then((coords) => {
         if (coords) {
           setCoordsMicroA(coords);
           setMapKeyA((prev) => prev + 1);
@@ -364,15 +357,15 @@ const FeasibilityAnalysis = () => {
     } else {
       setCoordsMicroA(null);
     }
-  }, [compareRegiaoImediataA]);
+  }, [compareRegiaoIntermediariaA]);
 
   useEffect(() => {
-    const fetchRegiaoImediataCoords = async (regiaoId: string) => {
+    const fetchRegiaoIntermediariaCoords = async (regiaoId: string) => {
       if (!regiaoId) return null;
       try {
-        // Buscar municípios da região imediata via IBGE
+        // Buscar municípios da região intermediária via IBGE
         const response = await fetch(
-          `https://servicodados.ibge.gov.br/api/v1/localidades/regioes-imediatas/${regiaoId}/municipios`
+          `https://servicodados.ibge.gov.br/api/v1/localidades/regioes-intermediarias/${regiaoId}/municipios`
         );
         const municipios = await response.json();
 
@@ -423,8 +416,8 @@ const FeasibilityAnalysis = () => {
       return null;
     };
 
-    if (compareRegiaoImediataB) {
-      fetchRegiaoImediataCoords(compareRegiaoImediataB).then((coords) => {
+    if (compareRegiaoIntermediariaB) {
+      fetchRegiaoIntermediariaCoords(compareRegiaoIntermediariaB).then((coords) => {
         if (coords) {
           setCoordsMicroB(coords);
           setMapKeyB((prev) => prev + 1);
@@ -433,7 +426,7 @@ const FeasibilityAnalysis = () => {
     } else {
       setCoordsMicroB(null);
     }
-  }, [compareRegiaoImediataB]);
+  }, [compareRegiaoIntermediariaB]);
 
   // Incrementar key quando região A mudar
   useEffect(() => {
@@ -1652,31 +1645,6 @@ const FeasibilityAnalysis = () => {
 
   const getEstadoViability = (estadoSigla: string) => {
     return estadoProfiles[estadoSigla] || { solar: 50, wind: 50, h2: 50 };
-  };
-
-  const getRegiaoImediataViability = (estadoSigla: string, regiaoNome: string) => {
-    // Ajuste baseado no estado + variação típica de região imediata
-    const baseScores = getEstadoViability(estadoSigla);
-    // Gerar variação consistente baseada no nome da região imediata (hash simples)
-    const hash = regiaoNome
-      .split("")
-      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const variation = ((hash % 20) - 10) / 2; // Variação de -5 a +5 pontos, consistente para o mesmo nome
-
-    return {
-      solar: Math.max(
-        0,
-        Math.min(100, Math.round(baseScores.solar + variation))
-      ),
-      wind: Math.max(
-        0,
-        Math.min(100, Math.round(baseScores.wind + variation * 0.8))
-      ),
-      h2: Math.max(
-        0,
-        Math.min(100, Math.round(baseScores.h2 + variation * 0.9))
-      ),
-    };
   };
 
   const getSuitabilityScores = (region: string) => {
@@ -4346,8 +4314,6 @@ const FeasibilityAnalysis = () => {
                         setSelectedEstadoNome("");
                         setSelectedRegiaoIntermediaria("");
                         setSelectedRegiaoIntermediariaNome("");
-                        setSelectedRegiaoImediata("");
-                        setSelectedRegiaoImediataNome("");
                         setRegionFiltersKey((k) => k + 1);
                       }}
                       className="flex items-center gap-2"
@@ -4368,10 +4334,6 @@ const FeasibilityAnalysis = () => {
                     onRegiaoIntermediaria={(regiaoInt, regiaoIntNome) => {
                       setSelectedRegiaoIntermediaria(regiaoInt);
                       setSelectedRegiaoIntermediariaNome(regiaoIntNome);
-                    }}
-                    onRegiaoImediata={(regiaoImed, regiaoImedNome) => {
-                      setSelectedRegiaoImediata(regiaoImed);
-                      setSelectedRegiaoImediataNome(regiaoImedNome);
                     }}
                     onCidadeChange={(cidade, cidadeNome) => {
                       setSelectedCidade(cidade);
@@ -4500,104 +4462,6 @@ const FeasibilityAnalysis = () => {
                                   </div>
                                 </div>
                                 <div className="mt-4 pt-4 border-t border-emerald-100">
-                                  <p className="text-xs text-slate-500 italic text-center">
-                                    * As notas são ponderadas de 0 a 100, sendo 100 a maior nota de viabilidade.
-                                  </p>
-                                </div>
-                              </>
-                            );
-                          })()}
-                        </AccordionContent>
-                      </Card>
-                    </AccordionItem>
-                  </Accordion>
-                </motion.div>
-              )}
-              
-              {/* Passo 3: Viabilidade da Região Imediata - mostra após seleção de Região Imediata */}
-              {selectedRegiaoImediata && selectedRegiaoImediata !== "all" && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                >
-                  <Accordion
-                    type="multiple"
-                    defaultValue={["regiaoimediata"]}
-                    className="mb-4"
-                  >
-                    <AccordionItem value="regiaoimediata" className="border-none">
-                      <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden">
-                        <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-teal-50/50 transition-colors">
-                          <div className="flex items-center space-x-3 w-full">
-                            <BarChart3 className="w-6 h-6 text-teal-600" />
-                            <h2 className="text-2xl font-bold text-slate-900">
-                              Viabilidade - {selectedRegiaoImediataNome}
-                            </h2>
-                            <Badge className="ml-auto bg-teal-100 text-teal-800 border-teal-300">
-                              Região Imediata
-                            </Badge>
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent className="px-6 pb-6">
-                          {(() => {
-                            const scores = getRegiaoImediataViability(
-                              selectedEstado,
-                              selectedRegiaoImediataNome
-                            );
-                            return (
-                              <>
-                                <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-4">
-                                  <div className="p-4 rounded-lg border border-amber-200 bg-amber-50/50">
-                                    <div className="flex items-center space-x-2 mb-2">
-                                      <Sun className="w-5 h-5 text-amber-600" />
-                                      <span className="font-semibold text-slate-900">
-                                        Solar
-                                      </span>
-                                    </div>
-                                    <div className="mt-2">
-                                      <div className="text-3xl font-bold text-amber-700">
-                                        {scores.solar}
-                                      </div>
-                                      <div className="text-xs text-slate-600 mt-1">
-                                        Pontuação de viabilidade
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div className="p-4 rounded-lg border border-sky-200 bg-sky-50/50">
-                                    <div className="flex items-center space-x-2 mb-2">
-                                      <Wind className="w-5 h-5 text-sky-600" />
-                                      <span className="font-semibold text-slate-900">
-                                        Eólica
-                                      </span>
-                                    </div>
-                                    <div className="mt-2">
-                                      <div className="text-3xl font-bold text-sky-700">
-                                        {scores.wind}
-                                      </div>
-                                      <div className="text-xs text-slate-600 mt-1">
-                                        Pontuação de viabilidade
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div className="p-4 rounded-lg border border-emerald-200 bg-emerald-50/50">
-                                    <div className="flex items-center space-x-2 mb-2">
-                                      <Zap className="w-5 h-5 text-emerald-600" />
-                                      <span className="font-semibold text-slate-900">
-                                        Hidrogênio Verde
-                                      </span>
-                                    </div>
-                                    <div className="mt-2">
-                                      <div className="text-3xl font-bold text-emerald-700">
-                                        {scores.h2}
-                                      </div>
-                                      <div className="text-xs text-slate-600 mt-1">
-                                        Pontuação de viabilidade
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="mt-4 pt-4 border-t border-teal-100">
                                   <p className="text-xs text-slate-500 italic text-center">
                                     * As notas são ponderadas de 0 a 100, sendo 100 a maior nota de viabilidade.
                                   </p>
@@ -7177,10 +7041,6 @@ const FeasibilityAnalysis = () => {
                                 <p className="text-base font-semibold text-slate-900">{selectedRegiaoIntermediariaNome}</p>
                               </div>
                               <div>
-                                <p className="text-xs text-slate-600 mb-1"><strong>Região Geográfica Imediata</strong></p>
-                                <p className="text-base font-semibold text-slate-900">{selectedRegiaoImediataNome}</p>
-                              </div>
-                              <div>
                                 <p className="text-xs text-slate-600 mb-1"><strong>Cidade</strong></p>
                                 <p className="text-base font-semibold text-slate-900">{selectedCidadeNome || "Não selecionada"}</p>
                               </div>
@@ -7318,10 +7178,6 @@ const FeasibilityAnalysis = () => {
                               <div>
                                 <p className="text-xs text-slate-600 mb-1"><strong>Região Geográfica Intermediária</strong></p>
                                 <p className="text-base font-semibold text-slate-900">{selectedRegiaoIntermediariaNome}</p>
-                              </div>
-                              <div>
-                                <p className="text-xs text-slate-600 mb-1"><strong>Região Geográfica Imediata</strong></p>
-                                <p className="text-base font-semibold text-slate-900">{selectedRegiaoImediataNome}</p>
                               </div>
                               <div>
                                 <p className="text-xs text-slate-600 mb-1"><strong>Estado</strong></p>
