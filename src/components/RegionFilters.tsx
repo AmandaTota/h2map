@@ -32,10 +32,6 @@ interface Municipio {
 interface RegionFiltersProps {
   onRegiaoChange?: (regiao: string) => void;
   onEstadoChange?: (estado: string, estadoNome: string) => void;
-  onRegiaoIntermediaria?: (
-    regiaoIntermediaria: string,
-    regiaoIntermediariaName: string
-  ) => void;
   onCidadeChange?: (cidade: string, cidadeNome: string) => void;
  }
 // Sanitize text coming from external APIs (IBGE) replacing stray inverted question marks
@@ -58,26 +54,20 @@ const REGION_UF_MAP: Record<string, string[]> = {
   Sul: ["PR", "RS", "SC"],
 };
 
-// Cache para regiões intermediárias já carregadas
-const regiaoIntermediariaCache = new Map<string, any[]>();
 // Cache para cidades já carregadas (por região intermediária)
 const cidadesCache = new Map<string, Municipio[]>();
 
 const RegionFilters = ({
   onRegiaoChange,
   onEstadoChange,
-  onRegiaoIntermediaria,
   onCidadeChange,
 }: RegionFiltersProps) => {
   const [estados, setEstados] = useState<Estado[]>([]);
-  const [regioesIntermediarias, setRegioesIntermediarias] = useState<any[]>([]);
   const [cidades, setCidades] = useState<Municipio[]>([]);
   const [selectedRegiao, setSelectedRegiao] = useState<string>("");
   const [selectedEstado, setSelectedEstado] = useState<string>("");
-  const [selectedRegiaoIntermediaria, setSelectedRegiaoIntermediaria] = useState<string>("");
   const [selectedCidade, setSelectedCidade] = useState<string>("");
   const [filteredEstados, setFilteredEstados] = useState<Estado[]>([]);
-  const [loadingIntermediaria, setLoadingIntermediaria] = useState(false);
   const [loadingCidades, setLoadingCidades] = useState(false);
   const { toast } = useToast();
 
@@ -117,33 +107,33 @@ const RegionFilters = ({
     }
     // Reset estado e regiões ao trocar de região
     setSelectedEstado("");
-    setSelectedRegiaoIntermediaria("");
     setCidades([]);
     setSelectedCidade("");
   }, [selectedRegiao, estados]);
 
-  // Carregar Regiões Geográficas Intermediárias quando um estado é selecionado
+  // Carregar cidades quando um estado é selecionado
   useEffect(() => {
-    const fetchRegioesIntermediarias = async () => {
+    const fetchCidadesDoEstado = async () => {
       if (!selectedEstado || selectedEstado === "all") {
-        setRegioesIntermediarias([]);
-        setSelectedRegiaoIntermediaria("");
+        setCidades([]);
+        setSelectedCidade("");
         return;
       }
 
       // Verificar cache primeiro
-      if (regiaoIntermediariaCache.has(selectedEstado)) {
-        setRegioesIntermediarias(regiaoIntermediariaCache.get(selectedEstado)!);
-        setSelectedRegiaoIntermediaria("");
+      if (cidadesCache.has(selectedEstado)) {
+        setCidades(cidadesCache.get(selectedEstado) || []);
+        setSelectedCidade("");
         return;
       }
 
-      setLoadingIntermediaria(true);
+      setLoadingCidades(true);
       try {
+        // Buscar municípios do estado diretamente
         const response = await fetch(
-          `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${selectedEstado}/regioes-intermediarias?orderBy=nome`,
+          `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${selectedEstado}/municipios?orderBy=nome`,
           {
-            signal: AbortSignal.timeout(10000), // timeout de 10s
+            signal: AbortSignal.timeout(10000),
           }
         );
         
@@ -152,36 +142,40 @@ const RegionFilters = ({
         }
         
         const data = await response.json();
-        const sanitized = data.map((regiao: any) => ({
-          ...regiao,
-          nome: sanitizeText(regiao.nome),
+        const sanitized = data.map((municipio: Municipio) => ({
+          ...municipio,
+          nome: sanitizeText(municipio.nome),
         }));
         
+        // Ordenar por nome
+        sanitized.sort((a: Municipio, b: Municipio) => 
+          a.nome.localeCompare(b.nome, "pt-BR")
+        );
+        
         // Armazenar no cache
-        regiaoIntermediariaCache.set(selectedEstado, sanitized);
+        cidadesCache.set(selectedEstado, sanitized);
         
-        setRegioesIntermediarias(sanitized);
-        setSelectedRegiaoIntermediaria("");
+        setCidades(sanitized);
+        setSelectedCidade("");
       } catch (error) {
-        console.error("Error fetching regiões intermediárias:", error);
+        console.error("Error fetching cidades:", error);
         
-        // Mensagem de erro mais específica
         const errorMessage = error instanceof Error && error.name === 'TimeoutError' 
           ? "Tempo limite excedido. Tente novamente."
-          : "Não foi possível carregar as regiões geográficas intermediárias";
+          : "Não foi possível carregar as cidades";
           
         toast({
           variant: "destructive",
-          title: "Erro ao carregar regiões intermediárias",
+          title: "Erro ao carregar cidades",
           description: errorMessage,
         });
         
-        setRegioesIntermediarias([]);
+        setCidades([]);
       } finally {
-        setLoadingIntermediaria(false);
+        setLoadingCidades(false);
       }
     };
-    fetchRegioesIntermediarias();
+    fetchCidadesDoEstado();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedEstado]);
 
@@ -200,100 +194,6 @@ const RegionFilters = ({
     }
   }, [selectedEstado, onEstadoChange, estados]);
 
-  useEffect(() => {
-    if (onRegiaoIntermediaria) {
-      const regiaoObj = regioesIntermediarias.find(
-        (r) => r.id.toString() === selectedRegiaoIntermediaria
-      );
-      const regiaoNome = regiaoObj ? regiaoObj.nome : "";
-      onRegiaoIntermediaria(selectedRegiaoIntermediaria, regiaoNome);
-    }
-  }, [selectedRegiaoIntermediaria, onRegiaoIntermediaria, regioesIntermediarias]);
-
-  // Carregar cidades quando uma região intermediária é selecionada (agregando todas as regiões imediatas)
-  useEffect(() => {
-    const fetchCidades = async () => {
-      if (!selectedRegiaoIntermediaria || selectedRegiaoIntermediaria === "all") {
-        setCidades([]);
-        setSelectedCidade("");
-        return;
-      }
-
-      // Cache por região intermediária
-      if (cidadesCache.has(selectedRegiaoIntermediaria)) {
-        setCidades(cidadesCache.get(selectedRegiaoIntermediaria) || []);
-        setSelectedCidade("");
-        return;
-      }
-
-      setLoadingCidades(true);
-      try {
-        // Buscar regiões imediatas da região intermediária
-        const respImediatas = await fetch(
-          `https://servicodados.ibge.gov.br/api/v1/localidades/regioes-intermediarias/${selectedRegiaoIntermediaria}/regioes-imediatas?orderBy=nome`,
-          {
-            signal: AbortSignal.timeout(10000),
-          }
-        );
-
-        if (!respImediatas.ok) {
-          throw new Error(`HTTP ${respImediatas.status}`);
-        }
-
-        const imediatasData: RegiaoImediata[] = await respImediatas.json();
-        const imediatasSanitized = imediatasData.map((reg) => ({
-          ...reg,
-          nome: sanitizeText(reg.nome),
-        }));
-
-        // Buscar municípios de cada região imediata
-        const allCities: Municipio[] = [];
-        for (const reg of imediatasSanitized) {
-          try {
-            const respMun = await fetch(
-              `https://servicodados.ibge.gov.br/api/v1/localidades/regioes-imediatas/${reg.id}/municipios?orderBy=nome`,
-              {
-                signal: AbortSignal.timeout(10000),
-              }
-            );
-
-            if (!respMun.ok) {
-              throw new Error(`HTTP ${respMun.status}`);
-            }
-
-            const cidadesReg: Municipio[] = await respMun.json();
-            cidadesReg.forEach((c) => {
-              allCities.push({ ...c, nome: sanitizeText(c.nome) });
-            });
-          } catch (err) {
-            console.error("Erro ao carregar municípios da região imediata:", err);
-          }
-        }
-
-        // Remover duplicados por id e ordenar
-        const uniqueCities = Array.from(
-          new Map(allCities.map((c) => [c.id, c])).values()
-        ).sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
-
-        cidadesCache.set(selectedRegiaoIntermediaria, uniqueCities);
-        setCidades(uniqueCities);
-        setSelectedCidade("");
-      } catch (error) {
-        console.error("Error fetching cidades:", error);
-        toast({
-          variant: "destructive",
-          title: "Erro ao carregar cidades",
-          description: "Não foi possível carregar a lista de cidades",
-        });
-        setCidades([]);
-      } finally {
-        setLoadingCidades(false);
-      }
-    };
-
-    fetchCidades();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedRegiaoIntermediaria]);
 
   // Notificar mudanças de cidade
   useEffect(() => {
@@ -327,53 +227,30 @@ const RegionFilters = ({
         </Select>
       </div>
 
-      {/* Estado e Região Geográfica Intermediária */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div>
-          <p className="text-sm text-slate-600 mb-2">Estado</p>
-          <Select
-            value={selectedEstado}
-            onValueChange={setSelectedEstado}
-            disabled={!selectedRegiao || selectedRegiao === "all"}
-          >
-            <SelectTrigger className="h-12 border-emerald-200 focus:border-emerald-500 bg-white">
-              <SelectValue placeholder="Selecione o estado" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os estados</SelectItem>
-              {filteredEstados.map((estado) => (
-                <SelectItem key={estado.id} value={estado.sigla}>
-                  {estado.nome} ({estado.sigla})
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <p className="text-sm text-slate-600 mb-2">Região Geográfica Intermediária</p>
-          <Select
-            value={selectedRegiaoIntermediaria}
-            onValueChange={setSelectedRegiaoIntermediaria}
-            disabled={!selectedEstado || selectedEstado === "all" || loadingIntermediaria}
-          >
-            <SelectTrigger className="h-12 border-emerald-200 focus:border-emerald-500 bg-white">
-              <SelectValue placeholder={loadingIntermediaria ? "Carregando..." : "Selecione a região intermediária"} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas as regiões intermediárias</SelectItem>
-              {regioesIntermediarias.map((regiao) => (
-                <SelectItem key={regiao.id} value={regiao.id.toString()}>
-                  {regiao.nome}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      {/* Estado */}
+      <div>
+        <p className="text-sm text-slate-600 mb-2">Estado</p>
+        <Select
+          value={selectedEstado}
+          onValueChange={setSelectedEstado}
+          disabled={!selectedRegiao || selectedRegiao === "all"}
+        >
+          <SelectTrigger className="h-12 border-emerald-200 focus:border-emerald-500 bg-white">
+            <SelectValue placeholder="Selecione o estado" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os estados</SelectItem>
+            {filteredEstados.map((estado) => (
+              <SelectItem key={estado.id} value={estado.sigla}>
+                {estado.nome} ({estado.sigla})
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* Cidade - aparece após seleção de região intermediária */}
-      {selectedRegiaoIntermediaria && selectedRegiaoIntermediaria !== "all" && (
+      {/* Cidade - aparece após seleção de estado */}
+      {selectedEstado && selectedEstado !== "all" && (
         <div>
           <p className="text-sm text-slate-600 mb-2">Cidade</p>
           <Select

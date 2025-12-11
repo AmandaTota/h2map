@@ -171,9 +171,6 @@ const FeasibilityAnalysis = () => {
   const [compareRegionB, setCompareRegionB] = useState<string>("Sudeste");
   const [selectedEstado, setSelectedEstado] = useState<string>("");
   const [selectedEstadoNome, setSelectedEstadoNome] = useState<string>("");
-  const [selectedRegiaoIntermediaria, setSelectedRegiaoIntermediaria] = useState<string>("");
-  const [selectedRegiaoIntermediariaNome, setSelectedRegiaoIntermediariaNome] =
-    useState<string>("");
   const [selectedCidade, setSelectedCidade] = useState<string>("");
   const [selectedCidadeNome, setSelectedCidadeNome] = useState<string>("");
 
@@ -4312,8 +4309,6 @@ const FeasibilityAnalysis = () => {
                         setSelectedRegion("");
                         setSelectedEstado("");
                         setSelectedEstadoNome("");
-                        setSelectedRegiaoIntermediaria("");
-                        setSelectedRegiaoIntermediariaNome("");
                         setRegionFiltersKey((k) => k + 1);
                       }}
                       className="flex items-center gap-2"
@@ -4330,10 +4325,6 @@ const FeasibilityAnalysis = () => {
                     onEstadoChange={(estado, estadoNome) => {
                       setSelectedEstado(estado);
                       setSelectedEstadoNome(estadoNome);
-                    }}
-                    onRegiaoIntermediaria={(regiaoInt, regiaoIntNome) => {
-                      setSelectedRegiaoIntermediaria(regiaoInt);
-                      setSelectedRegiaoIntermediariaNome(regiaoIntNome);
                     }}
                     onCidadeChange={(cidade, cidadeNome) => {
                       setSelectedCidade(cidade);
@@ -7037,10 +7028,6 @@ const FeasibilityAnalysis = () => {
                                 <p className="text-base font-semibold text-slate-900">{selectedEstadoNome} ({selectedEstado})</p>
                               </div>
                               <div>
-                                <p className="text-xs text-slate-600 mb-1"><strong>Região Geográfica Intermediária</strong></p>
-                                <p className="text-base font-semibold text-slate-900">{selectedRegiaoIntermediariaNome}</p>
-                              </div>
-                              <div>
                                 <p className="text-xs text-slate-600 mb-1"><strong>Cidade</strong></p>
                                 <p className="text-base font-semibold text-slate-900">{selectedCidadeNome || "Não selecionada"}</p>
                               </div>
@@ -7174,10 +7161,6 @@ const FeasibilityAnalysis = () => {
                               <div>
                                 <p className="text-xs text-slate-600 mb-1"><strong>Cidade</strong></p>
                                 <p className="text-base font-semibold text-slate-900">{selectedCidadeNome}</p>
-                              </div>
-                              <div>
-                                <p className="text-xs text-slate-600 mb-1"><strong>Região Geográfica Intermediária</strong></p>
-                                <p className="text-base font-semibold text-slate-900">{selectedRegiaoIntermediariaNome}</p>
                               </div>
                               <div>
                                 <p className="text-xs text-slate-600 mb-1"><strong>Estado</strong></p>
