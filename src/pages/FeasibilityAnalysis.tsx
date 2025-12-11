@@ -4687,6 +4687,11 @@ const FeasibilityAnalysis = () => {
                       {(() => {
                         const a = getSuitabilityScores(compareRegionA);
                         const b = getSuitabilityScores(compareRegionB);
+                        const waterA = regionProfiles[compareRegionA]?.water || "N/A";
+                        const waterStatusA = regionProfiles[compareRegionA]?.waterStatus || "warning";
+                        const waterB = regionProfiles[compareRegionB]?.water || "N/A";
+                        const waterStatusB = regionProfiles[compareRegionB]?.waterStatus || "warning";
+                        
                         const rows = [
                           { label: "Solar", a: a.solar, b: b.solar, icon: Sun },
                           { label: "Eólica", a: a.wind, b: b.wind, icon: Wind },
@@ -4732,6 +4737,43 @@ const FeasibilityAnalysis = () => {
                                 </div>
                               </div>
                             ))}
+                            
+                            {/* Comparação de Recursos Hídricos */}
+                            {compareRegionA && compareRegionB && (
+                              <div className="p-4 rounded-lg border bg-blue-50/30 flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <Droplet className="w-5 h-5 text-blue-600" />
+                                  <span className="font-semibold text-slate-900">
+                                    Recursos Hídricos
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Badge
+                                    className={`${
+                                      waterStatusA === "success"
+                                        ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+                                        : waterStatusA === "warning"
+                                        ? "bg-amber-100 text-amber-800 border-amber-200"
+                                        : "bg-red-100 text-red-800 border-red-200"
+                                    }`}
+                                  >
+                                    {compareRegionA}: {waterA}
+                                  </Badge>
+                                  <Badge
+                                    className={`${
+                                      waterStatusB === "success"
+                                        ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+                                        : waterStatusB === "warning"
+                                        ? "bg-amber-100 text-amber-800 border-amber-200"
+                                        : "bg-red-100 text-red-800 border-red-200"
+                                    }`}
+                                  >
+                                    {compareRegionB}: {waterB}
+                                  </Badge>
+                                </div>
+                              </div>
+                            )}
+                            
                             <div className="mt-4 pt-4 border-t border-emerald-100">
                               <p className="text-xs text-slate-500 italic text-center">
                                 * As notas são ponderadas de 0 a 100, sendo 100 a maior nota de viabilidade.
@@ -4892,6 +4934,26 @@ const FeasibilityAnalysis = () => {
                               compareEstadoB,
                               compareRegiaoIntermediariaNomeB
                             );
+                            
+                            // Mapear estados para suas respectivas regiões para pegar dados de água
+                            const getRegionFromUF = (uf: string): string => {
+                              const regionMap: Record<string, string> = {
+                                AC: "Norte", AP: "Norte", AM: "Norte", PA: "Norte", RO: "Norte", RR: "Norte", TO: "Norte",
+                                AL: "Nordeste", BA: "Nordeste", CE: "Nordeste", MA: "Nordeste", PB: "Nordeste", PE: "Nordeste", PI: "Nordeste", RN: "Nordeste", SE: "Nordeste",
+                                DF: "Centro-Oeste", GO: "Centro-Oeste", MT: "Centro-Oeste", MS: "Centro-Oeste",
+                                ES: "Sudeste", MG: "Sudeste", RJ: "Sudeste", SP: "Sudeste",
+                                PR: "Sul", RS: "Sul", SC: "Sul",
+                              };
+                              return regionMap[uf] || "";
+                            };
+                            
+                            const regionA = getRegionFromUF(compareEstadoA);
+                            const regionB = getRegionFromUF(compareEstadoB);
+                            const waterA = regionProfiles[regionA]?.water || "N/A";
+                            const waterStatusA = regionProfiles[regionA]?.waterStatus || "warning";
+                            const waterB = regionProfiles[regionB]?.water || "N/A";
+                            const waterStatusB = regionProfiles[regionB]?.waterStatus || "warning";
+                            
                             const rows = [
                               {
                                 label: "Solar",
@@ -4947,6 +5009,41 @@ const FeasibilityAnalysis = () => {
                                     </div>
                                   </div>
                                 ))}
+                                
+                                {/* Comparação de Recursos Hídricos */}
+                                <div className="p-4 rounded-lg border bg-blue-50/30 flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <Droplet className="w-5 h-5 text-blue-600" />
+                                    <span className="font-semibold text-slate-900">
+                                      Recursos Hídricos
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Badge
+                                      className={`${
+                                        waterStatusA === "success"
+                                          ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+                                          : waterStatusA === "warning"
+                                          ? "bg-amber-100 text-amber-800 border-amber-200"
+                                          : "bg-red-100 text-red-800 border-red-200"
+                                      }`}
+                                    >
+                                      {compareRegiaoIntermediariaNomeA}: {waterA}
+                                    </Badge>
+                                    <Badge
+                                      className={`${
+                                        waterStatusB === "success"
+                                          ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+                                          : waterStatusB === "warning"
+                                          ? "bg-amber-100 text-amber-800 border-amber-200"
+                                          : "bg-red-100 text-red-800 border-red-200"
+                                      }`}
+                                    >
+                                      {compareRegiaoIntermediariaNomeB}: {waterB}
+                                    </Badge>
+                                  </div>
+                                </div>
+                                
                                 <div className="mt-4 pt-4 border-t border-emerald-100">
                                   <p className="text-xs text-slate-500 italic text-center">
                                     * As notas são ponderadas de 0 a 100, sendo 100 a maior nota de viabilidade.
