@@ -4543,7 +4543,7 @@ const FeasibilityAnalysis = () => {
                           );
                           return (
                             <>
-                              <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-4">
+                              <div className="grid md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
                                 <div className="p-4 rounded-lg border border-amber-200 bg-amber-50/50">
                                   <div className="flex items-center space-x-2 mb-2">
                                     <Sun className="w-5 h-5 text-amber-600" />
@@ -4586,6 +4586,22 @@ const FeasibilityAnalysis = () => {
                                   <div className="mt-2">
                                     <div className="text-3xl font-bold text-emerald-700">
                                       {scores.h2}
+                                    </div>
+                                    <div className="text-xs text-slate-600 mt-1">
+                                      Pontuação de viabilidade
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="p-4 rounded-lg border border-blue-200 bg-blue-50/50">
+                                  <div className="flex items-center space-x-2 mb-2">
+                                    <Droplet className="w-5 h-5 text-blue-600" />
+                                    <span className="font-semibold text-slate-900">
+                                      Recursos Hídricos
+                                    </span>
+                                  </div>
+                                  <div className="mt-2">
+                                    <div className="text-3xl font-bold text-blue-700">
+                                      {scores.water}
                                     </div>
                                     <div className="text-xs text-slate-600 mt-1">
                                       Pontuação de viabilidade
