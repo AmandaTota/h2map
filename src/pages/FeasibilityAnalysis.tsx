@@ -1579,39 +1579,39 @@ const FeasibilityAnalysis = () => {
   // Perfis de viabilidade por estado (estimativas baseadas em características regionais)
   const estadoProfiles: Record<
     string,
-    { solar: number; wind: number; h2: number }
+    { solar: number; wind: number; h2: number; water: number }
   > = {
-    AC: { solar: 68, wind: 45, h2: 62 },
-    AL: { solar: 82, wind: 78, h2: 79 },
-    AP: { solar: 71, wind: 52, h2: 65 },
-    AM: { solar: 69, wind: 48, h2: 61 },
-    BA: { solar: 88, wind: 85, h2: 87 },
-    CE: { solar: 91, wind: 92, h2: 91 },
-    DF: { solar: 79, wind: 58, h2: 72 },
-    ES: { solar: 81, wind: 68, h2: 76 },
-    GO: { solar: 83, wind: 62, h2: 75 },
-    MA: { solar: 84, wind: 81, h2: 82 },
-    MT: { solar: 86, wind: 65, h2: 78 },
-    MS: { solar: 84, wind: 61, h2: 74 },
-    MG: { solar: 82, wind: 71, h2: 78 },
-    PA: { solar: 73, wind: 54, h2: 66 },
-    PB: { solar: 89, wind: 87, h2: 88 },
-    PR: { solar: 76, wind: 72, h2: 75 },
-    PE: { solar: 90, wind: 89, h2: 89 },
-    PI: { solar: 87, wind: 83, h2: 84 },
-    RJ: { solar: 79, wind: 66, h2: 74 },
-    RN: { solar: 92, wind: 94, h2: 93 },
-    RS: { solar: 74, wind: 81, h2: 77 },
-    RO: { solar: 71, wind: 49, h2: 63 },
-    RR: { solar: 72, wind: 51, h2: 64 },
-    SC: { solar: 75, wind: 77, h2: 76 },
-    SP: { solar: 80, wind: 64, h2: 74 },
-    SE: { solar: 85, wind: 80, h2: 82 },
-    TO: { solar: 85, wind: 67, h2: 77 },
+    AC: { solar: 68, wind: 45, h2: 62, water: 95 },
+    AL: { solar: 82, wind: 78, h2: 79, water: 72 },
+    AP: { solar: 71, wind: 52, h2: 65, water: 98 },
+    AM: { solar: 69, wind: 48, h2: 61, water: 99 },
+    BA: { solar: 88, wind: 85, h2: 87, water: 68 },
+    CE: { solar: 91, wind: 92, h2: 91, water: 62 },
+    DF: { solar: 79, wind: 58, h2: 72, water: 74 },
+    ES: { solar: 81, wind: 68, h2: 76, water: 82 },
+    GO: { solar: 83, wind: 62, h2: 75, water: 78 },
+    MA: { solar: 84, wind: 81, h2: 82, water: 88 },
+    MT: { solar: 86, wind: 65, h2: 78, water: 85 },
+    MS: { solar: 84, wind: 61, h2: 74, water: 83 },
+    MG: { solar: 82, wind: 71, h2: 78, water: 81 },
+    PA: { solar: 73, wind: 54, h2: 66, water: 97 },
+    PB: { solar: 89, wind: 87, h2: 88, water: 65 },
+    PR: { solar: 76, wind: 72, h2: 75, water: 86 },
+    PE: { solar: 90, wind: 89, h2: 89, water: 64 },
+    PI: { solar: 87, wind: 83, h2: 84, water: 71 },
+    RJ: { solar: 79, wind: 66, h2: 74, water: 79 },
+    RN: { solar: 92, wind: 94, h2: 93, water: 61 },
+    RS: { solar: 74, wind: 81, h2: 77, water: 84 },
+    RO: { solar: 71, wind: 49, h2: 63, water: 93 },
+    RR: { solar: 72, wind: 51, h2: 64, water: 96 },
+    SC: { solar: 75, wind: 77, h2: 76, water: 87 },
+    SP: { solar: 80, wind: 64, h2: 74, water: 77 },
+    SE: { solar: 85, wind: 80, h2: 82, water: 69 },
+    TO: { solar: 85, wind: 67, h2: 77, water: 76 },
   };
 
   const getEstadoViability = (estadoSigla: string) => {
-    return estadoProfiles[estadoSigla] || { solar: 50, wind: 50, h2: 50 };
+    return estadoProfiles[estadoSigla] || { solar: 50, wind: 50, h2: 50, water: 50 };
   };
 
   const getRegiaoIntermediariaViability = (estadoSigla: string, regiaoIntermediariaNome: string) => {
@@ -1635,6 +1635,10 @@ const FeasibilityAnalysis = () => {
       h2: Math.max(
         0,
         Math.min(100, Math.round(baseScores.h2 + variation * 0.9))
+      ),
+      water: Math.max(
+        0,
+        Math.min(100, Math.round(baseScores.water + variation * 0.6))
       ),
     };
   };
@@ -4431,7 +4435,7 @@ const FeasibilityAnalysis = () => {
                           const scores = getEstadoViability(selectedEstado);
                           return (
                             <>
-                              <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-4">
+                              <div className="grid md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
                                 <div className="p-4 rounded-lg border border-amber-200 bg-amber-50/50">
                                   <div className="flex items-center space-x-2 mb-2">
                                     <Sun className="w-5 h-5 text-amber-600" />
@@ -4474,6 +4478,22 @@ const FeasibilityAnalysis = () => {
                                   <div className="mt-2">
                                     <div className="text-3xl font-bold text-emerald-700">
                                       {scores.h2}
+                                    </div>
+                                    <div className="text-xs text-slate-600 mt-1">
+                                      Pontuação de viabilidade
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="p-4 rounded-lg border border-blue-200 bg-blue-50/50">
+                                  <div className="flex items-center space-x-2 mb-2">
+                                    <Droplet className="w-5 h-5 text-blue-600" />
+                                    <span className="font-semibold text-slate-900">
+                                      Recursos Hídricos
+                                    </span>
+                                  </div>
+                                  <div className="mt-2">
+                                    <div className="text-3xl font-bold text-blue-700">
+                                      {scores.water}
                                     </div>
                                     <div className="text-xs text-slate-600 mt-1">
                                       Pontuação de viabilidade
