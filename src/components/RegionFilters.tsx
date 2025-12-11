@@ -14,26 +14,31 @@ interface Estado {
   nome: string;
 }
 
-interface Microrregiao {
+interface RegiaoIntermediaria {
   id: number;
   nome: string;
-  mesorregiao: {
-    UF: {
+  UF: {
+    id: number;
+    sigla: string;
+    nome: string;
+    regiao: {
+      id: number;
       sigla: string;
+      nome: string;
     };
   };
 }
 
 interface RegionFiltersProps {
-  onMacroregiaoChange?: (macrorregiao: string) => void;
+  onRegiaoChange?: (regiao: string) => void;
   onEstadoChange?: (estado: string, estadoNome: string) => void;
-  onMicrorregiaoChange?: (
-    microrregiao: string,
-    microrregiaoNome: string
+  onRegiaoIntermediariaChange?: (
+    regiaoIntermediaria: string,
+    regiaoIntermediariaNome: string
   ) => void;
 }
 
-const MACROREGIOES = [
+const REGIOES = [
   { value: "Norte", label: "Norte" },
   { value: "Nordeste", label: "Nordeste" },
   { value: "Centro-Oeste", label: "Centro-Oeste" },
@@ -49,21 +54,21 @@ const REGION_UF_MAP: Record<string, string[]> = {
   Sul: ["PR", "RS", "SC"],
 };
 
-// Cache para microrregiões já carregadas
-const microrregiaoCache = new Map<string, Microrregiao[]>();
+// Cache para regiões intermediárias já carregadas
+const regiaoIntermediariaCache = new Map<string, RegiaoIntermediaria[]>();
 
 const RegionFilters = ({
-  onMacroregiaoChange,
+  onRegiaoChange,
   onEstadoChange,
-  onMicrorregiaoChange,
+  onRegiaoIntermediariaChange,
 }: RegionFiltersProps) => {
   const [estados, setEstados] = useState<Estado[]>([]);
-  const [microrregioes, setMicrorregioes] = useState<Microrregiao[]>([]);
-  const [selectedMacrorregiao, setSelectedMacrorregiao] = useState<string>("");
+  const [regioesIntermediarias, setRegioesIntermediarias] = useState<RegiaoIntermediaria[]>([]);
+  const [selectedRegiao, setSelectedRegiao] = useState<string>("");
   const [selectedEstado, setSelectedEstado] = useState<string>("");
-  const [selectedMicrorregiao, setSelectedMicrorregiao] = useState<string>("");
+  const [selectedRegiaoIntermediaria, setSelectedRegiaoIntermediaria] = useState<string>("");
   const [filteredEstados, setFilteredEstados] = useState<Estado[]>([]);
-  const [loadingMicro, setLoadingMicro] = useState(false);
+  const [loadingRegiaoIntermediaria, setLoadingRegiaoIntermediaria] = useState(false);
   const { toast } = useToast();
 
   // Carregar estados do IBGE
@@ -88,39 +93,39 @@ const RegionFilters = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Filtrar estados quando uma macrorregião é selecionada
+  // Filtrar estados quando uma região é selecionada
   useEffect(() => {
-    if (!selectedMacrorregiao || selectedMacrorregiao === "all") {
+    if (!selectedRegiao || selectedRegiao === "all") {
       setFilteredEstados(estados);
     } else {
-      const ufsRegion = REGION_UF_MAP[selectedMacrorregiao] || [];
+      const ufsRegion = REGION_UF_MAP[selectedRegiao] || [];
       setFilteredEstados(estados.filter((e) => ufsRegion.includes(e.sigla)));
     }
-    // Reset estado e microrregião ao trocar de macrorregião
+    // Reset estado e região intermediária ao trocar de região
     setSelectedEstado("");
-    setSelectedMicrorregiao("");
-  }, [selectedMacrorregiao, estados]);
+    setSelectedRegiaoIntermediaria("");
+  }, [selectedRegiao, estados]);
 
-  // Carregar microrregiões quando um estado é selecionado
+  // Carregar regiões intermediárias quando um estado é selecionado
   useEffect(() => {
-    const fetchMicrorregioes = async () => {
+    const fetchRegioesIntermediarias = async () => {
       if (!selectedEstado || selectedEstado === "all") {
-        setMicrorregioes([]);
-        setSelectedMicrorregiao("");
+        setRegioesIntermediarias([]);
+        setSelectedRegiaoIntermediaria("");
         return;
       }
 
       // Verificar cache primeiro
-      if (microrregiaoCache.has(selectedEstado)) {
-        setMicrorregioes(microrregiaoCache.get(selectedEstado)!);
-        setSelectedMicrorregiao("");
+      if (regiaoIntermediariaCache.has(selectedEstado)) {
+        setRegioesIntermediarias(regiaoIntermediariaCache.get(selectedEstado)!);
+        setSelectedRegiaoIntermediaria("");
         return;
       }
 
-      setLoadingMicro(true);
+      setLoadingRegiaoIntermediaria(true);
       try {
         const response = await fetch(
-          `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${selectedEstado}/microrregioes?orderBy=nome`,
+          `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${selectedEstado}/regioes-intermediarias?orderBy=nome`,
           {
             signal: AbortSignal.timeout(10000), // timeout de 10s
           }
@@ -133,39 +138,39 @@ const RegionFilters = ({
         const data = await response.json();
         
         // Armazenar no cache
-        microrregiaoCache.set(selectedEstado, data);
+        regiaoIntermediariaCache.set(selectedEstado, data);
         
-        setMicrorregioes(data);
-        setSelectedMicrorregiao("");
+        setRegioesIntermediarias(data);
+        setSelectedRegiaoIntermediaria("");
       } catch (error) {
-        console.error("Error fetching microrregiões:", error);
+        console.error("Error fetching regiões intermediárias:", error);
         
         // Mensagem de erro mais específica
         const errorMessage = error instanceof Error && error.name === 'TimeoutError' 
           ? "Tempo limite excedido. Tente novamente."
-          : "Não foi possível carregar as microrregiões";
+          : "Não foi possível carregar as regiões intermediárias";
           
         toast({
           variant: "destructive",
-          title: "Erro ao carregar microrregiões",
+          title: "Erro ao carregar regiões intermediárias",
           description: errorMessage,
         });
         
-        setMicrorregioes([]);
+        setRegioesIntermediarias([]);
       } finally {
-        setLoadingMicro(false);
+        setLoadingRegiaoIntermediaria(false);
       }
     };
-    fetchMicrorregioes();
+    fetchRegioesIntermediarias();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedEstado]);
 
   // Notificar mudanças
   useEffect(() => {
-    if (onMacroregiaoChange) {
-      onMacroregiaoChange(selectedMacrorregiao);
+    if (onRegiaoChange) {
+      onRegiaoChange(selectedRegiao);
     }
-  }, [selectedMacrorregiao, onMacroregiaoChange]);
+  }, [selectedRegiao, onRegiaoChange]);
 
   useEffect(() => {
     if (onEstadoChange) {
@@ -176,46 +181,46 @@ const RegionFilters = ({
   }, [selectedEstado, onEstadoChange, estados]);
 
   useEffect(() => {
-    if (onMicrorregiaoChange) {
-      const microObj = microrregioes.find(
-        (m) => m.id.toString() === selectedMicrorregiao
+    if (onRegiaoIntermediariaChange) {
+      const regiaoIntermediariaObj = regioesIntermediarias.find(
+        (r) => r.id.toString() === selectedRegiaoIntermediaria
       );
-      const microNome = microObj ? microObj.nome : "";
-      onMicrorregiaoChange(selectedMicrorregiao, microNome);
+      const regiaoIntermediariaNome = regiaoIntermediariaObj ? regiaoIntermediariaObj.nome : "";
+      onRegiaoIntermediariaChange(selectedRegiaoIntermediaria, regiaoIntermediariaNome);
     }
-  }, [selectedMicrorregiao, onMicrorregiaoChange, microrregioes]);
+  }, [selectedRegiaoIntermediaria, onRegiaoIntermediariaChange, regioesIntermediarias]);
 
   return (
     <div className="space-y-3">
-      {/* Macrorregião */}
+      {/* Região */}
       <div>
-        <p className="text-sm text-slate-600 mb-2">Macrorregião</p>
+        <p className="text-sm text-slate-600 mb-2">Região</p>
         <Select
-          value={selectedMacrorregiao}
-          onValueChange={setSelectedMacrorregiao}
+          value={selectedRegiao}
+          onValueChange={setSelectedRegiao}
         >
           <SelectTrigger className="h-12 border-emerald-200 focus:border-emerald-500 bg-white">
-            <SelectValue placeholder="Selecione a macrorregião" />
+            <SelectValue placeholder="Selecione a região" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todas as macrorregiões</SelectItem>
-            {MACROREGIOES.map((macro) => (
-              <SelectItem key={macro.value} value={macro.value}>
-                {macro.label}
+            <SelectItem value="all">Todas as regiões</SelectItem>
+            {REGIOES.map((regiao) => (
+              <SelectItem key={regiao.value} value={regiao.value}>
+                {regiao.label}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
 
-      {/* Estado e Microrregião */}
+      {/* Estado e Região Geográfica Intermediária */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
           <p className="text-sm text-slate-600 mb-2">Estado</p>
           <Select
             value={selectedEstado}
             onValueChange={setSelectedEstado}
-            disabled={!selectedMacrorregiao || selectedMacrorregiao === "all"}
+            disabled={!selectedRegiao || selectedRegiao === "all"}
           >
             <SelectTrigger className="h-12 border-emerald-200 focus:border-emerald-500 bg-white">
               <SelectValue placeholder="Selecione o estado" />
@@ -232,20 +237,20 @@ const RegionFilters = ({
         </div>
 
         <div>
-          <p className="text-sm text-slate-600 mb-2">Microrregião</p>
+          <p className="text-sm text-slate-600 mb-2">Região Geográfica Intermediária</p>
           <Select
-            value={selectedMicrorregiao}
-            onValueChange={setSelectedMicrorregiao}
-            disabled={!selectedEstado || selectedEstado === "all" || loadingMicro}
+            value={selectedRegiaoIntermediaria}
+            onValueChange={setSelectedRegiaoIntermediaria}
+            disabled={!selectedEstado || selectedEstado === "all" || loadingRegiaoIntermediaria}
           >
             <SelectTrigger className="h-12 border-emerald-200 focus:border-emerald-500 bg-white">
-              <SelectValue placeholder={loadingMicro ? "Carregando..." : "Selecione a microrregião"} />
+              <SelectValue placeholder={loadingRegiaoIntermediaria ? "Carregando..." : "Selecione a região intermediária"} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todas as microrregiões</SelectItem>
-              {microrregioes.map((micro) => (
-                <SelectItem key={micro.id} value={micro.id.toString()}>
-                  {micro.nome}
+              <SelectItem value="all">Todas as regiões intermediárias</SelectItem>
+              {regioesIntermediarias.map((regiaoIntermediaria) => (
+                <SelectItem key={regiaoIntermediaria.id} value={regiaoIntermediaria.id.toString()}>
+                  {regiaoIntermediaria.nome}
                 </SelectItem>
               ))}
             </SelectContent>

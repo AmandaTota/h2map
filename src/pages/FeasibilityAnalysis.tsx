@@ -170,36 +170,36 @@ const FeasibilityAnalysis = () => {
   const [compareRegionB, setCompareRegionB] = useState<string>("Sudeste");
   const [selectedEstado, setSelectedEstado] = useState<string>("");
   const [selectedEstadoNome, setSelectedEstadoNome] = useState<string>("");
-  const [selectedMicrorregiao, setSelectedMicrorregiao] = useState<string>("");
-  const [selectedMicrorregiaoNome, setSelectedMicrorregiaoNome] =
+  const [selectedRegiaoIntermediaria, setSelectedRegiaoIntermediaria] = useState<string>("");
+  const [selectedRegiaoIntermediariaNome, setSelectedRegiaoIntermediariaNome] =
     useState<string>("");
 
-  // Estados para comparação de microrregiões
+  // Estados para comparação de regiões intermediárias
   const [compareEstadoA, setCompareEstadoA] = useState<string>("");
-  const [compareMicroA, setCompareMicroA] = useState<string>("");
-  const [compareMicroNomeA, setCompareMicroNomeA] = useState<string>("");
+  const [compareRegiaoIntermediariaA, setCompareRegiaoIntermediariaA] = useState<string>("");
+  const [compareRegiaoIntermediariaNomeA, setCompareRegiaoIntermediariaNomeA] = useState<string>("");
   const [compareEstadoB, setCompareEstadoB] = useState<string>("");
-  const [compareMicroB, setCompareMicroB] = useState<string>("");
-  const [compareMicroNomeB, setCompareMicroNomeB] = useState<string>("");
+  const [compareRegiaoIntermediariaB, setCompareRegiaoIntermediariaB] = useState<string>("");
+  const [compareRegiaoIntermediariaNomeB, setCompareRegiaoIntermediariaNomeB] = useState<string>("");
   // Forçar remontagem de filtros regionais ao limpar
   const [regionFiltersKey, setRegionFiltersKey] = useState<number>(0);
   // Toggles para iniciar fechados
   const [showComparison, setShowComparison] = useState<boolean>(false);
   const [showMapsComparison, setShowMapsComparison] = useState<boolean>(false);
-  const [microregioesCompareA, setMicroregioesCompareA] = useState<
+  const [regioesIntermediariasCompareA, setRegioesIntermediariasCompareA] = useState<
     Array<{ id: string; nome: string }>
   >([]);
-  const [microregioesCompareB, setMicroregioesCompareB] = useState<
+  const [regioesIntermediariasCompareB, setRegioesIntermediariasCompareB] = useState<
     Array<{ id: string; nome: string }>
   >([]);
   const [estadosCompare, setEstadosCompare] = useState<
     Array<{ sigla: string; nome: string }>
   >([]);
-  const [coordsMicroA, setCoordsMicroA] = useState<{
+  const [coordsRegiaoIntermediariaA, setCoordsRegiaoIntermediariaA] = useState<{
     lat: number;
     lng: number;
   } | null>(null);
-  const [coordsMicroB, setCoordsMicroB] = useState<{
+  const [coordsRegiaoIntermediariaB, setCoordsRegiaoIntermediariaB] = useState<{
     lat: number;
     lng: number;
   } | null>(null);
@@ -280,14 +280,14 @@ const FeasibilityAnalysis = () => {
     }
   }, [selectedLocation]);
 
-  // Buscar coordenadas das microrregiões quando mudarem
+  // Buscar coordenadas das regiões intermediárias quando mudarem
   useEffect(() => {
-    const fetchMicroregiaoCoords = async (microId: string) => {
-      if (!microId) return null;
+    const fetchRegiaoIntermediariaCoords = async (regiaoIntermediariaId: string) => {
+      if (!regiaoIntermediariaId) return null;
       try {
-        // Buscar municípios da microrregião via IBGE
+        // Buscar municípios da região intermediária via IBGE
         const response = await fetch(
-          `https://servicodados.ibge.gov.br/api/v1/localidades/microrregioes/${microId}/municipios`
+          `https://servicodados.ibge.gov.br/api/v1/localidades/regioes-intermediarias/${regiaoIntermediariaId}/municipios`
         );
         const municipios = await response.json();
 
@@ -338,25 +338,25 @@ const FeasibilityAnalysis = () => {
       return null;
     };
 
-    if (compareMicroA) {
-      fetchMicroregiaoCoords(compareMicroA).then((coords) => {
+    if (compareRegiaoIntermediariaA) {
+      fetchRegiaoIntermediariaCoords(compareRegiaoIntermediariaA).then((coords) => {
         if (coords) {
-          setCoordsMicroA(coords);
+          setCoordsRegiaoIntermediariaA(coords);
           setMapKeyA((prev) => prev + 1);
         }
       });
     } else {
-      setCoordsMicroA(null);
+      setCoordsRegiaoIntermediariaA(null);
     }
-  }, [compareMicroA]);
+  }, [compareRegiaoIntermediariaA]);
 
   useEffect(() => {
-    const fetchMicroregiaoCoords = async (microId: string) => {
-      if (!microId) return null;
+    const fetchRegiaoIntermediariaCoords = async (regiaoIntermediariaId: string) => {
+      if (!regiaoIntermediariaId) return null;
       try {
-        // Buscar municípios da microrregião via IBGE
+        // Buscar municípios da região intermediária via IBGE
         const response = await fetch(
-          `https://servicodados.ibge.gov.br/api/v1/localidades/microrregioes/${microId}/municipios`
+          `https://servicodados.ibge.gov.br/api/v1/localidades/regioes-intermediarias/${regiaoIntermediariaId}/municipios`
         );
         const municipios = await response.json();
 
@@ -407,26 +407,26 @@ const FeasibilityAnalysis = () => {
       return null;
     };
 
-    if (compareMicroB) {
-      fetchMicroregiaoCoords(compareMicroB).then((coords) => {
+    if (compareRegiaoIntermediariaB) {
+      fetchRegiaoIntermediariaCoords(compareRegiaoIntermediariaB).then((coords) => {
         if (coords) {
-          setCoordsMicroB(coords);
+          setCoordsRegiaoIntermediariaB(coords);
           setMapKeyB((prev) => prev + 1);
         }
       });
     } else {
-      setCoordsMicroB(null);
+      setCoordsRegiaoIntermediariaB(null);
     }
-  }, [compareMicroB]);
+  }, [compareRegiaoIntermediariaB]);
 
-  // Incrementar key quando macrorregião A mudar
+  // Incrementar key quando região A mudar
   useEffect(() => {
     if (compareRegionA) {
       setMapKeyA((prev) => prev + 1);
     }
   }, [compareRegionA]);
 
-  // Incrementar key quando macrorregião B mudar
+  // Incrementar key quando região B mudar
   useEffect(() => {
     if (compareRegionB) {
       setMapKeyB((prev) => prev + 1);
@@ -1527,11 +1527,11 @@ const FeasibilityAnalysis = () => {
     return estadoProfiles[estadoSigla] || { solar: 50, wind: 50, h2: 50 };
   };
 
-  const getMicrorregiaoViability = (estadoSigla: string, microNome: string) => {
-    // Ajuste baseado no estado + variação típica de microrregião
+  const getRegiaoIntermediariaViability = (estadoSigla: string, regiaoIntermediariaNome: string) => {
+    // Ajuste baseado no estado + variação típica de região intermediária
     const baseScores = getEstadoViability(estadoSigla);
-    // Gerar variação consistente baseada no nome da microrregião (hash simples)
-    const hash = microNome
+    // Gerar variação consistente baseada no nome da região intermediária (hash simples)
+    const hash = regiaoIntermediariaNome
       .split("")
       .reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const variation = ((hash % 20) - 10) / 2; // Variação de -5 a +5 pontos, consistente para o mesmo nome
@@ -4252,7 +4252,7 @@ const FeasibilityAnalysis = () => {
                 />
               )}
               {/* Tipologias Regionais - Accordion (apenas após escolhas) */}
-              {selectedRegion || selectedEstado || selectedMicrorregiao ? (
+              {selectedRegion || selectedEstado || selectedRegiaoIntermediariaediaria ? (
                 <Accordion
                   type="multiple"
                   defaultValue={["tipologias"]}
@@ -4408,31 +4408,31 @@ const FeasibilityAnalysis = () => {
                 </Accordion>
               )}
 
-              {/* Card de Viabilidade da Microrregião */}
-              {selectedMicrorregiao && selectedMicrorregiao !== "all" && (
+              {/* Card de Viabilidade da Região Intermediária */}
+              {selectedRegiaoIntermediaria && selectedRegiaoIntermediaria !== "all" && (
                 <Accordion
                   type="multiple"
-                  defaultValue={["microrregiao"]}
+                  defaultValue={["regiaoIntermediaria"]}
                   className="mb-4"
                 >
-                  <AccordionItem value="microrregiao" className="border-none">
+                  <AccordionItem value="regiaoIntermediaria" className="border-none">
                     <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden">
                       <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-teal-50/50 transition-colors">
                         <div className="flex items-center space-x-3 w-full">
                           <BarChart3 className="w-6 h-6 text-teal-600" />
                           <h2 className="text-2xl font-bold text-slate-900">
-                            Viabilidade - {selectedMicrorregiaoNome}
+                            Viabilidade - {selectedRegiaoIntermediariaNome}
                           </h2>
                           <Badge className="ml-auto bg-teal-100 text-teal-800 border-teal-300">
-                            Microrregião
+                            Região Intermediária
                           </Badge>
                         </div>
                       </AccordionTrigger>
                       <AccordionContent className="px-6 pb-6">
                         {(() => {
-                          const scores = getMicrorregiaoViability(
+                          const scores = getRegiaoIntermediariaViability(
                             selectedEstado,
-                            selectedMicrorregiaoNome
+                            selectedRegiaoIntermediariaNome
                           );
                           return (
                             <>
@@ -4508,7 +4508,7 @@ const FeasibilityAnalysis = () => {
                   <div className="flex items-center space-x-3">
                     <BarChart3 className="w-6 h-6 text-emerald-600" />
                     <h2 className="text-2xl font-bold text-slate-900">
-                      Comparar Regiões e Microrregiões
+                      Comparar Regiões e Regiões Intermediárias
                     </h2>
                   </div>
                   <div className="flex items-center gap-3">
@@ -4520,13 +4520,13 @@ const FeasibilityAnalysis = () => {
                         setCompareRegionA("");
                         setCompareRegionB("");
                         setCompareEstadoA("");
-                        setCompareMicroA("");
-                        setCompareMicroNomeA("");
+                        setCompareRegiaoIntermediariaA("");
+                        setCompareRegiaoIntermediariaNomeA("");
                         setCompareEstadoB("");
-                        setCompareMicroB("");
-                        setCompareMicroNomeB("");
-                        setCoordsMicroA(null);
-                        setCoordsMicroB(null);
+                        setCompareRegiaoIntermediariaB("");
+                        setCompareRegiaoIntermediariaNomeB("");
+                        setCoordsRegiaoIntermediariaA(null);
+                        setCoordsRegiaoIntermediariaB(null);
                         setMapKeyA((prev) => prev + 1);
                         setMapKeyB((prev) => prev + 1);
                       }}
@@ -4545,9 +4545,9 @@ const FeasibilityAnalysis = () => {
                 {showComparison && (
                   <Tabs defaultValue="regioes" className="w-full mt-4">
                     <TabsList className="grid w-full grid-cols-2">
-                      <TabsTrigger value="regioes">Macrorregiões</TabsTrigger>
-                      <TabsTrigger value="microrregioes">
-                        Microrregiões
+                      <TabsTrigger value="regioes">Regiões</TabsTrigger>
+                      <TabsTrigger value="regioesIntermediarias">
+                        Regiões Intermediárias
                       </TabsTrigger>
                     </TabsList>
                     <TabsContent value="regioes">
@@ -4654,22 +4654,22 @@ const FeasibilityAnalysis = () => {
                         );
                       })()}
                     </TabsContent>
-                    <TabsContent value="microrregioes">
+                    <TabsContent value="regioesIntermediarias">
                       <div className="space-y-4">
                         <div className="grid md:grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <p className="text-sm font-semibold text-slate-700">
-                              Microrregião A
+                              Região Intermediária A
                             </p>
                             <Select
                               value={compareEstadoA}
                               onValueChange={(uf) => {
                                 setCompareEstadoA(uf);
-                                setCompareMicroA("");
-                                setCompareMicroNomeA("");
+                                setCompareRegiaoIntermediariaA("");
+                                setCompareRegiaoIntermediariaNomeA("");
                                 if (uf) {
                                   fetch(
-                                    `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/microrregioes?orderBy=nome`
+                                    `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/regioes-intermediarias?orderBy=nome`
                                   )
                                     .then((res) => res.json())
                                     .then(
@@ -4679,10 +4679,10 @@ const FeasibilityAnalysis = () => {
                                           nome: string;
                                         }>
                                       ) => {
-                                        setMicroregioesCompareA(
-                                          data.map((m) => ({
-                                            id: m.id.toString(),
-                                            nome: m.nome,
+                                        setRegioesIntermediariasCompareA(
+                                          data.map((r) => ({
+                                            id: r.id.toString(),
+                                            nome: r.nome,
                                           }))
                                         );
                                       }
@@ -4702,23 +4702,23 @@ const FeasibilityAnalysis = () => {
                               </SelectContent>
                             </Select>
                             <Select
-                              value={compareMicroA}
+                              value={compareRegiaoIntermediariaA}
                               onValueChange={(id) => {
-                                setCompareMicroA(id);
-                                const micro = microregioesCompareA.find(
-                                  (m) => m.id === id
+                                setCompareRegiaoIntermediariaA(id);
+                                const regiaoIntermediaria = regioesIntermediariasCompareA.find(
+                                  (r) => r.id === id
                                 );
-                                if (micro) setCompareMicroNomeA(micro.nome);
+                                if (regiaoIntermediaria) setCompareRegiaoIntermediariaNomeA(regiaoIntermediaria.nome);
                               }}
                               disabled={!compareEstadoA}
                             >
                               <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Selecione a Microrregião" />
+                                <SelectValue placeholder="Selecione a Região Intermediária" />
                               </SelectTrigger>
                               <SelectContent>
-                                {microregioesCompareA.map((micro) => (
-                                  <SelectItem key={micro.id} value={micro.id}>
-                                    {micro.nome}
+                                {regioesIntermediariasCompareA.map((regiaoIntermediaria) => (
+                                  <SelectItem key={regiaoIntermediaria.id} value={regiaoIntermediaria.id}>
+                                    {regiaoIntermediaria.nome}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -4726,17 +4726,17 @@ const FeasibilityAnalysis = () => {
                           </div>
                           <div className="space-y-2">
                             <p className="text-sm font-semibold text-slate-700">
-                              Microrregião B
+                              Região Intermediária B
                             </p>
                             <Select
                               value={compareEstadoB}
                               onValueChange={(uf) => {
                                 setCompareEstadoB(uf);
-                                setCompareMicroB("");
-                                setCompareMicroNomeB("");
+                                setCompareRegiaoIntermediariaB("");
+                                setCompareRegiaoIntermediariaNomeB("");
                                 if (uf) {
                                   fetch(
-                                    `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/microrregioes?orderBy=nome`
+                                    `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/regioes-intermediarias?orderBy=nome`
                                   )
                                     .then((res) => res.json())
                                     .then(
@@ -4746,10 +4746,10 @@ const FeasibilityAnalysis = () => {
                                           nome: string;
                                         }>
                                       ) => {
-                                        setMicroregioesCompareB(
-                                          data.map((m) => ({
-                                            id: m.id.toString(),
-                                            nome: m.nome,
+                                        setRegioesIntermediariasCompareB(
+                                          data.map((r) => ({
+                                            id: r.id.toString(),
+                                            nome: r.nome,
                                           }))
                                         );
                                       }
@@ -4769,41 +4769,41 @@ const FeasibilityAnalysis = () => {
                               </SelectContent>
                             </Select>
                             <Select
-                              value={compareMicroB}
+                              value={compareRegiaoIntermediariaB}
                               onValueChange={(id) => {
-                                setCompareMicroB(id);
-                                const micro = microregioesCompareB.find(
-                                  (m) => m.id === id
+                                setCompareRegiaoIntermediariaB(id);
+                                const regiaoIntermediaria = regioesIntermediariasCompareB.find(
+                                  (r) => r.id === id
                                 );
-                                if (micro) setCompareMicroNomeB(micro.nome);
+                                if (regiaoIntermediaria) setCompareRegiaoIntermediariaNomeB(regiaoIntermediaria.nome);
                               }}
                               disabled={!compareEstadoB}
                             >
                               <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Selecione a Microrregião" />
+                                <SelectValue placeholder="Selecione a Região Intermediária" />
                               </SelectTrigger>
                               <SelectContent>
-                                {microregioesCompareB.map((micro) => (
-                                  <SelectItem key={micro.id} value={micro.id}>
-                                    {micro.nome}
+                                {regioesIntermediariasCompareB.map((regiaoIntermediaria) => (
+                                  <SelectItem key={regiaoIntermediaria.id} value={regiaoIntermediaria.id}>
+                                    {regiaoIntermediaria.nome}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
                           </div>
                         </div>
-                        {compareMicroA &&
-                          compareMicroB &&
+                        {compareRegiaoIntermediariaA &&
+                          compareRegiaoIntermediariaB &&
                           compareEstadoA &&
                           compareEstadoB &&
                           (() => {
-                            const a = getMicrorregiaoViability(
+                            const a = getRegiaoIntermediariaViability(
                               compareEstadoA,
-                              compareMicroNomeA
+                              compareRegiaoIntermediariaNomeA
                             );
-                            const b = getMicrorregiaoViability(
+                            const b = getRegiaoIntermediariaViability(
                               compareEstadoB,
-                              compareMicroNomeB
+                              compareRegiaoIntermediariaNomeB
                             );
                             const rows = [
                               {
@@ -4829,7 +4829,7 @@ const FeasibilityAnalysis = () => {
                               <div className="space-y-2 mt-4">
                                 {rows.map((r, idx) => (
                                   <div
-                                    key={`cmp-micro-${idx}`}
+                                    key={`cmp-regiaoIntermediaria-${idx}`}
                                     className="p-4 rounded-lg border flex items-center justify-between"
                                   >
                                     <div className="flex items-center gap-2">
@@ -4846,7 +4846,7 @@ const FeasibilityAnalysis = () => {
                                             : "bg-slate-100 text-slate-800 border-slate-200"
                                         }`}
                                       >
-                                        {compareMicroNomeA}: {r.a}
+                                        {compareRegiaoIntermediariaNomeA}: {r.a}
                                       </Badge>
                                       <Badge
                                         className={`${
@@ -4855,7 +4855,7 @@ const FeasibilityAnalysis = () => {
                                             : "bg-slate-100 text-slate-800 border-slate-200"
                                         }`}
                                       >
-                                        {compareMicroNomeB}: {r.b}
+                                        {compareRegiaoIntermediariaNomeB}: {r.b}
                                       </Badge>
                                     </div>
                                   </div>
@@ -4874,7 +4874,7 @@ const FeasibilityAnalysis = () => {
                 )}
               </Card>
 
-              {/* Card com Mapa das Regiões/Microrregiões Comparadas (inicia fechado) */}
+              {/* Card com Mapa das Regiões/Regiões Intermediárias Comparadas (inicia fechado) */}
               <Card className="p-6 bg-white/80 backdrop-blur-sm border-emerald-200 mb-6">
                 <div
                   className="flex items-center justify-between mb-2 cursor-pointer select-none"
@@ -4907,16 +4907,16 @@ const FeasibilityAnalysis = () => {
                     };
 
                     // Lógica para exibir mapas independentes
-                    const showMicroMapA =
-                      compareMicroA && compareEstadoA && coordsMicroA;
-                    const showMicroMapB =
-                      compareMicroB && compareEstadoB && coordsMicroB;
+                    const showRegiaoIntermediariaMapA =
+                      compareRegiaoIntermediariaA && compareEstadoA && coordsRegiaoIntermediariaA;
+                    const showRegiaoIntermediariaMapB =
+                      compareRegiaoIntermediariaB && compareEstadoB && coordsRegiaoIntermediariaB;
                     const showMacroMapA = compareRegionA;
                     const showMacroMapB = compareRegionB;
 
                     const hasAnyMap =
-                      showMicroMapA ||
-                      showMicroMapB ||
+                      showRegiaoIntermediariaMapA ||
+                      showRegiaoIntermediariaMapB ||
                       showMacroMapA ||
                       showMacroMapB;
 
@@ -4925,7 +4925,7 @@ const FeasibilityAnalysis = () => {
                         <div className="text-center py-8 text-slate-500">
                           <Mountain className="w-12 h-12 mx-auto mb-2 opacity-50" />
                           <p>
-                            Selecione regiões ou microrregiões para visualizar
+                            Selecione regiões ou regiões intermediárias para visualizar
                             no mapa
                           </p>
                         </div>
@@ -4935,16 +4935,16 @@ const FeasibilityAnalysis = () => {
                     return (
                       <div className="space-y-4">
                         <div className="grid md:grid-cols-2 gap-4">
-                          {/* Mapa A - Microrregião ou Macrorregião */}
+                          {/* Mapa A - Região Intermediária ou Região */}
                           <div className="space-y-2">
-                            {showMicroMapA ? (
+                            {showRegiaoIntermediariaMapA ? (
                               <>
                                 <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                                   <p className="text-sm font-semibold text-blue-900">
-                                    Microrregião A
+                                    Região Intermediária A
                                   </p>
                                   <p className="text-base font-bold text-blue-800">
-                                    {compareMicroNomeA}
+                                    {compareRegiaoIntermediariaNomeA}
                                   </p>
                                   <p className="text-xs text-blue-700">
                                     {UF_MAP[compareEstadoA]} ({compareEstadoA})
@@ -4954,9 +4954,9 @@ const FeasibilityAnalysis = () => {
                                   <Map
                                     key={`map-a-${mapKeyA}`}
                                     initialLocation={{
-                                      lat: coordsMicroA.lat,
-                                      lng: coordsMicroA.lng,
-                                      name: compareMicroNomeA,
+                                      lat: coordsRegiaoIntermediariaA.lat,
+                                      lng: coordsRegiaoIntermediariaA.lng,
+                                      name: compareRegiaoIntermediariaNomeA,
                                     }}
                                     zoom={9}
                                   />
@@ -4966,7 +4966,7 @@ const FeasibilityAnalysis = () => {
                               <>
                                 <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-200">
                                   <p className="text-sm font-semibold text-emerald-900">
-                                    Macrorregião A
+                                    Região A
                                   </p>
                                   <p className="text-base font-bold text-emerald-800">
                                     {compareRegionA}
@@ -4994,16 +4994,16 @@ const FeasibilityAnalysis = () => {
                             )}
                           </div>
 
-                          {/* Mapa B - Microrregião ou Macrorregião */}
+                          {/* Mapa B - Região Intermediária ou Região */}
                           <div className="space-y-2">
-                            {showMicroMapB ? (
+                            {showRegiaoIntermediariaMapB ? (
                               <>
                                 <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
                                   <p className="text-sm font-semibold text-purple-900">
-                                    Microrregião B
+                                    Região Intermediária B
                                   </p>
                                   <p className="text-base font-bold text-purple-800">
-                                    {compareMicroNomeB}
+                                    {compareRegiaoIntermediariaNomeB}
                                   </p>
                                   <p className="text-xs text-purple-700">
                                     {UF_MAP[compareEstadoB]} ({compareEstadoB})
@@ -5013,9 +5013,9 @@ const FeasibilityAnalysis = () => {
                                   <Map
                                     key={`map-b-${mapKeyB}`}
                                     initialLocation={{
-                                      lat: coordsMicroB.lat,
-                                      lng: coordsMicroB.lng,
-                                      name: compareMicroNomeB,
+                                      lat: coordsRegiaoIntermediariaB.lat,
+                                      lng: coordsRegiaoIntermediariaB.lng,
+                                      name: compareRegiaoIntermediariaNomeB,
                                     }}
                                     zoom={9}
                                   />
@@ -5025,7 +5025,7 @@ const FeasibilityAnalysis = () => {
                               <>
                                 <div className="p-3 bg-teal-50 rounded-lg border border-teal-200">
                                   <p className="text-sm font-semibold text-teal-900">
-                                    Macrorregião B
+                                    Região B
                                   </p>
                                   <p className="text-base font-bold text-teal-800">
                                     {compareRegionB}
