@@ -650,7 +650,7 @@ export default function SectorDemandByStateCard({
         <div className="px-6 py-4 flex items-center">
           <FileText className="w-6 h-6 text-emerald-600 mr-3" />
           <h2 className="text-2xl font-bold text-slate-900">
-            Demanda setorial por estado (qualitativa)
+            Demanda setorial qualitativa de {estadoNome || estado.toUpperCase()}
           </h2>
           <Badge className="ml-auto bg-slate-100 text-slate-800 border-slate-200">
             {estado.toUpperCase()}
@@ -701,7 +701,7 @@ export default function SectorDemandByStateCard({
             <div className="px-6 py-4 flex items-center hover:bg-slate-50 transition-colors">
               <FileText className="w-6 h-6 text-emerald-600 mr-3" />
               <h2 className="text-2xl font-bold text-slate-900">
-                Demanda Setorial por Estado (Qualitativa)
+                Demanda setorial qualitativa de {estadoNome || estado.toUpperCase()}
               </h2>
               <Badge className="ml-auto mr-3 bg-emerald-100 text-emerald-800 border-emerald-200">
                 {estado.toUpperCase()}
