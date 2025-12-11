@@ -43,6 +43,10 @@ interface RegionFiltersProps {
   onCidadeChange?: (cidade: string, cidadeNome: string) => void;
 }
 
+// Sanitize text coming from external APIs (IBGE) replacing stray inverted question marks
+const sanitizeText = (value: string) =>
+  typeof value === "string" ? value.replace(/¿/g, "-").trim() : value;
+
 const REGIOES = [
   { value: "Norte", label: "Norte" },
   { value: "Nordeste", label: "Nordeste" },
@@ -96,7 +100,11 @@ const RegionFilters = ({
           "https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome"
         );
         const data = await response.json();
-        setEstados(data);
+        const sanitized = data.map((estado: Estado) => ({
+          ...estado,
+          nome: sanitizeText(estado.nome),
+        }));
+        setEstados(sanitized);
       } catch (error) {
         console.error("Error fetching estados:", error);
         toast({
@@ -154,11 +162,15 @@ const RegionFilters = ({
         }
         
         const data = await response.json();
+        const sanitized = data.map((regiao: any) => ({
+          ...regiao,
+          nome: sanitizeText(regiao.nome),
+        }));
         
         // Armazenar no cache
-        regiaoIntermediariaCache.set(selectedEstado, data);
+        regiaoIntermediariaCache.set(selectedEstado, sanitized);
         
-        setRegioesIntermediarias(data);
+        setRegioesIntermediarias(sanitized);
         setSelectedRegiaoIntermediaria("");
       } catch (error) {
         console.error("Error fetching regiões intermediárias:", error);
@@ -238,11 +250,15 @@ const RegionFilters = ({
         }
         
         const data = await response.json();
+        const sanitized = data.map((regiao: RegiaoImediata) => ({
+          ...regiao,
+          nome: sanitizeText(regiao.nome),
+        }));
         
         // Armazenar no cache
-        regiaoImediataCache.set(selectedRegiaoIntermediaria, data);
+        regiaoImediataCache.set(selectedRegiaoIntermediaria, sanitized);
         
-        setRegioesImediatas(data);
+        setRegioesImediatas(sanitized);
         setSelectedRegiaoImediata("");
       } catch (error) {
         console.error("Error fetching regiões imediatas:", error);
@@ -308,10 +324,14 @@ const RegionFilters = ({
         }
         
         const data: Municipio[] = await response.json();
+        const sanitized = data.map((cidade) => ({
+          ...cidade,
+          nome: sanitizeText(cidade.nome),
+        }));
 
         // Armazenar no cache
-        cidadesCache.set(selectedRegiaoImediata, data);
-        setCidades(data);
+        cidadesCache.set(selectedRegiaoImediata, sanitized);
+        setCidades(sanitized);
       } catch (error) {
         console.error("Error fetching cidades:", error);
         toast({
