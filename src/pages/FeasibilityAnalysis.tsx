@@ -40,6 +40,8 @@ import Navigation from "@/components/Navigation";
 import LocationSearch from "@/components/LocationSearch";
 import RegionFilters from "@/components/RegionFilters";
 import Map from "@/components/Map";
+import WindyMap from "@/components/WindyMap";
+import WindyMapControls from "@/components/WindyMapControls";
 import SectorDemandByStateCard from "@/components/SectorDemandByStateCard";
 // LayerControls removed — layers no longer toggled per-map
 import { useLocationStore } from "@/store/locationStore";
@@ -5112,6 +5114,10 @@ const FeasibilityAnalysis = () => {
                     }`}
                   />
                 </div>
+                
+                {/* Controles dos Mapas - aparece quando os mapas estão abertos */}
+                {showMapsComparison && <WindyMapControls />}
+                
                 {showMapsComparison &&
                   (() => {
                     // Coordenadas aproximadas das macrorregiões
@@ -5171,8 +5177,10 @@ const FeasibilityAnalysis = () => {
                                   </p>
                                 </div>
                                 <div className="border rounded-lg overflow-hidden">
-                                  <Map
+                                  <WindyMap
                                     key={`map-a-${mapKeyA}`}
+                                    mapId="comparison-map-a"
+                                    enableSync={true}
                                     initialLocation={{
                                       lat: coordsRegiaoIntermediariaA.lat,
                                       lng: coordsRegiaoIntermediariaA.lng,
@@ -5193,8 +5201,10 @@ const FeasibilityAnalysis = () => {
                                   </p>
                                 </div>
                                 <div className="border rounded-lg overflow-hidden">
-                                  <Map
+                                  <WindyMap
                                     key={`map-a-${mapKeyA}`}
+                                    mapId="comparison-map-a"
+                                    enableSync={true}
                                     initialLocation={{
                                       lat: regionCoords[compareRegionA].lat,
                                       lng: regionCoords[compareRegionA].lng,
@@ -5230,8 +5240,10 @@ const FeasibilityAnalysis = () => {
                                   </p>
                                 </div>
                                 <div className="border rounded-lg overflow-hidden">
-                                  <Map
+                                  <WindyMap
                                     key={`map-b-${mapKeyB}`}
+                                    mapId="comparison-map-b"
+                                    enableSync={true}
                                     initialLocation={{
                                       lat: coordsRegiaoIntermediariaB.lat,
                                       lng: coordsRegiaoIntermediariaB.lng,
@@ -5252,8 +5264,10 @@ const FeasibilityAnalysis = () => {
                                   </p>
                                 </div>
                                 <div className="border rounded-lg overflow-hidden">
-                                  <Map
+                                  <WindyMap
                                     key={`map-b-${mapKeyB}`}
+                                    mapId="comparison-map-b"
+                                    enableSync={true}
                                     initialLocation={{
                                       lat: regionCoords[compareRegionB].lat,
                                       lng: regionCoords[compareRegionB].lng,
