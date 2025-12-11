@@ -439,6 +439,106 @@ function ForecastCard({ estado }: { estado: string }) {
     </div>
   );
 }
+
+// Mapeamento de empresas que usam oxigênio por estado
+const oxygenCompanies: Record<string, { setor: string; empresas: string[] }[]> = {
+  SP: [
+    { setor: "Saúde", empresas: ["Hospital Albert Einstein", "Hospital Sírio-Libanês", "Santa Casa de São Paulo", "White Martins"] },
+    { setor: "Química", empresas: ["Braskem", "Dow Chemical", "BASF", "Oxiteno"] },
+    { setor: "Metalurgia", empresas: ["Gerdau", "Usiminas", "ArcelorMittal", "White Martins"] },
+    { setor: "Tratamento de Água", empresas: ["Sabesp", "Iguá Saneamento", "BRK Ambiental"] },
+  ],
+  RJ: [
+    { setor: "Saúde", empresas: ["Rede D'Or", "Hospital Copa D'Or", "Hospital Quinta D'Or", "White Martins"] },
+    { setor: "Petroquímica", empresas: ["Petrobras", "Shell", "GNL Guanabara"] },
+    { setor: "Metalurgia", empresas: ["Gerdau", "CSN", "ThyssenKrupp CSA"] },
+    { setor: "Saneamento", empresas: ["Águas do Rio", "CEDAE"] },
+  ],
+  MG: [
+    { setor: "Saúde", empresas: ["Hospital Felício Rocho", "Mater Dei", "Santa Casa BH", "White Martins"] },
+    { setor: "Mineração", empresas: ["Vale", "Anglo American", "Gerdau", "ArcelorMittal"] },
+    { setor: "Metalurgia", empresas: ["Usiminas", "Gerdau", "ArcelorMittal"] },
+    { setor: "Saneamento", empresas: ["COPASA", "BRK Ambiental"] },
+  ],
+  RS: [
+    { setor: "Saúde", empresas: ["Hospital Moinhos de Vento", "Hospital São Lucas", "Santa Casa Porto Alegre"] },
+    { setor: "Química", empresas: ["Braskem", "Petroquímica Triunfo", "Oxiquímica"] },
+    { setor: "Metalurgia", empresas: ["Gerdau", "Iochpe-Maxion"] },
+    { setor: "Alimentos", empresas: ["BRF", "Aurora", "Marfrig"] },
+  ],
+  PR: [
+    { setor: "Saúde", empresas: ["Hospital Marcelino Champagnat", "Hospital Vita", "White Martins"] },
+    { setor: "Alimentos", empresas: ["BRF", "JBS", "Copacol", "C.Vale"] },
+    { setor: "Química", empresas: ["Petrobrás REPAR", "Perstorp"] },
+    { setor: "Papel e Celulose", empresas: ["Klabin", "International Paper"] },
+  ],
+  BA: [
+    { setor: "Saúde", empresas: ["Hospital Aliança", "Hospital São Rafael", "White Martins"] },
+    { setor: "Petroquímica", empresas: ["Braskem", "Petrobras RLAM", "Camaçari Petroquímico"] },
+    { setor: "Metalurgia", empresas: ["Gerdau", "Bahia Mineração"] },
+    { setor: "Celulose", empresas: ["Suzano", "Bracell"] },
+  ],
+  CE: [
+    { setor: "Saúde", empresas: ["Hospital São Mateus", "Hospital Geral de Fortaleza", "White Martins"] },
+    { setor: "Siderurgia", empresas: ["Gerdau", "CSP"] },
+    { setor: "Têxtil", empresas: ["Santana Textiles", "Vicunha Têxtil"] },
+    { setor: "Alimentos", empresas: ["M. Dias Branco", "J. Macêdo"] },
+  ],
+  PE: [
+    { setor: "Saúde", empresas: ["Hospital Português", "Real Hospital Português", "White Martins"] },
+    { setor: "Química", empresas: ["Petrobrás", "Suape Petroquímico"] },
+    { setor: "Alimentos", empresas: ["Grupo Pão de Açúcar", "BRF"] },
+    { setor: "Saneamento", empresas: ["Compesa", "BRK Ambiental"] },
+  ],
+  ES: [
+    { setor: "Saúde", empresas: ["Hospital Meridional", "São Bernardo", "White Martins"] },
+    { setor: "Siderurgia", empresas: ["ArcelorMittal Tubarão", "CSN"] },
+    { setor: "Celulose", empresas: ["Suzano", "Bracell", "Fibria"] },
+    { setor: "Mineração", empresas: ["Vale", "Samarco"] },
+  ],
+  SC: [
+    { setor: "Saúde", empresas: ["Hospital Baía Sul", "Hospital Universitário", "White Martins"] },
+    { setor: "Alimentos", empresas: ["BRF", "Aurora", "Seara"] },
+    { setor: "Metalurgia", empresas: ["Tupy", "Embraco"] },
+    { setor: "Têxtil", empresas: ["Hering", "Marisol"] },
+  ],
+  GO: [
+    { setor: "Saúde", empresas: ["Hospital Albert Sabin", "Hospital Araújo Jorge", "White Martins"] },
+    { setor: "Alimentos", empresas: ["BRF", "JBS", "Minerva Foods"] },
+    { setor: "Química", empresas: ["Petrobrás REPLAN", "Adubos Araguaia"] },
+    { setor: "Mineração", empresas: ["Anglo American", "Vale"] },
+  ],
+  MS: [
+    { setor: "Saúde", empresas: ["Hospital Universitário", "Santa Casa Campo Grande"] },
+    { setor: "Celulose", empresas: ["Suzano", "Eldorado Brasil"] },
+    { setor: "Alimentos", empresas: ["JBS", "Minerva Foods", "Marfrig"] },
+    { setor: "Mineração", empresas: ["Vale", "Vetria Mineração"] },
+  ],
+  MT: [
+    { setor: "Saúde", empresas: ["Hospital Santa Rosa", "Hospital Geral Cuiabá"] },
+    { setor: "Alimentos", empresas: ["BRF", "JBS", "Amaggi"] },
+    { setor: "Química", empresas: ["Bunge", "Cargill"] },
+    { setor: "Mineração", empresas: ["Vale", "Anglo American"] },
+  ],
+  DF: [
+    { setor: "Saúde", empresas: ["Hospital Sírio-Libanês Brasília", "Hospital Santa Lúcia", "White Martins"] },
+    { setor: "Tratamento de Água", empresas: ["CAESB", "Águas de Brasília"] },
+    { setor: "Química", empresas: ["Petrobrás", "SESI Lab"] },
+  ],
+  AM: [
+    { setor: "Saúde", empresas: ["Hospital Adventista", "Hospital São Camilo", "White Martins"] },
+    { setor: "Eletroeletrônicos", empresas: ["Samsung", "LG", "Philips"] },
+    { setor: "Metalurgia", empresas: ["Gerdau", "Bom Futuro"] },
+    { setor: "Química", empresas: ["Petroquímica Manaus"] },
+  ],
+  PA: [
+    { setor: "Saúde", empresas: ["Hospital Adventista Belém", "Hospital Porto Dias", "White Martins"] },
+    { setor: "Mineração", empresas: ["Vale", "Hydro", "Mineração Rio do Norte"] },
+    { setor: "Metalurgia", empresas: ["Gerdau Açominas", "Albras"] },
+    { setor: "Alimentos", empresas: ["Marfrig", "JBS"] },
+  ],
+};
+
 export default function SectorDemandByStateCard({
   estado,
   estadoNome,
@@ -805,6 +905,38 @@ export default function SectorDemandByStateCard({
                   </div>
                 </div>
               </div>
+
+              {/* Principais empresas que usam oxigênio no estado */}
+              {oxygenCompanies[estado.toUpperCase()] && (
+                <div className="mt-6">
+                  <h3 className="text-lg font-semibold text-slate-900 mb-3">
+                    Principais Empresas que Utilizam Oxigênio em {estadoNome || estado.toUpperCase()}
+                  </h3>
+                  <div className="space-y-4">
+                    {oxygenCompanies[estado.toUpperCase()].map((setor, idx) => (
+                      <div key={idx} className="p-4 rounded-lg border bg-emerald-50/30">
+                        <h4 className="text-sm font-semibold text-emerald-900 mb-2">
+                          {setor.setor}
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          {setor.empresas.map((empresa, eIdx) => (
+                            <Badge
+                              key={eIdx}
+                              variant="outline"
+                              className="bg-white text-slate-700 border-slate-300"
+                            >
+                              {empresa}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-slate-500 italic mt-3">
+                    * Lista não exaustiva de empresas com potencial demanda por oxigênio industrial
+                  </p>
+                </div>
+              )}
             </div>
           </CollapsibleContent>
         </Collapsible>
