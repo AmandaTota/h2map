@@ -575,7 +575,7 @@ export default function SectorDemandByStateCard({
             <div className="px-6 py-4 flex items-center hover:bg-slate-50 transition-colors">
               <FileText className="w-6 h-6 text-emerald-600 mr-3" />
               <h2 className="text-2xl font-bold text-slate-900">
-                Previsão da Demanda de H2 de 2025 até 2030
+                Previsão de demanda de H2 para {estadoNome || estado.toUpperCase()}
               </h2>
               <Badge className="ml-auto mr-3 bg-emerald-100 text-emerald-800 border-emerald-200">
                 {estado.toUpperCase()}
