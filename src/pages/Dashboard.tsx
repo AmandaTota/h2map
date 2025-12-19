@@ -1,4 +1,4 @@
-import { MapPin, Star } from "lucide-react";
+import { MapPin, Star, Cloud, Layers } from "lucide-react";
 import Navigation from "@/components/Navigation";
 {
   /*import Map from '@/components/Map';*/
@@ -9,7 +9,10 @@ import FavoritesList from "@/components/FavoritesList";
 import WeatherForecast from "@/components/WeatherForecast";
 import WeatherAlerts from "@/components/WeatherAlerts";
 import NewsSidebar from "@/components/NewsSidebar";
+import WindyMap from "@/components/WindyMap";
+import WindyMapControls from "@/components/WindyMapControls";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { useLocationStore } from "@/store/locationStore";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -128,9 +131,70 @@ export default function Dashboard() {
             </div>
 
             {/* Main Content: Weather Forecast */}
-            <div className="lg:col-span-3 mx-auto space-y-6">
+            <div className="lg:col-span-3 space-y-6">
               {/* Inline Weather Forecast */}
               <WeatherForecast location={localLocation} />
+
+              {/* Weather Map Section - Layout meteoblue com sidebar */}
+              <div className="relative bg-white rounded-lg shadow-lg overflow-hidden" style={{ height: '700px' }}>
+                {/* Sidebar de Controles */}
+                <div className="absolute left-0 top-0 bottom-0 w-64 bg-slate-50/95 backdrop-blur-sm z-10 p-4 border-r border-slate-200">
+                  <div className="mb-6">
+                    <h2 className="text-xl font-bold text-slate-900 mb-1">
+                      Mapas Meteorológicos
+                    </h2>
+                    <p className="text-sm text-slate-600 flex items-center gap-1">
+                      <MapPin className="w-4 h-4" />
+                      {localLocation.name}
+                    </p>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
+                      Visualizações
+                    </h3>
+                    <WindyMapControls />
+                  </div>
+                  
+                  <div className="mt-8 pt-4 border-t border-slate-200">
+                    <p className="text-xs text-slate-500">
+                      💡 Arraste o mapa para explorar outras regiões
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Mapa em Tela Cheia */}
+                <div className="absolute inset-0 pl-64">
+                  <WindyMap 
+                    initialLocation={localLocation}
+                    zoom={9}
+                    enableSync={false}
+                    initialLayer="wind"
+                  />
+                </div>
+              </div>
+
+              {/* Quick Weather Info Card */}
+              <Card className="p-6 border-emerald-100 shadow-lg bg-white">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-4">📍 Localização</h3>
+                    <p className="text-sm text-slate-600">{localLocation.name}</p>
+                    <p className="text-xs text-slate-500 mt-2">
+                      Latitude: {localLocation.lat.toFixed(4)}°
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      Longitude: {localLocation.lng.toFixed(4)}°
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-4">💡 Dica</h3>
+                    <p className="text-sm text-slate-600">
+                      Mapa interativo mostrando sua localização. Arraste para explorar a região e use zoom para mais detalhes.
+                    </p>
+                  </div>
+                </div>
+              </Card>
 
               {/* Map Section (comentado)
               <div className="bg-white rounded-xl shadow-md p-6">
