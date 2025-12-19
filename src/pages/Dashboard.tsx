@@ -1,4 +1,4 @@
-import { MapPin, Star, Cloud, Layers } from "lucide-react";
+import { MapPin, Star, Cloud, Layers, Navigation as NavigationIcon } from "lucide-react";
 import Navigation from "@/components/Navigation";
 {
   /*import Map from '@/components/Map';*/
@@ -6,6 +6,7 @@ import Navigation from "@/components/Navigation";
 import { Link } from "react-router-dom";
 import LocationSearch from "@/components/LocationSearch";
 import FavoritesList from "@/components/FavoritesList";
+import LocationHistory from "@/components/LocationHistory";
 import WeatherForecast from "@/components/WeatherForecast";
 import WeatherAlerts from "@/components/WeatherAlerts";
 import NewsSidebar from "@/components/NewsSidebar";
@@ -24,12 +25,15 @@ export default function Dashboard() {
     addFavorite,
     isFavorite,
     loadFavorites,
+    addToHistory,
+    getGeolocation,
   } = useLocationStore();
   const [localLocation, setLocalLocation] = useState(
     storeLocation || { lat: -23.5505, lng: -46.6333, name: "São Paulo, SP" }
   );
   const { toast } = useToast();
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(true);
+  const [isLoadingGeo, setIsLoadingGeo] = useState(false);
 
   useEffect(() => {
     const loadUserFavorites = async () => {
@@ -52,6 +56,36 @@ export default function Dashboard() {
   }) => {
     setLocalLocation(location);
     setSelectedLocation(location);
+    addToHistory(location);
+  };
+
+  const handleGeolocation = async () => {
+    setIsLoadingGeo(true);
+    try {
+      const location = await getGeolocation();
+      if (location) {
+        handleLocationSelect(location);
+        toast({
+          title: "Localização detectada",
+          description: `Carregando dados de ${location.name}`,
+        });
+      } else {
+        toast({
+          title: "Erro",
+          description: "Não foi possível obter sua localização",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Geolocation error:", error);
+      toast({
+        title: "Erro",
+        description: "Erro ao obter localização",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingGeo(false);
+    }
   };
 
   const handleAddFavorite = async () => {
@@ -91,23 +125,36 @@ export default function Dashboard() {
                     initialLocation={localLocation}
                   />
 
-                  <Button
-                    onClick={handleAddFavorite}
-                    variant="outline"
-                    size="sm"
-                    className="w-full mt-3 sm:mt-4 border-amber-300 hover:bg-amber-50 hover:border-amber-400 transition-colors text-sm sm:text-base"
-                  >
-                    <Star
-                      className={`w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 transition-all ${
-                        isFavorite(localLocation.name)
-                          ? "fill-amber-500 text-amber-500"
-                          : "text-amber-500"
-                      }`}
-                    />
-                    {isFavorite(localLocation.name)
-                      ? "Favoritado"
-                      : "Adicionar Favorito"}
-                  </Button>
+                  <div className="flex gap-2 mt-3 sm:mt-4">
+                    <Button
+                      onClick={handleAddFavorite}
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 border-amber-300 hover:bg-amber-50 hover:border-amber-400 transition-colors text-sm sm:text-base"
+                    >
+                      <Star
+                        className={`w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 transition-all ${
+                          isFavorite(localLocation.name)
+                            ? "fill-amber-500 text-amber-500"
+                            : "text-amber-500"
+                        }`}
+                      />
+                      {isFavorite(localLocation.name)
+                        ? "Favoritado"
+                        : "Favoritar"}
+                    </Button>
+                    
+                    <Button
+                      onClick={handleGeolocation}
+                      disabled={isLoadingGeo}
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 border-blue-300 hover:bg-blue-50 hover:border-blue-400 transition-colors text-sm sm:text-base"
+                    >
+                      <NavigationIcon className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                      {isLoadingGeo ? "..." : "Minha Loc."}
+                    </Button>
+                  </div>
 
                   <div className="border-t border-slate-200 mt-5 pt-5">
                     <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
@@ -116,6 +163,8 @@ export default function Dashboard() {
                     </h3>
                     <FavoritesList onLocationSelect={handleLocationSelect} />
                   </div>
+
+                  <LocationHistory onLocationSelect={handleLocationSelect} />
                 </div>
 
                 {/* Dicas e Alertas Dinâmicos */}
