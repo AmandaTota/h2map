@@ -1868,9 +1868,7 @@ const FeasibilityAnalysis = () => {
                             Cálculo de Projeção para Produção de Hidrogênio
                             Verde
                           </h2>
-                          <Badge className="bg-blue-100 text-blue-800 border-blue-300 ml-auto">
-                            📐 Fórmulas Reais
-                          </Badge>
+                          
                         </div>
                       </AccordionTrigger>
                       <AccordionContent className="px-6 pb-6">
@@ -2616,8 +2614,7 @@ const FeasibilityAnalysis = () => {
                                       {Math.ceil((
                                         simulationResults.threeYears!
                                           .totalEnergyConsumed / 1000
-                                      ))}{" "}
-                                      MWh
+                                      ))}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
                                       MWh/ano
@@ -2631,8 +2628,7 @@ const FeasibilityAnalysis = () => {
                                       {Math.ceil((
                                         simulationResults.threeYears!
                                           .h2Production / 1000
-                                      ))}{" "}
-                                      t
+                                      ))}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
                                       Toneladas/ano
@@ -2673,22 +2669,33 @@ const FeasibilityAnalysis = () => {
 
                                 <Card className="p-4 bg-gradient-to-br from-indigo-50 to-blue-50 border-indigo-200">
                                   <h3 className="text-lg font-semibold text-slate-900 mb-3">
-                                    💵 Custos (300 kW)
+                                    💵 Detalhamento de Custos (LCOH)
                                   </h3>
                                   <div className="grid md:grid-cols-2 gap-4">
                                     <div>
-                                      <p className="text-sm text-slate-700">
-                                        CAPEX Anualizado: R${" "}
-                                        {formatCurrency(simulationResults.threeYears!.capexAnnualized, 0)}
+                                      <p className="text-sm text-slate-700 mb-1">
+                                        CAPEX Anualizado:
+                                      </p>
+                                      <p className="text-xl font-bold text-indigo-600">
+                                        R${" "}
+                                        {formatCurrency(simulationResults.threeYears!.capexAnnualized, 2)}
                                       </p>
                                     </div>
                                     <div>
-                                      <p className="text-sm text-slate-700">
-                                        OPEX Anual: R${" "}
-                                        {formatCurrency(simulationResults.threeYears!.opexAnnual, 0)}
+                                      <p className="text-sm text-slate-700 mb-1">
+                                        OPEX Anual:
+                                      </p>
+                                      <p className="text-xl font-bold text-indigo-600">
+                                        R${" "}
+                                        {formatCurrency(simulationResults.threeYears!.opexAnnual, 2)}
                                       </p>
                                     </div>
                                   </div>
+                                  <p className="text-xs text-slate-600 mt-3 p-2 bg-white/50 rounded">
+                                    <strong>Fórmula LCOH:</strong> (CAPEX
+                                    Anualizado + OPEX Anual) / Produção Anual de
+                                    H₂
+                                  </p>
                                 </Card>
                               </div>
                             </TabsContent>
@@ -2733,8 +2740,7 @@ const FeasibilityAnalysis = () => {
                                       {Math.ceil((
                                         simulationResults.fiveYears!
                                           .totalEnergyConsumed / 1000
-                                      ))}{" "}
-                                      MWh
+                                      ))}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
                                       MWh/ano
@@ -2748,8 +2754,7 @@ const FeasibilityAnalysis = () => {
                                       {Math.ceil((
                                         simulationResults.fiveYears!
                                           .h2Production / 1000
-                                      ))}{" "}
-                                      t
+                                      ))}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
                                       Toneladas/ano
@@ -2790,22 +2795,33 @@ const FeasibilityAnalysis = () => {
 
                                 <Card className="p-4 bg-gradient-to-br from-indigo-50 to-blue-50 border-indigo-200">
                                   <h3 className="text-lg font-semibold text-slate-900 mb-3">
-                                    💵 Custos (500 kW)
+                                    💵 Detalhamento de Custos (LCOH)
                                   </h3>
                                   <div className="grid md:grid-cols-2 gap-4">
                                     <div>
-                                      <p className="text-sm text-slate-700">
-                                        CAPEX Anualizado: R${" "}
-                                        {formatCurrency(simulationResults.fiveYears!.capexAnnualized, 0)}
+                                      <p className="text-sm text-slate-700 mb-1">
+                                        CAPEX Anualizado:
+                                      </p>
+                                      <p className="text-xl font-bold text-indigo-600">
+                                        R${" "}
+                                        {formatCurrency(simulationResults.fiveYears!.capexAnnualized, 2)}
                                       </p>
                                     </div>
                                     <div>
-                                      <p className="text-sm text-slate-700">
-                                        OPEX Anual: R${" "}
-                                        {formatCurrency(simulationResults.fiveYears!.opexAnnual, 0)}
+                                      <p className="text-sm text-slate-700 mb-1">
+                                        OPEX Anual:
+                                      </p>
+                                      <p className="text-xl font-bold text-indigo-600">
+                                        R${" "}
+                                        {formatCurrency(simulationResults.fiveYears!.opexAnnual, 2)}
                                       </p>
                                     </div>
                                   </div>
+                                  <p className="text-xs text-slate-600 mt-3 p-2 bg-white/50 rounded">
+                                    <strong>Fórmula LCOH:</strong> (CAPEX
+                                    Anualizado + OPEX Anual) / Produção Anual de
+                                    H₂
+                                  </p>
                                 </Card>
                               </div>
                             </TabsContent>
@@ -2853,9 +2869,7 @@ const FeasibilityAnalysis = () => {
                             <h2 className="text-2xl font-bold text-slate-900">
                               Análise Financeira e Estudo de Viabilidade
                             </h2>
-                            <Badge className="bg-green-100 text-green-800 border-green-300 ml-auto">
-                              ✓ Baseado em Simulação Real
-                            </Badge>
+                            
                           </div>
                         </AccordionTrigger>
                         <AccordionContent className="px-6 pb-6">
