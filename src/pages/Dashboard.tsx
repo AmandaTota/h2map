@@ -1,4 +1,4 @@
-import { MapPin, Star } from "lucide-react";
+import { MapPin, Star, Cloud, Layers, Navigation as NavigationIcon } from "lucide-react";
 import Navigation from "@/components/Navigation";
 {
   /*import Map from '@/components/Map';*/
@@ -6,10 +6,14 @@ import Navigation from "@/components/Navigation";
 import { Link } from "react-router-dom";
 import LocationSearch from "@/components/LocationSearch";
 import FavoritesList from "@/components/FavoritesList";
+import LocationHistory from "@/components/LocationHistory";
 import WeatherForecast from "@/components/WeatherForecast";
 import WeatherAlerts from "@/components/WeatherAlerts";
 import NewsSidebar from "@/components/NewsSidebar";
+import WindyMap from "@/components/WindyMap";
+import WindyMapControls from "@/components/WindyMapControls";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { useLocationStore } from "@/store/locationStore";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -21,12 +25,15 @@ export default function Dashboard() {
     addFavorite,
     isFavorite,
     loadFavorites,
+    addToHistory,
+    getGeolocation,
   } = useLocationStore();
   const [localLocation, setLocalLocation] = useState(
     storeLocation || { lat: -23.5505, lng: -46.6333, name: "São Paulo, SP" }
   );
   const { toast } = useToast();
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(true);
+  const [isLoadingGeo, setIsLoadingGeo] = useState(false);
 
   useEffect(() => {
     const loadUserFavorites = async () => {
@@ -49,6 +56,36 @@ export default function Dashboard() {
   }) => {
     setLocalLocation(location);
     setSelectedLocation(location);
+    addToHistory(location);
+  };
+
+  const handleGeolocation = async () => {
+    setIsLoadingGeo(true);
+    try {
+      const location = await getGeolocation();
+      if (location) {
+        handleLocationSelect(location);
+        toast({
+          title: "Localização detectada",
+          description: `Carregando dados de ${location.name}`,
+        });
+      } else {
+        toast({
+          title: "Erro",
+          description: "Não foi possível obter sua localização",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Geolocation error:", error);
+      toast({
+        title: "Erro",
+        description: "Erro ao obter localização",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingGeo(false);
+    }
   };
 
   const handleAddFavorite = async () => {
@@ -88,23 +125,36 @@ export default function Dashboard() {
                     initialLocation={localLocation}
                   />
 
-                  <Button
-                    onClick={handleAddFavorite}
-                    variant="outline"
-                    size="sm"
-                    className="w-full mt-3 sm:mt-4 border-amber-300 hover:bg-amber-50 hover:border-amber-400 transition-colors text-sm sm:text-base"
-                  >
-                    <Star
-                      className={`w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 transition-all ${
-                        isFavorite(localLocation.name)
-                          ? "fill-amber-500 text-amber-500"
-                          : "text-amber-500"
-                      }`}
-                    />
-                    {isFavorite(localLocation.name)
-                      ? "Favoritado"
-                      : "Adicionar Favorito"}
-                  </Button>
+                  <div className="flex gap-2 mt-3 sm:mt-4">
+                    <Button
+                      onClick={handleAddFavorite}
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 border-amber-300 hover:bg-amber-50 hover:border-amber-400 transition-colors text-sm sm:text-base"
+                    >
+                      <Star
+                        className={`w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 transition-all ${
+                          isFavorite(localLocation.name)
+                            ? "fill-amber-500 text-amber-500"
+                            : "text-amber-500"
+                        }`}
+                      />
+                      {isFavorite(localLocation.name)
+                        ? "Favoritado"
+                        : "Favoritar"}
+                    </Button>
+                    
+                    <Button
+                      onClick={handleGeolocation}
+                      disabled={isLoadingGeo}
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 border-blue-300 hover:bg-blue-50 hover:border-blue-400 transition-colors text-sm sm:text-base"
+                    >
+                      <NavigationIcon className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                      {isLoadingGeo ? "..." : "Minha Loc."}
+                    </Button>
+                  </div>
 
                   <div className="border-t border-slate-200 mt-5 pt-5">
                     <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
@@ -113,6 +163,8 @@ export default function Dashboard() {
                     </h3>
                     <FavoritesList onLocationSelect={handleLocationSelect} />
                   </div>
+
+                  <LocationHistory onLocationSelect={handleLocationSelect} />
                 </div>
 
                 {/* Dicas e Alertas Dinâmicos */}
@@ -128,9 +180,70 @@ export default function Dashboard() {
             </div>
 
             {/* Main Content: Weather Forecast */}
-            <div className="lg:col-span-3 mx-auto space-y-6">
+            <div className="lg:col-span-3 space-y-6">
               {/* Inline Weather Forecast */}
               <WeatherForecast location={localLocation} />
+
+              {/* Weather Map Section - Layout meteoblue com sidebar */}
+              <div className="relative bg-white rounded-lg shadow-lg overflow-hidden" style={{ height: '700px' }}>
+                {/* Sidebar de Controles */}
+                <div className="absolute left-0 top-0 bottom-0 w-64 bg-slate-50/95 backdrop-blur-sm z-10 p-4 border-r border-slate-200">
+                  <div className="mb-6">
+                    <h2 className="text-xl font-bold text-slate-900 mb-1">
+                      Mapas Meteorológicos
+                    </h2>
+                    <p className="text-sm text-slate-600 flex items-center gap-1">
+                      <MapPin className="w-4 h-4" />
+                      {localLocation.name}
+                    </p>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
+                      Visualizações
+                    </h3>
+                    <WindyMapControls />
+                  </div>
+                  
+                  <div className="mt-8 pt-4 border-t border-slate-200">
+                    <p className="text-xs text-slate-500">
+                      💡 Arraste o mapa para explorar outras regiões
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Mapa em Tela Cheia */}
+                <div className="absolute inset-0 pl-64">
+                  <WindyMap 
+                    initialLocation={localLocation}
+                    zoom={9}
+                    enableSync={false}
+                    initialLayer="wind"
+                  />
+                </div>
+              </div>
+
+              {/* Quick Weather Info Card */}
+              <Card className="p-6 border-emerald-100 shadow-lg bg-white">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-4">📍 Localização</h3>
+                    <p className="text-sm text-slate-600">{localLocation.name}</p>
+                    <p className="text-xs text-slate-500 mt-2">
+                      Latitude: {localLocation.lat.toFixed(4)}°
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      Longitude: {localLocation.lng.toFixed(4)}°
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-4">💡 Dica</h3>
+                    <p className="text-sm text-slate-600">
+                      Mapa interativo mostrando sua localização. Arraste para explorar a região e use zoom para mais detalhes.
+                    </p>
+                  </div>
+                </div>
+              </Card>
 
               {/* Map Section (comentado)
               <div className="bg-white rounded-xl shadow-md p-6">

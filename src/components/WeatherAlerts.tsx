@@ -11,6 +11,8 @@ import {
   CloudOff,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAlertPreferences } from "@/store/alertPreferencesStore";
+import AlertSettingsDialog from "./AlertSettingsDialog";
 
 interface WeatherAlertsProps {
   location: {
@@ -33,6 +35,7 @@ type Alert = {
 export default function WeatherAlerts({ location }: WeatherAlertsProps) {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
+  const { preferences } = useAlertPreferences();
 
   useEffect(() => {
     const fetchWeatherData = async () => {
@@ -53,7 +56,7 @@ export default function WeatherAlerts({ location }: WeatherAlertsProps) {
           });
 
         if (weatherData) {
-          const generatedAlerts = generateAlerts(weatherData, pollutionData);
+          const generatedAlerts = generateAlerts(weatherData, pollutionData, preferences);
           setAlerts(generatedAlerts);
         }
       } catch (err) {
@@ -67,8 +70,24 @@ export default function WeatherAlerts({ location }: WeatherAlertsProps) {
     fetchWeatherData();
   }, [location.lat, location.lng]);
 
-  const generateAlerts = (weatherData: any, pollutionData?: any): Alert[] => {
+  const generateAlerts = (weatherData: any, pollutionData?: any, prefs?: any): Alert[] => {
     const alerts: Alert[] = [];
+    
+    // Usar preferências padrão se não fornecidas
+    const p = prefs || {
+      highTempThreshold: 30,
+      lowTempThreshold: 10,
+      enableTempAlerts: true,
+      strongWindThreshold: 8.3,
+      enableWindAlerts: true,
+      enableRainAlerts: true,
+      enableAirQualityAlerts: true,
+      airQualityThreshold: 3,
+      enableSolarAlerts: true,
+      enableThunderstormAlerts: true,
+      enableHumidityAlerts: true,
+      highHumidityThreshold: 80,
+    };
 
     // Dados principais da API OpenWeatherMap
     const temp = weatherData.main?.temp || 0;
@@ -82,8 +101,8 @@ export default function WeatherAlerts({ location }: WeatherAlertsProps) {
     const aqi = pollutionData?.list?.[0]?.main?.aqi || 0;
     const components = pollutionData?.list?.[0]?.components || {};
 
-    // Alerta de poluição do ar (AQI >= 3 = moderado ou pior)
-    if (aqi >= 3) {
+    // Alerta de poluição do ar (AQI >= threshold configurado)
+    if (p.enableAirQualityAlerts && aqi >= p.airQualityThreshold) {
       const aqiLabels = [
         "",
         "Boa",
@@ -113,8 +132,8 @@ export default function WeatherAlerts({ location }: WeatherAlertsProps) {
       });
     }
 
-    // Alta temperatura (acima de 30°C)
-    if (temp > 30) {
+    // Alta temperatura (acima do limiar configurado)
+    if (p.enableTempAlerts && temp > p.highTempThreshold) {
       alerts.push({
         id: "high-temp",
         icon: Thermometer,
@@ -128,8 +147,8 @@ export default function WeatherAlerts({ location }: WeatherAlertsProps) {
       });
     }
 
-    // Baixa temperatura (abaixo de 10°C)
-    if (temp < 10) {
+    // Baixa temperatura (abaixo do limiar configurado)
+    if (p.enableTempAlerts && temp < p.lowTempThreshold) {
       alerts.push({
         id: "low-temp",
         icon: Thermometer,
@@ -143,8 +162,8 @@ export default function WeatherAlerts({ location }: WeatherAlertsProps) {
       });
     }
 
-    // Alta radiação solar (céu limpo e temperatura alta)
-    if (weatherMain === "Clear" && temp > 25) {
+    // Alta radiação solar
+    if (p.enableSolarAlerts && weatherMain === "Clear" && temp > 25) {
       alerts.push({
         id: "high-radiation",
         icon: Sun,
@@ -157,8 +176,8 @@ export default function WeatherAlerts({ location }: WeatherAlertsProps) {
       });
     }
 
-    // Ventos fortes (acima de 30 km/h = ~8.3 m/s)
-    if (windSpeed > 8.3) {
+    // Ventos fortes (acima do limiar configurado)
+    if (p.enableWindAlerts && windSpeed > p.strongWindThreshold) {
       const windKmh = Math.round(windSpeed * 3.6);
       alerts.push({
         id: "strong-wind",
@@ -172,7 +191,7 @@ export default function WeatherAlerts({ location }: WeatherAlertsProps) {
     }
 
     // Possibilidade de chuva
-    if (weatherMain === "Rain" || weatherMain === "Drizzle") {
+    if (p.enableRainAlerts && (weatherMain === "Rain" || weatherMain === "Drizzle")) {
       alerts.push({
         id: "rain",
         icon: CloudRain,
@@ -185,7 +204,7 @@ export default function WeatherAlerts({ location }: WeatherAlertsProps) {
     }
 
     // Tempestade com raios
-    if (weatherMain === "Thunderstorm") {
+    if (p.enableThunderstormAlerts && weatherMain === "Thunderstorm") {
       alerts.push({
         id: "thunderstorm",
         icon: Zap,
@@ -197,8 +216,8 @@ export default function WeatherAlerts({ location }: WeatherAlertsProps) {
       });
     }
 
-    // Alta umidade (acima de 80%)
-    if (humidity > 80) {
+    // Alta umidade (acima do limiar configurado)
+    if (p.enableHumidityAlerts && humidity > p.highHumidityThreshold) {
       alerts.push({
         id: "high-humidity",
         icon: Droplets,
@@ -256,11 +275,16 @@ export default function WeatherAlerts({ location }: WeatherAlertsProps) {
 
   return (
     <div className="bg-white rounded-xl shadow-md p-3 sm:p-4 mt-4">
-      <h3 className="text-sm sm:text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
-        <AlertTriangle className="w-4 h-4 text-amber-600" />
-        Dicas e Alertas
-      </h3>
-      <div className="space-y-2">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 text-amber-600" />
+          Dicas e Alertas
+        </h3>
+      </div>
+      
+      <AlertSettingsDialog />
+      
+      <div className="space-y-2 mt-3">
         {alerts.map((alert) => {
           const Icon = alert.icon;
           return (

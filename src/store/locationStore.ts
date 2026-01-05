@@ -11,12 +11,16 @@ interface Location {
 interface LocationStore {
   selectedLocation: Location | null;
   favorites: Location[];
+  history: Location[];
   setSelectedLocation: (location: Location) => void;
   clearLocation: () => void;
   addFavorite: (location: Location) => Promise<void>;
   removeFavorite: (locationName: string) => Promise<void>;
   isFavorite: (locationName: string) => boolean;
   loadFavorites: () => Promise<void>;
+  addToHistory: (location: Location) => void;
+  clearHistory: () => void;
+  getGeolocation: () => Promise<Location | null>;
 }
 
 export const useLocationStore = create<LocationStore>()(
@@ -24,8 +28,58 @@ export const useLocationStore = create<LocationStore>()(
     (set, get) => ({
       selectedLocation: null,
       favorites: [],
+      history: [],
       setSelectedLocation: (location) => set({ selectedLocation: location }),
       clearLocation: () => set({ selectedLocation: null }),
+      addToHistory: (location) => {
+        set((state) => {
+          // Evitar duplicatas - remove se já existe
+          const filtered = state.history.filter(h => h.name !== location.name);
+          // Adiciona no começo e limita a 10 itens
+          return { history: [location, ...filtered].slice(0, 10) };
+        });
+      },
+      clearHistory: () => set({ history: [] }),
+      getGeolocation: async () => {
+        return new Promise((resolve) => {
+          if (!navigator.geolocation) {
+            console.warn('Geolocation not supported');
+            resolve(null);
+            return;
+          }
+
+          navigator.geolocation.getCurrentPosition(
+            async (position) => {
+              const { latitude, longitude } = position.coords;
+              try {
+                // Usar reverse geocoding para obter nome da cidade
+                const response = await fetch(
+                  `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+                );
+                const data = await response.json();
+                const cityName = data.address?.city || data.address?.town || 'Localização Atual';
+                
+                resolve({
+                  lat: latitude,
+                  lng: longitude,
+                  name: cityName
+                });
+              } catch (error) {
+                console.error('Error reverse geocoding:', error);
+                resolve({
+                  lat: latitude,
+                  lng: longitude,
+                  name: 'Minha Localização'
+                });
+              }
+            },
+            (error) => {
+              console.warn('Geolocation error:', error);
+              resolve(null);
+            }
+          );
+        });
+      },
       loadFavorites: async () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
