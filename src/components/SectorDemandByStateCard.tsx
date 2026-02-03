@@ -8,8 +8,8 @@ import { officialSources } from "@/data/officialSources";
 function getSourceTitles(sourceIds?: string[]): string[] {
   if (!sourceIds) return [];
   return sourceIds
-    .map(id => {
-      const found = officialSources.find(s => s.id === id);
+    .map((id) => {
+      const found = officialSources.find((s) => s.id === id);
       return found ? found.title : id;
     })
     .filter(Boolean);
@@ -43,88 +43,121 @@ const data: Record<
 > = {
   // User-provided states (14) - follow same UI logic as SP
   AC: {
-    refino: { level: 'Baixa' },
-    fertilizantes: { level: 'Baixa' },
-    siderurgia: { level: 'Baixa' },
-    mobilidade: { level: 'Baixa', notes: ['Projetos locais listados nas fontes'] },
+    refino: { level: "Baixa" },
+    fertilizantes: { level: "Baixa" },
+    siderurgia: { level: "Baixa" },
+    mobilidade: {
+      level: "Baixa",
+      notes: ["Projetos locais listados nas fontes"],
+    },
   },
   AP: {
-    refino: { level: 'Baixa' },
-    fertilizantes: { level: 'Média', notes: ['Negociações NextGen Hydrogen / governo estadual'] },
-    siderurgia: { level: 'Baixa' },
-    mobilidade: { level: 'Média' },
+    refino: { level: "Baixa" },
+    fertilizantes: {
+      level: "Média",
+      notes: ["Negociações NextGen Hydrogen / governo estadual"],
+    },
+    siderurgia: { level: "Baixa" },
+    mobilidade: { level: "Média" },
   },
   PA: {
-    refino: { level: 'Baixa' },
-    fertilizantes: { level: 'Baixa' },
-    siderurgia: { level: 'Alta', notes: ['Hydro, Sinobras, Vale / expansão siderúrgica'] },
-    mobilidade: { level: 'Média' },
+    refino: { level: "Baixa" },
+    fertilizantes: { level: "Baixa" },
+    siderurgia: {
+      level: "Alta",
+      notes: ["Hydro, Sinobras, Vale / expansão siderúrgica"],
+    },
+    mobilidade: { level: "Média" },
   },
   RO: {
-    refino: { level: 'Baixa' },
-    fertilizantes: { level: 'Média' },
-    siderurgia: { level: 'Baixa' },
-    mobilidade: { level: 'Baixa', notes: ['SENAI/SEDEC - roadmap H2V'] },
+    refino: { level: "Baixa" },
+    fertilizantes: { level: "Média" },
+    siderurgia: { level: "Baixa" },
+    mobilidade: { level: "Baixa", notes: ["SENAI/SEDEC - roadmap H2V"] },
   },
   RR: {
-    refino: { level: 'Baixa' },
-    fertilizantes: { level: 'Baixa' },
-    siderurgia: { level: 'Baixa' },
-    mobilidade: { level: 'Baixa', notes: ['RBCIP - hubs e projetos H2V'] },
+    refino: { level: "Baixa" },
+    fertilizantes: { level: "Baixa" },
+    siderurgia: { level: "Baixa" },
+    mobilidade: { level: "Baixa", notes: ["RBCIP - hubs e projetos H2V"] },
   },
   TO: {
-    refino: { level: 'Baixa' },
-    fertilizantes: { level: 'Média' },
-    siderurgia: { level: 'Baixa' },
-    mobilidade: { level: 'Baixa', notes: ['Projetos PNH2 / iniciativas locais'] },
+    refino: { level: "Baixa" },
+    fertilizantes: { level: "Média" },
+    siderurgia: { level: "Baixa" },
+    mobilidade: {
+      level: "Baixa",
+      notes: ["Projetos PNH2 / iniciativas locais"],
+    },
   },
   AL: {
-    refino: { level: 'Baixa' },
-    fertilizantes: { level: 'Baixa' },
-    siderurgia: { level: 'Baixa' },
-    mobilidade: { level: 'Baixa', notes: ['Braskem (unidade hibernada)'] },
+    refino: { level: "Baixa" },
+    fertilizantes: { level: "Baixa" },
+    siderurgia: { level: "Baixa" },
+    mobilidade: { level: "Baixa", notes: ["Braskem (unidade hibernada)"] },
   },
   MA: {
-    refino: { level: 'Baixa' },
-    fertilizantes: { level: 'Baixa' },
-    siderurgia: { level: 'Alta', notes: ['AVB / projetos de aço verde'] },
-    mobilidade: { level: 'Média', notes: ['Stegra / negociações e investimentos'] },
+    refino: { level: "Baixa" },
+    fertilizantes: { level: "Baixa" },
+    siderurgia: { level: "Alta", notes: ["AVB / projetos de aço verde"] },
+    mobilidade: {
+      level: "Média",
+      notes: ["Stegra / negociações e investimentos"],
+    },
   },
   PB: {
-    refino: { level: 'Baixa' },
-    fertilizantes: { level: 'Média' },
-    siderurgia: { level: 'Baixa' },
-    mobilidade: { level: 'Média', notes: ['UFPB, PetroSolGas, iniciativas locais'] },
+    refino: { level: "Baixa" },
+    fertilizantes: { level: "Média" },
+    siderurgia: { level: "Baixa" },
+    mobilidade: {
+      level: "Média",
+      notes: ["UFPB, PetroSolGas, iniciativas locais"],
+    },
   },
   PI: {
-    refino: { level: 'Baixa' },
-    fertilizantes: { level: 'Alta', notes: ['ZPE Parnaíba / Hub IND / Green Energy Park'] },
-    siderurgia: { level: 'Média' },
-    mobilidade: { level: 'Média' },
+    refino: { level: "Baixa" },
+    fertilizantes: {
+      level: "Alta",
+      notes: ["ZPE Parnaíba / Hub IND / Green Energy Park"],
+    },
+    siderurgia: { level: "Média" },
+    mobilidade: { level: "Média" },
   },
   RN: {
-    refino: { level: 'Média' },
-    fertilizantes: { level: 'Média' },
-    siderurgia: { level: 'Baixa' },
-    mobilidade: { level: 'Média', notes: ['Marco legal estadual e projetos Petrobras'] },
+    refino: { level: "Média" },
+    fertilizantes: { level: "Média" },
+    siderurgia: { level: "Baixa" },
+    mobilidade: {
+      level: "Média",
+      notes: ["Marco legal estadual e projetos Petrobras"],
+    },
   },
   GO: {
-    refino: { level: 'Baixa' },
-    fertilizantes: { level: 'Média' },
-    siderurgia: { level: 'Baixa' },
-    mobilidade: { level: 'Média', notes: ['Itumbiara (planta piloto) / ATVOS'] },
+    refino: { level: "Baixa" },
+    fertilizantes: { level: "Média" },
+    siderurgia: { level: "Baixa" },
+    mobilidade: {
+      level: "Média",
+      notes: ["Itumbiara (planta piloto) / ATVOS"],
+    },
   },
   MT: {
-    refino: { level: 'Baixa' },
-    fertilizantes: { level: 'Alta', notes: ['ATVOS - fábrica de amônia verde'] },
-    siderurgia: { level: 'Baixa' },
-    mobilidade: { level: 'Média' },
+    refino: { level: "Baixa" },
+    fertilizantes: {
+      level: "Alta",
+      notes: ["ATVOS - fábrica de amônia verde"],
+    },
+    siderurgia: { level: "Baixa" },
+    mobilidade: { level: "Média" },
   },
   SC: {
-    refino: { level: 'Baixa' },
-    fertilizantes: { level: 'Média' },
-    siderurgia: { level: 'Baixa' },
-    mobilidade: { level: 'Média', notes: ['WEG / Celesc / UFSC - projetos-piloto'] },
+    refino: { level: "Baixa" },
+    fertilizantes: { level: "Média" },
+    siderurgia: { level: "Baixa" },
+    mobilidade: {
+      level: "Média",
+      notes: ["WEG / Celesc / UFSC - projetos-piloto"],
+    },
   },
   SP: {
     refino: { level: "Alta", notes: ["REPLAN/REVAP/RECAP"] },
@@ -217,7 +250,12 @@ const combinedData: Record<string, any> = (() => {
   const out: Record<string, any> = { ...data };
   Object.entries(h2QualitativeByState).forEach(([uf, obj]) => {
     const sectors = obj.sectors || {};
-    out[uf] = out[uf] || { refino: { level: 'Baixa' }, fertilizantes: { level: 'Baixa' }, siderurgia: { level: 'Baixa' }, mobilidade: { level: 'Baixa' } };
+    out[uf] = out[uf] || {
+      refino: { level: "Baixa" },
+      fertilizantes: { level: "Baixa" },
+      siderurgia: { level: "Baixa" },
+      mobilidade: { level: "Baixa" },
+    };
     // Map keys
     out[uf].refino = out[uf].refino || {};
     out[uf].fertilizantes = out[uf].fertilizantes || {};
@@ -225,19 +263,26 @@ const combinedData: Record<string, any> = (() => {
     out[uf].mobilidade = out[uf].mobilidade || {};
     if (sectors.refino) {
       out[uf].refino.level = sectors.refino.level || out[uf].refino.level;
-      if (sectors.refino.sources) out[uf].refino.sources = sectors.refino.sources;
+      if (sectors.refino.sources)
+        out[uf].refino.sources = sectors.refino.sources;
     }
     if (sectors.fertilizantes) {
-      out[uf].fertilizantes.level = sectors.fertilizantes.level || out[uf].fertilizantes.level;
-      if (sectors.fertilizantes.sources) out[uf].fertilizantes.sources = sectors.fertilizantes.sources;
+      out[uf].fertilizantes.level =
+        sectors.fertilizantes.level || out[uf].fertilizantes.level;
+      if (sectors.fertilizantes.sources)
+        out[uf].fertilizantes.sources = sectors.fertilizantes.sources;
     }
     if (sectors.siderurgia) {
-      out[uf].siderurgia.level = sectors.siderurgia.level || out[uf].siderurgia.level;
-      if (sectors.siderurgia.sources) out[uf].siderurgia.sources = sectors.siderurgia.sources;
+      out[uf].siderurgia.level =
+        sectors.siderurgia.level || out[uf].siderurgia.level;
+      if (sectors.siderurgia.sources)
+        out[uf].siderurgia.sources = sectors.siderurgia.sources;
     }
     if (sectors.mobilidade_powertox) {
-      out[uf].mobilidade.level = sectors.mobilidade_powertox.level || out[uf].mobilidade.level;
-      if (sectors.mobilidade_powertox.sources) out[uf].mobilidade.sources = sectors.mobilidade_powertox.sources;
+      out[uf].mobilidade.level =
+        sectors.mobilidade_powertox.level || out[uf].mobilidade.level;
+      if (sectors.mobilidade_powertox.sources)
+        out[uf].mobilidade.sources = sectors.mobilidade_powertox.sources;
     }
   });
   return out;
@@ -261,11 +306,63 @@ const getBadgeClass = (level: string) => {
 function ForecastCard({ estado }: { estado: string }) {
   // UFs ampliados para todos os 27 estados
   const ufs = [
-    "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"
+    "AC",
+    "AL",
+    "AP",
+    "AM",
+    "BA",
+    "CE",
+    "DF",
+    "ES",
+    "GO",
+    "MA",
+    "MT",
+    "MS",
+    "MG",
+    "PA",
+    "PB",
+    "PR",
+    "PE",
+    "PI",
+    "RJ",
+    "RN",
+    "RS",
+    "RO",
+    "RR",
+    "SC",
+    "SP",
+    "SE",
+    "TO",
   ];
 
   const regions: Record<string, string> = {
-    AC: "N", AL: "NE", AP: "N", AM: "N", BA: "NE", CE: "NE", DF: "CO", ES: "SE", GO: "CO", MA: "NE", MT: "CO", MS: "CO", MG: "SE", PA: "N", PB: "NE", PR: "S", PE: "NE", PI: "NE", RJ: "SE", RN: "NE", RS: "S", RO: "N", RR: "N", SC: "S", SP: "SE", SE: "NE", TO: "N"
+    AC: "N",
+    AL: "NE",
+    AP: "N",
+    AM: "N",
+    BA: "NE",
+    CE: "NE",
+    DF: "CO",
+    ES: "SE",
+    GO: "CO",
+    MA: "NE",
+    MT: "CO",
+    MS: "CO",
+    MG: "SE",
+    PA: "N",
+    PB: "NE",
+    PR: "S",
+    PE: "NE",
+    PI: "NE",
+    RJ: "SE",
+    RN: "NE",
+    RS: "S",
+    RO: "N",
+    RR: "N",
+    SC: "S",
+    SP: "SE",
+    SE: "NE",
+    TO: "N",
   };
 
   const baseline2025: Record<string, number> = {
@@ -278,20 +375,120 @@ function ForecastCard({ estado }: { estado: string }) {
   // Pesos ampliados para todos os UFs
   const weights: Record<string, Record<string, number>> = {
     Refino: {
-      SP: 1.0, RJ: 1.0, MG: 0.6, ES: 0.2, BA: 1.0, SE: 0.2, PR: 1.0, RS: 1.0, PE: 1.0, CE: 0.6, AM: 0.6, MS: 0.2, DF: 0.2,
-      AC: 0.2, AL: 0.2, AP: 0.2, GO: 0.2, MA: 0.2, MT: 0.2, PA: 0.2, PB: 0.2, PI: 0.2, RN: 1.0, RO: 0.2, RR: 0.2, SC: 0.2, TO: 0.2
+      SP: 1.0,
+      RJ: 1.0,
+      MG: 0.6,
+      ES: 0.2,
+      BA: 1.0,
+      SE: 0.2,
+      PR: 1.0,
+      RS: 1.0,
+      PE: 1.0,
+      CE: 0.6,
+      AM: 0.6,
+      MS: 0.2,
+      DF: 0.2,
+      AC: 0.2,
+      AL: 0.2,
+      AP: 0.2,
+      GO: 0.2,
+      MA: 0.2,
+      MT: 0.2,
+      PA: 0.2,
+      PB: 0.2,
+      PI: 0.2,
+      RN: 1.0,
+      RO: 0.2,
+      RR: 0.2,
+      SC: 0.2,
+      TO: 0.2,
     },
     Fertilizantes: {
-      SP: 0.6, RJ: 0.2, MG: 0.6, ES: 0.2, BA: 1.0, SE: 1.0, PR: 1.0, RS: 0.2, PE: 0.6, CE: 0.6, AM: 0.2, MS: 1.0, DF: 0.2,
-      AC: 0.2, AL: 0.2, AP: 0.2, GO: 1.0, MA: 0.2, MT: 1.0, PA: 0.2, PB: 0.6, PI: 1.0, RN: 1.0, RO: 0.2, RR: 0.2, SC: 1.0, TO: 1.0
+      SP: 0.6,
+      RJ: 0.2,
+      MG: 0.6,
+      ES: 0.2,
+      BA: 1.0,
+      SE: 1.0,
+      PR: 1.0,
+      RS: 0.2,
+      PE: 0.6,
+      CE: 0.6,
+      AM: 0.2,
+      MS: 1.0,
+      DF: 0.2,
+      AC: 0.2,
+      AL: 0.2,
+      AP: 0.2,
+      GO: 1.0,
+      MA: 0.2,
+      MT: 1.0,
+      PA: 0.2,
+      PB: 0.6,
+      PI: 1.0,
+      RN: 1.0,
+      RO: 0.2,
+      RR: 0.2,
+      SC: 1.0,
+      TO: 1.0,
     },
     Siderurgia: {
-      SP: 1.0, RJ: 1.0, MG: 1.0, ES: 1.0, BA: 0.6, SE: 0.2, PR: 0.6, RS: 0.6, PE: 0.2, CE: 0.6, AM: 0.2, MS: 0.2, DF: 0.2,
-      AC: 0.2, AL: 0.2, AP: 0.2, GO: 0.2, MA: 1.0, MT: 0.2, PA: 1.0, PB: 0.2, PI: 1.0, RN: 0.8, RO: 0.2, RR: 0.2, SC: 0.2, TO: 0.2
+      SP: 1.0,
+      RJ: 1.0,
+      MG: 1.0,
+      ES: 1.0,
+      BA: 0.6,
+      SE: 0.2,
+      PR: 0.6,
+      RS: 0.6,
+      PE: 0.2,
+      CE: 0.6,
+      AM: 0.2,
+      MS: 0.2,
+      DF: 0.2,
+      AC: 0.2,
+      AL: 0.2,
+      AP: 0.2,
+      GO: 0.2,
+      MA: 1.0,
+      MT: 0.2,
+      PA: 1.0,
+      PB: 0.2,
+      PI: 1.0,
+      RN: 0.8,
+      RO: 0.2,
+      RR: 0.2,
+      SC: 0.2,
+      TO: 0.2,
     },
     Mobilidade: {
-      SP: 1.2, RJ: 0.8, MG: 0.2, ES: 0.2, BA: 0.2, SE: 0.2, PR: 0.2, RS: 0.2, PE: 0.2, CE: 0.2, AM: 0.2, MS: 0.2, DF: 1.2,
-      AC: 0.2, AL: 0.2, AP: 0.2, GO: 1.0, MA: 1.0, MT: 1.0, PA: 1.0, PB: 1.0, PI: 1.0, RN: 1.0, RO: 0.2, RR: 0.2, SC: 1.0, TO: 0.2
+      SP: 1.2,
+      RJ: 0.8,
+      MG: 0.2,
+      ES: 0.2,
+      BA: 0.2,
+      SE: 0.2,
+      PR: 0.2,
+      RS: 0.2,
+      PE: 0.2,
+      CE: 0.2,
+      AM: 0.2,
+      MS: 0.2,
+      DF: 1.2,
+      AC: 0.2,
+      AL: 0.2,
+      AP: 0.2,
+      GO: 1.0,
+      MA: 1.0,
+      MT: 1.0,
+      PA: 1.0,
+      PB: 1.0,
+      PI: 1.0,
+      RN: 1.0,
+      RO: 0.2,
+      RR: 0.2,
+      SC: 1.0,
+      TO: 0.2,
     },
   };
 
@@ -378,7 +575,10 @@ function ForecastCard({ estado }: { estado: string }) {
 
         <div>
           <p className="text-sm text-slate-600 mb-2">Ano</p>
-          <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
+          <Select
+            value={String(year)}
+            onValueChange={(v) => setYear(Number(v))}
+          >
             <SelectTrigger className="h-10 bg-white">
               <SelectValue />
             </SelectTrigger>
@@ -408,9 +608,11 @@ function ForecastCard({ estado }: { estado: string }) {
         <table className="w-full table-fixed text-sm">
           <thead>
             <tr>
-              <th className="w-32 text-center">Ano</th>
-              <th className="text-center">Demanda (kt)</th>
-              <th className="w-48 text-center">Cumulativo até o ano (kt)</th>
+              <th className="w-32 text-center text-sm">Ano</th>
+              <th className="text-sm">Demanda (kt)</th>
+              <th className="w-48 text-sm">
+                Cumulativo até o ano (kt)
+              </th>
             </tr>
           </thead>
           <tbody className="text-center">
@@ -428,11 +630,13 @@ function ForecastCard({ estado }: { estado: string }) {
           </tbody>
         </table>
       </div>
-      
+
       <div className="mt-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
         <p className="text-xs text-slate-600">
-          <strong>Fonte dos dados:</strong> Projeções baseadas em dados setoriais oficiais (Refino, Fertilizantes, Siderurgia, Mobilidade) 
-          combinados com baseline IPEA e tendências regionais. Os valores refletem estimativas qualitativas ajustadas por nível de demanda 
+          <strong>Fonte dos dados:</strong> Projeções baseadas em dados
+          setoriais oficiais (Refino, Fertilizantes, Siderurgia, Mobilidade)
+          combinados com baseline IPEA e tendências regionais. Os valores
+          refletem estimativas qualitativas ajustadas por nível de demanda
           (Alta/Média/Baixa) observado em cada estado.
         </p>
       </div>
@@ -441,103 +645,233 @@ function ForecastCard({ estado }: { estado: string }) {
 }
 
 // Mapeamento de empresas que usam oxigênio por estado
-const oxygenCompanies: Record<string, { setor: string; empresas: string[] }[]> = {
-  SP: [
-    { setor: "Saúde", empresas: ["Hospital Albert Einstein", "Hospital Sírio-Libanês", "Santa Casa de São Paulo", "White Martins"] },
-    { setor: "Química", empresas: ["Braskem", "Dow Chemical", "BASF", "Oxiteno"] },
-    { setor: "Metalurgia", empresas: ["Gerdau", "Usiminas", "ArcelorMittal", "White Martins"] },
-    { setor: "Tratamento de Água", empresas: ["Sabesp", "Iguá Saneamento", "BRK Ambiental"] },
-  ],
-  RJ: [
-    { setor: "Saúde", empresas: ["Rede D'Or", "Hospital Copa D'Or", "Hospital Quinta D'Or", "White Martins"] },
-    { setor: "Petroquímica", empresas: ["Petrobras", "Shell", "GNL Guanabara"] },
-    { setor: "Metalurgia", empresas: ["Gerdau", "CSN", "ThyssenKrupp CSA"] },
-    { setor: "Saneamento", empresas: ["Águas do Rio", "CEDAE"] },
-  ],
-  MG: [
-    { setor: "Saúde", empresas: ["Hospital Felício Rocho", "Mater Dei", "Santa Casa BH", "White Martins"] },
-    { setor: "Mineração", empresas: ["Vale", "Anglo American", "Gerdau", "ArcelorMittal"] },
-    { setor: "Metalurgia", empresas: ["Usiminas", "Gerdau", "ArcelorMittal"] },
-    { setor: "Saneamento", empresas: ["COPASA", "BRK Ambiental"] },
-  ],
-  RS: [
-    { setor: "Saúde", empresas: ["Hospital Moinhos de Vento", "Hospital São Lucas", "Santa Casa Porto Alegre"] },
-    { setor: "Química", empresas: ["Braskem", "Petroquímica Triunfo", "Oxiquímica"] },
-    { setor: "Metalurgia", empresas: ["Gerdau", "Iochpe-Maxion"] },
-    { setor: "Alimentos", empresas: ["BRF", "Aurora", "Marfrig"] },
-  ],
-  PR: [
-    { setor: "Saúde", empresas: ["Hospital Marcelino Champagnat", "Hospital Vita", "White Martins"] },
-    { setor: "Alimentos", empresas: ["BRF", "JBS", "Copacol", "C.Vale"] },
-    { setor: "Química", empresas: ["Petrobrás REPAR", "Perstorp"] },
-    { setor: "Papel e Celulose", empresas: ["Klabin", "International Paper"] },
-  ],
-  BA: [
-    { setor: "Saúde", empresas: ["Hospital Aliança", "Hospital São Rafael", "White Martins"] },
-    { setor: "Petroquímica", empresas: ["Braskem", "Petrobras RLAM", "Camaçari Petroquímico"] },
-    { setor: "Metalurgia", empresas: ["Gerdau", "Bahia Mineração"] },
-    { setor: "Celulose", empresas: ["Suzano", "Bracell"] },
-  ],
-  CE: [
-    { setor: "Saúde", empresas: ["Hospital São Mateus", "Hospital Geral de Fortaleza", "White Martins"] },
-    { setor: "Siderurgia", empresas: ["Gerdau", "CSP"] },
-    { setor: "Têxtil", empresas: ["Santana Textiles", "Vicunha Têxtil"] },
-    { setor: "Alimentos", empresas: ["M. Dias Branco", "J. Macêdo"] },
-  ],
-  PE: [
-    { setor: "Saúde", empresas: ["Hospital Português", "Real Hospital Português", "White Martins"] },
-    { setor: "Química", empresas: ["Petrobrás", "Suape Petroquímico"] },
-    { setor: "Alimentos", empresas: ["Grupo Pão de Açúcar", "BRF"] },
-    { setor: "Saneamento", empresas: ["Compesa", "BRK Ambiental"] },
-  ],
-  ES: [
-    { setor: "Saúde", empresas: ["Hospital Meridional", "São Bernardo", "White Martins"] },
-    { setor: "Siderurgia", empresas: ["ArcelorMittal Tubarão", "CSN"] },
-    { setor: "Celulose", empresas: ["Suzano", "Bracell", "Fibria"] },
-    { setor: "Mineração", empresas: ["Vale", "Samarco"] },
-  ],
-  SC: [
-    { setor: "Saúde", empresas: ["Hospital Baía Sul", "Hospital Universitário", "White Martins"] },
-    { setor: "Alimentos", empresas: ["BRF", "Aurora", "Seara"] },
-    { setor: "Metalurgia", empresas: ["Tupy", "Embraco"] },
-    { setor: "Têxtil", empresas: ["Hering", "Marisol"] },
-  ],
-  GO: [
-    { setor: "Saúde", empresas: ["Hospital Albert Sabin", "Hospital Araújo Jorge", "White Martins"] },
-    { setor: "Alimentos", empresas: ["BRF", "JBS", "Minerva Foods"] },
-    { setor: "Química", empresas: ["Petrobrás REPLAN", "Adubos Araguaia"] },
-    { setor: "Mineração", empresas: ["Anglo American", "Vale"] },
-  ],
-  MS: [
-    { setor: "Saúde", empresas: ["Hospital Universitário", "Santa Casa Campo Grande"] },
-    { setor: "Celulose", empresas: ["Suzano", "Eldorado Brasil"] },
-    { setor: "Alimentos", empresas: ["JBS", "Minerva Foods", "Marfrig"] },
-    { setor: "Mineração", empresas: ["Vale", "Vetria Mineração"] },
-  ],
-  MT: [
-    { setor: "Saúde", empresas: ["Hospital Santa Rosa", "Hospital Geral Cuiabá"] },
-    { setor: "Alimentos", empresas: ["BRF", "JBS", "Amaggi"] },
-    { setor: "Química", empresas: ["Bunge", "Cargill"] },
-    { setor: "Mineração", empresas: ["Vale", "Anglo American"] },
-  ],
-  DF: [
-    { setor: "Saúde", empresas: ["Hospital Sírio-Libanês Brasília", "Hospital Santa Lúcia", "White Martins"] },
-    { setor: "Tratamento de Água", empresas: ["CAESB", "Águas de Brasília"] },
-    { setor: "Química", empresas: ["Petrobrás", "SESI Lab"] },
-  ],
-  AM: [
-    { setor: "Saúde", empresas: ["Hospital Adventista", "Hospital São Camilo", "White Martins"] },
-    { setor: "Eletroeletrônicos", empresas: ["Samsung", "LG", "Philips"] },
-    { setor: "Metalurgia", empresas: ["Gerdau", "Bom Futuro"] },
-    { setor: "Química", empresas: ["Petroquímica Manaus"] },
-  ],
-  PA: [
-    { setor: "Saúde", empresas: ["Hospital Adventista Belém", "Hospital Porto Dias", "White Martins"] },
-    { setor: "Mineração", empresas: ["Vale", "Hydro", "Mineração Rio do Norte"] },
-    { setor: "Metalurgia", empresas: ["Gerdau Açominas", "Albras"] },
-    { setor: "Alimentos", empresas: ["Marfrig", "JBS"] },
-  ],
-};
+const oxygenCompanies: Record<string, { setor: string; empresas: string[] }[]> =
+  {
+    SP: [
+      {
+        setor: "Saúde",
+        empresas: [
+          "Hospital Albert Einstein",
+          "Hospital Sírio-Libanês",
+          "Santa Casa de São Paulo",
+          "White Martins",
+        ],
+      },
+      {
+        setor: "Química",
+        empresas: ["Braskem", "Dow Chemical", "BASF", "Oxiteno"],
+      },
+      {
+        setor: "Metalurgia",
+        empresas: ["Gerdau", "Usiminas", "ArcelorMittal", "White Martins"],
+      },
+      {
+        setor: "Tratamento de Água",
+        empresas: ["Sabesp", "Iguá Saneamento", "BRK Ambiental"],
+      },
+    ],
+    RJ: [
+      {
+        setor: "Saúde",
+        empresas: [
+          "Rede D'Or",
+          "Hospital Copa D'Or",
+          "Hospital Quinta D'Or",
+          "White Martins",
+        ],
+      },
+      {
+        setor: "Petroquímica",
+        empresas: ["Petrobras", "Shell", "GNL Guanabara"],
+      },
+      { setor: "Metalurgia", empresas: ["Gerdau", "CSN", "ThyssenKrupp CSA"] },
+      { setor: "Saneamento", empresas: ["Águas do Rio", "CEDAE"] },
+    ],
+    MG: [
+      {
+        setor: "Saúde",
+        empresas: [
+          "Hospital Felício Rocho",
+          "Mater Dei",
+          "Santa Casa BH",
+          "White Martins",
+        ],
+      },
+      {
+        setor: "Mineração",
+        empresas: ["Vale", "Anglo American", "Gerdau", "ArcelorMittal"],
+      },
+      {
+        setor: "Metalurgia",
+        empresas: ["Usiminas", "Gerdau", "ArcelorMittal"],
+      },
+      { setor: "Saneamento", empresas: ["COPASA", "BRK Ambiental"] },
+    ],
+    RS: [
+      {
+        setor: "Saúde",
+        empresas: [
+          "Hospital Moinhos de Vento",
+          "Hospital São Lucas",
+          "Santa Casa Porto Alegre",
+        ],
+      },
+      {
+        setor: "Química",
+        empresas: ["Braskem", "Petroquímica Triunfo", "Oxiquímica"],
+      },
+      { setor: "Metalurgia", empresas: ["Gerdau", "Iochpe-Maxion"] },
+      { setor: "Alimentos", empresas: ["BRF", "Aurora", "Marfrig"] },
+    ],
+    PR: [
+      {
+        setor: "Saúde",
+        empresas: [
+          "Hospital Marcelino Champagnat",
+          "Hospital Vita",
+          "White Martins",
+        ],
+      },
+      { setor: "Alimentos", empresas: ["BRF", "JBS", "Copacol", "C.Vale"] },
+      { setor: "Química", empresas: ["Petrobrás REPAR", "Perstorp"] },
+      {
+        setor: "Papel e Celulose",
+        empresas: ["Klabin", "International Paper"],
+      },
+    ],
+    BA: [
+      {
+        setor: "Saúde",
+        empresas: ["Hospital Aliança", "Hospital São Rafael", "White Martins"],
+      },
+      {
+        setor: "Petroquímica",
+        empresas: ["Braskem", "Petrobras RLAM", "Camaçari Petroquímico"],
+      },
+      { setor: "Metalurgia", empresas: ["Gerdau", "Bahia Mineração"] },
+      { setor: "Celulose", empresas: ["Suzano", "Bracell"] },
+    ],
+    CE: [
+      {
+        setor: "Saúde",
+        empresas: [
+          "Hospital São Mateus",
+          "Hospital Geral de Fortaleza",
+          "White Martins",
+        ],
+      },
+      { setor: "Siderurgia", empresas: ["Gerdau", "CSP"] },
+      { setor: "Têxtil", empresas: ["Santana Textiles", "Vicunha Têxtil"] },
+      { setor: "Alimentos", empresas: ["M. Dias Branco", "J. Macêdo"] },
+    ],
+    PE: [
+      {
+        setor: "Saúde",
+        empresas: [
+          "Hospital Português",
+          "Real Hospital Português",
+          "White Martins",
+        ],
+      },
+      { setor: "Química", empresas: ["Petrobrás", "Suape Petroquímico"] },
+      { setor: "Alimentos", empresas: ["Grupo Pão de Açúcar", "BRF"] },
+      { setor: "Saneamento", empresas: ["Compesa", "BRK Ambiental"] },
+    ],
+    ES: [
+      {
+        setor: "Saúde",
+        empresas: ["Hospital Meridional", "São Bernardo", "White Martins"],
+      },
+      { setor: "Siderurgia", empresas: ["ArcelorMittal Tubarão", "CSN"] },
+      { setor: "Celulose", empresas: ["Suzano", "Bracell", "Fibria"] },
+      { setor: "Mineração", empresas: ["Vale", "Samarco"] },
+    ],
+    SC: [
+      {
+        setor: "Saúde",
+        empresas: [
+          "Hospital Baía Sul",
+          "Hospital Universitário",
+          "White Martins",
+        ],
+      },
+      { setor: "Alimentos", empresas: ["BRF", "Aurora", "Seara"] },
+      { setor: "Metalurgia", empresas: ["Tupy", "Embraco"] },
+      { setor: "Têxtil", empresas: ["Hering", "Marisol"] },
+    ],
+    GO: [
+      {
+        setor: "Saúde",
+        empresas: [
+          "Hospital Albert Sabin",
+          "Hospital Araújo Jorge",
+          "White Martins",
+        ],
+      },
+      { setor: "Alimentos", empresas: ["BRF", "JBS", "Minerva Foods"] },
+      { setor: "Química", empresas: ["Petrobrás REPLAN", "Adubos Araguaia"] },
+      { setor: "Mineração", empresas: ["Anglo American", "Vale"] },
+    ],
+    MS: [
+      {
+        setor: "Saúde",
+        empresas: ["Hospital Universitário", "Santa Casa Campo Grande"],
+      },
+      { setor: "Celulose", empresas: ["Suzano", "Eldorado Brasil"] },
+      { setor: "Alimentos", empresas: ["JBS", "Minerva Foods", "Marfrig"] },
+      { setor: "Mineração", empresas: ["Vale", "Vetria Mineração"] },
+    ],
+    MT: [
+      {
+        setor: "Saúde",
+        empresas: ["Hospital Santa Rosa", "Hospital Geral Cuiabá"],
+      },
+      { setor: "Alimentos", empresas: ["BRF", "JBS", "Amaggi"] },
+      { setor: "Química", empresas: ["Bunge", "Cargill"] },
+      { setor: "Mineração", empresas: ["Vale", "Anglo American"] },
+    ],
+    DF: [
+      {
+        setor: "Saúde",
+        empresas: [
+          "Hospital Sírio-Libanês Brasília",
+          "Hospital Santa Lúcia",
+          "White Martins",
+        ],
+      },
+      { setor: "Tratamento de Água", empresas: ["CAESB", "Águas de Brasília"] },
+      { setor: "Química", empresas: ["Petrobrás", "SESI Lab"] },
+    ],
+    AM: [
+      {
+        setor: "Saúde",
+        empresas: [
+          "Hospital Adventista",
+          "Hospital São Camilo",
+          "White Martins",
+        ],
+      },
+      { setor: "Eletroeletrônicos", empresas: ["Samsung", "LG", "Philips"] },
+      { setor: "Metalurgia", empresas: ["Gerdau", "Bom Futuro"] },
+      { setor: "Química", empresas: ["Petroquímica Manaus"] },
+    ],
+    PA: [
+      {
+        setor: "Saúde",
+        empresas: [
+          "Hospital Adventista Belém",
+          "Hospital Porto Dias",
+          "White Martins",
+        ],
+      },
+      {
+        setor: "Mineração",
+        empresas: ["Vale", "Hydro", "Mineração Rio do Norte"],
+      },
+      { setor: "Metalurgia", empresas: ["Gerdau Açominas", "Albras"] },
+      { setor: "Alimentos", empresas: ["Marfrig", "JBS"] },
+    ],
+  };
 
 export default function SectorDemandByStateCard({
   estado,
@@ -551,7 +885,20 @@ export default function SectorDemandByStateCard({
 
   // States for which we hide the "Fontes/Empresas" visual (user request)
   const hiddenSourceStates = new Set([
-    'AC','AP','PA','RO','RR','TO','AL','MA','PB','PI','RN','GO','MT','SC'
+    "AC",
+    "AP",
+    "PA",
+    "RO",
+    "RR",
+    "TO",
+    "AL",
+    "MA",
+    "PB",
+    "PI",
+    "RN",
+    "GO",
+    "MT",
+    "SC",
   ]);
   const hideSourcesForThisState = hiddenSourceStates.has(estado.toUpperCase());
 
@@ -574,9 +921,9 @@ export default function SectorDemandByStateCard({
           levelRaw.toLowerCase() === "alta"
             ? "Alta"
             : levelRaw.toLowerCase() === "média" ||
-              levelRaw.toLowerCase() === "media"
-            ? "Média"
-            : "Baixa";
+                levelRaw.toLowerCase() === "media"
+              ? "Média"
+              : "Baixa";
         counts[sec][level] = (counts[sec][level] || 0) + 1;
         if (level === "Alta") topStates[sec].push(uf);
       });
@@ -675,7 +1022,8 @@ export default function SectorDemandByStateCard({
             <div className="px-6 py-4 flex items-center hover:bg-slate-50 transition-colors">
               <FileText className="w-6 h-6 text-emerald-600 mr-3" />
               <h2 className="text-2xl font-bold text-slate-900">
-                Previsão de demanda de H2 para {estadoNome || estado.toUpperCase()}
+                Previsão de demanda de H2 para{" "}
+                {estadoNome || estado.toUpperCase()}
               </h2>
               <Badge className="ml-auto mr-3 bg-emerald-100 text-emerald-800 border-emerald-200">
                 {estado.toUpperCase()}
@@ -696,12 +1044,16 @@ export default function SectorDemandByStateCard({
       </Card>
 
       <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden mb-4">
-        <Collapsible open={isQualitativeOpen} onOpenChange={setIsQualitativeOpen}>
+        <Collapsible
+          open={isQualitativeOpen}
+          onOpenChange={setIsQualitativeOpen}
+        >
           <CollapsibleTrigger className="w-full">
             <div className="px-6 py-4 flex items-center hover:bg-slate-50 transition-colors">
               <FileText className="w-6 h-6 text-emerald-600 mr-3" />
               <h2 className="text-2xl font-bold text-slate-900">
-                Demanda setorial qualitativa de {estadoNome || estado.toUpperCase()}
+                Demanda setorial qualitativa de{" "}
+                {estadoNome || estado.toUpperCase()}
               </h2>
               <Badge className="ml-auto mr-3 bg-emerald-100 text-emerald-800 border-emerald-200">
                 {estado.toUpperCase()}
@@ -715,7 +1067,6 @@ export default function SectorDemandByStateCard({
             </div>
           </CollapsibleTrigger>
           <CollapsibleContent>
-
             <div className="px-6 pb-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="p-3 rounded border bg-white">
@@ -764,9 +1115,11 @@ export default function SectorDemandByStateCard({
                     <div className="text-xs text-emerald-700 mt-1">
                       <b>Fontes/Empresas:</b>
                       <ul>
-                        {getSourceTitles(s.fertilizantes.sources).map((title, idx) => (
-                          <li key={idx}>{title}</li>
-                        ))}
+                        {getSourceTitles(s.fertilizantes.sources).map(
+                          (title, idx) => (
+                            <li key={idx}>{title}</li>
+                          ),
+                        )}
                       </ul>
                     </div>
                   )}
@@ -790,9 +1143,11 @@ export default function SectorDemandByStateCard({
                     <div className="text-xs text-emerald-700 mt-1">
                       <b>Fontes/Empresas:</b>
                       <ul>
-                        {getSourceTitles(s.siderurgia.sources).map((title, idx) => (
-                          <li key={idx}>{title}</li>
-                        ))}
+                        {getSourceTitles(s.siderurgia.sources).map(
+                          (title, idx) => (
+                            <li key={idx}>{title}</li>
+                          ),
+                        )}
                       </ul>
                     </div>
                   )}
@@ -816,9 +1171,11 @@ export default function SectorDemandByStateCard({
                     <div className="text-xs text-emerald-700 mt-1">
                       <b>Fontes/Empresas:</b>
                       <ul>
-                        {getSourceTitles(s.mobilidade.sources).map((title, idx) => (
-                          <li key={idx}>{title}</li>
-                        ))}
+                        {getSourceTitles(s.mobilidade.sources).map(
+                          (title, idx) => (
+                            <li key={idx}>{title}</li>
+                          ),
+                        )}
                       </ul>
                     </div>
                   )}
@@ -854,19 +1211,29 @@ export default function SectorDemandByStateCard({
                 {/* Aplicações Médicas */}
                 <div className="p-3 rounded border bg-white">
                   <div className="flex items-center justify-between mb-2">
-                    <div className="text-sm font-semibold">Aplicações Médicas</div>
+                    <div className="text-sm font-semibold">
+                      Aplicações Médicas
+                    </div>
                   </div>
                   <div className="text-xs text-slate-500 mb-2">
                     <p>Oxigênio medicinal para hospitais e clínicas</p>
                   </div>
-                  {oxygenCompanies[estado.toUpperCase()]?.find(s => s.setor === "Saúde") && (
+                  {oxygenCompanies[estado.toUpperCase()]?.find(
+                    (s) => s.setor === "Saúde",
+                  ) && (
                     <div className="mt-2 pt-2 border-t">
-                      <p className="text-xs font-medium text-slate-600 mb-1">Principais empresas:</p>
+                      <p className="text-xs font-medium text-slate-600 mb-1">
+                        Principais empresas:
+                      </p>
                       <div className="flex flex-wrap gap-1">
                         {oxygenCompanies[estado.toUpperCase()]
-                          .find(s => s.setor === "Saúde")
+                          .find((s) => s.setor === "Saúde")
                           ?.empresas.map((emp, i) => (
-                            <Badge key={i} variant="outline" className="text-xs bg-emerald-50 text-emerald-800 border-emerald-200">
+                            <Badge
+                              key={i}
+                              variant="outline"
+                              className="text-xs bg-emerald-50 text-emerald-800 border-emerald-200"
+                            >
                               {emp}
                             </Badge>
                           ))}
@@ -878,20 +1245,34 @@ export default function SectorDemandByStateCard({
                 {/* Processamento Químico */}
                 <div className="p-3 rounded border bg-white">
                   <div className="flex items-center justify-between mb-2">
-                    <div className="text-sm font-semibold">Processamento Químico</div>
+                    <div className="text-sm font-semibold">
+                      Processamento Químico
+                    </div>
                   </div>
                   <div className="text-xs text-slate-500 mb-2">
                     <p>Oxidação controlada em síntese química</p>
                   </div>
-                  {oxygenCompanies[estado.toUpperCase()]?.find(s => s.setor === "Química" || s.setor === "Petroquímica") && (
+                  {oxygenCompanies[estado.toUpperCase()]?.find(
+                    (s) => s.setor === "Química" || s.setor === "Petroquímica",
+                  ) && (
                     <div className="mt-2 pt-2 border-t">
-                      <p className="text-xs font-medium text-slate-600 mb-1">Principais empresas:</p>
+                      <p className="text-xs font-medium text-slate-600 mb-1">
+                        Principais empresas:
+                      </p>
                       <div className="flex flex-wrap gap-1">
                         {oxygenCompanies[estado.toUpperCase()]
-                          .filter(s => s.setor === "Química" || s.setor === "Petroquímica")
-                          .flatMap(s => s.empresas)
+                          .filter(
+                            (s) =>
+                              s.setor === "Química" ||
+                              s.setor === "Petroquímica",
+                          )
+                          .flatMap((s) => s.empresas)
                           .map((emp, i) => (
-                            <Badge key={i} variant="outline" className="text-xs bg-emerald-50 text-emerald-800 border-emerald-200">
+                            <Badge
+                              key={i}
+                              variant="outline"
+                              className="text-xs bg-emerald-50 text-emerald-800 border-emerald-200"
+                            >
                               {emp}
                             </Badge>
                           ))}
@@ -903,20 +1284,38 @@ export default function SectorDemandByStateCard({
                 {/* Indústria Metalúrgica */}
                 <div className="p-3 rounded border bg-white">
                   <div className="flex items-center justify-between mb-2">
-                    <div className="text-sm font-semibold">Indústria Metalúrgica</div>
+                    <div className="text-sm font-semibold">
+                      Indústria Metalúrgica
+                    </div>
                   </div>
                   <div className="text-xs text-slate-500 mb-2">
                     <p>Corte e soldagem, tratamento de minérios</p>
                   </div>
-                  {oxygenCompanies[estado.toUpperCase()]?.find(s => s.setor === "Metalurgia" || s.setor === "Siderurgia" || s.setor === "Mineração") && (
+                  {oxygenCompanies[estado.toUpperCase()]?.find(
+                    (s) =>
+                      s.setor === "Metalurgia" ||
+                      s.setor === "Siderurgia" ||
+                      s.setor === "Mineração",
+                  ) && (
                     <div className="mt-2 pt-2 border-t">
-                      <p className="text-xs font-medium text-slate-600 mb-1">Principais empresas:</p>
+                      <p className="text-xs font-medium text-slate-600 mb-1">
+                        Principais empresas:
+                      </p>
                       <div className="flex flex-wrap gap-1">
                         {oxygenCompanies[estado.toUpperCase()]
-                          .filter(s => s.setor === "Metalurgia" || s.setor === "Siderurgia" || s.setor === "Mineração")
-                          .flatMap(s => s.empresas)
+                          .filter(
+                            (s) =>
+                              s.setor === "Metalurgia" ||
+                              s.setor === "Siderurgia" ||
+                              s.setor === "Mineração",
+                          )
+                          .flatMap((s) => s.empresas)
                           .map((emp, i) => (
-                            <Badge key={i} variant="outline" className="text-xs bg-emerald-50 text-emerald-800 border-emerald-200">
+                            <Badge
+                              key={i}
+                              variant="outline"
+                              className="text-xs bg-emerald-50 text-emerald-800 border-emerald-200"
+                            >
                               {emp}
                             </Badge>
                           ))}
@@ -928,20 +1327,36 @@ export default function SectorDemandByStateCard({
                 {/* Tratamento de Efluentes */}
                 <div className="p-3 rounded border bg-white">
                   <div className="flex items-center justify-between mb-2">
-                    <div className="text-sm font-semibold">Tratamento de Efluentes</div>
+                    <div className="text-sm font-semibold">
+                      Tratamento de Efluentes
+                    </div>
                   </div>
                   <div className="text-xs text-slate-500 mb-2">
                     <p>Oxidação biológica e química de resíduos</p>
                   </div>
-                  {oxygenCompanies[estado.toUpperCase()]?.find(s => s.setor === "Saneamento" || s.setor === "Tratamento de Água") && (
+                  {oxygenCompanies[estado.toUpperCase()]?.find(
+                    (s) =>
+                      s.setor === "Saneamento" ||
+                      s.setor === "Tratamento de Água",
+                  ) && (
                     <div className="mt-2 pt-2 border-t">
-                      <p className="text-xs font-medium text-slate-600 mb-1">Principais empresas:</p>
+                      <p className="text-xs font-medium text-slate-600 mb-1">
+                        Principais empresas:
+                      </p>
                       <div className="flex flex-wrap gap-1">
                         {oxygenCompanies[estado.toUpperCase()]
-                          .filter(s => s.setor === "Saneamento" || s.setor === "Tratamento de Água")
-                          .flatMap(s => s.empresas)
+                          .filter(
+                            (s) =>
+                              s.setor === "Saneamento" ||
+                              s.setor === "Tratamento de Água",
+                          )
+                          .flatMap((s) => s.empresas)
                           .map((emp, i) => (
-                            <Badge key={i} variant="outline" className="text-xs bg-emerald-50 text-emerald-800 border-emerald-200">
+                            <Badge
+                              key={i}
+                              variant="outline"
+                              className="text-xs bg-emerald-50 text-emerald-800 border-emerald-200"
+                            >
                               {emp}
                             </Badge>
                           ))}
@@ -953,19 +1368,29 @@ export default function SectorDemandByStateCard({
                 {/* Indústria de Alimentos */}
                 <div className="p-3 rounded border bg-white">
                   <div className="flex items-center justify-between mb-2">
-                    <div className="text-sm font-semibold">Indústria de Alimentos</div>
+                    <div className="text-sm font-semibold">
+                      Indústria de Alimentos
+                    </div>
                   </div>
                   <div className="text-xs text-slate-500 mb-2">
                     <p>Esterilização, oxidação controlada em bebidas</p>
                   </div>
-                  {oxygenCompanies[estado.toUpperCase()]?.find(s => s.setor === "Alimentos") && (
+                  {oxygenCompanies[estado.toUpperCase()]?.find(
+                    (s) => s.setor === "Alimentos",
+                  ) && (
                     <div className="mt-2 pt-2 border-t">
-                      <p className="text-xs font-medium text-slate-600 mb-1">Principais empresas:</p>
+                      <p className="text-xs font-medium text-slate-600 mb-1">
+                        Principais empresas:
+                      </p>
                       <div className="flex flex-wrap gap-1">
                         {oxygenCompanies[estado.toUpperCase()]
-                          .find(s => s.setor === "Alimentos")
+                          .find((s) => s.setor === "Alimentos")
                           ?.empresas.map((emp, i) => (
-                            <Badge key={i} variant="outline" className="text-xs bg-emerald-50 text-emerald-800 border-emerald-200">
+                            <Badge
+                              key={i}
+                              variant="outline"
+                              className="text-xs bg-emerald-50 text-emerald-800 border-emerald-200"
+                            >
                               {emp}
                             </Badge>
                           ))}
@@ -977,30 +1402,40 @@ export default function SectorDemandByStateCard({
                 {/* Combustão Aprimorada / Outras Indústrias */}
                 <div className="p-3 rounded border bg-white">
                   <div className="flex items-center justify-between mb-2">
-                    <div className="text-sm font-semibold">Outras Indústrias</div>
+                    <div className="text-sm font-semibold">
+                      Outras Indústrias
+                    </div>
                   </div>
                   <div className="text-xs text-slate-500 mb-2">
                     <p>Celulose, papel, têxtil, eletroeletrônicos e outros</p>
                   </div>
-                  {oxygenCompanies[estado.toUpperCase()]?.find(s => 
-                    s.setor === "Celulose" || 
-                    s.setor === "Papel e Celulose" || 
-                    s.setor === "Têxtil" || 
-                    s.setor === "Eletroeletrônicos"
+                  {oxygenCompanies[estado.toUpperCase()]?.find(
+                    (s) =>
+                      s.setor === "Celulose" ||
+                      s.setor === "Papel e Celulose" ||
+                      s.setor === "Têxtil" ||
+                      s.setor === "Eletroeletrônicos",
                   ) && (
                     <div className="mt-2 pt-2 border-t">
-                      <p className="text-xs font-medium text-slate-600 mb-1">Principais empresas:</p>
+                      <p className="text-xs font-medium text-slate-600 mb-1">
+                        Principais empresas:
+                      </p>
                       <div className="flex flex-wrap gap-1">
                         {oxygenCompanies[estado.toUpperCase()]
-                          .filter(s => 
-                            s.setor === "Celulose" || 
-                            s.setor === "Papel e Celulose" || 
-                            s.setor === "Têxtil" || 
-                            s.setor === "Eletroeletrônicos"
+                          .filter(
+                            (s) =>
+                              s.setor === "Celulose" ||
+                              s.setor === "Papel e Celulose" ||
+                              s.setor === "Têxtil" ||
+                              s.setor === "Eletroeletrônicos",
                           )
-                          .flatMap(s => s.empresas)
+                          .flatMap((s) => s.empresas)
                           .map((emp, i) => (
-                            <Badge key={i} variant="outline" className="text-xs bg-emerald-50 text-emerald-800 border-emerald-200">
+                            <Badge
+                              key={i}
+                              variant="outline"
+                              className="text-xs bg-emerald-50 text-emerald-800 border-emerald-200"
+                            >
                               {emp}
                             </Badge>
                           ))}

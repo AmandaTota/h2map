@@ -39,7 +39,7 @@ const WindyMapControls = () => {
             key={layer.id}
             onClick={() => setCurrentLayer(layer.id)}
             className={`
-              flex items-center mb-4 mt-4 border w-[500px] gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all
+              flex items-center w-[100px] flex-wrap mb-4 mt-4 border w-full  gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all
               ${
                 isActive
                   ? "bg-white text-slate-900 shadow-md"

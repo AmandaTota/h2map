@@ -130,9 +130,9 @@ interface TopographyData {
 
 // Helper function to format numbers with locale and remove unnecessary decimals
 const formatCurrency = (value: number, decimals: number = 2): string => {
-  const formatted = value.toLocaleString("pt-BR", { 
+  const formatted = value.toLocaleString("pt-BR", {
     minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals
+    maximumFractionDigits: decimals,
   });
   // Remove ".0" if the number has no significant decimal places
   if (decimals > 0 && formatted.endsWith(",0".repeat(decimals / 1))) {
@@ -148,14 +148,14 @@ const formatCurrency = (value: number, decimals: number = 2): string => {
 const FeasibilityAnalysis = () => {
   const { selectedLocation, setSelectedLocation } = useLocationStore();
   const [localLocation, setLocalLocation] = useState(
-    selectedLocation || { lat: -23.5505, lng: -46.6333, name: "São Paulo, SP" }
+    selectedLocation || { lat: -23.5505, lng: -46.6333, name: "São Paulo, SP" },
   );
   const [analysisStarted, setAnalysisStarted] = useState(false);
   const [analyzedLocation, setAnalyzedLocation] = useState(localLocation);
   const [loading, setLoading] = useState(false);
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [topographyData, setTopographyData] = useState<TopographyData | null>(
-    null
+    null,
   );
   // Cenário selecionado para a seção de Viabilidade (1, 3 ou 5 anos)
   const [scenario, setScenario] = useState<"1" | "3" | "5">("1");
@@ -172,28 +172,31 @@ const FeasibilityAnalysis = () => {
   const [compareRegionB, setCompareRegionB] = useState<string>("Sudeste");
   const [selectedEstado, setSelectedEstado] = useState<string>("");
   const [selectedEstadoNome, setSelectedEstadoNome] = useState<string>("");
-  const [selectedRegiaoIntermediaria, setSelectedRegiaoIntermediaria] = useState<string>("");
+  const [selectedRegiaoIntermediaria, setSelectedRegiaoIntermediaria] =
+    useState<string>("");
   const [selectedRegiaoIntermediariaNome, setSelectedRegiaoIntermediariaNome] =
     useState<string>("");
 
   // Estados para comparação de regiões intermediárias
   const [compareEstadoA, setCompareEstadoA] = useState<string>("");
-  const [compareRegiaoIntermediariaA, setCompareRegiaoIntermediariaA] = useState<string>("");
-  const [compareRegiaoIntermediariaNomeA, setCompareRegiaoIntermediariaNomeA] = useState<string>("");
+  const [compareRegiaoIntermediariaA, setCompareRegiaoIntermediariaA] =
+    useState<string>("");
+  const [compareRegiaoIntermediariaNomeA, setCompareRegiaoIntermediariaNomeA] =
+    useState<string>("");
   const [compareEstadoB, setCompareEstadoB] = useState<string>("");
-  const [compareRegiaoIntermediariaB, setCompareRegiaoIntermediariaB] = useState<string>("");
-  const [compareRegiaoIntermediariaNomeB, setCompareRegiaoIntermediariaNomeB] = useState<string>("");
+  const [compareRegiaoIntermediariaB, setCompareRegiaoIntermediariaB] =
+    useState<string>("");
+  const [compareRegiaoIntermediariaNomeB, setCompareRegiaoIntermediariaNomeB] =
+    useState<string>("");
   // Forçar remontagem de filtros regionais ao limpar
   const [regionFiltersKey, setRegionFiltersKey] = useState<number>(0);
   // Toggles para iniciar fechados
   const [showComparison, setShowComparison] = useState<boolean>(false);
   const [showMapsComparison, setShowMapsComparison] = useState<boolean>(false);
-  const [regioesIntermediariasCompareA, setRegioesIntermediariasCompareA] = useState<
-    Array<{ id: string; nome: string }>
-  >([]);
-  const [regioesIntermediariasCompareB, setRegioesIntermediariasCompareB] = useState<
-    Array<{ id: string; nome: string }>
-  >([]);
+  const [regioesIntermediariasCompareA, setRegioesIntermediariasCompareA] =
+    useState<Array<{ id: string; nome: string }>>([]);
+  const [regioesIntermediariasCompareB, setRegioesIntermediariasCompareB] =
+    useState<Array<{ id: string; nome: string }>>([]);
   const [estadosCompare, setEstadosCompare] = useState<
     Array<{ sigla: string; nome: string }>
   >([]);
@@ -284,12 +287,14 @@ const FeasibilityAnalysis = () => {
 
   // Buscar coordenadas das regiões intermediárias quando mudarem
   useEffect(() => {
-    const fetchRegiaoIntermediariaCoords = async (regiaoIntermediariaId: string) => {
+    const fetchRegiaoIntermediariaCoords = async (
+      regiaoIntermediariaId: string,
+    ) => {
       if (!regiaoIntermediariaId) return null;
       try {
         // Buscar municípios da região intermediária via IBGE
         const response = await fetch(
-          `https://servicodados.ibge.gov.br/api/v1/localidades/regioes-intermediarias/${regiaoIntermediariaId}/municipios`
+          `https://servicodados.ibge.gov.br/api/v1/localidades/regioes-intermediarias/${regiaoIntermediariaId}/municipios`,
         );
         const municipios = await response.json();
 
@@ -341,24 +346,28 @@ const FeasibilityAnalysis = () => {
     };
 
     if (compareRegiaoIntermediariaA) {
-      fetchRegiaoIntermediariaCoords(compareRegiaoIntermediariaA).then((coords) => {
-        if (coords) {
-          setCoordsRegiaoIntermediariaA(coords);
-          setMapKeyA((prev) => prev + 1);
-        }
-      });
+      fetchRegiaoIntermediariaCoords(compareRegiaoIntermediariaA).then(
+        (coords) => {
+          if (coords) {
+            setCoordsRegiaoIntermediariaA(coords);
+            setMapKeyA((prev) => prev + 1);
+          }
+        },
+      );
     } else {
       setCoordsRegiaoIntermediariaA(null);
     }
   }, [compareRegiaoIntermediariaA]);
 
   useEffect(() => {
-    const fetchRegiaoIntermediariaCoords = async (regiaoIntermediariaId: string) => {
+    const fetchRegiaoIntermediariaCoords = async (
+      regiaoIntermediariaId: string,
+    ) => {
       if (!regiaoIntermediariaId) return null;
       try {
         // Buscar municípios da região intermediária via IBGE
         const response = await fetch(
-          `https://servicodados.ibge.gov.br/api/v1/localidades/regioes-intermediarias/${regiaoIntermediariaId}/municipios`
+          `https://servicodados.ibge.gov.br/api/v1/localidades/regioes-intermediarias/${regiaoIntermediariaId}/municipios`,
         );
         const municipios = await response.json();
 
@@ -410,12 +419,14 @@ const FeasibilityAnalysis = () => {
     };
 
     if (compareRegiaoIntermediariaB) {
-      fetchRegiaoIntermediariaCoords(compareRegiaoIntermediariaB).then((coords) => {
-        if (coords) {
-          setCoordsRegiaoIntermediariaB(coords);
-          setMapKeyB((prev) => prev + 1);
-        }
-      });
+      fetchRegiaoIntermediariaCoords(compareRegiaoIntermediariaB).then(
+        (coords) => {
+          if (coords) {
+            setCoordsRegiaoIntermediariaB(coords);
+            setMapKeyB((prev) => prev + 1);
+          }
+        },
+      );
     } else {
       setCoordsRegiaoIntermediariaB(null);
     }
@@ -495,13 +506,13 @@ const FeasibilityAnalysis = () => {
             startDate: startDateStr,
             endDate: endDateStr,
           },
-        }
+        },
       );
 
       if (error) {
         console.error("Error fetching NASA POWER data:", error);
         toast.warning(
-          "Não foi possível carregar dados da NASA POWER. Usando estimativas regionais."
+          "Não foi possível carregar dados da NASA POWER. Usando estimativas regionais.",
         );
         return;
       }
@@ -526,8 +537,8 @@ const FeasibilityAnalysis = () => {
           `✅ Dados reais da NASA POWER: ${
             data.daysAnalyzed
           } dias analisados com média de vento de ${avgData.windSpeed.toFixed(
-            1
-          )} m/s`
+            1,
+          )} m/s`,
         );
 
         // Run simulation with real data
@@ -647,7 +658,7 @@ const FeasibilityAnalysis = () => {
     console.log(
       "Starting hourly simulation with",
       dailyData.length,
-      "days of data"
+      "days of data",
     );
 
     // Parâmetros do projeto para 1, 3 e 5 anos
@@ -707,7 +718,7 @@ const FeasibilityAnalysis = () => {
             windEfficiency) /
           1000;
         // Fator de capacidade otimista: 40% em vez de 30%
-        const windPowerPerHour = windPowerPeak * 0.40;
+        const windPowerPerHour = windPowerPeak * 0.4;
 
         // Simular 24 horas com curtailment REDUZIDO
         for (let hour = 0; hour < 24; hour++) {
@@ -765,8 +776,10 @@ const FeasibilityAnalysis = () => {
         totalCapex * opexPercentage + annualH2Production * waterCostPerKg;
 
       // LCOH com bônus de escala (-15% para cenários 3 e 5 anos, -20% para 5 anos)
-      const scalingBonus = scenario.years === 5 ? 0.80 : scenario.years === 3 ? 0.85 : 1.0;
-      const lcoh = ((capexAnnualized + opexAnnual) / annualH2Production) * scalingBonus;
+      const scalingBonus =
+        scenario.years === 5 ? 0.8 : scenario.years === 3 ? 0.85 : 1.0;
+      const lcoh =
+        ((capexAnnualized + opexAnnual) / annualH2Production) * scalingBonus;
 
       results.push({
         totalEnergyConsumed: annualEnergyConsumed,
@@ -812,13 +825,13 @@ const FeasibilityAnalysis = () => {
         "fetch-topography-data",
         {
           body: { latitude: lat, longitude: lng },
-        }
+        },
       );
 
       if (error) {
         console.error("Error fetching topography data:", error);
         toast.error(
-          "Erro ao buscar dados topográficos. Usando estimativa regional."
+          "Erro ao buscar dados topográficos. Usando estimativa regional.",
         );
         return;
       }
@@ -838,14 +851,14 @@ const FeasibilityAnalysis = () => {
 
   const locationData = calculateLocationData(
     analyzedLocation.lat,
-    analyzedLocation.lng
+    analyzedLocation.lng,
   );
 
   // Função para calcular energia e produção de H2 usando fórmulas reais e valores realistas da indústria
   const calculateEnergyProduction = (
     solarIrradiance: number,
     windSpeed: number,
-    scaleFactor: number = 1
+    scaleFactor: number = 1,
   ): EnergyCalculations => {
     // ============ PARÂMETROS REALISTAS DA INDÚSTRIA ============
 
@@ -917,17 +930,17 @@ const FeasibilityAnalysis = () => {
   const energyCalc1Year = calculateEnergyProduction(
     locationData.solarBase,
     locationData.windBase,
-    1
+    1,
   );
   const energyCalc3Years = calculateEnergyProduction(
     locationData.solarBase,
     locationData.windBase,
-    3
+    3,
   );
   const energyCalc5Years = calculateEnergyProduction(
     locationData.solarBase,
     locationData.windBase,
-    5
+    5,
   );
 
   const analysisPeriods: AnalysisPeriod[] = [
@@ -947,18 +960,18 @@ const FeasibilityAnalysis = () => {
           energyCalc1Year.totalPower * 1.0 * 18000 + // Eletrolisador (dimensionado pela potência total)
           (energyCalc1Year.solarPower * 3500 +
             energyCalc1Year.windPower * 10000) *
-            0.4 // Infraestrutura
+            0.4, // Infraestrutura
       ),
       // ROI: Preço do H2 verde no Brasil: R$ 20-30/kg (usando R$ 25/kg)
       roi: Math.ceil(
-          ((energyCalc1Year.annualH2Production * 25) /
+        ((energyCalc1Year.annualH2Production * 25) /
+          (energyCalc1Year.solarPower * 3500 +
+            energyCalc1Year.windPower * 10000 +
+            energyCalc1Year.totalPower * 1.0 * 18000 +
             (energyCalc1Year.solarPower * 3500 +
-              energyCalc1Year.windPower * 10000 +
-              energyCalc1Year.totalPower * 1.0 * 18000 +
-              (energyCalc1Year.solarPower * 3500 +
-                energyCalc1Year.windPower * 10000) *
-                0.4)) *
-          100
+              energyCalc1Year.windPower * 10000) *
+              0.4)) *
+          100,
       ),
     },
     {
@@ -972,17 +985,17 @@ const FeasibilityAnalysis = () => {
           energyCalc3Years.totalPower * 1.0 * 18000 +
           (energyCalc3Years.solarPower * 3500 +
             energyCalc3Years.windPower * 10000) *
-            0.4
+            0.4,
       ),
       roi: Math.ceil(
-          ((energyCalc3Years.annualH2Production * 25 * 3) /
+        ((energyCalc3Years.annualH2Production * 25 * 3) /
+          (energyCalc3Years.solarPower * 3500 +
+            energyCalc3Years.windPower * 10000 +
+            energyCalc3Years.totalPower * 1.0 * 18000 +
             (energyCalc3Years.solarPower * 3500 +
-              energyCalc3Years.windPower * 10000 +
-              energyCalc3Years.totalPower * 1.0 * 18000 +
-              (energyCalc3Years.solarPower * 3500 +
-                energyCalc3Years.windPower * 10000) *
-                0.4)) *
-          100
+              energyCalc3Years.windPower * 10000) *
+              0.4)) *
+          100,
       ),
     },
     {
@@ -996,17 +1009,17 @@ const FeasibilityAnalysis = () => {
           energyCalc5Years.totalPower * 1.0 * 18000 +
           (energyCalc5Years.solarPower * 3500 +
             energyCalc5Years.windPower * 10000) *
-            0.4
+            0.4,
       ),
       roi: Math.ceil(
-          ((energyCalc5Years.annualH2Production * 25 * 5) /
+        ((energyCalc5Years.annualH2Production * 25 * 5) /
+          (energyCalc5Years.solarPower * 3500 +
+            energyCalc5Years.windPower * 10000 +
+            energyCalc5Years.totalPower * 1.0 * 18000 +
             (energyCalc5Years.solarPower * 3500 +
-              energyCalc5Years.windPower * 10000 +
-              energyCalc5Years.totalPower * 1.0 * 18000 +
-              (energyCalc5Years.solarPower * 3500 +
-                energyCalc5Years.windPower * 10000) *
-                0.4)) *
-          100
+              energyCalc5Years.windPower * 10000) *
+              0.4)) *
+          100,
       ),
     },
   ];
@@ -1028,8 +1041,8 @@ const FeasibilityAnalysis = () => {
         locationData.biodiversity === "Alta"
           ? "Alta biodiversidade requer estudos ambientais detalhados"
           : locationData.biodiversity === "Moderada"
-          ? "Presença de espécies sensíveis requer avaliação"
-          : "Baixa sensibilidade ambiental na região",
+            ? "Presença de espécies sensíveis requer avaliação"
+            : "Baixa sensibilidade ambiental na região",
     },
     {
       icon: Mountain,
@@ -1041,8 +1054,8 @@ const FeasibilityAnalysis = () => {
       description: topographyData
         ? topographyData.terrainType
         : locationData.slopeStatus === "success"
-        ? "Topografia adequada para instalação"
-        : "Topografia requer planejamento especial",
+          ? "Topografia adequada para instalação"
+          : "Topografia requer planejamento especial",
     },
     {
       icon: Droplet,
@@ -1233,26 +1246,26 @@ const FeasibilityAnalysis = () => {
       p.solar >= 5.5
         ? { label: "Alta", status: "success" }
         : p.solar >= 5.0
-        ? { label: "Boa", status: "success" }
-        : { label: "Moderada", status: "warning" };
+          ? { label: "Boa", status: "success" }
+          : { label: "Moderada", status: "warning" };
     const windLevel =
       p.wind >= 7.0
         ? { label: "Alta", status: "success" }
         : p.wind >= 5.5
-        ? { label: "Boa", status: "success" }
-        : { label: "Moderada", status: "warning" };
+          ? { label: "Boa", status: "success" }
+          : { label: "Moderada", status: "warning" };
     const transmission =
       region === "Sudeste" || region === "Sul"
         ? { label: "Boa", status: "success" }
         : region === "Nordeste" || region === "Centro-Oeste"
-        ? { label: "Moderada", status: "warning" }
-        : { label: "Limitada", status: "error" };
+          ? { label: "Moderada", status: "warning" }
+          : { label: "Limitada", status: "error" };
     const logistics =
       region === "Sudeste" || region === "Sul"
         ? { label: "Bom", status: "success" }
         : region === "Nordeste" || region === "Centro-Oeste"
-        ? { label: "Moderado", status: "warning" }
-        : { label: "Limitado", status: "error" };
+          ? { label: "Moderado", status: "warning" }
+          : { label: "Limitado", status: "error" };
     const coast =
       region === "Centro-Oeste"
         ? { label: "Limitada", status: "warning" }
@@ -1261,39 +1274,39 @@ const FeasibilityAnalysis = () => {
       region === "Sudeste"
         ? { label: "Alta", status: "success" }
         : region === "Sul"
-        ? { label: "Boa", status: "success" }
-        : region === "Nordeste" || region === "Centro-Oeste"
-        ? { label: "Moderada", status: "warning" }
-        : { label: "Limitada", status: "error" };
+          ? { label: "Boa", status: "success" }
+          : region === "Nordeste" || region === "Centro-Oeste"
+            ? { label: "Moderada", status: "warning" }
+            : { label: "Limitada", status: "error" };
     const useOfLand =
       p.environmentalStatus === "error" || p.biodiversityStatus === "error"
         ? { label: "Sensível", status: "error" }
         : p.environmentalStatus === "warning" ||
-          p.biodiversityStatus === "warning"
-        ? { label: "Misto", status: "warning" }
-        : { label: "Diversificado", status: "success" };
+            p.biodiversityStatus === "warning"
+          ? { label: "Misto", status: "warning" }
+          : { label: "Diversificado", status: "success" };
     const topoLabel =
       p.slopeStatus === "success"
         ? "Favorável"
         : p.slopeStatus === "warning"
-        ? "Média"
-        : "Desafiadora";
+          ? "Média"
+          : "Desafiadora";
     const temperature =
       region === "Sul"
         ? { label: "Baixa", status: "warning" }
         : region === "Sudeste"
-        ? { label: "Moderada", status: "warning" }
-        : { label: "Alta", status: "success" };
+          ? { label: "Moderada", status: "warning" }
+          : { label: "Alta", status: "success" };
     const climate =
       region === "Norte"
         ? { label: "Equatorial úmido", status: "warning" }
         : region === "Nordeste"
-        ? { label: "Semiárido/Tropical", status: "warning" }
-        : region === "Centro-Oeste"
-        ? { label: "Tropical", status: "success" }
-        : region === "Sudeste"
-        ? { label: "Tropical/Subtropical", status: "success" }
-        : { label: "Subtropical", status: "success" };
+          ? { label: "Semiárido/Tropical", status: "warning" }
+          : region === "Centro-Oeste"
+            ? { label: "Tropical", status: "success" }
+            : region === "Sudeste"
+              ? { label: "Tropical/Subtropical", status: "success" }
+              : { label: "Subtropical", status: "success" };
 
     return [
       {
@@ -1316,8 +1329,8 @@ const FeasibilityAnalysis = () => {
               region === "Sul"
                 ? "Alta"
                 : region === "Norte"
-                ? "Baixa"
-                : "Média",
+                  ? "Baixa"
+                  : "Média",
             status: "success",
           },
           { label: "Topografia", value: topoLabel, status: p.slopeStatus },
@@ -1376,8 +1389,8 @@ const FeasibilityAnalysis = () => {
               solarLevel.label === "Alta" || windLevel.label === "Alta"
                 ? "Alta"
                 : solarLevel.label === "Boa" || windLevel.label === "Boa"
-                ? "Boa"
-                : "Moderada",
+                  ? "Boa"
+                  : "Moderada",
             status: "success",
           },
           { label: "Água", value: p.water, status: p.waterStatus },
@@ -1415,12 +1428,12 @@ const FeasibilityAnalysis = () => {
               region === "Norte"
                 ? "Amazônica"
                 : region === "Nordeste"
-                ? "São Francisco"
-                : region === "Centro-Oeste"
-                ? "Paraguai/Tocantins"
-                : region === "Sudeste"
-                ? "Paraná/Atlântico"
-                : "Paraná/Uruguai",
+                  ? "São Francisco"
+                  : region === "Centro-Oeste"
+                    ? "Paraguai/Tocantins"
+                    : region === "Sudeste"
+                      ? "Paraná/Atlântico"
+                      : "Paraná/Uruguai",
             status: "success",
           },
           {
@@ -1429,18 +1442,18 @@ const FeasibilityAnalysis = () => {
               region === "Norte"
                 ? "Muito Alta"
                 : region === "Nordeste"
-                ? "Baixa/Irregular"
-                : region === "Centro-Oeste"
-                ? "Moderada"
-                : region === "Sudeste"
-                ? "Alta"
-                : "Alta",
+                  ? "Baixa/Irregular"
+                  : region === "Centro-Oeste"
+                    ? "Moderada"
+                    : region === "Sudeste"
+                      ? "Alta"
+                      : "Alta",
             status:
               region === "Norte" || region === "Sul" || region === "Sudeste"
                 ? "success"
                 : region === "Centro-Oeste"
-                ? "warning"
-                : "error",
+                  ? "warning"
+                  : "error",
           },
           {
             label: "Qualidade da água",
@@ -1448,14 +1461,14 @@ const FeasibilityAnalysis = () => {
               region === "Norte"
                 ? "Excelente"
                 : region === "Sudeste"
-                ? "Boa"
-                : "Boa/Moderada",
+                  ? "Boa"
+                  : "Boa/Moderada",
             status:
               region === "Norte"
                 ? "success"
                 : region === "Sudeste" || region === "Sul"
-                ? "success"
-                : "warning",
+                  ? "success"
+                  : "warning",
           },
           {
             label: "Competição por uso",
@@ -1463,16 +1476,16 @@ const FeasibilityAnalysis = () => {
               region === "Sudeste"
                 ? "Alta"
                 : region === "Nordeste"
-                ? "Alta"
-                : region === "Sul"
-                ? "Moderada"
-                : "Baixa",
+                  ? "Alta"
+                  : region === "Sul"
+                    ? "Moderada"
+                    : "Baixa",
             status:
               region === "Sudeste" || region === "Nordeste"
                 ? "error"
                 : region === "Sul"
-                ? "warning"
-                : "success",
+                  ? "warning"
+                  : "success",
           },
           {
             label: "Infraestrutura hídrica",
@@ -1480,14 +1493,14 @@ const FeasibilityAnalysis = () => {
               region === "Sudeste"
                 ? "Boa"
                 : region === "Sul" || region === "Nordeste"
-                ? "Moderada"
-                : "Limitada",
+                  ? "Moderada"
+                  : "Limitada",
             status:
               region === "Sudeste"
                 ? "success"
                 : region === "Sul" || region === "Nordeste"
-                ? "warning"
-                : "error",
+                  ? "warning"
+                  : "error",
           },
         ],
       },
@@ -1501,46 +1514,46 @@ const FeasibilityAnalysis = () => {
     region === "Norte"
       ? 1
       : region === "Nordeste"
-      ? 0.95
-      : region === "Centro-Oeste"
-      ? 0.9
-      : region === "Sudeste"
-      ? 0.85
-      : 0.8;
+        ? 0.95
+        : region === "Centro-Oeste"
+          ? 0.9
+          : region === "Sudeste"
+            ? 0.85
+            : 0.8;
   const transmissionScore = (region: string) =>
     region === "Sudeste" || region === "Sul"
       ? 1
       : region === "Nordeste" || region === "Centro-Oeste"
-      ? 0.7
-      : 0.5;
+        ? 0.7
+        : 0.5;
   const logisticsScore = (region: string) =>
     region === "Sudeste" || region === "Sul"
       ? 1
       : region === "Nordeste" || region === "Centro-Oeste"
-      ? 0.7
-      : 0.5;
+        ? 0.7
+        : 0.5;
   const coastScore = (region: string) =>
     region === "Centro-Oeste" ? 0.2 : region === "Norte" ? 0.6 : 1;
   const industrialScore = (region: string) =>
     region === "Sudeste"
       ? 1
       : region === "Sul"
-      ? 0.9
-      : region === "Nordeste" || region === "Centro-Oeste"
-      ? 0.7
-      : 0.5;
+        ? 0.9
+        : region === "Nordeste" || region === "Centro-Oeste"
+          ? 0.7
+          : 0.5;
   const temperatureScore = (region: string) =>
     region === "Sul" ? 0.7 : region === "Sudeste" ? 0.85 : 0.9;
   const climateScore = (region: string) =>
     region === "Norte"
       ? 0.8
       : region === "Nordeste"
-      ? 0.7
-      : region === "Centro-Oeste"
-      ? 0.9
-      : region === "Sudeste"
-      ? 0.9
-      : 0.85;
+        ? 0.7
+        : region === "Centro-Oeste"
+          ? 0.9
+          : region === "Sudeste"
+            ? 0.9
+            : 0.85;
 
   const normalizationBounds = {
     solarMin: 4.0,
@@ -1613,10 +1626,15 @@ const FeasibilityAnalysis = () => {
   };
 
   const getEstadoViability = (estadoSigla: string) => {
-    return estadoProfiles[estadoSigla] || { solar: 50, wind: 50, h2: 50, water: 50 };
+    return (
+      estadoProfiles[estadoSigla] || { solar: 50, wind: 50, h2: 50, water: 50 }
+    );
   };
 
-  const getRegiaoIntermediariaViability = (estadoSigla: string, regiaoIntermediariaNome: string) => {
+  const getRegiaoIntermediariaViability = (
+    estadoSigla: string,
+    regiaoIntermediariaNome: string,
+  ) => {
     // Ajuste baseado no estado + variação típica de região intermediária
     const baseScores = getEstadoViability(estadoSigla);
     // Gerar variação consistente baseada no nome da região intermediária (hash simples)
@@ -1628,19 +1646,19 @@ const FeasibilityAnalysis = () => {
     return {
       solar: Math.max(
         0,
-        Math.min(100, Math.round(baseScores.solar + variation))
+        Math.min(100, Math.round(baseScores.solar + variation)),
       ),
       wind: Math.max(
         0,
-        Math.min(100, Math.round(baseScores.wind + variation * 0.8))
+        Math.min(100, Math.round(baseScores.wind + variation * 0.8)),
       ),
       h2: Math.max(
         0,
-        Math.min(100, Math.round(baseScores.h2 + variation * 0.9))
+        Math.min(100, Math.round(baseScores.h2 + variation * 0.9)),
       ),
       water: Math.max(
         0,
-        Math.min(100, Math.round(baseScores.water + variation * 0.6))
+        Math.min(100, Math.round(baseScores.water + variation * 0.6)),
       ),
     };
   };
@@ -1651,11 +1669,11 @@ const FeasibilityAnalysis = () => {
 
     const solarNorm = clamp01(
       (p.solar - normalizationBounds.solarMin) /
-        (normalizationBounds.solarMax - normalizationBounds.solarMin)
+        (normalizationBounds.solarMax - normalizationBounds.solarMin),
     );
     const windNorm = clamp01(
       (p.wind - normalizationBounds.windMin) /
-        (normalizationBounds.windMax - normalizationBounds.windMin)
+        (normalizationBounds.windMax - normalizationBounds.windMin),
     );
     const topo = statusScore(p.slopeStatus);
     const env = statusScore(p.environmentalStatus);
@@ -1663,9 +1681,9 @@ const FeasibilityAnalysis = () => {
       p.environmentalStatus === "error" || p.biodiversityStatus === "error"
         ? 0.3
         : p.environmentalStatus === "warning" ||
-          p.biodiversityStatus === "warning"
-        ? 0.6
-        : 0.9;
+            p.biodiversityStatus === "warning"
+          ? 0.6
+          : 0.9;
     const water = statusScore(p.waterStatus);
     const trans = transmissionScore(region);
     const logi = logisticsScore(region);
@@ -1868,7 +1886,6 @@ const FeasibilityAnalysis = () => {
                             Cálculo de Projeção para Produção de Hidrogênio
                             Verde
                           </h2>
-                          
                         </div>
                       </AccordionTrigger>
                       <AccordionContent className="px-6 pb-6">
@@ -1906,7 +1923,9 @@ const FeasibilityAnalysis = () => {
                                   <Card className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
                                     <p className="text-sm text-slate-700 mb-2">
                                       ☀️ <strong>Irradiância Solar:</strong>{" "}
-                                      {Math.ceil(energyCalc1Year.solarIrradiance)}{" "}
+                                      {Math.ceil(
+                                        energyCalc1Year.solarIrradiance,
+                                      )}{" "}
                                       W/m²
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
@@ -1917,7 +1936,7 @@ const FeasibilityAnalysis = () => {
                                     <p className="text-sm text-slate-700 mb-2">
                                       ⚡ <strong>Eficiência:</strong>{" "}
                                       {Math.ceil(
-                                        energyCalc1Year.solarEfficiency * 100
+                                        energyCalc1Year.solarEfficiency * 100,
                                       )}
                                       %
                                     </p>
@@ -1945,9 +1964,9 @@ const FeasibilityAnalysis = () => {
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
                                       ⚡ <strong>Eficiência:</strong>{" "}
-                                      {Math.ceil((
-                                        energyCalc1Year.windEfficiency * 100
-                                      ))}
+                                      {Math.ceil(
+                                        energyCalc1Year.windEfficiency * 100,
+                                      )}
                                       %
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
@@ -1998,9 +2017,9 @@ const FeasibilityAnalysis = () => {
                                       Energia Anual
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {Math.ceil((
-                                        energyCalc1Year.annualEnergy / 1000
-                                      ))}
+                                      {Math.ceil(
+                                        energyCalc1Year.annualEnergy / 1000,
+                                      )}
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       MWh/ano
@@ -2022,8 +2041,13 @@ const FeasibilityAnalysis = () => {
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
                                       {energyCalc1Year.dailyH2Production >= 1000
-                                        ? Math.ceil(energyCalc1Year.dailyH2Production / 1000) + " t/dia"
-                                        : Math.ceil(energyCalc1Year.dailyH2Production) + " kg/dia"}
+                                        ? Math.ceil(
+                                            energyCalc1Year.dailyH2Production /
+                                              1000,
+                                          ) + " t/dia"
+                                        : Math.ceil(
+                                            energyCalc1Year.dailyH2Production,
+                                          ) + " kg/dia"}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
                                       <strong>Consumo eletrolisador:</strong> 65
@@ -2040,7 +2064,9 @@ const FeasibilityAnalysis = () => {
                                       📊 <strong>Produção Anual:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {Math.ceil(energyCalc1Year.annualH2Production)}{" "}
+                                      {Math.ceil(
+                                        energyCalc1Year.annualH2Production,
+                                      )}{" "}
                                       Ton/ano
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
@@ -2066,7 +2092,7 @@ const FeasibilityAnalysis = () => {
                                     <p className="text-sm text-slate-700 mb-2">
                                       ☀️ <strong>Irradiância Solar:</strong>{" "}
                                       {energyCalc3Years.solarIrradiance.toFixed(
-                                        0
+                                        0,
                                       )}{" "}
                                       W/m²
                                     </p>
@@ -2077,9 +2103,9 @@ const FeasibilityAnalysis = () => {
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
                                       ⚡ <strong>Eficiência:</strong>{" "}
-                                      {Math.ceil((
-                                        energyCalc3Years.solarEfficiency * 100
-                                      ))}
+                                      {Math.ceil(
+                                        energyCalc3Years.solarEfficiency * 100,
+                                      )}
                                       %
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
@@ -2108,9 +2134,9 @@ const FeasibilityAnalysis = () => {
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
                                       ⚡ <strong>Eficiência:</strong>{" "}
-                                      {Math.ceil((
-                                        energyCalc3Years.windEfficiency * 100
-                                      ))}
+                                      {Math.ceil(
+                                        energyCalc3Years.windEfficiency * 100,
+                                      )}
                                       %
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
@@ -2161,9 +2187,9 @@ const FeasibilityAnalysis = () => {
                                       Energia Anual
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {Math.ceil((
-                                        energyCalc3Years.annualEnergy / 1000
-                                      ))}
+                                      {Math.ceil(
+                                        energyCalc3Years.annualEnergy / 1000,
+                                      )}
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       MWh/ano
@@ -2184,9 +2210,15 @@ const FeasibilityAnalysis = () => {
                                       💧 <strong>Produção Diária:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {energyCalc3Years.dailyH2Production >= 1000
-                                        ? Math.ceil(energyCalc3Years.dailyH2Production / 1000) + " t/dia"
-                                        : Math.ceil(energyCalc3Years.dailyH2Production) + " kg/dia"}
+                                      {energyCalc3Years.dailyH2Production >=
+                                      1000
+                                        ? Math.ceil(
+                                            energyCalc3Years.dailyH2Production /
+                                              1000,
+                                          ) + " t/dia"
+                                        : Math.ceil(
+                                            energyCalc3Years.dailyH2Production,
+                                          ) + " kg/dia"}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
                                       <strong>Consumo eletrolisador:</strong> 65
@@ -2203,7 +2235,9 @@ const FeasibilityAnalysis = () => {
                                       📊 <strong>Produção Anual:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {Math.ceil(energyCalc3Years.annualH2Production)}{" "}
+                                      {Math.ceil(
+                                        energyCalc3Years.annualH2Production,
+                                      )}{" "}
                                       Toneladas/ano
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
@@ -2229,7 +2263,7 @@ const FeasibilityAnalysis = () => {
                                     <p className="text-sm text-slate-700 mb-2">
                                       ☀️ <strong>Irradiância Solar:</strong>{" "}
                                       {energyCalc5Years.solarIrradiance.toFixed(
-                                        0
+                                        0,
                                       )}{" "}
                                       W/m²
                                     </p>
@@ -2240,9 +2274,9 @@ const FeasibilityAnalysis = () => {
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
                                       ⚡ <strong>Eficiência:</strong>{" "}
-                                      {Math.ceil((
-                                        energyCalc5Years.solarEfficiency * 100
-                                      ))}
+                                      {Math.ceil(
+                                        energyCalc5Years.solarEfficiency * 100,
+                                      )}
                                       %
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
@@ -2271,9 +2305,9 @@ const FeasibilityAnalysis = () => {
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
                                       ⚡ <strong>Eficiência:</strong>{" "}
-                                      {Math.ceil((
-                                        energyCalc5Years.windEfficiency * 100
-                                      ))}
+                                      {Math.ceil(
+                                        energyCalc5Years.windEfficiency * 100,
+                                      )}
                                       %
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
@@ -2324,9 +2358,9 @@ const FeasibilityAnalysis = () => {
                                       Energia Anual
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {Math.ceil((
-                                        energyCalc5Years.annualEnergy / 1000
-                                      ))}
+                                      {Math.ceil(
+                                        energyCalc5Years.annualEnergy / 1000,
+                                      )}
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       MWh/ano
@@ -2347,9 +2381,15 @@ const FeasibilityAnalysis = () => {
                                       💧 <strong>Produção Diária:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {energyCalc5Years.dailyH2Production >= 1000
-                                        ? Math.ceil(energyCalc5Years.dailyH2Production / 1000) + " t/dia"
-                                        : Math.ceil(energyCalc5Years.dailyH2Production) + " kg/dia"}
+                                      {energyCalc5Years.dailyH2Production >=
+                                      1000
+                                        ? Math.ceil(
+                                            energyCalc5Years.dailyH2Production /
+                                              1000,
+                                          ) + " t/dia"
+                                        : Math.ceil(
+                                            energyCalc5Years.dailyH2Production,
+                                          ) + " kg/dia"}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
                                       <strong>Consumo eletrolisador:</strong> 65
@@ -2366,7 +2406,9 @@ const FeasibilityAnalysis = () => {
                                       📊 <strong>Produção Anual:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {Math.ceil(energyCalc5Years.annualH2Production)}{" "}
+                                      {Math.ceil(
+                                        energyCalc5Years.annualH2Production,
+                                      )}{" "}
                                       Toneladas/ano
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
@@ -2443,7 +2485,7 @@ const FeasibilityAnalysis = () => {
                                     </p>
                                     <p className="text-3xl font-bold text-green-600">
                                       {simulationResults.oneYear.capacityFactor.toFixed(
-                                        1
+                                        1,
                                       )}
                                       %
                                     </p>
@@ -2458,7 +2500,9 @@ const FeasibilityAnalysis = () => {
                                     </p>
                                     <p className="text-3xl font-bold text-blue-600">
                                       R${" "}
-                                      {simulationResults.oneYear.lcoh.toFixed(2).replace('.', ',')}
+                                      {simulationResults.oneYear.lcoh
+                                        .toFixed(2)
+                                        .replace(".", ",")}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
                                       Por kg de H₂
@@ -2470,10 +2514,10 @@ const FeasibilityAnalysis = () => {
                                       🔋 Energia Consumida
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {Math.ceil((
+                                      {Math.ceil(
                                         simulationResults.oneYear
-                                          .totalEnergyConsumed / 1000
-                                      ))}
+                                          .totalEnergyConsumed / 1000,
+                                      )}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
                                       MWh/ano
@@ -2485,10 +2529,10 @@ const FeasibilityAnalysis = () => {
                                       💧 Produção H₂
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {Math.ceil((
+                                      {Math.ceil(
                                         simulationResults.oneYear.h2Production /
-                                        1000
-                                      ))}
+                                          1000,
+                                      )}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
                                       Toneladas/ano
@@ -2517,10 +2561,10 @@ const FeasibilityAnalysis = () => {
                                       ⚠️ Curtailment
                                     </p>
                                     <p className="text-2xl font-bold text-red-600">
-                                      {Math.ceil((
+                                      {Math.ceil(
                                         simulationResults.oneYear.curtailment /
-                                        1000
-                                      ))}
+                                          1000,
+                                      )}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
                                       MWh perdido/ano
@@ -2552,7 +2596,11 @@ const FeasibilityAnalysis = () => {
                                       </p>
                                       <p className="text-xl font-bold text-indigo-600">
                                         R${" "}
-                                        {formatCurrency(simulationResults.oneYear.capexAnnualized, 2)}
+                                        {formatCurrency(
+                                          simulationResults.oneYear
+                                            .capexAnnualized,
+                                          2,
+                                        )}
                                       </p>
                                     </div>
                                     <div>
@@ -2561,7 +2609,10 @@ const FeasibilityAnalysis = () => {
                                       </p>
                                       <p className="text-xl font-bold text-indigo-600">
                                         R${" "}
-                                        {formatCurrency(simulationResults.oneYear.opexAnnual, 2)}
+                                        {formatCurrency(
+                                          simulationResults.oneYear.opexAnnual,
+                                          2,
+                                        )}
                                       </p>
                                     </div>
                                   </div>
@@ -2584,7 +2635,7 @@ const FeasibilityAnalysis = () => {
                                     </p>
                                     <p className="text-3xl font-bold text-green-600">
                                       {simulationResults.threeYears!.capacityFactor.toFixed(
-                                        1
+                                        1,
                                       )}
                                       %
                                     </p>
@@ -2599,7 +2650,7 @@ const FeasibilityAnalysis = () => {
                                     <p className="text-3xl font-bold text-blue-600">
                                       R${" "}
                                       {simulationResults.threeYears!.lcoh.toFixed(
-                                        2
+                                        2,
                                       )}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
@@ -2611,10 +2662,10 @@ const FeasibilityAnalysis = () => {
                                       🔋 Energia Consumida
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {Math.ceil((
+                                      {Math.ceil(
                                         simulationResults.threeYears!
-                                          .totalEnergyConsumed / 1000
-                                      ))}
+                                          .totalEnergyConsumed / 1000,
+                                      )}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
                                       MWh/ano
@@ -2625,10 +2676,10 @@ const FeasibilityAnalysis = () => {
                                       💧 Produção H₂
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {Math.ceil((
+                                      {Math.ceil(
                                         simulationResults.threeYears!
-                                          .h2Production / 1000
-                                      ))}
+                                          .h2Production / 1000,
+                                      )}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
                                       Toneladas/ano
@@ -2646,7 +2697,9 @@ const FeasibilityAnalysis = () => {
                                       {simulationResults.threeYears!.operatingHours.toLocaleString()}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
-                                      horas/ano de {(weatherData?.dataPoints || 365) * 24} total
+                                      horas/ano de{" "}
+                                      {(weatherData?.dataPoints || 365) * 24}{" "}
+                                      total
                                     </p>
                                   </Card>
 
@@ -2655,15 +2708,26 @@ const FeasibilityAnalysis = () => {
                                       ⚠️ Curtailment
                                     </p>
                                     <p className="text-2xl font-bold text-red-600">
-                                      {Math.ceil((simulationResults.threeYears!.curtailment / 1000))}
+                                      {Math.ceil(
+                                        simulationResults.threeYears!
+                                          .curtailment / 1000,
+                                      )}
                                     </p>
-                                    <p className="text-xs text-slate-600 mt-2">MWh perdido/ano</p>
+                                    <p className="text-xs text-slate-600 mt-2">
+                                      MWh perdido/ano
+                                    </p>
                                   </Card>
 
                                   <Card className="p-4 bg-gradient-to-br from-slate-50 to-gray-50 border-slate-200">
-                                    <p className="text-sm text-slate-700 mb-1">📊 Potência Nominal</p>
-                                    <p className="text-2xl font-bold text-slate-600">300 kW</p>
-                                    <p className="text-xs text-slate-600 mt-2">Eletrolisador dimensionado</p>
+                                    <p className="text-sm text-slate-700 mb-1">
+                                      📊 Potência Nominal
+                                    </p>
+                                    <p className="text-2xl font-bold text-slate-600">
+                                      300 kW
+                                    </p>
+                                    <p className="text-xs text-slate-600 mt-2">
+                                      Eletrolisador dimensionado
+                                    </p>
                                   </Card>
                                 </div>
 
@@ -2678,7 +2742,11 @@ const FeasibilityAnalysis = () => {
                                       </p>
                                       <p className="text-xl font-bold text-indigo-600">
                                         R${" "}
-                                        {formatCurrency(simulationResults.threeYears!.capexAnnualized, 2)}
+                                        {formatCurrency(
+                                          simulationResults.threeYears!
+                                            .capexAnnualized,
+                                          2,
+                                        )}
                                       </p>
                                     </div>
                                     <div>
@@ -2687,7 +2755,11 @@ const FeasibilityAnalysis = () => {
                                       </p>
                                       <p className="text-xl font-bold text-indigo-600">
                                         R${" "}
-                                        {formatCurrency(simulationResults.threeYears!.opexAnnual, 2)}
+                                        {formatCurrency(
+                                          simulationResults.threeYears!
+                                            .opexAnnual,
+                                          2,
+                                        )}
                                       </p>
                                     </div>
                                   </div>
@@ -2710,7 +2782,7 @@ const FeasibilityAnalysis = () => {
                                     </p>
                                     <p className="text-3xl font-bold text-green-600">
                                       {simulationResults.fiveYears!.capacityFactor.toFixed(
-                                        1
+                                        1,
                                       )}
                                       %
                                     </p>
@@ -2725,7 +2797,7 @@ const FeasibilityAnalysis = () => {
                                     <p className="text-3xl font-bold text-blue-600">
                                       R${" "}
                                       {simulationResults.fiveYears!.lcoh.toFixed(
-                                        2
+                                        2,
                                       )}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
@@ -2737,10 +2809,10 @@ const FeasibilityAnalysis = () => {
                                       🔋 Energia Consumida
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {Math.ceil((
+                                      {Math.ceil(
                                         simulationResults.fiveYears!
-                                          .totalEnergyConsumed / 1000
-                                      ))}
+                                          .totalEnergyConsumed / 1000,
+                                      )}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
                                       MWh/ano
@@ -2751,10 +2823,10 @@ const FeasibilityAnalysis = () => {
                                       💧 Produção H₂
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {Math.ceil((
+                                      {Math.ceil(
                                         simulationResults.fiveYears!
-                                          .h2Production / 1000
-                                      ))}
+                                          .h2Production / 1000,
+                                      )}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
                                       Toneladas/ano
@@ -2772,7 +2844,9 @@ const FeasibilityAnalysis = () => {
                                       {simulationResults.fiveYears!.operatingHours.toLocaleString()}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
-                                      horas/ano de {(weatherData?.dataPoints || 365) * 24} total
+                                      horas/ano de{" "}
+                                      {(weatherData?.dataPoints || 365) * 24}{" "}
+                                      total
                                     </p>
                                   </Card>
 
@@ -2781,15 +2855,26 @@ const FeasibilityAnalysis = () => {
                                       ⚠️ Curtailment
                                     </p>
                                     <p className="text-2xl font-bold text-red-600">
-                                      {Math.ceil((simulationResults.fiveYears!.curtailment / 1000))}
+                                      {Math.ceil(
+                                        simulationResults.fiveYears!
+                                          .curtailment / 1000,
+                                      )}
                                     </p>
-                                    <p className="text-xs text-slate-600 mt-2">MWh perdido/ano</p>
+                                    <p className="text-xs text-slate-600 mt-2">
+                                      MWh perdido/ano
+                                    </p>
                                   </Card>
 
                                   <Card className="p-4 bg-gradient-to-br from-slate-50 to-gray-50 border-slate-200">
-                                    <p className="text-sm text-slate-700 mb-1">📊 Potência Nominal</p>
-                                    <p className="text-2xl font-bold text-slate-600">500 kW</p>
-                                    <p className="text-xs text-slate-600 mt-2">Eletrolisador dimensionado</p>
+                                    <p className="text-sm text-slate-700 mb-1">
+                                      📊 Potência Nominal
+                                    </p>
+                                    <p className="text-2xl font-bold text-slate-600">
+                                      500 kW
+                                    </p>
+                                    <p className="text-xs text-slate-600 mt-2">
+                                      Eletrolisador dimensionado
+                                    </p>
                                   </Card>
                                 </div>
 
@@ -2804,7 +2889,11 @@ const FeasibilityAnalysis = () => {
                                       </p>
                                       <p className="text-xl font-bold text-indigo-600">
                                         R${" "}
-                                        {formatCurrency(simulationResults.fiveYears!.capexAnnualized, 2)}
+                                        {formatCurrency(
+                                          simulationResults.fiveYears!
+                                            .capexAnnualized,
+                                          2,
+                                        )}
                                       </p>
                                     </div>
                                     <div>
@@ -2813,7 +2902,11 @@ const FeasibilityAnalysis = () => {
                                       </p>
                                       <p className="text-xl font-bold text-indigo-600">
                                         R${" "}
-                                        {formatCurrency(simulationResults.fiveYears!.opexAnnual, 2)}
+                                        {formatCurrency(
+                                          simulationResults.fiveYears!
+                                            .opexAnnual,
+                                          2,
+                                        )}
                                       </p>
                                     </div>
                                   </div>
@@ -2869,7 +2962,6 @@ const FeasibilityAnalysis = () => {
                             <h2 className="text-2xl font-bold text-slate-900">
                               Análise Financeira e Estudo de Viabilidade
                             </h2>
-                            
                           </div>
                         </AccordionTrigger>
                         <AccordionContent className="px-6 pb-6">
@@ -2922,7 +3014,9 @@ const FeasibilityAnalysis = () => {
                                   </div>
                                   <p className="text-3xl font-bold text-slate-900">
                                     R${" "}
-                                    {simulationResults.oneYear.lcoh.toFixed(2).replace('.', ',')}
+                                    {simulationResults.oneYear.lcoh
+                                      .toFixed(2)
+                                      .replace(".", ",")}
                                   </p>
                                   <p className="text-xs text-slate-600 mt-1">
                                     por kg de H₂
@@ -2931,8 +3025,8 @@ const FeasibilityAnalysis = () => {
                                     {simulationResults.oneYear.lcoh < 8
                                       ? "✓ Competitivo"
                                       : simulationResults.oneYear.lcoh < 12
-                                      ? "~ Razoável"
-                                      : "⚠ Alto"}
+                                        ? "~ Razoável"
+                                        : "⚠ Alto"}
                                   </Badge>
                                 </Card>
 
@@ -2945,7 +3039,7 @@ const FeasibilityAnalysis = () => {
                                   </div>
                                   <p className="text-3xl font-bold text-slate-900">
                                     {simulationResults.oneYear.capacityFactor.toFixed(
-                                      1
+                                      1,
                                     )}
                                     %
                                   </p>
@@ -2957,9 +3051,9 @@ const FeasibilityAnalysis = () => {
                                     40
                                       ? "✓ Excelente"
                                       : simulationResults.oneYear
-                                          .capacityFactor > 25
-                                      ? "~ Bom"
-                                      : "⚠ Baixo"}
+                                            .capacityFactor > 25
+                                        ? "~ Bom"
+                                        : "⚠ Baixo"}
                                   </Badge>
                                 </Card>
 
@@ -2972,7 +3066,7 @@ const FeasibilityAnalysis = () => {
                                   </div>
                                   <p className="text-3xl font-bold text-slate-900">
                                     {simulationResults.oneYear.h2Production.toFixed(
-                                      2
+                                      2,
                                     )}
                                   </p>
                                   <p className="text-xs text-slate-600 mt-1">
@@ -3032,11 +3126,12 @@ const FeasibilityAnalysis = () => {
                                       {Math.floor(
                                         simulationResults.oneYear
                                           .capexAnnualized /
-                                        0.117 /
-                                        (simulationResults.oneYear
-                                          .h2Production *
-                                          25 -
-                                          simulationResults.oneYear.opexAnnual)
+                                          0.117 /
+                                          (simulationResults.oneYear
+                                            .h2Production *
+                                            25 -
+                                            simulationResults.oneYear
+                                              .opexAnnual),
                                       )}{" "}
                                       anos
                                     </p>
@@ -3055,7 +3150,7 @@ const FeasibilityAnalysis = () => {
                                           (simulationResults.oneYear
                                             .capexAnnualized /
                                             0.117)) *
-                                        100
+                                          100,
                                       )}
                                       %
                                     </p>
@@ -3080,7 +3175,9 @@ const FeasibilityAnalysis = () => {
                                   </div>
                                   <p className="text-3xl font-bold text-slate-900">
                                     R${" "}
-                                    {simulationResults.threeYears!.lcoh.toFixed(2).replace('.', ',')}
+                                    {simulationResults
+                                      .threeYears!.lcoh.toFixed(2)
+                                      .replace(".", ",")}
                                   </p>
                                   <p className="text-xs text-slate-600 mt-1">
                                     por Kg de H₂
@@ -3089,8 +3186,8 @@ const FeasibilityAnalysis = () => {
                                     {simulationResults.threeYears!.lcoh < 8
                                       ? "✓ Competitivo"
                                       : simulationResults.threeYears!.lcoh < 12
-                                      ? "~ Razoável"
-                                      : "⚠ Alto"}
+                                        ? "~ Razoável"
+                                        : "⚠ Alto"}
                                   </Badge>
                                 </Card>
 
@@ -3103,7 +3200,7 @@ const FeasibilityAnalysis = () => {
                                   </div>
                                   <p className="text-3xl font-bold text-slate-900">
                                     {simulationResults.threeYears!.capacityFactor.toFixed(
-                                      1
+                                      1,
                                     )}
                                     %
                                   </p>
@@ -3115,9 +3212,9 @@ const FeasibilityAnalysis = () => {
                                       .capacityFactor > 40
                                       ? "✓ Excelente"
                                       : simulationResults.threeYears!
-                                          .capacityFactor > 25
-                                      ? "~ Bom"
-                                      : "⚠ Baixo"}
+                                            .capacityFactor > 25
+                                        ? "~ Bom"
+                                        : "⚠ Baixo"}
                                   </Badge>
                                 </Card>
 
@@ -3130,7 +3227,7 @@ const FeasibilityAnalysis = () => {
                                   </div>
                                   <p className="text-3xl font-bold text-slate-900">
                                     {simulationResults.threeYears!.h2Production.toFixed(
-                                      2
+                                      2,
                                     )}
                                   </p>
                                   <p className="text-xs text-slate-600 mt-1">
@@ -3190,12 +3287,12 @@ const FeasibilityAnalysis = () => {
                                       {Math.floor(
                                         simulationResults.threeYears!
                                           .capexAnnualized /
-                                        0.117 /
-                                        (simulationResults.threeYears!
-                                          .h2Production *
-                                          25 -
-                                          simulationResults.threeYears!
-                                            .opexAnnual)
+                                          0.117 /
+                                          (simulationResults.threeYears!
+                                            .h2Production *
+                                            25 -
+                                            simulationResults.threeYears!
+                                              .opexAnnual),
                                       )}{" "}
                                       anos
                                     </p>
@@ -3214,7 +3311,7 @@ const FeasibilityAnalysis = () => {
                                           (simulationResults.threeYears!
                                             .capexAnnualized /
                                             0.117)) *
-                                        100
+                                          100,
                                       )}
                                       %
                                     </p>
@@ -3239,7 +3336,9 @@ const FeasibilityAnalysis = () => {
                                   </div>
                                   <p className="text-3xl font-bold text-slate-900">
                                     R${" "}
-                                    {simulationResults.fiveYears!.lcoh.toFixed(2).replace('.', ',')}
+                                    {simulationResults
+                                      .fiveYears!.lcoh.toFixed(2)
+                                      .replace(".", ",")}
                                   </p>
                                   <p className="text-xs text-slate-600 mt-1">
                                     por kg de H₂
@@ -3248,8 +3347,8 @@ const FeasibilityAnalysis = () => {
                                     {simulationResults.fiveYears!.lcoh < 8
                                       ? "✓ Competitivo"
                                       : simulationResults.fiveYears!.lcoh < 12
-                                      ? "~ Razoável"
-                                      : "⚠ Alto"}
+                                        ? "~ Razoável"
+                                        : "⚠ Alto"}
                                   </Badge>
                                 </Card>
 
@@ -3262,7 +3361,7 @@ const FeasibilityAnalysis = () => {
                                   </div>
                                   <p className="text-3xl font-bold text-slate-900">
                                     {simulationResults.fiveYears!.capacityFactor.toFixed(
-                                      1
+                                      1,
                                     )}
                                     %
                                   </p>
@@ -3274,9 +3373,9 @@ const FeasibilityAnalysis = () => {
                                       .capacityFactor > 40
                                       ? "✓ Excelente"
                                       : simulationResults.fiveYears!
-                                          .capacityFactor > 25
-                                      ? "~ Bom"
-                                      : "⚠ Baixo"}
+                                            .capacityFactor > 25
+                                        ? "~ Bom"
+                                        : "⚠ Baixo"}
                                   </Badge>
                                 </Card>
 
@@ -3289,7 +3388,7 @@ const FeasibilityAnalysis = () => {
                                   </div>
                                   <p className="text-3xl font-bold text-slate-900">
                                     {simulationResults.fiveYears!.h2Production.toFixed(
-                                      2
+                                      2,
                                     )}
                                   </p>
                                   <p className="text-xs text-slate-600 mt-1">
@@ -3349,12 +3448,12 @@ const FeasibilityAnalysis = () => {
                                       {Math.floor(
                                         simulationResults.fiveYears!
                                           .capexAnnualized /
-                                        0.117 /
-                                        (simulationResults.fiveYears!
-                                          .h2Production *
-                                          25 -
-                                          simulationResults.fiveYears!
-                                            .opexAnnual)
+                                          0.117 /
+                                          (simulationResults.fiveYears!
+                                            .h2Production *
+                                            25 -
+                                            simulationResults.fiveYears!
+                                              .opexAnnual),
                                       )}{" "}
                                       anos
                                     </p>
@@ -3373,7 +3472,7 @@ const FeasibilityAnalysis = () => {
                                           (simulationResults.fiveYears!
                                             .capexAnnualized /
                                             0.117)) *
-                                        100
+                                          100,
                                       )}
                                       %
                                     </p>
@@ -3415,12 +3514,12 @@ const FeasibilityAnalysis = () => {
                                 <div className="flex items-start space-x-3">
                                   <div
                                     className={`p-2 rounded-lg ${getStatusColor(
-                                      factor.status
+                                      factor.status,
                                     )} bg-opacity-10`}
                                   >
                                     <factor.icon
                                       className={`w-5 h-5 ${getStatusColor(
-                                        factor.status
+                                        factor.status,
                                       )}`}
                                     />
                                   </div>
@@ -3431,7 +3530,7 @@ const FeasibilityAnalysis = () => {
                                     <Badge
                                       variant="outline"
                                       className={getPriorityColor(
-                                        factor.status
+                                        factor.status,
                                       )}
                                     >
                                       {factor.value}
@@ -3464,7 +3563,9 @@ const FeasibilityAnalysis = () => {
                         <AccordionContent className="px-6 pb-6">
                           <Tabs
                             value={scenario}
-                            onValueChange={(v) => setScenario(v as "1" | "3" | "5")}
+                            onValueChange={(v) =>
+                              setScenario(v as "1" | "3" | "5")
+                            }
                             className="w-full"
                           >
                             <TabsList className="relative grid w-full grid-cols-3 mb-6 bg-gradient-to-r from-emerald-100 to-teal-100 p-1 h-[50px] rounded-xl border border-emerald-200 shadow-sm overflow-hidden">
@@ -3528,7 +3629,7 @@ const FeasibilityAnalysis = () => {
                                     <p className="text-sm text-slate-700">
                                       Fator de Capacidade de{" "}
                                       {simulationResults.oneYear.capacityFactor.toFixed(
-                                        1
+                                        1,
                                       )}
                                       %
                                       {simulationResults.oneYear
@@ -3556,8 +3657,8 @@ const FeasibilityAnalysis = () => {
                                     simulationResults.oneYear.lcoh < 10
                                       ? "bg-emerald-50 border-emerald-200"
                                       : simulationResults.oneYear.lcoh < 15
-                                      ? "bg-amber-50 border-amber-200"
-                                      : "bg-red-50 border-red-200"
+                                        ? "bg-amber-50 border-amber-200"
+                                        : "bg-red-50 border-red-200"
                                   }`}
                                 >
                                   {simulationResults.oneYear.lcoh < 10 ? (
@@ -3571,7 +3672,9 @@ const FeasibilityAnalysis = () => {
                                     </h3>
                                     <p className="text-sm text-slate-700">
                                       LCOH de R${" "}
-                                      {simulationResults.oneYear.lcoh.toFixed(2).replace('.', ',')}
+                                      {simulationResults.oneYear.lcoh
+                                        .toFixed(2)
+                                        .replace(".", ",")}
                                       /kg
                                       {simulationResults.oneYear.lcoh < 8 &&
                                         " - Altamente competitivo! Abaixo do H₂ cinza (R$ 8-10/kg)."}
@@ -3598,14 +3701,14 @@ const FeasibilityAnalysis = () => {
                                     </h3>
                                     <p className="text-sm text-slate-700">
                                       Produção anual estimada de{" "}
-                                      {Math.ceil((
+                                      {Math.ceil(
                                         simulationResults.oneYear.h2Production /
-                                        1000
-                                      ))}{" "}
+                                          1000,
+                                      )}{" "}
                                       kg de H₂ verde no cenário de 100 kW.
                                       Potencial de expansão para{" "}
                                       {simulationResults.fiveYears!.h2Production.toFixed(
-                                        2
+                                        2,
                                       )}{" "}
                                       kg/ano com eletrolisador de 500 kW.
                                     </p>
@@ -3636,18 +3739,19 @@ const FeasibilityAnalysis = () => {
                                     </h3>
                                     <p className="text-sm text-slate-700">
                                       Payback estimado de{" "}
-                                      {Math.ceil((
+                                      {Math.ceil(
                                         simulationResults.oneYear
                                           .capexAnnualized /
-                                        0.117 /
-                                        (simulationResults.oneYear
-                                          .h2Production *
-                                          25 -
-                                          simulationResults.oneYear.opexAnnual)
-                                      ))}{" "}
+                                          0.117 /
+                                          (simulationResults.oneYear
+                                            .h2Production *
+                                            25 -
+                                            simulationResults.oneYear
+                                              .opexAnnual),
+                                      )}{" "}
                                       anos considerando preço de venda de R$
                                       25/kg. ROI anual de{" "}
-                                      {Math.ceil((
+                                      {Math.ceil(
                                         ((simulationResults.oneYear
                                           .h2Production *
                                           25 -
@@ -3656,8 +3760,8 @@ const FeasibilityAnalysis = () => {
                                           (simulationResults.oneYear
                                             .capexAnnualized /
                                             0.117)) *
-                                        100
-                                      ))}
+                                          100,
+                                      )}
                                       %.
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
@@ -3695,7 +3799,7 @@ const FeasibilityAnalysis = () => {
                                     <p className="text-sm text-slate-700">
                                       Fator de Capacidade de{" "}
                                       {simulationResults.threeYears!.capacityFactor.toFixed(
-                                        1
+                                        1,
                                       )}
                                       %
                                       {simulationResults.threeYears!
@@ -3723,8 +3827,8 @@ const FeasibilityAnalysis = () => {
                                     simulationResults.threeYears!.lcoh < 10
                                       ? "bg-emerald-50 border-emerald-200"
                                       : simulationResults.threeYears!.lcoh < 15
-                                      ? "bg-amber-50 border-amber-200"
-                                      : "bg-red-50 border-red-200"
+                                        ? "bg-amber-50 border-amber-200"
+                                        : "bg-red-50 border-red-200"
                                   }`}
                                 >
                                   {simulationResults.threeYears!.lcoh < 10 ? (
@@ -3738,7 +3842,9 @@ const FeasibilityAnalysis = () => {
                                     </h3>
                                     <p className="text-sm text-slate-700">
                                       LCOH de R${" "}
-                                      {simulationResults.threeYears!.lcoh.toFixed(2).replace('.', ',')}
+                                      {simulationResults
+                                        .threeYears!.lcoh.toFixed(2)
+                                        .replace(".", ",")}
                                       /kg
                                       {simulationResults.threeYears!.lcoh < 8 &&
                                         " - Altamente competitivo! Abaixo do H₂ cinza (R$ 8-10/kg)."}
@@ -3768,10 +3874,10 @@ const FeasibilityAnalysis = () => {
                                     </h3>
                                     <p className="text-sm text-slate-700">
                                       Produção anual estimada de{" "}
-                                      {Math.ceil((
+                                      {Math.ceil(
                                         simulationResults.threeYears!
-                                          .h2Production / 1000
-                                      ))}{" "}
+                                          .h2Production / 1000,
+                                      )}{" "}
                                       toneladas de H₂ verde no cenário de 300
                                       kW. Este eletrolisador de média capacidade
                                       é adequado para projetos industriais de
@@ -3808,19 +3914,19 @@ const FeasibilityAnalysis = () => {
                                     </h3>
                                     <p className="text-sm text-slate-700">
                                       Payback estimado de{" "}
-                                      {Math.ceil((
+                                      {Math.ceil(
                                         simulationResults.threeYears!
                                           .capexAnnualized /
-                                        0.117 /
-                                        (simulationResults.threeYears!
-                                          .h2Production *
-                                          25 -
-                                          simulationResults.threeYears!
-                                            .opexAnnual)
-                                      ))}{" "}
+                                          0.117 /
+                                          (simulationResults.threeYears!
+                                            .h2Production *
+                                            25 -
+                                            simulationResults.threeYears!
+                                              .opexAnnual),
+                                      )}{" "}
                                       anos considerando preço de venda de R$
                                       25/kg. ROI anual de{" "}
-                                      {Math.ceil((
+                                      {Math.ceil(
                                         ((simulationResults.threeYears!
                                           .h2Production *
                                           25 -
@@ -3829,8 +3935,8 @@ const FeasibilityAnalysis = () => {
                                           (simulationResults.threeYears!
                                             .capexAnnualized /
                                             0.117)) *
-                                        100
-                                      ))}
+                                          100,
+                                      )}
                                       %.
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
@@ -3868,7 +3974,7 @@ const FeasibilityAnalysis = () => {
                                     <p className="text-sm text-slate-700">
                                       Fator de Capacidade de{" "}
                                       {simulationResults.fiveYears!.capacityFactor.toFixed(
-                                        1
+                                        1,
                                       )}
                                       %
                                       {simulationResults.fiveYears!
@@ -3896,8 +4002,8 @@ const FeasibilityAnalysis = () => {
                                     simulationResults.fiveYears!.lcoh < 10
                                       ? "bg-emerald-50 border-emerald-200"
                                       : simulationResults.fiveYears!.lcoh < 15
-                                      ? "bg-amber-50 border-amber-200"
-                                      : "bg-red-50 border-red-200"
+                                        ? "bg-amber-50 border-amber-200"
+                                        : "bg-red-50 border-red-200"
                                   }`}
                                 >
                                   {simulationResults.fiveYears!.lcoh < 10 ? (
@@ -3911,7 +4017,9 @@ const FeasibilityAnalysis = () => {
                                     </h3>
                                     <p className="text-sm text-slate-700">
                                       LCOH de R${" "}
-                                      {simulationResults.fiveYears!.lcoh.toFixed(2).replace('.', ',')}
+                                      {simulationResults
+                                        .fiveYears!.lcoh.toFixed(2)
+                                        .replace(".", ",")}
                                       /kg
                                       {simulationResults.fiveYears!.lcoh < 8 &&
                                         " - Altamente competitivo! Abaixo do H₂ cinza (R$ 8-10/kg)."}
@@ -3940,10 +4048,10 @@ const FeasibilityAnalysis = () => {
                                     </h3>
                                     <p className="text-sm text-slate-700">
                                       Produção anual estimada de{" "}
-                                      {Math.ceil((
+                                      {Math.ceil(
                                         simulationResults.fiveYears!
-                                          .h2Production / 1000
-                                      ))}{" "}
+                                          .h2Production / 1000,
+                                      )}{" "}
                                       toneladas de H₂ verde no cenário de 500
                                       kW. Este eletrolisador de grande
                                       capacidade é ideal para operações
@@ -3980,19 +4088,19 @@ const FeasibilityAnalysis = () => {
                                     </h3>
                                     <p className="text-sm text-slate-700">
                                       Payback estimado de{" "}
-                                      {Math.ceil((
+                                      {Math.ceil(
                                         simulationResults.fiveYears!
                                           .capexAnnualized /
-                                        0.117 /
-                                        (simulationResults.fiveYears!
-                                          .h2Production *
-                                          25 -
-                                          simulationResults.fiveYears!
-                                            .opexAnnual)
-                                      ))}{" "}
+                                          0.117 /
+                                          (simulationResults.fiveYears!
+                                            .h2Production *
+                                            25 -
+                                            simulationResults.fiveYears!
+                                              .opexAnnual),
+                                      )}{" "}
                                       anos considerando preço de venda de R$
                                       25/kg. ROI anual de{" "}
-                                      {Math.ceil((
+                                      {Math.ceil(
                                         ((simulationResults.fiveYears!
                                           .h2Production *
                                           25 -
@@ -4001,8 +4109,8 @@ const FeasibilityAnalysis = () => {
                                           (simulationResults.fiveYears!
                                             .capexAnnualized /
                                             0.117)) *
-                                        100
-                                      ))}
+                                          100,
+                                      )}
                                       %.
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
@@ -4053,7 +4161,7 @@ const FeasibilityAnalysis = () => {
                                     <strong>Otimizar Dimensionamento:</strong>{" "}
                                     Fator de capacidade baixo (
                                     {simulationResults.oneYear.capacityFactor.toFixed(
-                                      1
+                                      1,
                                     )}
                                     %). Considere reduzir tamanho do
                                     eletrolisador ou aumentar capacidade de
@@ -4079,10 +4187,10 @@ const FeasibilityAnalysis = () => {
                                 <div className="flex-1 flex items-center justify-between">
                                   <p className="text-slate-700">
                                     <strong>Reduzir Curtailment:</strong>{" "}
-                                    {Math.ceil((
+                                    {Math.ceil(
                                       simulationResults.oneYear.curtailment /
-                                      1000
-                                    ))}{" "}
+                                        1000,
+                                    )}{" "}
                                     MWh/ano de energia desperdiçada. Considere
                                     sistema de armazenamento (baterias) ou
                                     aumentar capacidade do eletrolisador.
@@ -4285,21 +4393,21 @@ const FeasibilityAnalysis = () => {
                                         topographyData.slopeStatus === "success"
                                           ? "bg-green-100 text-green-800 border-green-200"
                                           : topographyData.slopeStatus ===
-                                            "warning"
-                                          ? "bg-amber-100 text-amber-800 border-amber-200"
-                                          : "bg-red-100 text-red-800 border-red-200"
+                                              "warning"
+                                            ? "bg-amber-100 text-amber-800 border-amber-200"
+                                            : "bg-red-100 text-red-800 border-red-200"
                                       }`}
                                     >
                                       {topographyData.slopeStatus === "success"
                                         ? "Baixa"
                                         : topographyData.slopeStatus ===
-                                          "warning"
-                                        ? "Média"
-                                        : "Alta"}
+                                            "warning"
+                                          ? "Média"
+                                          : "Alta"}
                                     </Badge>
                                   </div>
                                 </motion.div>
-                              )
+                              ),
                             )}
                           </div>
                         </AccordionContent>
@@ -4343,9 +4451,14 @@ const FeasibilityAnalysis = () => {
                       setSelectedEstado(estado);
                       setSelectedEstadoNome(estadoNome);
                     }}
-                    onRegiaoIntermediariaChange={(regiaoIntermediaria, regiaoIntermediariaNome) => {
+                    onRegiaoIntermediariaChange={(
+                      regiaoIntermediaria,
+                      regiaoIntermediariaNome,
+                    ) => {
                       setSelectedRegiaoIntermediaria(regiaoIntermediaria);
-                      setSelectedRegiaoIntermediariaNome(regiaoIntermediariaNome);
+                      setSelectedRegiaoIntermediariaNome(
+                        regiaoIntermediariaNome,
+                      );
                     }}
                   />
                 </div>
@@ -4359,7 +4472,9 @@ const FeasibilityAnalysis = () => {
                 />
               )}
               {/* Tipologias Regionais - Accordion (apenas após escolhas) */}
-              {selectedRegion || selectedEstado || selectedRegiaoIntermediaria ? (
+              {selectedRegion ||
+              selectedEstado ||
+              selectedRegiaoIntermediaria ? (
                 <Accordion
                   type="multiple"
                   defaultValue={["tipologias"]}
@@ -4381,7 +4496,7 @@ const FeasibilityAnalysis = () => {
                       <AccordionContent className="px-6 pb-6">
                         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                           {getTechnologyFactors(
-                            selectedRegion || "Nordeste"
+                            selectedRegion || "Nordeste",
                           ).map((tech, tIndex) => (
                             <div
                               key={`tech-${tIndex}`}
@@ -4519,7 +4634,8 @@ const FeasibilityAnalysis = () => {
                               </div>
                               <div className="mt-4 pt-4 border-t border-emerald-100">
                                 <p className="text-xs text-slate-500 italic text-center">
-                                  * As notas são ponderadas de 0 a 100, sendo 100 a maior nota de viabilidade.
+                                  * As notas são ponderadas de 0 a 100, sendo
+                                  100 a maior nota de viabilidade.
                                 </p>
                               </div>
                             </>
@@ -4532,112 +4648,117 @@ const FeasibilityAnalysis = () => {
               )}
 
               {/* Card de Viabilidade da Região Intermediária */}
-              {selectedRegiaoIntermediaria && selectedRegiaoIntermediaria !== "all" && (
-                <Accordion
-                  type="multiple"
-                  defaultValue={["regiaoIntermediaria"]}
-                  className="mb-4"
-                >
-                  <AccordionItem value="regiaoIntermediaria" className="border-none">
-                    <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden">
-                      <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-teal-50/50 transition-colors">
-                        <div className="flex items-center space-x-3 w-full">
-                          <BarChart3 className="w-6 h-6 text-teal-600" />
-                          <h2 className="text-2xl font-bold text-slate-900">
-                            Viabilidade - {selectedRegiaoIntermediariaNome}
-                          </h2>
-                          <Badge className="ml-auto bg-teal-100 text-teal-800 border-teal-300">
-                            Região Intermediária
-                          </Badge>
-                        </div>
-                      </AccordionTrigger>
-                      <AccordionContent className="px-6 pb-6">
-                        {(() => {
-                          const scores = getRegiaoIntermediariaViability(
-                            selectedEstado,
-                            selectedRegiaoIntermediariaNome
-                          );
-                          return (
-                            <>
-                              <div className="grid md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
-                                <div className="p-4 rounded-lg border border-amber-200 bg-amber-50/50">
-                                  <div className="flex items-center space-x-2 mb-2">
-                                    <Sun className="w-5 h-5 text-amber-600" />
-                                    <span className="font-semibold text-slate-900">
-                                      Solar
-                                    </span>
-                                  </div>
-                                  <div className="mt-2">
-                                    <div className="text-3xl font-bold text-amber-700">
-                                      {scores.solar}
+              {selectedRegiaoIntermediaria &&
+                selectedRegiaoIntermediaria !== "all" && (
+                  <Accordion
+                    type="multiple"
+                    defaultValue={["regiaoIntermediaria"]}
+                    className="mb-4"
+                  >
+                    <AccordionItem
+                      value="regiaoIntermediaria"
+                      className="border-none"
+                    >
+                      <Card className="bg-white/80 backdrop-blur-sm border-emerald-200 overflow-hidden">
+                        <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-teal-50/50 transition-colors">
+                          <div className="flex items-center space-x-3 w-full">
+                            <BarChart3 className="w-6 h-6 text-teal-600" />
+                            <h2 className="text-2xl font-bold text-slate-900">
+                              Viabilidade - {selectedRegiaoIntermediariaNome}
+                            </h2>
+                            <Badge className="ml-auto bg-teal-100 text-teal-800 border-teal-300">
+                              Região Intermediária
+                            </Badge>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-6 pb-6">
+                          {(() => {
+                            const scores = getRegiaoIntermediariaViability(
+                              selectedEstado,
+                              selectedRegiaoIntermediariaNome,
+                            );
+                            return (
+                              <>
+                                <div className="grid md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
+                                  <div className="p-4 rounded-lg border border-amber-200 bg-amber-50/50">
+                                    <div className="flex items-center space-x-2 mb-2">
+                                      <Sun className="w-5 h-5 text-amber-600" />
+                                      <span className="font-semibold text-slate-900">
+                                        Solar
+                                      </span>
                                     </div>
-                                    <div className="text-xs text-slate-600 mt-1">
-                                      Pontuação de viabilidade
+                                    <div className="mt-2">
+                                      <div className="text-3xl font-bold text-amber-700">
+                                        {scores.solar}
+                                      </div>
+                                      <div className="text-xs text-slate-600 mt-1">
+                                        Pontuação de viabilidade
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="p-4 rounded-lg border border-sky-200 bg-sky-50/50">
+                                    <div className="flex items-center space-x-2 mb-2">
+                                      <Wind className="w-5 h-5 text-sky-600" />
+                                      <span className="font-semibold text-slate-900">
+                                        Eólica
+                                      </span>
+                                    </div>
+                                    <div className="mt-2">
+                                      <div className="text-3xl font-bold text-sky-700">
+                                        {scores.wind}
+                                      </div>
+                                      <div className="text-xs text-slate-600 mt-1">
+                                        Pontuação de viabilidade
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="p-4 rounded-lg border border-emerald-200 bg-emerald-50/50">
+                                    <div className="flex items-center space-x-2 mb-2">
+                                      <Zap className="w-5 h-5 text-emerald-600" />
+                                      <span className="font-semibold text-slate-900">
+                                        Hidrogênio Verde
+                                      </span>
+                                    </div>
+                                    <div className="mt-2">
+                                      <div className="text-3xl font-bold text-emerald-700">
+                                        {scores.h2}
+                                      </div>
+                                      <div className="text-xs text-slate-600 mt-1">
+                                        Pontuação de viabilidade
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="p-4 rounded-lg border border-blue-200 bg-blue-50/50">
+                                    <div className="flex items-center space-x-2 mb-2">
+                                      <Droplet className="w-5 h-5 text-blue-600" />
+                                      <span className="font-semibold text-slate-900">
+                                        Recursos Hídricos
+                                      </span>
+                                    </div>
+                                    <div className="mt-2">
+                                      <div className="text-3xl font-bold text-blue-700">
+                                        {scores.water}
+                                      </div>
+                                      <div className="text-xs text-slate-600 mt-1">
+                                        Pontuação de viabilidade
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
-                                <div className="p-4 rounded-lg border border-sky-200 bg-sky-50/50">
-                                  <div className="flex items-center space-x-2 mb-2">
-                                    <Wind className="w-5 h-5 text-sky-600" />
-                                    <span className="font-semibold text-slate-900">
-                                      Eólica
-                                    </span>
-                                  </div>
-                                  <div className="mt-2">
-                                    <div className="text-3xl font-bold text-sky-700">
-                                      {scores.wind}
-                                    </div>
-                                    <div className="text-xs text-slate-600 mt-1">
-                                      Pontuação de viabilidade
-                                    </div>
-                                  </div>
+                                <div className="mt-4 pt-4 border-t border-teal-100">
+                                  <p className="text-xs text-slate-500 italic text-center">
+                                    * As notas são ponderadas de 0 a 100, sendo
+                                    100 a maior nota de viabilidade.
+                                  </p>
                                 </div>
-                                <div className="p-4 rounded-lg border border-emerald-200 bg-emerald-50/50">
-                                  <div className="flex items-center space-x-2 mb-2">
-                                    <Zap className="w-5 h-5 text-emerald-600" />
-                                    <span className="font-semibold text-slate-900">
-                                      Hidrogênio Verde
-                                    </span>
-                                  </div>
-                                  <div className="mt-2">
-                                    <div className="text-3xl font-bold text-emerald-700">
-                                      {scores.h2}
-                                    </div>
-                                    <div className="text-xs text-slate-600 mt-1">
-                                      Pontuação de viabilidade
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="p-4 rounded-lg border border-blue-200 bg-blue-50/50">
-                                  <div className="flex items-center space-x-2 mb-2">
-                                    <Droplet className="w-5 h-5 text-blue-600" />
-                                    <span className="font-semibold text-slate-900">
-                                      Recursos Hídricos
-                                    </span>
-                                  </div>
-                                  <div className="mt-2">
-                                    <div className="text-3xl font-bold text-blue-700">
-                                      {scores.water}
-                                    </div>
-                                    <div className="text-xs text-slate-600 mt-1">
-                                      Pontuação de viabilidade
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="mt-4 pt-4 border-t border-teal-100">
-                                <p className="text-xs text-slate-500 italic text-center">
-                                  * As notas são ponderadas de 0 a 100, sendo 100 a maior nota de viabilidade.
-                                </p>
-                              </div>
-                            </>
-                          );
-                        })()}
-                      </AccordionContent>
-                    </Card>
-                  </AccordionItem>
-                </Accordion>
-              )}
+                              </>
+                            );
+                          })()}
+                        </AccordionContent>
+                      </Card>
+                    </AccordionItem>
+                  </Accordion>
+                )}
 
               <Card className="p-6 bg-white/80 backdrop-blur-sm border-emerald-200 mb-6">
                 <div
@@ -4739,11 +4860,17 @@ const FeasibilityAnalysis = () => {
                       {(() => {
                         const a = getSuitabilityScores(compareRegionA);
                         const b = getSuitabilityScores(compareRegionB);
-                        const waterA = regionProfiles[compareRegionA]?.water || "N/A";
-                        const waterStatusA = regionProfiles[compareRegionA]?.waterStatus || "warning";
-                        const waterB = regionProfiles[compareRegionB]?.water || "N/A";
-                        const waterStatusB = regionProfiles[compareRegionB]?.waterStatus || "warning";
-                        
+                        const waterA =
+                          regionProfiles[compareRegionA]?.water || "N/A";
+                        const waterStatusA =
+                          regionProfiles[compareRegionA]?.waterStatus ||
+                          "warning";
+                        const waterB =
+                          regionProfiles[compareRegionB]?.water || "N/A";
+                        const waterStatusB =
+                          regionProfiles[compareRegionB]?.waterStatus ||
+                          "warning";
+
                         const rows = [
                           { label: "Solar", a: a.solar, b: b.solar, icon: Sun },
                           { label: "Eólica", a: a.wind, b: b.wind, icon: Wind },
@@ -4789,7 +4916,7 @@ const FeasibilityAnalysis = () => {
                                 </div>
                               </div>
                             ))}
-                            
+
                             {/* Comparação de Recursos Hídricos */}
                             {compareRegionA && compareRegionB && (
                               <div className="p-4 rounded-lg border bg-blue-50/30 flex items-center justify-between">
@@ -4805,8 +4932,8 @@ const FeasibilityAnalysis = () => {
                                       waterStatusA === "success"
                                         ? "bg-emerald-100 text-emerald-800 border-emerald-200"
                                         : waterStatusA === "warning"
-                                        ? "bg-amber-100 text-amber-800 border-amber-200"
-                                        : "bg-red-100 text-red-800 border-red-200"
+                                          ? "bg-amber-100 text-amber-800 border-amber-200"
+                                          : "bg-red-100 text-red-800 border-red-200"
                                     }`}
                                   >
                                     {compareRegionA}: {waterA}
@@ -4816,8 +4943,8 @@ const FeasibilityAnalysis = () => {
                                       waterStatusB === "success"
                                         ? "bg-emerald-100 text-emerald-800 border-emerald-200"
                                         : waterStatusB === "warning"
-                                        ? "bg-amber-100 text-amber-800 border-amber-200"
-                                        : "bg-red-100 text-red-800 border-red-200"
+                                          ? "bg-amber-100 text-amber-800 border-amber-200"
+                                          : "bg-red-100 text-red-800 border-red-200"
                                     }`}
                                   >
                                     {compareRegionB}: {waterB}
@@ -4825,10 +4952,11 @@ const FeasibilityAnalysis = () => {
                                 </div>
                               </div>
                             )}
-                            
+
                             <div className="mt-4 pt-4 border-t border-emerald-100">
                               <p className="text-xs text-slate-500 italic text-center">
-                                * As notas são ponderadas de 0 a 100, sendo 100 a maior nota de viabilidade.
+                                * As notas são ponderadas de 0 a 100, sendo 100
+                                a maior nota de viabilidade.
                               </p>
                             </div>
                           </div>
@@ -4850,7 +4978,7 @@ const FeasibilityAnalysis = () => {
                                 setCompareRegiaoIntermediariaNomeA("");
                                 if (uf) {
                                   fetch(
-                                    `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/regioes-intermediarias?orderBy=nome`
+                                    `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/regioes-intermediarias?orderBy=nome`,
                                   )
                                     .then((res) => res.json())
                                     .then(
@@ -4858,15 +4986,15 @@ const FeasibilityAnalysis = () => {
                                         data: Array<{
                                           id: number;
                                           nome: string;
-                                        }>
+                                        }>,
                                       ) => {
                                         setRegioesIntermediariasCompareA(
                                           data.map((r) => ({
                                             id: r.id.toString(),
                                             nome: r.nome,
-                                          }))
+                                          })),
                                         );
-                                      }
+                                      },
                                     );
                                 }
                               }}
@@ -4886,10 +5014,14 @@ const FeasibilityAnalysis = () => {
                               value={compareRegiaoIntermediariaA}
                               onValueChange={(id) => {
                                 setCompareRegiaoIntermediariaA(id);
-                                const regiaoIntermediaria = regioesIntermediariasCompareA.find(
-                                  (r) => r.id === id
-                                );
-                                if (regiaoIntermediaria) setCompareRegiaoIntermediariaNomeA(regiaoIntermediaria.nome);
+                                const regiaoIntermediaria =
+                                  regioesIntermediariasCompareA.find(
+                                    (r) => r.id === id,
+                                  );
+                                if (regiaoIntermediaria)
+                                  setCompareRegiaoIntermediariaNomeA(
+                                    regiaoIntermediaria.nome,
+                                  );
                               }}
                               disabled={!compareEstadoA}
                             >
@@ -4897,11 +5029,16 @@ const FeasibilityAnalysis = () => {
                                 <SelectValue placeholder="Selecione a Região Intermediária" />
                               </SelectTrigger>
                               <SelectContent>
-                                {regioesIntermediariasCompareA.map((regiaoIntermediaria) => (
-                                  <SelectItem key={regiaoIntermediaria.id} value={regiaoIntermediaria.id}>
-                                    {regiaoIntermediaria.nome}
-                                  </SelectItem>
-                                ))}
+                                {regioesIntermediariasCompareA.map(
+                                  (regiaoIntermediaria) => (
+                                    <SelectItem
+                                      key={regiaoIntermediaria.id}
+                                      value={regiaoIntermediaria.id}
+                                    >
+                                      {regiaoIntermediaria.nome}
+                                    </SelectItem>
+                                  ),
+                                )}
                               </SelectContent>
                             </Select>
                           </div>
@@ -4917,7 +5054,7 @@ const FeasibilityAnalysis = () => {
                                 setCompareRegiaoIntermediariaNomeB("");
                                 if (uf) {
                                   fetch(
-                                    `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/regioes-intermediarias?orderBy=nome`
+                                    `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/regioes-intermediarias?orderBy=nome`,
                                   )
                                     .then((res) => res.json())
                                     .then(
@@ -4925,15 +5062,15 @@ const FeasibilityAnalysis = () => {
                                         data: Array<{
                                           id: number;
                                           nome: string;
-                                        }>
+                                        }>,
                                       ) => {
                                         setRegioesIntermediariasCompareB(
                                           data.map((r) => ({
                                             id: r.id.toString(),
                                             nome: r.nome,
-                                          }))
+                                          })),
                                         );
-                                      }
+                                      },
                                     );
                                 }
                               }}
@@ -4953,10 +5090,14 @@ const FeasibilityAnalysis = () => {
                               value={compareRegiaoIntermediariaB}
                               onValueChange={(id) => {
                                 setCompareRegiaoIntermediariaB(id);
-                                const regiaoIntermediaria = regioesIntermediariasCompareB.find(
-                                  (r) => r.id === id
-                                );
-                                if (regiaoIntermediaria) setCompareRegiaoIntermediariaNomeB(regiaoIntermediaria.nome);
+                                const regiaoIntermediaria =
+                                  regioesIntermediariasCompareB.find(
+                                    (r) => r.id === id,
+                                  );
+                                if (regiaoIntermediaria)
+                                  setCompareRegiaoIntermediariaNomeB(
+                                    regiaoIntermediaria.nome,
+                                  );
                               }}
                               disabled={!compareEstadoB}
                             >
@@ -4964,11 +5105,16 @@ const FeasibilityAnalysis = () => {
                                 <SelectValue placeholder="Selecione a Região Intermediária" />
                               </SelectTrigger>
                               <SelectContent>
-                                {regioesIntermediariasCompareB.map((regiaoIntermediaria) => (
-                                  <SelectItem key={regiaoIntermediaria.id} value={regiaoIntermediaria.id}>
-                                    {regiaoIntermediaria.nome}
-                                  </SelectItem>
-                                ))}
+                                {regioesIntermediariasCompareB.map(
+                                  (regiaoIntermediaria) => (
+                                    <SelectItem
+                                      key={regiaoIntermediaria.id}
+                                      value={regiaoIntermediaria.id}
+                                    >
+                                      {regiaoIntermediaria.nome}
+                                    </SelectItem>
+                                  ),
+                                )}
                               </SelectContent>
                             </Select>
                           </div>
@@ -4980,32 +5126,58 @@ const FeasibilityAnalysis = () => {
                           (() => {
                             const a = getRegiaoIntermediariaViability(
                               compareEstadoA,
-                              compareRegiaoIntermediariaNomeA
+                              compareRegiaoIntermediariaNomeA,
                             );
                             const b = getRegiaoIntermediariaViability(
                               compareEstadoB,
-                              compareRegiaoIntermediariaNomeB
+                              compareRegiaoIntermediariaNomeB,
                             );
-                            
+
                             // Mapear estados para suas respectivas regiões para pegar dados de água
                             const getRegionFromUF = (uf: string): string => {
                               const regionMap: Record<string, string> = {
-                                AC: "Norte", AP: "Norte", AM: "Norte", PA: "Norte", RO: "Norte", RR: "Norte", TO: "Norte",
-                                AL: "Nordeste", BA: "Nordeste", CE: "Nordeste", MA: "Nordeste", PB: "Nordeste", PE: "Nordeste", PI: "Nordeste", RN: "Nordeste", SE: "Nordeste",
-                                DF: "Centro-Oeste", GO: "Centro-Oeste", MT: "Centro-Oeste", MS: "Centro-Oeste",
-                                ES: "Sudeste", MG: "Sudeste", RJ: "Sudeste", SP: "Sudeste",
-                                PR: "Sul", RS: "Sul", SC: "Sul",
+                                AC: "Norte",
+                                AP: "Norte",
+                                AM: "Norte",
+                                PA: "Norte",
+                                RO: "Norte",
+                                RR: "Norte",
+                                TO: "Norte",
+                                AL: "Nordeste",
+                                BA: "Nordeste",
+                                CE: "Nordeste",
+                                MA: "Nordeste",
+                                PB: "Nordeste",
+                                PE: "Nordeste",
+                                PI: "Nordeste",
+                                RN: "Nordeste",
+                                SE: "Nordeste",
+                                DF: "Centro-Oeste",
+                                GO: "Centro-Oeste",
+                                MT: "Centro-Oeste",
+                                MS: "Centro-Oeste",
+                                ES: "Sudeste",
+                                MG: "Sudeste",
+                                RJ: "Sudeste",
+                                SP: "Sudeste",
+                                PR: "Sul",
+                                RS: "Sul",
+                                SC: "Sul",
                               };
                               return regionMap[uf] || "";
                             };
-                            
+
                             const regionA = getRegionFromUF(compareEstadoA);
                             const regionB = getRegionFromUF(compareEstadoB);
-                            const waterA = regionProfiles[regionA]?.water || "N/A";
-                            const waterStatusA = regionProfiles[regionA]?.waterStatus || "warning";
-                            const waterB = regionProfiles[regionB]?.water || "N/A";
-                            const waterStatusB = regionProfiles[regionB]?.waterStatus || "warning";
-                            
+                            const waterA =
+                              regionProfiles[regionA]?.water || "N/A";
+                            const waterStatusA =
+                              regionProfiles[regionA]?.waterStatus || "warning";
+                            const waterB =
+                              regionProfiles[regionB]?.water || "N/A";
+                            const waterStatusB =
+                              regionProfiles[regionB]?.waterStatus || "warning";
+
                             const rows = [
                               {
                                 label: "Solar",
@@ -5061,7 +5233,7 @@ const FeasibilityAnalysis = () => {
                                     </div>
                                   </div>
                                 ))}
-                                
+
                                 {/* Comparação de Recursos Hídricos */}
                                 <div className="p-4 rounded-lg border bg-blue-50/30 flex items-center justify-between">
                                   <div className="flex items-center gap-2">
@@ -5076,29 +5248,32 @@ const FeasibilityAnalysis = () => {
                                         waterStatusA === "success"
                                           ? "bg-emerald-100 text-emerald-800 border-emerald-200"
                                           : waterStatusA === "warning"
-                                          ? "bg-amber-100 text-amber-800 border-amber-200"
-                                          : "bg-red-100 text-red-800 border-red-200"
+                                            ? "bg-amber-100 text-amber-800 border-amber-200"
+                                            : "bg-red-100 text-red-800 border-red-200"
                                       }`}
                                     >
-                                      {compareRegiaoIntermediariaNomeA}: {waterA}
+                                      {compareRegiaoIntermediariaNomeA}:{" "}
+                                      {waterA}
                                     </Badge>
                                     <Badge
                                       className={`${
                                         waterStatusB === "success"
                                           ? "bg-emerald-100 text-emerald-800 border-emerald-200"
                                           : waterStatusB === "warning"
-                                          ? "bg-amber-100 text-amber-800 border-amber-200"
-                                          : "bg-red-100 text-red-800 border-red-200"
+                                            ? "bg-amber-100 text-amber-800 border-amber-200"
+                                            : "bg-red-100 text-red-800 border-red-200"
                                       }`}
                                     >
-                                      {compareRegiaoIntermediariaNomeB}: {waterB}
+                                      {compareRegiaoIntermediariaNomeB}:{" "}
+                                      {waterB}
                                     </Badge>
                                   </div>
                                 </div>
-                                
+
                                 <div className="mt-4 pt-4 border-t border-emerald-100">
                                   <p className="text-xs text-slate-500 italic text-center">
-                                    * As notas são ponderadas de 0 a 100, sendo 100 a maior nota de viabilidade.
+                                    * As notas são ponderadas de 0 a 100, sendo
+                                    100 a maior nota de viabilidade.
                                   </p>
                                 </div>
                               </div>
@@ -5128,10 +5303,10 @@ const FeasibilityAnalysis = () => {
                     }`}
                   />
                 </div>
-                
+
                 {/* Controles dos Mapas - aparece quando os mapas estão abertos */}
                 {showMapsComparison && <WindyMapControls />}
-                
+
                 {showMapsComparison &&
                   (() => {
                     // Coordenadas aproximadas das macrorregiões
@@ -5148,9 +5323,13 @@ const FeasibilityAnalysis = () => {
 
                     // Lógica para exibir mapas independentes
                     const showRegiaoIntermediariaMapA =
-                      compareRegiaoIntermediariaA && compareEstadoA && coordsRegiaoIntermediariaA;
+                      compareRegiaoIntermediariaA &&
+                      compareEstadoA &&
+                      coordsRegiaoIntermediariaA;
                     const showRegiaoIntermediariaMapB =
-                      compareRegiaoIntermediariaB && compareEstadoB && coordsRegiaoIntermediariaB;
+                      compareRegiaoIntermediariaB &&
+                      compareEstadoB &&
+                      coordsRegiaoIntermediariaB;
                     const showMacroMapA = compareRegionA;
                     const showMacroMapB = compareRegionB;
 
@@ -5165,8 +5344,8 @@ const FeasibilityAnalysis = () => {
                         <div className="text-center py-8 text-slate-500">
                           <Mountain className="w-12 h-12 mx-auto mb-2 opacity-50" />
                           <p>
-                            Selecione regiões ou regiões intermediárias para visualizar
-                            no mapa
+                            Selecione regiões ou regiões intermediárias para
+                            visualizar no mapa
                           </p>
                         </div>
                       );
