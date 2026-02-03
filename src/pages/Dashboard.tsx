@@ -23,12 +23,14 @@ import { Card } from "@/components/ui/card";
 import { useLocationStore } from "@/store/locationStore";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Dashboard() {
   const {
     selectedLocation: storeLocation,
     setSelectedLocation,
     addFavorite,
+    removeFavorite,
     isFavorite,
     loadFavorites,
     addToHistory,
@@ -40,6 +42,17 @@ export default function Dashboard() {
   const { toast } = useToast();
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(true);
   const [isLoadingGeo, setIsLoadingGeo] = useState(false);
+  const [isUser, setIsUser] = useState(false);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setIsUser(!!user);
+    };
+    checkUser();
+  }, []);
 
   useEffect(() => {
     const loadUserFavorites = async () => {
@@ -94,19 +107,29 @@ export default function Dashboard() {
     }
   };
 
-  const handleAddFavorite = async () => {
-    if (isFavorite(localLocation.name)) {
+  const handleToggleFavorite = async () => {
+    if (!isUser) {
       toast({
-        title: "Já favoritado",
-        description: "Esta cidade já está nos seus favoritos",
+        title: "Autenticação necessária",
+        description: "Faça login para usar favoritos",
+        variant: "destructive",
       });
       return;
     }
-    await addFavorite(localLocation);
-    toast({
-      title: "Favorito adicionado",
-      description: `${localLocation.name} foi adicionado aos favoritos`,
-    });
+
+    if (isFavorite(localLocation.name)) {
+      await removeFavorite(localLocation.name);
+      toast({
+        title: "Favorito removido",
+        description: `${localLocation.name} foi removido dos favoritos`,
+      });
+    } else {
+      await addFavorite(localLocation);
+      toast({
+        title: "Favorito adicionado",
+        description: `${localLocation.name} foi adicionado aos favoritos`,
+      });
+    }
   };
 
   return (
@@ -133,7 +156,7 @@ export default function Dashboard() {
 
                   <div className="flex gap-2 mt-3 sm:mt-4">
                     <Button
-                      onClick={handleAddFavorite}
+                      onClick={handleToggleFavorite}
                       variant="outline"
                       size="sm"
                       className="flex-1 border-amber-300 hover:bg-amber-50 hover:border-amber-400 transition-colors text-sm sm:text-base"
@@ -147,7 +170,7 @@ export default function Dashboard() {
                       />
                       <div className="text-[10pt]">
                         {isFavorite(localLocation.name) ? (
-                          "Favoritado"
+                          "Desfavoritar"
                         ) : (
                           <div className="text-[10pt]">Favoritar</div>
                         )}

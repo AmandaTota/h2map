@@ -1,0 +1,12 @@
+-- Create storage bucket for avatars if it doesn't exist
+-- Note: This should be done via Supabase dashboard or CLI
+-- Run this in the Supabase SQL Editor:
+-- INSERT INTO storage.buckets (id, name, public) VALUES ('avatars', 'avatars', true);
+-- Create RLS policies for avatars bucket
+-- These should be set in Supabase Storage settings:
+-- Policy 1: Allow authenticated users to upload their own avatar
+--   Target: avatars/*
+--   MIME type: image/*
+--   Max file size: 5MB (5242880 bytes)
+-- This file documents the storage setup requirements for the app
+-- Make sure to create the 'avatars' bucket in Supabase Storage with public access

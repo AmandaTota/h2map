@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import UserProfileDialog from "@/components/UserProfileDialog";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 const Navigation = () => {
@@ -76,7 +77,7 @@ const Navigation = () => {
                     "flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors text-sm lg:px-4 lg:text-base",
                     isActive(item.path)
                       ? "bg-emerald-100 text-emerald-700 font-medium"
-                      : "text-slate-600 hover:text-emerald-600 hover:bg-emerald-50"
+                      : "text-slate-600 hover:text-emerald-600 hover:bg-emerald-50",
                   )}
                 >
                   <Icon className="w-4 h-4" />
@@ -86,24 +87,9 @@ const Navigation = () => {
             })}
 
             {/* Auth Button */}
-            {/*}
             {user ? (
               <div className="flex items-center gap-2 ml-4">
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 rounded-lg">
-                  <User className="w-4 h-4 text-emerald-600" />
-                  <span className="text-sm text-emerald-700 font-medium">
-                    {user.email?.split('@')[0]}
-                  </span>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleLogout}
-                  className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
-                >
-                  <LogOut className="w-4 h-4 mr-1" />
-                  Sair
-                </Button>
+                <UserProfileDialog user={user} onLogout={handleLogout} />
               </div>
             ) : (
               <Link to="/auth" className="ml-4">
@@ -116,7 +102,7 @@ const Navigation = () => {
                   Entrar
                 </Button>
               </Link>
-            )} */}
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -148,7 +134,7 @@ const Navigation = () => {
                     "flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors text-base",
                     isActive(item.path)
                       ? "bg-emerald-100 text-emerald-700 font-medium"
-                      : "text-slate-600 hover:text-emerald-600 hover:bg-emerald-50"
+                      : "text-slate-600 hover:text-emerald-600 hover:bg-emerald-50",
                   )}
                 >
                   <Icon className="w-5 h-5" />
@@ -161,24 +147,10 @@ const Navigation = () => {
             <div className="pt-2 border-t border-slate-200 mt-2">
               {user ? (
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 px-3 py-2 bg-emerald-50 rounded-lg">
-                    <User className="w-4 h-4 text-emerald-600" />
-                    <span className="text-sm text-emerald-700 font-medium">
-                      {user.email}
-                    </span>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      handleLogout();
-                      setMobileMenuOpen(false);
-                    }}
-                    className="w-full border-red-200 text-red-600 hover:bg-red-50"
-                  >
-                    <LogOut className="w-4 h-4 mr-1" />
-                    Sair
-                  </Button>
+                  <UserProfileDialog
+                    user={user}
+                    onLogout={() => setMobileMenuOpen(false)}
+                  />
                 </div>
               ) : (
                 <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
