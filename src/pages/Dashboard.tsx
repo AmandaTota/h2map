@@ -220,13 +220,13 @@ export default function Dashboard() {
 
               {/* Weather Map abaixo da previsão em telas pequenas/médias */}
               <div
-                className="relative bg-white rounded-lg shadow-lg overflow-hidden lg:hidden"
-                style={{ height: "700px" }}
+                className="bg-white rounded-lg shadow-lg overflow-hidden lg:hidden"
+                style={{ height: "auto" }}
               >
-                {/* Sidebar de Controles */}
-                <div className="absolute left-0 top-0 bottom-0 w-64 bg-slate-50/95 backdrop-blur-sm z-10 p-4 border-r border-slate-200">
-                  <div className="mb-6">
-                    <h2 className="text-xl font-bold text-slate-900 mb-1">
+                {/* Sidebar de Controles - Acima do mapa em telas pequenas/médias */}
+                <div className="bg-slate-50/95 backdrop-blur-sm z-10 p-4 border-b border-slate-200">
+                  <div className="mb-4">
+                    <h2 className="text-lg font-bold text-slate-900 mb-1">
                       Mapas Meteorológicos
                     </h2>
                     <p className="text-sm text-slate-600 flex items-center gap-1">
@@ -235,14 +235,14 @@ export default function Dashboard() {
                     </p>
                   </div>
 
-                  <div className="mb-4">
+                  <div className="mb-2">
                     <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
                       Visualizações
                     </h3>
                     <WindyMapControls />
                   </div>
 
-                  <div className="mt-8 pt-4 border-t border-slate-200">
+                  <div className="mt-4 pt-3 border-t border-slate-200">
                     <p className="text-xs text-slate-500">
                       💡 Arraste o mapa para explorar outras regiões
                     </p>
@@ -250,7 +250,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Mapa em Tela Cheia */}
-                <div className="absolute inset-0 pl-64">
+                <div style={{ height: "600px" }}>
                   <WindyMap
                     initialLocation={localLocation}
                     zoom={9}
@@ -259,6 +259,35 @@ export default function Dashboard() {
                   />
                 </div>
               </div>
+
+              {/* Quick Weather Info Card - Abaixo do mapa em telas pequenas/médias */}
+              <Card className="p-4 sm:p-6 border-emerald-100 shadow-lg bg-white lg:hidden">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div>
+                    <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-3 sm:mb-4">
+                      📍 Localização
+                    </h3>
+                    <p className="text-sm text-slate-600">
+                      {localLocation.name}
+                    </p>
+                    <p className="text-xs text-slate-500 mt-2">
+                      Latitude: {localLocation.lat.toFixed(4)}°
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      Longitude: {localLocation.lng.toFixed(4)}°
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-3 sm:mb-4">
+                      💡 Dica
+                    </h3>
+                    <p className="text-sm text-slate-600">
+                      Mapa interativo mostrando sua localização. Arraste para
+                      explorar a região e use zoom para mais detalhes.
+                    </p>
+                  </div>
+                </div>
+              </Card>
 
               {/* Dicas e Alertas + Notícias abaixo da previsão em telas pequenas/médias */}
               <div className="space-y-4 lg:hidden">
@@ -307,35 +336,6 @@ export default function Dashboard() {
                   />
                 </div>
               </div>
-
-              {/* Quick Weather Info Card */}
-              <Card className="p-6 border-emerald-100 shadow-lg bg-white">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="text-lg font-semibold text-slate-900 mb-4">
-                      📍 Localização
-                    </h3>
-                    <p className="text-sm text-slate-600">
-                      {localLocation.name}
-                    </p>
-                    <p className="text-xs text-slate-500 mt-2">
-                      Latitude: {localLocation.lat.toFixed(4)}°
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      Longitude: {localLocation.lng.toFixed(4)}°
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-slate-900 mb-4">
-                      💡 Dica
-                    </h3>
-                    <p className="text-sm text-slate-600">
-                      Mapa interativo mostrando sua localização. Arraste para
-                      explorar a região e use zoom para mais detalhes.
-                    </p>
-                  </div>
-                </div>
-              </Card>
 
               {/* Map Section (comentado)
               <div className="bg-white rounded-xl shadow-md p-6">
