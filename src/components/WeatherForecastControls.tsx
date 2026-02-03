@@ -1,7 +1,7 @@
 import { useWindyMapStore } from "@/store/windyMapStore";
 import { Wind, Thermometer, CloudRain } from "lucide-react";
 
-const WindyMapControls = () => {
+const WeatherForecastControls = () => {
   const { currentLayer, setCurrentLayer } = useWindyMapStore();
 
   const layers = [
@@ -29,7 +29,7 @@ const WindyMapControls = () => {
   ];
 
   return (
-    <div className="flex gap-2">
+    <div className="flex flex-col gap-2 flex-wrap">
       {layers.map((layer) => {
         const Icon = layer.icon;
         const isActive = currentLayer === layer.id;
@@ -39,17 +39,18 @@ const WindyMapControls = () => {
             key={layer.id}
             onClick={() => setCurrentLayer(layer.id)}
             className={`
-              flex items-center mb-4 mt-4 border w-[500px] gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all
+              flex items-center gap-2 px-3 py-2 w-[200px] rounded-md text-xs font-medium transition-all
               ${
                 isActive
-                  ? "bg-white text-slate-900 shadow-md"
-                  : "text-slate-600 hover:bg-white/50 hover:text-slate-900"
+                  ? "bg-white text-slate-900 shadow-sm border border-slate-200"
+                  : "text-slate-600 hover:bg-white/70 hover:text-slate-900 border border-slate-200/50"
               }
             `}
-            style={isActive ? { borderLeft: `4px solid ${layer.color}` } : {}}
+            style={isActive ? { borderLeft: `3px solid ${layer.color}` } : {}}
+            title={layer.name}
           >
-            <Icon className="w-5 h-5" style={{ color: layer.color }} />
-            <span>{layer.name}</span>
+            <Icon className="w-4 h-4" style={{ color: layer.color }} />
+            <span className="hidden sm:inline">{layer.shortName}</span>
           </button>
         );
       })}
@@ -57,4 +58,4 @@ const WindyMapControls = () => {
   );
 };
 
-export default WindyMapControls;
+export default WeatherForecastControls;

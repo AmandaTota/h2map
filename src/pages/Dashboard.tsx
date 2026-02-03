@@ -11,7 +11,7 @@ import WeatherForecast from "@/components/WeatherForecast";
 import WeatherAlerts from "@/components/WeatherAlerts";
 import NewsSidebar from "@/components/NewsSidebar";
 import WindyMap from "@/components/WindyMap";
-import WindyMapControls from "@/components/WindyMapControls";
+import WindyMapControls from "@/components/WeatherForecastControls";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useLocationStore } from "@/store/locationStore";
