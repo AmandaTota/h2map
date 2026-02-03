@@ -136,7 +136,7 @@ export default function Dashboard() {
     <>
       <Navigation />
 
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 pt-16">
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 pt-16 ">
         <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 max-w-7xl">
           {/* Layout: Sidebar (Search + Favorites) | Main Content (Weather) | News Sidebar */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
@@ -154,12 +154,24 @@ export default function Dashboard() {
                     initialLocation={localLocation}
                   />
 
-                  <div className="flex gap-2 mt-3 sm:mt-4">
+                  <div className="flex flex-wrap gap-2 mt-3 sm:mt-4">
+                    <Button
+                      onClick={handleGeolocation}
+                      disabled={isLoadingGeo}
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 flex items-center justify-center border-blue-300 hover:bg-blue-50 hover:border-blue-400 transition-colors text-sm sm:text-base"
+                    >
+                      <NavigationIcon className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-blue-500" />
+                      <div className="text-[10pt]">
+                        {isLoadingGeo ? "..." : "Minha Localização"}
+                      </div>
+                    </Button>
                     <Button
                       onClick={handleToggleFavorite}
                       variant="outline"
                       size="sm"
-                      className="flex-1 border-amber-300 hover:bg-amber-50 hover:border-amber-400 transition-colors text-sm sm:text-base"
+                      className="flex-1 flex items-center justify-center border-amber-300 hover:bg-amber-50 hover:border-amber-400 transition-colors text-sm sm:text-base"
                     >
                       <Star
                         className={`w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 transition-all ${
@@ -177,17 +189,7 @@ export default function Dashboard() {
                       </div>
                     </Button>
 
-                    <Button
-                      onClick={handleGeolocation}
-                      disabled={isLoadingGeo}
-                      variant="outline"
-                      size="sm"
-                      className="flex-1 text-center w-32 border-blue-300 hover:bg-blue-50 hover:border-blue-400 transition-colors text-sm sm:text-base"
-                    >
-                      <div className="text-[10pt]">
-                        {isLoadingGeo ? "..." : "Minha Localização"}
-                      </div>
-                    </Button>
+                   
                   </div>
 
                   <div className="border-t border-slate-200 mt-5 pt-5">
