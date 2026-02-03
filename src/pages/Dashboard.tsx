@@ -146,9 +146,11 @@ export default function Dashboard() {
                         }`}
                       />
                       <div className="text-[10pt]">
-                        {isFavorite(localLocation.name)
-                          ? "Favoritado"
-                          : <div className="text-[10pt]">Favoritar</div>}
+                        {isFavorite(localLocation.name) ? (
+                          "Favoritado"
+                        ) : (
+                          <div className="text-[10pt]">Favoritar</div>
+                        )}
                       </div>
                     </Button>
 
@@ -159,7 +161,9 @@ export default function Dashboard() {
                       size="sm"
                       className="flex-1 text-center w-32 border-blue-300 hover:bg-blue-50 hover:border-blue-400 transition-colors text-sm sm:text-base"
                     >
-                      <div className="text-[10pt]">{isLoadingGeo ? "..." : "Minha Localização"}</div>
+                      <div className="text-[10pt]">
+                        {isLoadingGeo ? "..." : "Minha Localização"}
+                      </div>
                     </Button>
                   </div>
 
@@ -175,12 +179,12 @@ export default function Dashboard() {
                 </div>
 
                 {/* Dicas e Alertas Dinâmicos */}
-                <div>
+                <div className="hidden lg:block">
                   <WeatherAlerts location={localLocation} />
                 </div>
 
                 {/* Notícias Recentes */}
-                <div>
+                <div className="hidden lg:block">
                   <NewsSidebar compact maxItems={6} />
                 </div>
               </div>
@@ -191,9 +195,57 @@ export default function Dashboard() {
               {/* Inline Weather Forecast */}
               <WeatherForecast location={localLocation} />
 
+              {/* Weather Map abaixo da previsão em telas pequenas/médias */}
+              <div
+                className="relative bg-white rounded-lg shadow-lg overflow-hidden lg:hidden"
+                style={{ height: "700px" }}
+              >
+                {/* Sidebar de Controles */}
+                <div className="absolute left-0 top-0 bottom-0 w-64 bg-slate-50/95 backdrop-blur-sm z-10 p-4 border-r border-slate-200">
+                  <div className="mb-6">
+                    <h2 className="text-xl font-bold text-slate-900 mb-1">
+                      Mapas Meteorológicos
+                    </h2>
+                    <p className="text-sm text-slate-600 flex items-center gap-1">
+                      <MapPin className="w-4 h-4" />
+                      {localLocation.name}
+                    </p>
+                  </div>
+
+                  <div className="mb-4">
+                    <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
+                      Visualizações
+                    </h3>
+                    <WindyMapControls />
+                  </div>
+
+                  <div className="mt-8 pt-4 border-t border-slate-200">
+                    <p className="text-xs text-slate-500">
+                      💡 Arraste o mapa para explorar outras regiões
+                    </p>
+                  </div>
+                </div>
+
+                {/* Mapa em Tela Cheia */}
+                <div className="absolute inset-0 pl-64">
+                  <WindyMap
+                    initialLocation={localLocation}
+                    zoom={9}
+                    enableSync={false}
+                    initialLayer="wind"
+                  />
+                </div>
+              </div>
+
+              {/* Dicas e Alertas + Notícias abaixo da previsão em telas pequenas/médias */}
+              <div className="space-y-4 lg:hidden">
+                <WeatherAlerts location={localLocation} />
+                <NewsSidebar compact maxItems={6} />
+              </div>
+
               {/* Weather Map Section - Layout meteoblue com sidebar */}
               <div
-                className="relative bg-white rounded-lg shadow-lg overflow-hidden"
+                className="relative bg-white rounded-lg shadow-lg overflow-hidden hidden lg:block"
                 style={{ height: "700px" }}
               >
                 {/* Sidebar de Controles */}
