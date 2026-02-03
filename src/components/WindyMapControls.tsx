@@ -33,7 +33,7 @@ const WindyMapControls = () => {
   ];
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex gap-2">
       {layers.map((layer) => {
         const Icon = layer.icon;
         const isActive = currentLayer === layer.id;
@@ -43,7 +43,7 @@ const WindyMapControls = () => {
             key={layer.id}
             onClick={() => setCurrentLayer(layer.id)}
             className={`
-              flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all
+              flex items-center mb-4 mt-4 border w-[500px] gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all
               ${isActive 
                 ? 'bg-white text-slate-900 shadow-md' 
                 : 'text-slate-600 hover:bg-white/50 hover:text-slate-900'
