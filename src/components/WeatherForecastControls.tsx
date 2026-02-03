@@ -39,7 +39,7 @@ const WeatherForecastControls = () => {
             key={layer.id}
             onClick={() => setCurrentLayer(layer.id)}
             className={`
-              flex items-center gap-2 px-3 py-2 w-[200px] rounded-md text-xs font-medium transition-all
+              flex items-center gap-2 px-3 py-2 h-[50px] w-[200px] rounded-md text-xs font-medium transition-all border border-slate-200
               ${
                 isActive
                   ? "bg-white text-slate-900 shadow-sm border border-slate-200"

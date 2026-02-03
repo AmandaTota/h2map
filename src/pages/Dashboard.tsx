@@ -1,4 +1,10 @@
-import { MapPin, Star, Cloud, Layers, Navigation as NavigationIcon } from "lucide-react";
+import {
+  MapPin,
+  Star,
+  Cloud,
+  Layers,
+  Navigation as NavigationIcon,
+} from "lucide-react";
 import Navigation from "@/components/Navigation";
 {
   /*import Map from '@/components/Map';*/
@@ -29,7 +35,7 @@ export default function Dashboard() {
     getGeolocation,
   } = useLocationStore();
   const [localLocation, setLocalLocation] = useState(
-    storeLocation || { lat: -23.5505, lng: -46.6333, name: "São Paulo, SP" }
+    storeLocation || { lat: -23.5505, lng: -46.6333, name: "São Paulo, SP" },
   );
   const { toast } = useToast();
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(true);
@@ -139,20 +145,21 @@ export default function Dashboard() {
                             : "text-amber-500"
                         }`}
                       />
-                      {isFavorite(localLocation.name)
-                        ? "Favoritado"
-                        : "Favoritar"}
+                      <div className="text-[10pt]">
+                        {isFavorite(localLocation.name)
+                          ? "Favoritado"
+                          : <div className="text-[10pt]">Favoritar</div>}
+                      </div>
                     </Button>
-                    
+
                     <Button
                       onClick={handleGeolocation}
                       disabled={isLoadingGeo}
                       variant="outline"
                       size="sm"
-                      className="flex-1 border-blue-300 hover:bg-blue-50 hover:border-blue-400 transition-colors text-sm sm:text-base"
+                      className="flex-1 text-center w-32 border-blue-300 hover:bg-blue-50 hover:border-blue-400 transition-colors text-sm sm:text-base"
                     >
-                      <NavigationIcon className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                      {isLoadingGeo ? "..." : "Minha Loc."}
+                      <div className="text-[10pt]">{isLoadingGeo ? "..." : "Minha Localização"}</div>
                     </Button>
                   </div>
 
@@ -185,7 +192,10 @@ export default function Dashboard() {
               <WeatherForecast location={localLocation} />
 
               {/* Weather Map Section - Layout meteoblue com sidebar */}
-              <div className="relative bg-white rounded-lg shadow-lg overflow-hidden" style={{ height: '700px' }}>
+              <div
+                className="relative bg-white rounded-lg shadow-lg overflow-hidden"
+                style={{ height: "700px" }}
+              >
                 {/* Sidebar de Controles */}
                 <div className="absolute left-0 top-0 bottom-0 w-64 bg-slate-50/95 backdrop-blur-sm z-10 p-4 border-r border-slate-200">
                   <div className="mb-6">
@@ -197,24 +207,24 @@ export default function Dashboard() {
                       {localLocation.name}
                     </p>
                   </div>
-                  
+
                   <div className="mb-4">
                     <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
                       Visualizações
                     </h3>
                     <WindyMapControls />
                   </div>
-                  
+
                   <div className="mt-8 pt-4 border-t border-slate-200">
                     <p className="text-xs text-slate-500">
                       💡 Arraste o mapa para explorar outras regiões
                     </p>
                   </div>
                 </div>
-                
+
                 {/* Mapa em Tela Cheia */}
                 <div className="absolute inset-0 pl-64">
-                  <WindyMap 
+                  <WindyMap
                     initialLocation={localLocation}
                     zoom={9}
                     enableSync={false}
@@ -227,8 +237,12 @@ export default function Dashboard() {
               <Card className="p-6 border-emerald-100 shadow-lg bg-white">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <h3 className="text-lg font-semibold text-slate-900 mb-4">📍 Localização</h3>
-                    <p className="text-sm text-slate-600">{localLocation.name}</p>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-4">
+                      📍 Localização
+                    </h3>
+                    <p className="text-sm text-slate-600">
+                      {localLocation.name}
+                    </p>
                     <p className="text-xs text-slate-500 mt-2">
                       Latitude: {localLocation.lat.toFixed(4)}°
                     </p>
@@ -237,9 +251,12 @@ export default function Dashboard() {
                     </p>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-slate-900 mb-4">💡 Dica</h3>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-4">
+                      💡 Dica
+                    </h3>
                     <p className="text-sm text-slate-600">
-                      Mapa interativo mostrando sua localização. Arraste para explorar a região e use zoom para mais detalhes.
+                      Mapa interativo mostrando sua localização. Arraste para
+                      explorar a região e use zoom para mais detalhes.
                     </p>
                   </div>
                 </div>
