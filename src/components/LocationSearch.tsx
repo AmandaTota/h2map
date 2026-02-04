@@ -67,6 +67,13 @@ const LocationSearch = ({
   initialLocation,
 }: LocationSearchProps) => {
   const [searchTerm, setSearchTerm] = useState(initialLocation?.name || "");
+
+  // Sincroniza o input quando initialLocation mudar (ex: Minha Localização)
+  useEffect(() => {
+    if (initialLocation?.name && initialLocation.name !== searchTerm) {
+      setSearchTerm(initialLocation.name);
+    }
+  }, [initialLocation?.name]);
   const [suggestions, setSuggestions] = useState<SuggestionItem[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -182,7 +189,7 @@ const LocationSearch = ({
               <div className="p-4 text-center text-slate-600">Buscando...</div>
             </Card>
           </div>,
-          document.body
+          document.body,
         )}
 
       {isSearching &&
@@ -218,7 +225,7 @@ const LocationSearch = ({
               </div>
             </Card>
           </div>,
-          document.body
+          document.body,
         )}
 
       {isSearching &&
@@ -242,7 +249,7 @@ const LocationSearch = ({
               </div>
             </Card>
           </div>,
-          document.body
+          document.body,
         )}
     </>
   );
