@@ -453,7 +453,7 @@ export default function Informacoes() {
 
     const weeklyKm = entries.reduce(
       (s, e) => s + e.kmPerDay * e.tripsPerWeek,
-      0
+      0,
     );
 
     // Use fórmula solicitada:
@@ -547,11 +547,11 @@ export default function Informacoes() {
             />
           </div>
 
-          <div className="flex items-end justify-end">
+          <div className="flex items-end justify-center h-[50px] mt-[15px]  ">
             <Button
               variant="outline"
               size="sm"
-              className="w-[50px] md:w-auto px-3 py-2 h-10"
+              className="sm:w-[200px] sm:h-[50px] md:h-[40px] md:w-[200px] w-[200px] h-[20px] mt-[200px] px-3 py-2 h-[50px] "
               onClick={addEntry}
             >
               Adicionar
@@ -860,7 +860,7 @@ export default function Informacoes() {
             {(
               Object.entries(infoData) as [
                 SectionKey,
-                (typeof infoData)[SectionKey]
+                (typeof infoData)[SectionKey],
               ][]
             ).map(([key, data]) => {
               const Icon = data.icon;
@@ -1032,7 +1032,7 @@ export default function Informacoes() {
                       onClick={() =>
                         window.open(
                           "https://repositori.ufla.br/handle/123456789/12345",
-                          "_blank"
+                          "_blank",
                         )
                       }
                     >
@@ -1075,7 +1075,7 @@ export default function Informacoes() {
                       onClick={() =>
                         window.open(
                           "https://iosrjournals.org/iosr-jestft/papers/vol7-issue1/Version-1/G0711010106.pdf",
-                          "_blank"
+                          "_blank",
                         )
                       }
                     >
@@ -1117,7 +1117,7 @@ export default function Informacoes() {
                       onClick={() =>
                         window.open(
                           "https://books.scielo.org/id/srchb/pdf/costa-9788575412352.pdf",
-                          "_blank"
+                          "_blank",
                         )
                       }
                     >
@@ -1159,7 +1159,7 @@ export default function Informacoes() {
                       onClick={() =>
                         window.open(
                           "https://www.ibeas.org.br/energias-renovaveis-fonte-de-energia-limpa/",
-                          "_blank"
+                          "_blank",
                         )
                       }
                     >
@@ -1201,7 +1201,7 @@ export default function Informacoes() {
                       onClick={() =>
                         window.open(
                           "https://periodicos.ufpa.br/index.php/revistaamazonia/article/view/12345",
-                          "_blank"
+                          "_blank",
                         )
                       }
                     >
@@ -1243,7 +1243,7 @@ export default function Informacoes() {
                       onClick={() =>
                         window.open(
                           "https://www.bing.com/search?q=hidrogenio+verde+sustentabilidade+visao+integrada",
-                          "_blank"
+                          "_blank",
                         )
                       }
                     >
@@ -1286,7 +1286,7 @@ export default function Informacoes() {
                       onClick={() =>
                         window.open(
                           "https://www.revistaft.com.br/hidrogenio-verde-transicao-energetica-brasileira",
-                          "_blank"
+                          "_blank",
                         )
                       }
                     >
@@ -1329,7 +1329,7 @@ export default function Informacoes() {
                       onClick={() =>
                         window.open(
                           "https://submissao.gep.org.br/anais/article/view/12345",
-                          "_blank"
+                          "_blank",
                         )
                       }
                     >
@@ -1372,7 +1372,7 @@ export default function Informacoes() {
                       onClick={() =>
                         window.open(
                           "https://www.scielo.br/j/qn/a/eletrolise-hidrogenio-verde/",
-                          "_blank"
+                          "_blank",
                         )
                       }
                     >
