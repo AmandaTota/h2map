@@ -43,7 +43,7 @@ class WeatherService {
     lat: number,
     lon: number,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ) {
     try {
       // Use NASA POWER data for accurate historical climate data
@@ -51,7 +51,7 @@ class WeatherService {
         lat,
         lon,
         startDate,
-        endDate
+        endDate,
       );
       if (nasaData && nasaData.length > 0) {
         return nasaData;
@@ -68,7 +68,7 @@ class WeatherService {
     lat: number,
     lon: number,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ) {
     try {
       const startDateStr = format(startDate, "yyyy-MM-dd");
@@ -94,7 +94,7 @@ class WeatherService {
             startDate: startDateStr,
             endDate: endDateStr,
           }),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -115,7 +115,7 @@ class WeatherService {
   private transformNASAPowerData(
     nasaData: any,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): HistoricalData[] {
     if (!nasaData || !nasaData.dailyData) return [];
 
@@ -151,7 +151,7 @@ class WeatherService {
     lat: number,
     lon: number,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ) {
     try {
       // Format dates as YYYY-MM-DD for INMET API
@@ -177,7 +177,7 @@ class WeatherService {
             startDate: startDateStr,
             endDate: endDateStr,
           }),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -227,7 +227,7 @@ class WeatherService {
             }`,
           },
           body: JSON.stringify({ lat, lon }),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -245,7 +245,7 @@ class WeatherService {
     lat: number,
     lon: number,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ) {
     const data = [];
     const currentDate = new Date(startDate);
@@ -397,7 +397,7 @@ const Statistics = () => {
           lng: storeLocation.lng,
           type: "custom",
         }
-      : null
+      : null,
   );
   const [dateRange, setDateRange] = useState<"7" | "15" | "30" | "custom">("7");
   const [customStartDate, setCustomStartDate] = useState("");
@@ -535,7 +535,7 @@ const Statistics = () => {
         selectedLocation.lat,
         selectedLocation.lng,
         startDate,
-        endDate
+        endDate,
       );
 
       setHistoricalData(data);
@@ -596,17 +596,17 @@ const Statistics = () => {
 
     // Calculate standard deviations
     const tempVariances = data.map((d) =>
-      Math.pow(d.temperature - avgTemperature, 2)
+      Math.pow(d.temperature - avgTemperature, 2),
     );
     const tempStdDev = Math.sqrt(
-      tempVariances.reduce((sum, v) => sum + v, 0) / data.length
+      tempVariances.reduce((sum, v) => sum + v, 0) / data.length,
     );
 
     const windVariances = data.map((d) =>
-      Math.pow(d.windSpeed - avgWindSpeed, 2)
+      Math.pow(d.windSpeed - avgWindSpeed, 2),
     );
     const windSpeedStdDev = Math.sqrt(
-      windVariances.reduce((sum, v) => sum + v, 0) / data.length
+      windVariances.reduce((sum, v) => sum + v, 0) / data.length,
     );
 
     // Count rainy and sunny days
@@ -622,31 +622,31 @@ const Statistics = () => {
     const stats: StatisticsSummary = {
       avgTemperature: parseFloat(avgTemperature.toFixed(1)),
       maxTemperature: parseFloat(
-        Math.max(...data.map((d) => d.temperature)).toFixed(1)
+        Math.max(...data.map((d) => d.temperature)).toFixed(1),
       ),
       minTemperature: parseFloat(
-        Math.min(...data.map((d) => d.temperature)).toFixed(1)
+        Math.min(...data.map((d) => d.temperature)).toFixed(1),
       ),
       avgHumidity: Math.round(
-        data.reduce((sum, d) => sum + d.humidity, 0) / data.length
+        data.reduce((sum, d) => sum + d.humidity, 0) / data.length,
       ),
       avgWindSpeed: parseFloat(avgWindSpeed.toFixed(1)),
       maxWindSpeed: parseFloat(
-        Math.max(...data.map((d) => d.windSpeed)).toFixed(1)
+        Math.max(...data.map((d) => d.windSpeed)).toFixed(1),
       ),
       totalRainfall: parseFloat(
-        data.reduce((sum, d) => sum + d.rainfall, 0).toFixed(1)
+        data.reduce((sum, d) => sum + d.rainfall, 0).toFixed(1),
       ),
       avgSolarIrradiance: parseFloat(
         (
           data.reduce((sum, d) => sum + d.solarIrradiance, 0) / data.length
-        ).toFixed(1)
+        ).toFixed(1),
       ),
       avgPressure: Math.round(
-        data.reduce((sum, d) => sum + d.pressure, 0) / data.length
+        data.reduce((sum, d) => sum + d.pressure, 0) / data.length,
       ),
       avgUVIndex: parseFloat(
-        (data.reduce((sum, d) => sum + d.uvIndex, 0) / data.length).toFixed(1)
+        (data.reduce((sum, d) => sum + d.uvIndex, 0) / data.length).toFixed(1),
       ),
       dataPoints: data.length,
       tempStdDev: parseFloat(tempStdDev.toFixed(1)),
@@ -678,7 +678,7 @@ const Statistics = () => {
           if (paramConfig) {
             const value = item[param as keyof HistoricalData] as number;
             row[`${paramConfig.name} (${paramConfig.unit})`] = parseFloat(
-              value.toFixed(1)
+              value.toFixed(1),
             );
           }
         });
@@ -759,17 +759,17 @@ const Statistics = () => {
       XLSX.utils.book_append_sheet(
         wb,
         ws,
-        `Dados_${selectedLocation.name.replace(/[^a-zA-Z0-9]/g, "_")}`
+        `Dados_${selectedLocation.name.replace(/[^a-zA-Z0-9]/g, "_")}`,
       );
 
       // Generate filename with date range
       const { startDate, endDate } = getDateRange();
       const filename = `H2maps_Estatisticas_${selectedLocation.name.replace(
         /[^a-zA-Z0-9]/g,
-        "_"
+        "_",
       )}_${format(startDate, "dd-MM-yyyy")}_a_${format(
         endDate,
-        "dd-MM-yyyy"
+        "dd-MM-yyyy",
       )}.xlsx`;
 
       // Download file
@@ -785,7 +785,7 @@ const Statistics = () => {
     setSelectedParameters((prev) =>
       prev.includes(paramId)
         ? prev.filter((p) => p !== paramId)
-        : [...prev, paramId]
+        : [...prev, paramId],
     );
   };
 
@@ -793,10 +793,10 @@ const Statistics = () => {
     if (!historicalData.length) return null;
 
     const values = historicalData.map(
-      (d) => d[paramId as keyof HistoricalData] as number
+      (d) => d[paramId as keyof HistoricalData] as number,
     );
     const avg = parseFloat(
-      (values.reduce((sum, v) => sum + v, 0) / values.length).toFixed(1)
+      (values.reduce((sum, v) => sum + v, 0) / values.length).toFixed(1),
     );
     const max = parseFloat(Math.max(...values).toFixed(1));
     const min = parseFloat(Math.min(...values).toFixed(1));
@@ -879,7 +879,7 @@ const Statistics = () => {
                   ))}
                   <button
                     onClick={() => setDateRange("custom")}
-                    className={`flex-1 min-w-[80px] px-2 sm:px-3 py-2 rounded-lg border transition-colors text-sm ${
+                    className={`sm:flex-3  min-w-[80px] px-2 sm:px-3 py-2 rounded-lg border transition-colors text-sm ${
                       dateRange === "custom"
                         ? "bg-emerald-600 text-white border-emerald-600"
                         : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
@@ -1141,7 +1141,7 @@ const Statistics = () => {
                           </span>
                           <span className="font-semibold text-slate-900 ml-1">
                             {(statistics.avgDailyEnergyPotential * 0.8).toFixed(
-                              2
+                              2,
                             )}{" "}
                             kWh/dia
                           </span>
@@ -1212,7 +1212,7 @@ const Statistics = () => {
                           </td>
                           {selectedParameters.map((paramId) => {
                             const param = parameters.find(
-                              (p) => p.id === paramId
+                              (p) => p.id === paramId,
                             );
                             const value = item[
                               paramId as keyof HistoricalData

@@ -11,8 +11,6 @@ import {
   CloudOff,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAlertPreferences } from "@/store/alertPreferencesStore";
-import AlertSettingsDialog from "./AlertSettingsDialog";
 
 interface WeatherAlertsProps {
   location: {
@@ -35,7 +33,22 @@ type Alert = {
 export default function WeatherAlerts({ location }: WeatherAlertsProps) {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
-  const { preferences } = useAlertPreferences();
+
+  // Parâmetros fixos de alertas
+  const FIXED_ALERT_PARAMS = {
+    highTempThreshold: 30,
+    lowTempThreshold: 10,
+    enableTempAlerts: true,
+    strongWindThreshold: 8.3,
+    enableWindAlerts: true,
+    enableRainAlerts: true,
+    enableAirQualityAlerts: true,
+    airQualityThreshold: 3,
+    enableSolarAlerts: true,
+    enableThunderstormAlerts: true,
+    enableHumidityAlerts: true,
+    highHumidityThreshold: 80,
+  };
 
   useEffect(() => {
     const fetchWeatherData = async () => {
@@ -56,7 +69,11 @@ export default function WeatherAlerts({ location }: WeatherAlertsProps) {
           });
 
         if (weatherData) {
-          const generatedAlerts = generateAlerts(weatherData, pollutionData, preferences);
+          const generatedAlerts = generateAlerts(
+            weatherData,
+            pollutionData,
+            FIXED_ALERT_PARAMS,
+          );
           setAlerts(generatedAlerts);
         }
       } catch (err) {
@@ -70,24 +87,15 @@ export default function WeatherAlerts({ location }: WeatherAlertsProps) {
     fetchWeatherData();
   }, [location.lat, location.lng]);
 
-  const generateAlerts = (weatherData: any, pollutionData?: any, prefs?: any): Alert[] => {
+  const generateAlerts = (
+    weatherData: any,
+    pollutionData?: any,
+    prefs?: any,
+  ): Alert[] => {
     const alerts: Alert[] = [];
-    
-    // Usar preferências padrão se não fornecidas
-    const p = prefs || {
-      highTempThreshold: 30,
-      lowTempThreshold: 10,
-      enableTempAlerts: true,
-      strongWindThreshold: 8.3,
-      enableWindAlerts: true,
-      enableRainAlerts: true,
-      enableAirQualityAlerts: true,
-      airQualityThreshold: 3,
-      enableSolarAlerts: true,
-      enableThunderstormAlerts: true,
-      enableHumidityAlerts: true,
-      highHumidityThreshold: 80,
-    };
+
+    // Usar parâmetros fixos diretamente
+    const p = prefs || FIXED_ALERT_PARAMS;
 
     // Dados principais da API OpenWeatherMap
     const temp = weatherData.main?.temp || 0;
@@ -139,7 +147,7 @@ export default function WeatherAlerts({ location }: WeatherAlertsProps) {
         icon: Thermometer,
         title: "Temperatura Elevada",
         description: `${Math.round(
-          temp
+          temp,
         )}°C - Mantenha-se hidratado e evite exposição prolongada ao sol`,
         color: "text-red-900",
         bgColor: "bg-red-50",
@@ -154,7 +162,7 @@ export default function WeatherAlerts({ location }: WeatherAlertsProps) {
         icon: Thermometer,
         title: "Temperatura Baixa",
         description: `${Math.round(
-          temp
+          temp,
         )}°C - Agasalhe-se bem e proteja-se do frio`,
         color: "text-blue-900",
         bgColor: "bg-blue-50",
@@ -191,7 +199,10 @@ export default function WeatherAlerts({ location }: WeatherAlertsProps) {
     }
 
     // Possibilidade de chuva
-    if (p.enableRainAlerts && (weatherMain === "Rain" || weatherMain === "Drizzle")) {
+    if (
+      p.enableRainAlerts &&
+      (weatherMain === "Rain" || weatherMain === "Drizzle")
+    ) {
       alerts.push({
         id: "rain",
         icon: CloudRain,
@@ -281,9 +292,7 @@ export default function WeatherAlerts({ location }: WeatherAlertsProps) {
           Dicas e Alertas
         </h3>
       </div>
-      
-      <AlertSettingsDialog />
-      
+
       <div className="space-y-2 mt-3">
         {alerts.map((alert) => {
           const Icon = alert.icon;
@@ -295,7 +304,7 @@ export default function WeatherAlerts({ location }: WeatherAlertsProps) {
               <Icon
                 className={`w-4 h-4 ${alert.color.replace(
                   "900",
-                  "600"
+                  "600",
                 )} mt-0.5 flex-shrink-0`}
               />
               <div className="flex-1">
@@ -305,7 +314,7 @@ export default function WeatherAlerts({ location }: WeatherAlertsProps) {
                 <p
                   className={`text-xs ${alert.color.replace(
                     "900",
-                    "700"
+                    "700",
                   )} mt-0.5`}
                 >
                   {alert.description}

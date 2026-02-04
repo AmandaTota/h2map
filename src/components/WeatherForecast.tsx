@@ -174,73 +174,6 @@ const WeatherForecastComponent = ({ location }: WeatherForecastProps) => {
         Previsão do Tempo - {forecast.location.name}
       </h2>
 
-      {/* 5-Day Forecast */}
-      <div className="overflow-x-auto mb-3 sm:mb-4">
-        <h3 className="text-sm font-semibold text-slate-900 mb-2">
-          Próximos 5 Dias
-        </h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 min-w-0">
-          {forecast.forecast.map((day, index) => (
-            <motion.div
-              key={day.date}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-md p-3 sm:p-4 border border-slate-200 hover:shadow-md transition-shadow min-w-[200px] sm:min-w-0 aspect-square flex flex-col justify-between"
-            >
-              <div className="text-center mb-2">
-                <p className="text-xs sm:text-sm font-semibold text-slate-900 truncate">
-                  {day.dayName}
-                </p>
-                <p className="text-xs text-slate-500">
-                  {day.date.split("-").slice(1).reverse().join("/")}
-                </p>
-              </div>
-
-              <div className="flex justify-center mb-2">
-                {getWeatherIcon(day.weather.icon, 28)}
-              </div>
-
-              <p className="text-xs text-slate-600 text-center mb-2 capitalize line-clamp-2 h-6 sm:h-8">
-                {day.weather.description}
-              </p>
-
-              <div className="space-y-1">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500">Temp:</span>
-                  <span className="font-semibold text-slate-900">
-                    {day.temp.min.toFixed(0)}° / {day.temp.max.toFixed(0)}°
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500">Umid:</span>
-                  <span className="font-semibold text-slate-900">
-                    {day.humidity.toFixed(0)}%
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500">Vento:</span>
-                  <span className="font-semibold text-slate-900">
-                    {day.windSpeed.toFixed(1)} m/s
-                  </span>
-                </div>
-                {day.rainfall > 0 && (
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-500">Chuva:</span>
-                    <span className="font-semibold text-blue-600">
-                      {day.rainfall.toFixed(1)} mm
-                    </span>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-        <div className="mt-2 text-xs text-slate-500 text-center sm:hidden">
-          ← Role horizontalmente para ver mais →
-        </div>
-      </div>
-
       {/* Current Weather Card */}
       <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg p-3 sm:p-4 mb-3 sm:mb-4 border border-blue-100">
         <div className="flex justify-between items-start mb-2 sm:mb-3">
@@ -339,6 +272,83 @@ const WeatherForecastComponent = ({ location }: WeatherForecastProps) => {
               </p>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* 5-Day Forecast */}
+      <div className="overflow-x-auto mb-3 sm:mb-4">
+        <h3 className="text-sm font-semibold text-slate-900 mb-2">
+          Próximos 5 Dias
+        </h3>
+        <div
+          className="grid
+                grid-cols-2           /* mobile */
+                sm:grid-cols-3       /* mantém 1 coluna no sm */
+                md:grid-cols-3        /* melhora o visual em tablets */
+                lg:grid-cols-5        /* full grid em desktop */
+                gap-4"
+        >
+          {forecast.forecast.map((day, index) => (
+            <motion.div
+              key={day.date}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="bg-gradient-to-br from-slate-50 to-slate-100
+                 rounded-md p-3 sm:p-4 border border-slate-200
+                 hover:shadow-md transition-shadow
+                 aspect-square flex flex-col justify-between"
+            >
+              <div className="text-center mb-2">
+                <p className="text-xs sm:text-sm font-semibold text-slate-900 truncate">
+                  {day.dayName}
+                </p>
+                <p className="text-xs text-slate-500">
+                  {day.date.split("-").slice(1).reverse().join("/")}
+                </p>
+              </div>
+
+              <div className="flex justify-center mb-2">
+                {getWeatherIcon(day.weather.icon, 28)}
+              </div>
+
+              <p className="text-xs text-slate-600 text-center mb-2 capitalize line-clamp-2">
+                {day.weather.description}
+              </p>
+
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-500">Temp:</span>
+                  <span className="font-semibold text-slate-900">
+                    {day.temp.min.toFixed(0)}° / {day.temp.max.toFixed(0)}°
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-500">Umid:</span>
+                  <span className="font-semibold text-slate-900">
+                    {day.humidity.toFixed(0)}%
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-500">Vento:</span>
+                  <span className="font-semibold text-slate-900">
+                    {day.windSpeed.toFixed(1)} m/s
+                  </span>
+                </div>
+                {day.rainfall > 0 && (
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-slate-500">Chuva:</span>
+                    <span className="font-semibold text-blue-600">
+                      {day.rainfall.toFixed(1)} mm
+                    </span>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+        <div className="mt-2 text-xs text-slate-500 text-center sm:hidden">
+          ← Role horizontalmente para ver mais →
         </div>
       </div>
     </motion.div>

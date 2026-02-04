@@ -54,10 +54,17 @@ export const useLocationStore = create<LocationStore>()(
               try {
                 // Usar reverse geocoding para obter nome da cidade
                 const response = await fetch(
-                  `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+                  `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
+                  {
+                    headers: {
+                      'Accept-Language': 'pt-BR'
+                    }
+                  }
                 );
                 const data = await response.json();
-                const cityName = data.address?.city || data.address?.town || 'Localização Atual';
+                const cityName = data.address?.city || data.address?.town || data.address?.county || 'Localização Atual';
+                
+                console.log('Geolocation success:', { latitude, longitude, cityName });
                 
                 resolve({
                   lat: latitude,
@@ -74,8 +81,13 @@ export const useLocationStore = create<LocationStore>()(
               }
             },
             (error) => {
-              console.warn('Geolocation error:', error);
+              console.error('Geolocation error code:', error.code, 'message:', error.message);
               resolve(null);
+            },
+            {
+              enableHighAccuracy: true,
+              timeout: 10000,
+              maximumAge: 0
             }
           );
         });

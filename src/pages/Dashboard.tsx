@@ -90,16 +90,18 @@ export default function Dashboard() {
         });
       } else {
         toast({
-          title: "Erro",
-          description: "Não foi possível obter sua localização",
+          title: "Permissão necessária",
+          description:
+            "Permita acesso à sua localização nas configurações do navegador",
           variant: "destructive",
         });
       }
     } catch (error) {
       console.error("Geolocation error:", error);
       toast({
-        title: "Erro",
-        description: "Erro ao obter localização",
+        title: "Erro ao obter localização",
+        description:
+          "Verifique se o navegador tem permissão para acessar sua localização",
         variant: "destructive",
       });
     } finally {
@@ -146,7 +148,7 @@ export default function Dashboard() {
                 <div className="bg-white rounded-xl shadow-md p-3 sm:p-5">
                   <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-3 sm:mb-4 flex items-center gap-2">
                     <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
-                    Localização
+                    {localLocation.name}
                   </h3>
 
                   <LocationSearch
@@ -188,8 +190,6 @@ export default function Dashboard() {
                         )}
                       </div>
                     </Button>
-
-                   
                   </div>
 
                   <div className="border-t border-slate-200 mt-5 pt-5">
@@ -265,20 +265,6 @@ export default function Dashboard() {
               {/* Quick Weather Info Card - Abaixo do mapa em telas pequenas/médias */}
               <Card className="p-4 sm:p-6 border-emerald-100 shadow-lg bg-white lg:hidden">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                  <div>
-                    <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-3 sm:mb-4">
-                      📍 Localização
-                    </h3>
-                    <p className="text-sm text-slate-600">
-                      {localLocation.name}
-                    </p>
-                    <p className="text-xs text-slate-500 mt-2">
-                      Latitude: {localLocation.lat.toFixed(4)}°
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      Longitude: {localLocation.lng.toFixed(4)}°
-                    </p>
-                  </div>
                   <div>
                     <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-3 sm:mb-4">
                       💡 Dica
