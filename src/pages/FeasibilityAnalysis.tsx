@@ -2439,10 +2439,10 @@ const FeasibilityAnalysis = () => {
                         </AccordionTrigger>
                         <AccordionContent className="px-6 pb-6">
                           <Tabs defaultValue="1" className="w-full">
-                            <TabsList className="relative grid w-full grid-cols-3 mb-6 bg-gradient-to-r from-emerald-100 to-teal-100 p-1 h-[50px] rounded-xl border border-emerald-200 shadow-sm overflow-hidden">
+                            <TabsList className="relative grid w-full grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-0 mb-6 bg-gradient-to-r from-emerald-100 to-teal-100 p-2 sm:p-1 h-auto sm:h-[50px] rounded-xl border border-emerald-200 shadow-sm overflow-hidden">
                               <TabsTrigger
                                 value="1"
-                                className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-col items-center py-1 h-[35px]"
+                                className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-row sm:flex-col items-center justify-between sm:justify-center py-2 sm:py-1 h-auto sm:h-[35px]"
                               >
                                 <div className="text-sm font-medium">
                                   Cenário 1 Ano
@@ -2453,7 +2453,7 @@ const FeasibilityAnalysis = () => {
                               </TabsTrigger>
                               <TabsTrigger
                                 value="3"
-                                className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-col items-center py-1 h-[35px]"
+                                className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-row sm:flex-col items-center justify-between sm:justify-center py-2 sm:py-1 h-auto sm:h-[35px]"
                               >
                                 <div className="text-sm font-medium">
                                   Cenário 3 Anos
@@ -2464,7 +2464,7 @@ const FeasibilityAnalysis = () => {
                               </TabsTrigger>
                               <TabsTrigger
                                 value="5"
-                                className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-col items-center py-1 h-[35px]"
+                                className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-row sm:flex-col items-center justify-between sm:justify-center py-2 sm:py-1 h-auto sm:h-[35px]"
                               >
                                 <div className="text-sm font-medium">
                                   Cenário 5 Anos
@@ -2966,10 +2966,10 @@ const FeasibilityAnalysis = () => {
                         </AccordionTrigger>
                         <AccordionContent className="px-6 pb-6">
                           <Tabs defaultValue="1" className="w-full">
-                            <TabsList className="relative grid w-full grid-cols-3 mb-6 bg-gradient-to-r from-emerald-100 to-teal-100 p-1 h-[50px] rounded-xl border border-emerald-200 shadow-sm overflow-hidden">
+                            <TabsList className="relative grid w-full grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-0 mb-6 bg-gradient-to-r from-emerald-100 to-teal-100 p-2 sm:p-1 h-auto sm:h-[50px] rounded-xl border border-emerald-200 shadow-sm overflow-hidden">
                               <TabsTrigger
                                 value="1"
-                                className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-col items-center h-[35px] "
+                                className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-row sm:flex-col items-center justify-between sm:justify-center py-2 sm:py-1 h-auto sm:h-[35px]"
                               >
                                 <div className="text-sm font-medium">
                                   Cenário 1 Ano
@@ -2980,7 +2980,7 @@ const FeasibilityAnalysis = () => {
                               </TabsTrigger>
                               <TabsTrigger
                                 value="3"
-                                className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-col items-center py-1 h-[35px]"
+                                className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-row sm:flex-col items-center justify-between sm:justify-center py-2 sm:py-1 h-auto sm:h-[35px]"
                               >
                                 <div className="text-sm font-medium">
                                   Cenário 3 Anos
@@ -2991,7 +2991,7 @@ const FeasibilityAnalysis = () => {
                               </TabsTrigger>
                               <TabsTrigger
                                 value="5"
-                                className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-col items-center py-1 h-[35px]"
+                                className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-row sm:flex-col items-center justify-between sm:justify-center py-2 sm:py-1 h-auto sm:h-[35px]"
                               >
                                 <div className="text-sm font-medium">
                                   Cenário 5 Anos
@@ -3568,10 +3568,10 @@ const FeasibilityAnalysis = () => {
                             }
                             className="w-full"
                           >
-                            <TabsList className="relative grid w-full grid-cols-3 mb-6 bg-gradient-to-r from-emerald-100 to-teal-100 p-1 h-[50px] rounded-xl border border-emerald-200 shadow-sm overflow-hidden">
+                            <TabsList className="relative grid w-full grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-0 mb-6 bg-gradient-to-r from-emerald-100 to-teal-100 p-2 sm:p-1 h-auto sm:h-[50px] rounded-xl border border-emerald-200 shadow-sm overflow-hidden">
                               <TabsTrigger
                                 value="1"
-                                className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-col items-center h-[35px] "
+                                className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-row sm:flex-col items-center justify-between sm:justify-center py-2 sm:py-1 h-auto sm:h-[35px]"
                               >
                                 <div className="text-sm font-medium">
                                   Cenário 1 Ano
@@ -3582,7 +3582,7 @@ const FeasibilityAnalysis = () => {
                               </TabsTrigger>
                               <TabsTrigger
                                 value="3"
-                                className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-col items-center py-1 h-[35px]"
+                                className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-row sm:flex-col items-center justify-between sm:justify-center py-2 sm:py-1 h-auto sm:h-[35px]"
                               >
                                 <div className="text-sm font-medium">
                                   Cenário 3 Anos
@@ -3593,7 +3593,7 @@ const FeasibilityAnalysis = () => {
                               </TabsTrigger>
                               <TabsTrigger
                                 value="5"
-                                className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-col items-center py-1 h-[35px]"
+                                className="relative z-10 data-[state=active]:text-emerald-700 rounded-lg transition-all text-center flex flex-row sm:flex-col items-center justify-between sm:justify-center py-2 sm:py-1 h-auto sm:h-[35px]"
                               >
                                 <div className="text-sm font-medium">
                                   Cenário 5 Anos
