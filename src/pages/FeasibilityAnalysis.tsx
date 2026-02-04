@@ -4421,7 +4421,7 @@ const FeasibilityAnalysis = () => {
             <>
               <Card className="p-6 bg-white/80 backdrop-blur-sm border-emerald-200 mb-6">
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <p className="text-sm text-slate-600 font-semibold">
                       Filtros Regionais
                     </p>
@@ -4436,7 +4436,7 @@ const FeasibilityAnalysis = () => {
                         setSelectedRegiaoIntermediariaNome("");
                         setRegionFiltersKey((k) => k + 1);
                       }}
-                      className="flex items-center gap-2"
+                      className="flex items-center gap-2 w-full sm:w-auto"
                     >
                       <X className="w-4 h-4" />
                       Limpar seleção
@@ -4622,7 +4622,7 @@ const FeasibilityAnalysis = () => {
                                       Recursos Hídricos
                                     </span>
                                   </div>
-                                  <div className="mt-2">
+                                  <div className="mt-2 ">
                                     <div className="text-3xl font-bold text-blue-700">
                                       {scores.water}
                                     </div>
@@ -4761,45 +4761,70 @@ const FeasibilityAnalysis = () => {
                 )}
 
               <Card className="p-6 bg-white/80 backdrop-blur-sm border-emerald-200 mb-6">
-                <div
-                  className="flex items-center justify-between mb-2 cursor-pointer select-none"
-                  onClick={() => setShowComparison((v) => !v)}
-                >
-                  <div className="flex items-center space-x-3">
-                    <BarChart3 className="w-6 h-6 text-emerald-600" />
-                    <h2 className="text-2xl font-bold text-slate-900">
-                      Comparar Regiões e Regiões Intermediárias
-                    </h2>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setCompareRegionA("");
-                        setCompareRegionB("");
-                        setCompareEstadoA("");
-                        setCompareRegiaoIntermediariaA("");
-                        setCompareRegiaoIntermediariaNomeA("");
-                        setCompareEstadoB("");
-                        setCompareRegiaoIntermediariaB("");
-                        setCompareRegiaoIntermediariaNomeB("");
-                        setCoordsRegiaoIntermediariaA(null);
-                        setCoordsRegiaoIntermediariaB(null);
-                        setMapKeyA((prev) => prev + 1);
-                        setMapKeyB((prev) => prev + 1);
-                      }}
-                      className="flex items-center gap-2"
-                    >
-                      <X className="w-4 h-4" />
-                      Limpar seleções
-                    </Button>
-                    <ChevronDown
-                      className={`w-5 h-5 text-slate-600 transition-transform ${
-                        showComparison ? "rotate-180" : ""
-                      }`}
-                    />
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setCompareRegionA("");
+                      setCompareRegionB("");
+                      setCompareEstadoA("");
+                      setCompareRegiaoIntermediariaA("");
+                      setCompareRegiaoIntermediariaNomeA("");
+                      setCompareEstadoB("");
+                      setCompareRegiaoIntermediariaB("");
+                      setCompareRegiaoIntermediariaNomeB("");
+                      setCoordsRegiaoIntermediariaA(null);
+                      setCoordsRegiaoIntermediariaB(null);
+                      setMapKeyA((prev) => prev + 1);
+                      setMapKeyB((prev) => prev + 1);
+                    }}
+                    className="flex items-center gap-2 w-full sm:w-auto sm:hidden"
+                  >
+                    <X className="w-4 h-4" />
+                    Limpar seleções
+                  </Button>
+                  <div
+                    className="flex items-center justify-between cursor-pointer select-none flex-1"
+                    onClick={() => setShowComparison((v) => !v)}
+                  >
+                    <div className="flex items-left space-x-3">
+                      <BarChart3 className="w-6 h-6 text-emerald-600" />
+                      <h2 className="text-2xl font-bold text-slate-900">
+                        Comparar Regiões e Regiões Intermediárias
+                      </h2>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCompareRegionA("");
+                          setCompareRegionB("");
+                          setCompareEstadoA("");
+                          setCompareRegiaoIntermediariaA("");
+                          setCompareRegiaoIntermediariaNomeA("");
+                          setCompareEstadoB("");
+                          setCompareRegiaoIntermediariaB("");
+                          setCompareRegiaoIntermediariaNomeB("");
+                          setCoordsRegiaoIntermediariaA(null);
+                          setCoordsRegiaoIntermediariaB(null);
+                          setMapKeyA((prev) => prev + 1);
+                          setMapKeyB((prev) => prev + 1);
+                        }}
+                        className="hidden sm:flex items-center gap-2"
+                      >
+                        <X className="w-4 h-4" />
+                        Limpar seleções
+                      </Button>
+                      <ChevronDown
+                        className={`w-5 h-5 text-slate-600 transition-transform ${
+                          showComparison ? "rotate-180" : ""
+                        }`}
+                      />
+                    </div>
                   </div>
                 </div>
                 {showComparison && (
