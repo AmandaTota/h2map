@@ -109,7 +109,7 @@ export default function Index() {
               </Link>
 
               <Link
-                to="/dashboard"
+                to="/feasibility"
                 className="block px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
               >
                 Demonstração
@@ -464,7 +464,7 @@ export default function Index() {
                 </li>
                 <li>
                   <Link
-                    to="/dashboard"
+                    to="/feasibility"
                     className="hover:text-[#73cb94] transition-colors opacity-100"
                   >
                     Demonstração

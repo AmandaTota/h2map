@@ -50,7 +50,7 @@ export default function AuthForm({
       if (session?.user) {
         setTimeout(() => {
           onSuccess?.();
-          navigate("/dashboard");
+          navigate("/feasibility");
         }, 0);
       }
     });
@@ -62,7 +62,7 @@ export default function AuthForm({
 
       if (session?.user) {
         onSuccess?.();
-        navigate("/dashboard");
+        navigate("/feasibility");
       }
     });
 
@@ -94,7 +94,7 @@ export default function AuthForm({
     setLoading(true);
 
     try {
-      const redirectUrl = `${window.location.origin}/dashboard`;
+      const redirectUrl = `${window.location.origin}/feasibility`;
 
       const { error } = await supabase.auth.signUp({
         email: email.trim(),
