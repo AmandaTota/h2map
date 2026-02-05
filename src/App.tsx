@@ -13,6 +13,7 @@ import Informacoes from "./pages/Informacoes";
 import NotFound from "./pages/NotFound";
 import Previsao from "./pages/Previsao";
 import H2DemandSliders from "./pages/H2DemandSliders";
+import BackToTop from "./components/BackToTop";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
 
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <BackToTop />
     </Router>
   );
 }
