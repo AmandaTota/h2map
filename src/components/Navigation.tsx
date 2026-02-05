@@ -7,13 +7,11 @@ import {
   BarChart3,
   LineChart,
   LogOut,
-  User,
   FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import UserProfileDialog from "@/components/UserProfileDialog";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 const Navigation = () => {
@@ -88,7 +86,15 @@ const Navigation = () => {
             {/* Auth Button */}
             {user && (
               <div className="flex items-center gap-2 ml-4">
-                <UserProfileDialog user={user} onLogout={handleLogout} />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span className="hidden lg:inline">Sair</span>
+                </Button>
               </div>
             )}
           </div>
@@ -134,12 +140,17 @@ const Navigation = () => {
             {/* Mobile Auth Button */}
             {user && (
               <div className="pt-2 border-t border-slate-200 mt-2">
-                <div className="space-y-2">
-                  <UserProfileDialog
-                    user={user}
-                    onLogout={() => setMobileMenuOpen(false)}
-                  />
-                </div>
+                <Button
+                  variant="outline"
+                  onClick={async () => {
+                    await handleLogout();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full justify-start gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sair
+                </Button>
               </div>
             )}
           </div>
