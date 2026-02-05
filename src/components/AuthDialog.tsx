@@ -9,16 +9,24 @@ import AuthForm from "./AuthForm";
 interface AuthDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialMode?: "login" | "signup";
 }
 
-export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
+export default function AuthDialog({
+  open,
+  onOpenChange,
+  initialMode = "login",
+}: AuthDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[480px] p-8 border-emerald-100 shadow-2xl">
         <DialogHeader>
           <DialogTitle className="sr-only">Autenticação</DialogTitle>
         </DialogHeader>
-        <AuthForm onSuccess={() => onOpenChange(false)} />
+        <AuthForm
+          onSuccess={() => onOpenChange(false)}
+          initialMode={initialMode}
+        />
       </DialogContent>
     </Dialog>
   );

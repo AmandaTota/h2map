@@ -1,57 +1,68 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import { Loader2, Mail, Lock, Sparkles, LogIn, UserPlus } from 'lucide-react';
-import { z } from 'zod';
-import { motion, AnimatePresence } from 'framer-motion';
-import type { User, Session } from '@supabase/supabase-js';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2, Mail, Lock, Sparkles, LogIn, UserPlus } from "lucide-react";
+import { z } from "zod";
+import { motion, AnimatePresence } from "framer-motion";
+import type { User, Session } from "@supabase/supabase-js";
 
 const emailSchema = z.string().email({ message: "Email inválido" });
-const passwordSchema = z.string().min(6, { message: "Senha deve ter no mínimo 6 caracteres" });
+const passwordSchema = z
+  .string()
+  .min(6, { message: "Senha deve ter no mínimo 6 caracteres" });
 
 interface AuthFormProps {
   onSuccess?: () => void;
+  initialMode?: "login" | "signup";
 }
 
-export default function AuthForm({ onSuccess }: AuthFormProps) {
-  const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export default function AuthForm({
+  onSuccess,
+  initialMode = "login",
+}: AuthFormProps) {
+  const [isLogin, setIsLogin] = useState(initialMode === "login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Reset form mode when initialMode changes
+  useEffect(() => {
+    setIsLogin(initialMode === "login");
+  }, [initialMode]);
+
   useEffect(() => {
     // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        // Redirect authenticated users
-        if (session?.user) {
-          setTimeout(() => {
-            onSuccess?.();
-            navigate('/dashboard');
-          }, 0);
-        }
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+
+      // Redirect authenticated users
+      if (session?.user) {
+        setTimeout(() => {
+          onSuccess?.();
+          navigate("/dashboard");
+        }, 0);
       }
-    );
+    });
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
+
       if (session?.user) {
         onSuccess?.();
-        navigate('/dashboard');
+        navigate("/dashboard");
       }
     });
 
@@ -77,24 +88,24 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateInputs()) return;
-    
+
     setLoading(true);
-    
+
     try {
       const redirectUrl = `${window.location.origin}/dashboard`;
-      
+
       const { error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
         options: {
-          emailRedirectTo: redirectUrl
-        }
+          emailRedirectTo: redirectUrl,
+        },
       });
 
       if (error) {
-        if (error.message.includes('already registered')) {
+        if (error.message.includes("already registered")) {
           toast({
             title: "Email já cadastrado",
             description: "Este email já está em uso. Tente fazer login.",
@@ -126,11 +137,11 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateInputs()) return;
-    
+
     setLoading(true);
-    
+
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
@@ -138,7 +149,7 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
       });
 
       if (error) {
-        if (error.message.includes('Invalid login credentials')) {
+        if (error.message.includes("Invalid login credentials")) {
           toast({
             title: "Credenciais inválidas",
             description: "Email ou senha incorretos.",
@@ -172,10 +183,10 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
     <div className="relative">
       {/* Decorative gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 rounded-lg opacity-50 -z-10" />
-      
+
       <AnimatePresence mode="wait">
         <motion.div
-          key={isLogin ? 'login' : 'signup'}
+          key={isLogin ? "login" : "signup"}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
@@ -183,7 +194,7 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
         >
           {/* Header with icon */}
           <div className="text-center mb-8">
-            <motion.div 
+            <motion.div
               className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl mb-4 shadow-lg"
               whileHover={{ scale: 1.05, rotate: 5 }}
               transition={{ type: "spring", stiffness: 300 }}
@@ -194,21 +205,24 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
                 <UserPlus className="w-8 h-8 text-white" />
               )}
             </motion.div>
-            
+
             <h2 className="text-2xl font-bold text-slate-900 mb-2">
-              {isLogin ? 'Bem-vindo de volta!' : 'Crie sua conta'}
+              {isLogin ? "Bem-vindo de volta!" : "Crie sua conta"}
             </h2>
             <p className="text-slate-600 flex items-center justify-center gap-1">
               <Sparkles className="w-4 h-4 text-emerald-500" />
-              {isLogin 
-                ? 'Acesse sua conta para continuar' 
-                : 'Comece sua jornada sustentável'}
+              {isLogin
+                ? "Acesse sua conta para continuar"
+                : "Comece sua jornada sustentável"}
             </p>
           </div>
 
-          <form onSubmit={isLogin ? handleSignIn : handleSignUp} className="space-y-5">
+          <form
+            onSubmit={isLogin ? handleSignIn : handleSignUp}
+            className="space-y-5"
+          >
             {/* Email field */}
-            <motion.div 
+            <motion.div
               className="space-y-2"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -233,7 +247,7 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
             </motion.div>
 
             {/* Password field */}
-            <motion.div 
+            <motion.div
               className="space-y-2"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -268,8 +282,8 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full h-12 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                 disabled={loading}
               >
@@ -298,7 +312,7 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
           </form>
 
           {/* Toggle login/signup */}
-          <motion.div 
+          <motion.div
             className="mt-6 text-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -312,15 +326,15 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
                 <span className="px-2 bg-white text-slate-500">ou</span>
               </div>
             </div>
-            
+
             <button
               onClick={() => setIsLogin(!isLogin)}
               className="mt-4 text-emerald-600 hover:text-emerald-700 font-semibold hover:underline transition-all"
               disabled={loading}
             >
-              {isLogin 
-                ? 'Não tem conta? Cadastre-se gratuitamente' 
-                : 'Já tem conta? Faça login'}
+              {isLogin
+                ? "Não tem conta? Cadastre-se gratuitamente"
+                : "Já tem conta? Faça login"}
             </button>
           </motion.div>
         </motion.div>

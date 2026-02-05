@@ -6,7 +6,6 @@ import {
   ThermometerSun,
   BarChart3,
   LineChart,
-  LogIn,
   LogOut,
   User,
   FileText,
@@ -87,21 +86,10 @@ const Navigation = () => {
             })}
 
             {/* Auth Button */}
-            {user ? (
+            {user && (
               <div className="flex items-center gap-2 ml-4">
                 <UserProfileDialog user={user} onLogout={handleLogout} />
               </div>
-            ) : (
-              <Link to="/auth" className="ml-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="border-emerald-300 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-400"
-                >
-                  <LogIn className="w-4 h-4 mr-1" />
-                  Entrar
-                </Button>
-              </Link>
             )}
           </div>
 
@@ -144,27 +132,16 @@ const Navigation = () => {
             })}
 
             {/* Mobile Auth Button */}
-            <div className="pt-2 border-t border-slate-200 mt-2">
-              {user ? (
+            {user && (
+              <div className="pt-2 border-t border-slate-200 mt-2">
                 <div className="space-y-2">
                   <UserProfileDialog
                     user={user}
                     onLogout={() => setMobileMenuOpen(false)}
                   />
                 </div>
-              ) : (
-                <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full border-emerald-300 text-emerald-700 hover:bg-emerald-50"
-                  >
-                    <LogIn className="w-4 h-4 mr-1" />
-                    Entrar
-                  </Button>
-                </Link>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -23,6 +23,12 @@ import {
 export default function Index() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<"login" | "signup">("login");
+
+  const openAuthDialog = (mode: "login" | "signup") => {
+    setAuthMode(mode);
+    setAuthDialogOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
@@ -140,14 +146,14 @@ export default function Index() {
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <button
-                  onClick={() => setAuthDialogOpen(true)}
+                  onClick={() => openAuthDialog("signup")}
                   className="bg-[#0da9ff] opacity-60 w-full sm:w-auto text-white px-6 py-3 rounded-lg hover:bg-[#73cb94] transition-colors flex items-center justify-center space-x-2"
                 >
                   <span>Cadastrar-se</span>
                 </button>
 
                 <button
-                  onClick={() => setAuthDialogOpen(true)}
+                  onClick={() => openAuthDialog("login")}
                   className="bg-[#0da9ff] opacity-60 w-full sm:w-auto text-white px-6 py-3 rounded-lg hover:bg-[#73cb94] transition-colors flex items-center justify-center space-x-2"
                 >
                   <span>Entrar</span>
@@ -157,6 +163,7 @@ export default function Index() {
               <AuthDialog
                 open={authDialogOpen}
                 onOpenChange={setAuthDialogOpen}
+                initialMode={authMode}
               />
             </motion.div>
 
