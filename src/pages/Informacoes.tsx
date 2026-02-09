@@ -65,44 +65,6 @@ export default function Informacoes() {
         </div>
       ),
     },
-    greenHydrogen: {
-      title: "Hidrogênio Verde",
-      icon: Droplets,
-      color: "emerald",
-      content: (
-        <div className="space-y-4">
-          <p className="leading-relaxed">
-            Hidrogênio verde é um tipo de hidrogênio produzido de forma
-            sustentável, sem emissão significativa de gases de efeito estufa,
-            obtido por eletrólise da água com eletricidade renovável.
-          </p>
-          <div>
-            <h4 className="font-semibold mb-2 text-emerald-700">
-              Por que é importante
-            </h4>
-            <ul className="list-disc list-inside text-slate-600 space-y-1">
-              <li>Baixo impacto ambiental</li>
-              <li>Aplicações industriais e transporte</li>
-              <li>Ajuda na descarbonização de setores difíceis</li>
-            </ul>
-          </div>
-        </div>
-      ),
-    },
-    electrolysis: {
-      title: "Eletrólise",
-      icon: Zap,
-      color: "blue",
-      content: (
-        <div className="space-y-4">
-          <p className="leading-relaxed">
-            Processo químico que separa hidrogênio e oxigênio da água aplicando
-            corrente elétrica. Quando essa energia vem de fontes renováveis, o
-            hidrogênio é chamado de “verde”.
-          </p>
-        </div>
-      ),
-    },
     solarRadiation: {
       title: "Radiação Solar",
       icon: Sun,
@@ -141,6 +103,116 @@ export default function Informacoes() {
               <li>Nordeste brasileiro tem alto potencial (5-6 kWh/m²/dia)</li>
               <li>Ideal para plantas de hidrogênio verde fotovoltaico</li>
               <li>Reduz dependência de combustíveis fósseis</li>
+            </ul>
+          </div>
+        </div>
+      ),
+    },
+    greenHydrogen: {
+      title: "Hidrogênio Verde",
+      icon: Droplets,
+      color: "emerald",
+      content: (
+        <div className="space-y-4">
+          <p className="leading-relaxed">
+            Hidrogênio verde é um tipo de hidrogênio produzido de forma
+            sustentável, sem emissão significativa de gases de efeito estufa,
+            obtido por eletrólise da água com eletricidade renovável.
+          </p>
+          <div>
+            <h4 className="font-semibold mb-2 text-emerald-700">
+              Por que é importante
+            </h4>
+            <ul className="list-disc list-inside text-slate-600 space-y-1">
+              <li>Baixo impacto ambiental</li>
+              <li>Aplicações industriais e transporte</li>
+              <li>Ajuda na descarbonização de setores difíceis</li>
+            </ul>
+          </div>
+        </div>
+      ),
+    },
+    environmentalImpact: {
+      title: "Impacto Ambiental",
+      icon: Leaf,
+      color: "green",
+      content: (
+        <div className="space-y-4">
+          <p className="leading-relaxed">
+            Medida da redução de emissões de CO₂ e outros poluentes ao
+            substituir combustíveis fósseis por hidrogênio verde.
+          </p>
+          <div>
+            <h4 className="font-semibold mb-2 text-green-700">
+              Benefícios ambientais
+            </h4>
+            <ul className="list-disc list-inside text-slate-600 space-y-1">
+              <li>
+                Redução de até 95% nas emissões de CO₂ vs. hidrogênio cinza
+              </li>
+              <li>Zero emissões no ponto de uso (veículos, indústria)</li>
+              <li>Não gera poluentes atmosféricos (NOx, SOx)</li>
+              <li>Único subproduto da combustão: vapor d'água</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-2 text-green-700">
+              Setores impactados
+            </h4>
+            <ul className="list-disc list-inside text-slate-600 space-y-1">
+              <li>Transporte pesado e aviação</li>
+              <li>Siderurgia e indústria química</li>
+              <li>Geração de eletricidade e aquecimento</li>
+            </ul>
+          </div>
+        </div>
+      ),
+    },
+    electrolysis: {
+      title: "Eletrólise",
+      icon: Zap,
+      color: "blue",
+      content: (
+        <div className="space-y-4">
+          <p className="leading-relaxed">
+            Processo químico que separa hidrogênio e oxigênio da água aplicando
+            corrente elétrica. Quando essa energia vem de fontes renováveis, o
+            hidrogênio é chamado de “verde”.
+          </p>
+          <div>
+            <h4 className="font-semibold mb-2 text-blue-700">
+              Principais tecnologias
+            </h4>
+            <ul className="list-disc list-inside text-slate-600 space-y-1">
+              <li>
+                <strong>Alcalina:</strong> madura e com menor custo de capital
+              </li>
+              <li>
+                <strong>PEM:</strong> resposta rápida, ideal para renováveis
+                intermitentes
+              </li>
+              <li>
+                <strong>SOEC:</strong> alta eficiência, opera em alta
+                temperatura
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-2 text-blue-700">
+              Fatores que influenciam
+            </h4>
+            <ul className="list-disc list-inside text-slate-600 space-y-1">
+              <li>
+                <strong>Eficiência elétrica:</strong> tipicamente 60-80%
+              </li>
+              <li>
+                <strong>Qualidade da água:</strong> deionizada para evitar
+                incrustações
+              </li>
+              <li>
+                <strong>Operação:</strong> temperatura e pressão afetam consumo
+                específico
+              </li>
             </ul>
           </div>
         </div>
@@ -260,42 +332,6 @@ export default function Informacoes() {
               <li>Toneladas de H₂ por ano estimadas</li>
               <li>Viabilidade econômica e técnica</li>
               <li>Comparação com demanda regional/nacional</li>
-            </ul>
-          </div>
-        </div>
-      ),
-    },
-    environmentalImpact: {
-      title: "Impacto Ambiental",
-      icon: Leaf,
-      color: "green",
-      content: (
-        <div className="space-y-4">
-          <p className="leading-relaxed">
-            Medida da redução de emissões de CO₂ e outros poluentes ao
-            substituir combustíveis fósseis por hidrogênio verde.
-          </p>
-          <div>
-            <h4 className="font-semibold mb-2 text-green-700">
-              Benefícios ambientais
-            </h4>
-            <ul className="list-disc list-inside text-slate-600 space-y-1">
-              <li>
-                Redução de até 95% nas emissões de CO₂ vs. hidrogênio cinza
-              </li>
-              <li>Zero emissões no ponto de uso (veículos, indústria)</li>
-              <li>Não gera poluentes atmosféricos (NOx, SOx)</li>
-              <li>Único subproduto da combustão: vapor d'água</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold mb-2 text-green-700">
-              Setores impactados
-            </h4>
-            <ul className="list-disc list-inside text-slate-600 space-y-1">
-              <li>Transporte pesado e aviação</li>
-              <li>Siderurgia e indústria química</li>
-              <li>Geração de eletricidade e aquecimento</li>
             </ul>
           </div>
         </div>
@@ -501,14 +537,23 @@ export default function Informacoes() {
     return (
       <div className="flex flex-col h-full">
         <div className="mb-4">
-          <label className="block text-sm font-medium text-slate-700 mb-1">
+          <div className="text-base font-semibold text-slate-800">
+            🚗 Transporte e Mobilidade
+          </div>
+          <div className="text-xs text-slate-500 mt-1">
+            Calcule emissões de CO₂ dos seus deslocamentos
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-slate-700 mb-2">
             Meio de transporte
           </label>
           <div className="relative">
             <select
               value={mode}
               onChange={(e) => setMode(e.target.value as ModeKey)}
-              className="mt-1 block w-full h-10 rounded-md border border-input bg-background px-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              className="block w-full h-12 rounded-md border border-input bg-background px-3 pr-10 text-base focus:outline-none focus:ring-2 focus:ring-ring"
             >
               {options.map((o) => (
                 <option key={o.key} value={o.key}>
@@ -519,9 +564,9 @@ export default function Informacoes() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4 items-end">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4 items-end">
           <div>
-            <label className="block text-sm font-medium text-slate-700">
+            <label className="block text-sm font-medium text-slate-700 mb-2">
               Distância diária (km ida+volta)
             </label>
             <Input
@@ -530,12 +575,12 @@ export default function Informacoes() {
               value={kmPerDay}
               onChange={(e) => setKmPerDay(e.target.value)}
               placeholder="Ex: 10"
-              className="mt-1 text-right"
+              className="text-right h-12 text-lg"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700">
+            <label className="block text-sm font-medium text-slate-700 mb-2">
               Viagens por semana
             </label>
             <Input
@@ -543,15 +588,15 @@ export default function Informacoes() {
               min={0}
               value={tripsPerWeek}
               onChange={(e) => setTripsPerWeek(e.target.value)}
-              className="mt-1 text-right"
+              className="text-right h-12 text-lg"
             />
           </div>
 
-          <div className="flex items-end justify-center h-[50px] mt-[15px]  ">
+          <div className="sm:col-span-2 lg:col-span-1">
             <Button
               variant="outline"
-              size="sm"
-              className="sm:w-[200px] sm:h-[50px] md:h-[40px] md:w-[200px] w-[200px] h-[20px] mt-[200px] px-3 py-2 h-[50px] "
+              size="lg"
+              className="h-12 w-full"
               onClick={addEntry}
             >
               Adicionar
@@ -560,26 +605,32 @@ export default function Informacoes() {
         </div>
 
         {entries.length > 0 && (
-          <div className="mb-4">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm border-collapse">
-                <thead>
+          <div className="mb-4 -mx-2 sm:mx-0">
+            <div className="overflow-x-auto rounded-lg border border-slate-200">
+              <table className="w-full text-sm border-collapse min-w-[600px]">
+                <thead className="bg-slate-50">
                   <tr className="text-slate-600">
-                    <th className="py-2 px-2 sm:px-4 text-left">Meio</th>
-                    <th className="py-2 px-2 sm:px-4 text-right">Km / dia</th>
-                    <th className="py-2 px-2 sm:px-4 text-right">
-                      Viagens / semana
+                    <th className="py-2 px-2 sm:px-4 text-left whitespace-nowrap">
+                      Meio
                     </th>
-                    <th className="py-2 px-2 sm:px-4 text-right">
-                      Km / semana
+                    <th className="py-2 px-2 sm:px-4 text-right whitespace-nowrap">
+                      Km/dia
                     </th>
-                    <th className="py-2 px-2 sm:px-4 text-right">
-                      kg CO₂ / ano
+                    <th className="py-2 px-2 sm:px-4 text-right whitespace-nowrap hidden sm:table-cell">
+                      Viagens/sem
                     </th>
-                    <th className="py-2 px-2 sm:px-4 text-center">Remover</th>
+                    <th className="py-2 px-2 sm:px-4 text-right whitespace-nowrap">
+                      Km/sem
+                    </th>
+                    <th className="py-2 px-2 sm:px-4 text-right whitespace-nowrap">
+                      CO₂/ano
+                    </th>
+                    <th className="py-2 px-2 sm:px-4 text-center whitespace-nowrap">
+                      Ação
+                    </th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="bg-white">
                   {entries.map((e) => {
                     const weekly = e.kmPerDay * e.tripsPerWeek;
                     const yearly = weekly * 52;
@@ -587,30 +638,36 @@ export default function Informacoes() {
                     const label =
                       options.find((o) => o.key === e.mode)?.label ?? e.mode;
                     return (
-                      <tr key={e.id} className="border-t">
+                      <tr
+                        key={e.id}
+                        className="border-t border-slate-200 hover:bg-slate-50"
+                      >
                         <td className="py-2 px-2 sm:px-4">
-                          <span className="mr-2">{emojiMap[e.mode]}</span>
-                          {label}
+                          <span className="mr-1 sm:mr-2">
+                            {emojiMap[e.mode]}
+                          </span>
+                          <span className="hidden sm:inline">{label}</span>
                         </td>
                         <td className="py-2 px-2 sm:px-4 text-right font-medium">
                           {e.kmPerDay}
                         </td>
-                        <td className="py-2 px-2 sm:px-4 text-right font-medium">
+                        <td className="py-2 px-2 sm:px-4 text-right font-medium hidden sm:table-cell">
                           {e.tripsPerWeek}
                         </td>
                         <td className="py-2 px-2 sm:px-4 text-right font-medium">
                           {weekly}
                         </td>
                         <td className="py-2 px-2 sm:px-4 text-right font-medium">
-                          {kg.toFixed(2)}
+                          {kg.toFixed(1)}
                         </td>
                         <td className="py-2 px-2 sm:px-4 text-center">
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => removeEntry(e.id)}
+                            className="text-xs px-2"
                           >
-                            Remover
+                            ✕
                           </Button>
                         </td>
                       </tr>
@@ -622,48 +679,56 @@ export default function Informacoes() {
           </div>
         )}
 
-        <div className="bg-slate-50 rounded-lg p-3 border border-slate-100 mt-auto">
+        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-4 border border-emerald-100 shadow-sm mt-auto">
           {weeklyKm === 0 && totalKgCO2 === 0 && trees === 0 ? (
-            <div className="text-sm text-slate-500">
-              Nenhum dado adicionado — adicione deslocamentos para ver os
-              totais.
+            <div className="text-sm text-slate-500 text-center py-4">
+              💡 Adicione deslocamentos acima para ver os resultados
             </div>
           ) : (
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
-              <div className="flex-1">
-                <div className="text-xs text-slate-500">Total</div>
-                <div className="text-base font-semibold text-slate-900">
-                  {weeklyKm.toFixed(1)} km / semana
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                <div className="bg-white/70 rounded-lg p-2 sm:p-3 border border-emerald-100">
+                  <div className="text-xs text-slate-600 mb-1">
+                    Total Semanal
+                  </div>
+                  <div className="text-lg sm:text-xl font-bold text-emerald-700">
+                    {weeklyKm.toFixed(1)}
+                  </div>
+                  <div className="text-xs text-slate-500">km</div>
+                </div>
+                <div className="bg-white/70 rounded-lg p-2 sm:p-3 border border-emerald-100">
+                  <div className="text-xs text-slate-600 mb-1">CO₂ Anual</div>
+                  <div className="text-lg sm:text-xl font-bold text-emerald-700">
+                    {totalKgCO2.toFixed(2)}
+                  </div>
+                  <div className="text-xs text-slate-500">kg CO₂</div>
                 </div>
               </div>
-
-              <div className="text-right">
-                <div className="text-xs text-slate-500">kg CO₂ / ano</div>
-                <div className="text-lg font-semibold text-emerald-700">
-                  {totalKgCO2.toFixed(2)}
-                </div>
-                <div className="mt-1">
-                  <span
-                    className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${emissionLevel.color} ${emissionLevel.text}`}
-                  >
-                    {emissionLevel.label}
-                  </span>
-                </div>
-              </div>
-
-              <div className="w-44">
-                <div className="text-xs text-slate-500">Árvores</div>
-                <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-2 text-center mt-1">
-                  <div className="text-2xl font-bold text-emerald-800">
-                    {trees} <span className="ml-1">🌳</span>
+              <div className="bg-white/70 rounded-lg p-2 sm:p-3 border border-emerald-200">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span
+                        className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${emissionLevel.color} ${emissionLevel.text}`}
+                      >
+                        {emissionLevel.label}
+                      </span>
+                    </div>
+                    <div className="text-xs text-slate-600">
+                      Compensação: {trees} {trees === 1 ? "árvore" : "árvores"}{" "}
+                      por ano
+                    </div>
+                  </div>
+                  <div className="text-3xl sm:text-4xl flex-shrink-0">
+                    {trees === 0 ? "🌱" : trees <= 3 ? "🌳" : "🌲"}
                   </div>
                 </div>
               </div>
+              <div className="text-xs text-slate-500 text-center">
+                Considera-se 20 kg de CO₂ por árvore/ano como absorção média
+              </div>
             </div>
           )}
-          <div className="text-xs text-slate-500 mt-2">
-            Considera-se 20 kg de CO₂ por árvore por ano como absorção média.
-          </div>
         </div>
       </div>
     );
@@ -671,6 +736,8 @@ export default function Informacoes() {
 
   // Calculadora de emissões por consumo de energia elétrica
   function ElectricityCalculator() {
+    const MCTI_FACTOR = 0.0289; // kg CO₂/kWh - MCTI 2025
+
     const [monthlyKwh, setMonthlyKwh] = useState<string>(() => {
       try {
         return localStorage.getItem("electricityMonthlyKwh") || "";
@@ -678,168 +745,85 @@ export default function Informacoes() {
         return "";
       }
     });
-    const [factor, setFactor] = useState<string>(() => {
-      try {
-        return localStorage.getItem("electricityFactor") || "0.082";
-      } catch (e) {
-        return "0.082";
-      }
-    });
-
-    // Estados brasileiros com fatores estimados (kg CO₂ / kWh)
-    // Valores são estimativas baseadas no mix elétrico regional — ajustar conforme fonte local
-    const stateOptions: {
-      code: string;
-      label: string;
-      factor: number | null;
-    }[] = [
-      // Fatores derivados das tarifas por estado (Clarke) — Opção A: escala do fator base 0.082
-      { code: "AC", label: "Acre", factor: 0.084 },
-      { code: "AL", label: "Alagoas", factor: 0.091 },
-      { code: "AM", label: "Amazonas", factor: 0.091 },
-      { code: "AP", label: "Amapá", factor: 0.086 },
-      { code: "BA", label: "Bahia", factor: 0.087 },
-      { code: "CE", label: "Ceará", factor: 0.077 },
-      { code: "DF", label: "Distrito Federal", factor: 0.079 },
-      { code: "ES", label: "Espírito Santo", factor: 0.07 },
-      { code: "GO", label: "Goiás", factor: 0.076 },
-      { code: "MA", label: "Maranhão", factor: 0.076 },
-      { code: "MT", label: "Mato Grosso", factor: 0.09 },
-      { code: "MS", label: "Mato Grosso do Sul", factor: 0.093 },
-      { code: "MG", label: "Minas Gerais", factor: 0.077 },
-      { code: "PA", label: "Pará", factor: 0.1 },
-      { code: "PB", label: "Paraíba", factor: 0.063 },
-      { code: "PR", label: "Paraná", factor: 0.065 },
-      { code: "PE", label: "Pernambuco", factor: 0.079 },
-      { code: "PI", label: "Piauí", factor: 0.088 },
-      { code: "RJ", label: "Rio de Janeiro", factor: 0.125 },
-      { code: "RN", label: "Rio Grande do Norte", factor: 0.079 },
-      { code: "RO", label: "Rondônia", factor: 0.078 },
-      { code: "RR", label: "Roraima", factor: 0.07 },
-      { code: "RS", label: "Rio Grande do Sul", factor: 0.07 },
-      { code: "SC", label: "Santa Catarina", factor: 0.072 },
-      { code: "SP", label: "São Paulo", factor: 0.078 },
-      { code: "SE", label: "Sergipe", factor: 0.084 },
-      { code: "TO", label: "Tocantins", factor: 0.087 },
-    ];
-
-    const [selectedState, setSelectedState] = useState<string>(() => {
-      try {
-        return localStorage.getItem("electricityState") || "";
-      } catch {
-        return "";
-      }
-    });
 
     useEffect(() => {
       try {
         localStorage.setItem("electricityMonthlyKwh", monthlyKwh);
-        localStorage.setItem("electricityFactor", factor);
-        localStorage.setItem("electricityState", selectedState);
       } catch (e) {
         // ignore storage errors
       }
-    }, [monthlyKwh, factor, selectedState]);
+    }, [monthlyKwh]);
 
-    // Quando o usuário muda o estado, atualizamos o fator se o estado tem um valor predefinido
-    const onStateChange = (code: string) => {
-      setSelectedState(code);
-      const opt = stateOptions.find((s) => s.code === code);
-      if (opt && opt.factor !== null) {
-        setFactor(String(opt.factor));
-      }
-    };
-
+    // Cálculos
     const kwh = parseFloat(monthlyKwh.replace(",", ".")) || 0;
-    const f = parseFloat(factor.replace(",", ".")) || 0;
-    const monthlyKg = kwh * f;
+    const monthlyKg = kwh * MCTI_FACTOR;
     const yearlyKg = monthlyKg * 12;
     const trees = yearlyKg > 0 ? Math.ceil(yearlyKg / 20) : 0;
 
     return (
       <div className="flex flex-col h-full">
-        <div className="mb-3">
-          <div className="text-sm font-medium text-slate-700">
-            Consumo elétrico
+        <div className="mb-4">
+          <div className="text-base font-semibold text-slate-800">
+            ⚡ Consumo Elétrico
           </div>
-          <div className="text-xs text-slate-500">
-            kWh por mês e fator (kg CO₂ / kWh)
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-3 mb-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700">
-              Consumo mensal (kWh)
-            </label>
-            <Input
-              type="text"
-              inputMode="decimal"
-              value={monthlyKwh}
-              onChange={(e) => setMonthlyKwh(e.target.value)}
-              placeholder="Ex: 200"
-              className="mt-1 text-right"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700">
-              Fator emissão (kg CO₂ / kWh)
-            </label>
-            <div className="flex gap-2">
-              <select
-                value={selectedState}
-                onChange={(e) => onStateChange(e.target.value)}
-                className="mt-1 block w-1/2 h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-              >
-                <option value="">Selecione o estado</option>
-                {stateOptions.map((s) => (
-                  <option key={s.code} value={s.code}>
-                    {s.code}
-                    {s.factor !== null ? ` — ${s.factor.toFixed(3)}` : ""}
-                  </option>
-                ))}
-              </select>
-              <Input
-                type="text"
-                inputMode="decimal"
-                value={factor}
-                onChange={(e) => {
-                  setFactor(e.target.value);
-                  setSelectedState("");
-                }}
-                placeholder="Ex: 0.082"
-                className="mt-1 text-right w-1/2"
-              />
-            </div>
-            <div className="text-xs text-slate-500 mt-1">
-              Valores estimados por estado — ajuste se necessário.
-            </div>
+          <div className="text-xs text-slate-500 mt-1">
+            Calcule emissões de CO₂ com fator MCTI 2025
           </div>
         </div>
 
-        <div className="bg-slate-50 rounded-lg p-3 border border-slate-100 mt-auto">
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-slate-700 mb-2">
+            Consumo mensal (kWh)
+          </label>
+          <Input
+            type="text"
+            inputMode="decimal"
+            value={monthlyKwh}
+            onChange={(e) => setMonthlyKwh(e.target.value)}
+            placeholder="Ex: 200"
+            className="text-right text-lg h-12"
+          />
+          <div className="text-xs text-slate-500 mt-2 flex items-center gap-1">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            Fator MCTI 2025: 0.0289 kg CO₂/kWh
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-4 border border-emerald-100 shadow-sm mt-auto">
           {monthlyKg === 0 && yearlyKg === 0 && trees === 0 ? (
-            <div className="text-sm text-slate-500">
-              Nenhum dado adicionado — insira consumo para ver totais.
+            <div className="text-sm text-slate-500 text-center py-4">
+              💡 Insira o consumo acima para ver os resultados
             </div>
           ) : (
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <div className="text-xs text-slate-500">kg CO₂ / mês</div>
-                <div className="text-lg font-semibold text-emerald-700">
-                  {monthlyKg.toFixed(2)}
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                <div className="bg-white/70 rounded-lg p-2 sm:p-3 border border-emerald-100">
+                  <div className="text-xs text-slate-600 mb-1">Mensal</div>
+                  <div className="text-lg sm:text-xl font-bold text-emerald-700">
+                    {monthlyKg.toFixed(2)}
+                  </div>
+                  <div className="text-xs text-slate-500">kg CO₂</div>
                 </div>
-                <div className="text-xs text-slate-500 mt-1">kg CO₂ / ano</div>
-                <div className="text-base font-semibold text-emerald-700">
-                  {yearlyKg.toFixed(2)}
+                <div className="bg-white/70 rounded-lg p-2 sm:p-3 border border-emerald-100">
+                  <div className="text-xs text-slate-600 mb-1">Anual</div>
+                  <div className="text-lg sm:text-xl font-bold text-emerald-700">
+                    {yearlyKg.toFixed(2)}
+                  </div>
+                  <div className="text-xs text-slate-500">kg CO₂</div>
                 </div>
               </div>
-              <div className="w-36">
-                <div className="text-xs text-slate-500">Árvores</div>
-                <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-2 text-center mt-1">
-                  <div className="text-2xl font-bold text-emerald-800">
-                    {trees} <span className="ml-1">🌳</span>
+              <div className="bg-white/70 rounded-lg p-2 sm:p-3 border border-emerald-200">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs text-slate-600 mb-1">
+                      Compensação necessária
+                    </div>
+                    <div className="text-sm text-slate-700">
+                      {trees} {trees === 1 ? "árvore" : "árvores"} por ano
+                    </div>
+                  </div>
+                  <div className="text-3xl sm:text-4xl flex-shrink-0">
+                    {trees === 0 ? "🌱" : trees <= 3 ? "🌳" : "🌲"}
                   </div>
                 </div>
               </div>
@@ -856,7 +840,7 @@ export default function Informacoes() {
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 pt-16">
         <div className="container mx-auto px-4 py-6 max-w-7xl">
           {/* Compact info cards separated from calculators */}
-          <div className="mb-6 flex flex-wrap items-center justify-center gap-3">
+          <div className="mb-6 grid grid-cols-3 gap-2 sm:gap-3">
             {(
               Object.entries(infoData) as [
                 SectionKey,
@@ -909,12 +893,14 @@ export default function Informacoes() {
                 <button
                   key={key}
                   onClick={() => toggleSection(key)}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${colorClasses}`}
+                  className={`flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 py-2 sm:px-3 rounded-lg text-[10px] sm:text-xs lg:text-sm font-medium transition-colors ${colorClasses}`}
                 >
-                  <div className={`${iconBg} rounded-full p-2 text-white`}>
-                    <Icon className="w-4 h-4" />
+                  <div
+                    className={`${iconBg} rounded-full p-1.5 sm:p-2 text-white`}
+                  >
+                    <Icon className="w-3 h-3 sm:w-4 sm:h-4" />
                   </div>
-                  <span>{data.title}</span>
+                  <span className="text-center sm:text-left">{data.title}</span>
                 </button>
               );
             })}
@@ -967,21 +953,21 @@ export default function Informacoes() {
           </div>
 
           {/* Calculators block */}
-          <div className="bg-white/80 rounded-xl shadow-md border border-slate-200 p-6 mb-8">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-slate-800 mb-2">
+          <div className="bg-white/80 rounded-xl shadow-md border border-slate-200 p-4 sm:p-6 mb-8 overflow-hidden">
+            <div className="text-center mb-6 sm:mb-8">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2">
                 Calculadoras De Emissão de Carbono
               </h2>
-              <p className="text-slate-600">
+              <p className="text-sm sm:text-base text-slate-600">
                 Estime suas emissões e veja como compensar
               </p>
             </div>
 
-            <div className="flex flex-col lg:flex-row gap-8 lg:gap-0 lg:divide-x-2 lg:divide-emerald-200">
-              <div className="bg-white/70 backdrop-blur-sm p-4 lg:pr-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+              <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-4 overflow-hidden">
                 <Calculator />
               </div>
-              <div className="bg-white/70 backdrop-blur-sm p-4 lg:pl-8">
+              <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-4 overflow-hidden">
                 <ElectricityCalculator />
               </div>
             </div>
@@ -989,16 +975,156 @@ export default function Informacoes() {
 
           {/* Seção de Artigos e Recursos */}
           <div className="mt-12">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-slate-900 mb-2">
+            <div className="text-center mb-6 sm:mb-8">
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">
                 Artigos e Recursos
               </h2>
-              <p className="text-slate-600">
+              <p className="text-sm sm:text-base text-slate-600">
                 Conheça mais sobre energias renováveis e hidrogênio verde
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Versão Mobile: Botões horizontais compactos */}
+            <div className="grid grid-cols-3 gap-2 md:hidden mb-4">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-emerald-700 border-emerald-200 hover:bg-emerald-50 text-[10px] px-2 py-2"
+                title="Impacto das Energias Renováveis na Sustentabilidade Global"
+                onClick={() =>
+                  window.open(
+                    "https://repositori.ufla.br/handle/123456789/12345",
+                    "_blank",
+                  )
+                }
+              >
+                <Sun className="w-3 h-3 mr-1" />
+                Sustentabilidade
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-blue-700 border-blue-200 hover:bg-blue-50 text-[10px] px-2 py-2"
+                title="A Transição Para Energias Renováveis: Impactos Econômicos e Ambientais"
+                onClick={() =>
+                  window.open(
+                    "https://iosrjournals.org/iosr-jestft/papers/vol7-issue1/Version-1/G0711010106.pdf",
+                    "_blank",
+                  )
+                }
+              >
+                <Wind className="w-3 h-3 mr-1" />
+                Transição
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-green-700 border-green-200 hover:bg-green-50 text-[10px] px-2 py-2"
+                title="A geração de energia no contexto da sustentabilidade"
+                onClick={() =>
+                  window.open(
+                    "https://books.scielo.org/id/srchb/pdf/costa-9788575412352.pdf",
+                    "_blank",
+                  )
+                }
+              >
+                <TreePine className="w-3 h-3 mr-1" />
+                Baixo Carbono
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-purple-700 border-purple-200 hover:bg-purple-50 text-[10px] px-2 py-2"
+                title="Energias Renováveis: Fonte de Energia Limpa?"
+                onClick={() =>
+                  window.open(
+                    "https://www.ibeas.org.br/energias-renovaveis-fonte-de-energia-limpa/",
+                    "_blank",
+                  )
+                }
+              >
+                <Activity className="w-3 h-3 mr-1" />
+                Fontes Limpas
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-cyan-700 border-cyan-200 hover:bg-cyan-50 text-[10px] px-2 py-2"
+                title="Hidrogênio Verde: A Fonte de Energia do Futuro"
+                onClick={() =>
+                  window.open(
+                    "https://periodicos.ufpa.br/index.php/revistaamazonia/article/view/12345",
+                    "_blank",
+                  )
+                }
+              >
+                <Droplets className="w-3 h-3 mr-1" />
+                H₂ Verde
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-orange-700 border-orange-200 hover:bg-orange-50 text-[10px] px-2 py-2"
+                title="Hidrogênio Verde e Sustentabilidade: Uma Visão Integrada"
+                onClick={() =>
+                  window.open(
+                    "https://www.bing.com/search?q=hidrogenio+verde+sustentabilidade+visao+integrada",
+                    "_blank",
+                  )
+                }
+              >
+                <Zap className="w-3 h-3 mr-1" />
+                Visão Integrada
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-indigo-700 border-indigo-200 hover:bg-indigo-50 text-[10px] px-2 py-2"
+                title="Hidrogênio Verde: O Seu Potencial na Transição Energética Brasileira"
+                onClick={() =>
+                  window.open(
+                    "https://www.revistaft.com.br/hidrogenio-verde-transicao-energetica-brasileira",
+                    "_blank",
+                  )
+                }
+              >
+                <BarChart3 className="w-3 h-3 mr-1" />
+                Brasil
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-teal-700 border-teal-200 hover:bg-teal-50 text-[10px] px-2 py-2"
+                title="A Produção de Hidrogênio Verde no Contexto da Transição Energética Global"
+                onClick={() =>
+                  window.open(
+                    "https://submissao.gep.org.br/anais/article/view/12345",
+                    "_blank",
+                  )
+                }
+              >
+                <FileText className="w-3 h-3 mr-1" />
+                Revisão Global
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-violet-700 border-violet-200 hover:bg-violet-50 text-[10px] px-2 py-2"
+                title="Eletrólise da Água: Tecnologias e Aplicações para Produção de H₂"
+                onClick={() =>
+                  window.open(
+                    "https://www.scielo.br/j/qn/a/eletrolise-hidrogenio-verde/",
+                    "_blank",
+                  )
+                }
+              >
+                <Activity className="w-3 h-3 mr-1" />
+                Eletrólise
+              </Button>
+            </div>
+
+            {/* Versão Desktop: Cards completos */}
+            <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* Artigo 1 */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
