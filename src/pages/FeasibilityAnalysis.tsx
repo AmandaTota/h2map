@@ -128,6 +128,12 @@ interface TopographyData {
   recommendations: string[];
 }
 
+const DEFAULT_CITY_LOCATION = {
+  lat: -23.5505,
+  lng: -46.6333,
+  name: "São Paulo, SP",
+};
+
 // Helper function to format numbers with locale and remove unnecessary decimals
 const formatCurrency = (value: number, decimals: number = 2): string => {
   const formatted = value.toLocaleString("pt-BR", {
@@ -146,9 +152,10 @@ const formatCurrency = (value: number, decimals: number = 2): string => {
 };
 
 const FeasibilityAnalysis = () => {
-  const { selectedLocation, setSelectedLocation } = useLocationStore();
+  const { selectedLocation, setSelectedLocation, clearLocation } =
+    useLocationStore();
   const [localLocation, setLocalLocation] = useState(
-    selectedLocation || { lat: -23.5505, lng: -46.6333, name: "São Paulo, SP" },
+    selectedLocation || DEFAULT_CITY_LOCATION,
   );
   const [analysisStarted, setAnalysisStarted] = useState(false);
   const [analyzedLocation, setAnalyzedLocation] = useState(localLocation);
@@ -210,6 +217,7 @@ const FeasibilityAnalysis = () => {
   } | null>(null);
   const [mapKeyA, setMapKeyA] = useState<number>(0);
   const [mapKeyB, setMapKeyB] = useState<number>(0);
+  const [locationSearchKey, setLocationSearchKey] = useState<number>(0);
 
   const UF_SIGLA: Record<string, string> = {
     "11": "RO",
@@ -479,6 +487,19 @@ const FeasibilityAnalysis = () => {
 
   const handleStartAnalysis = async () => {
     await startAnalysisFor(localLocation);
+  };
+
+  const handleClearCitySelection = () => {
+    clearLocation();
+    setLocalLocation(DEFAULT_CITY_LOCATION);
+    setAnalyzedLocation(DEFAULT_CITY_LOCATION);
+    setAnalysisStarted(false);
+    setWeatherData(null);
+    setTopographyData(null);
+    setSimulationResults({ oneYear: null, threeYears: null, fiveYears: null });
+    // Forca remount do input para limpar termo digitado e sugestoes abertas.
+    setLocationSearchKey((k) => k + 1);
+    toast.success("Seleção limpa. Pesquise uma nova localidade.");
   };
 
   const fetchWeatherData = async (lat: number, lng: number) => {
@@ -1814,8 +1835,9 @@ const FeasibilityAnalysis = () => {
                 <div className="flex flex-col md:flex-row gap-4 items-center justify-center">
                   <div className="flex-1 max-w-md">
                     <LocationSearch
+                      key={locationSearchKey}
                       onLocationSelect={handleLocationSelect}
-                      initialLocation={localLocation}
+                      initialLocation={selectedLocation || undefined}
                     />
                   </div>
                   <motion.button
@@ -1837,6 +1859,14 @@ const FeasibilityAnalysis = () => {
                       </>
                     )}
                   </motion.button>
+                  <Button
+                    variant="outline"
+                    onClick={handleClearCitySelection}
+                    className="h-12 px-4 border-slate-300 hover:border-emerald-500"
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Limpar seleção
+                  </Button>
                 </div>
               </Card>
             )}

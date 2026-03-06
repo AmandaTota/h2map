@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import React from "react";
 import { motion } from "framer-motion";
 import {
@@ -24,18 +24,40 @@ import {
   Clock,
   AlertCircle,
   CheckCircle,
-  CloudRain,
   CloudSnow,
   Cloud,
   CloudDrizzle,
   Sunrise,
   Sunset,
+  X,
 } from "lucide-react";
-import { format, subDays, startOfDay, endOfDay, addDays } from "date-fns";
-import * as XLSX from "xlsx";
+import {
+  format,
+  subDays,
+  startOfDay,
+  endOfDay,
+  addDays,
+  differenceInCalendarDays,
+} from "date-fns";
+import ExcelJS from "exceljs";
 import Navigation from "@/components/Navigation";
 import LocationSearch from "@/components/LocationSearch";
 import { useLocationStore } from "@/store/locationStore";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import {
+  Bar,
+  BarChart as RechartsBarChart,
+  CartesianGrid,
+  LabelList,
+  XAxis,
+  YAxis,
+} from "recharts";
+
+const DEFAULT_SELECTED_PARAMETERS: string[] = [];
 
 // Weather API Service
 class WeatherService {
@@ -121,6 +143,8 @@ class WeatherService {
 
     const data: HistoricalData[] = [];
     const { dailyData } = nasaData;
+    const rangeStart = startOfDay(startDate);
+    const rangeEnd = endOfDay(endDate);
 
     // Use real daily data from NASA POWER
     for (const day of dailyData) {
@@ -129,6 +153,9 @@ class WeatherService {
       const month = parseInt(day.date.substring(4, 6)) - 1; // JS months are 0-indexed
       const dayOfMonth = parseInt(day.date.substring(6, 8));
       const date = new Date(year, month, dayOfMonth);
+
+      // Mantem apenas o intervalo solicitado no filtro.
+      if (date < rangeStart || date > rangeEnd) continue;
 
       data.push({
         date: date,
@@ -144,7 +171,40 @@ class WeatherService {
       });
     }
 
-    return data;
+    if (!data.length) return [];
+
+    // Garante série diária contínua até a data final (hoje), preenchendo lacunas.
+    const sorted = [...data].sort(
+      (a, b) => a.date.getTime() - b.date.getTime(),
+    );
+    const byDay = new Map(
+      sorted.map((item) => [format(item.date, "yyyy-MM-dd"), item]),
+    );
+
+    const continuous: HistoricalData[] = [];
+    let cursor = new Date(rangeStart);
+    let lastKnown: HistoricalData | null = null;
+    const firstKnown = sorted[0];
+
+    while (cursor <= rangeEnd) {
+      const key = format(cursor, "yyyy-MM-dd");
+      const exact = byDay.get(key);
+
+      if (exact) {
+        continuous.push(exact);
+        lastKnown = exact;
+      } else {
+        const source = lastKnown ?? firstKnown;
+        continuous.push({
+          ...source,
+          date: new Date(cursor),
+        });
+      }
+
+      cursor = addDays(cursor, 1);
+    }
+
+    return continuous;
   }
 
   private async fetchINMETData(
@@ -387,7 +447,7 @@ interface WeatherForecast {
 }
 
 const Statistics = () => {
-  const { selectedLocation: storeLocation } = useLocationStore();
+  const { selectedLocation: storeLocation, clearLocation } = useLocationStore();
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(
     storeLocation
       ? {
@@ -406,51 +466,16 @@ const Statistics = () => {
   const [statistics, setStatistics] = useState<StatisticsSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
-  const [selectedParameters, setSelectedParameters] = useState<string[]>([
-    "temperature",
-    "humidity",
-    "windSpeed",
-    "pressure",
-    "rainfall",
-    "solarIrradiance",
-  ]);
+  const [selectedParameters, setSelectedParameters] = useState<string[]>(
+    DEFAULT_SELECTED_PARAMETERS,
+  );
+  const [activeChartParameters, setActiveChartParameters] = useState<string[]>(
+    [],
+  );
+  const [locationSearchKey, setLocationSearchKey] = useState<number>(0);
+  const locationSearchContainerRef = useRef<HTMLDivElement | null>(null);
 
   const weatherService = new WeatherService();
-
-  const locations: LocationData[] = [
-    {
-      id: 1,
-      name: "São Paulo, SP",
-      lat: -23.5505,
-      lng: -46.6333,
-      type: "city",
-    },
-    {
-      id: 2,
-      name: "Rio de Janeiro, RJ",
-      lat: -22.9068,
-      lng: -43.1729,
-      type: "city",
-    },
-    { id: 3, name: "Brasília, DF", lat: -15.8267, lng: -47.9218, type: "city" },
-    { id: 4, name: "Fortaleza, CE", lat: -3.7319, lng: -38.5267, type: "city" },
-    { id: 5, name: "Salvador, BA", lat: -12.9714, lng: -38.5014, type: "city" },
-    { id: 6, name: "Recife, PE", lat: -8.0476, lng: -34.877, type: "city" },
-    {
-      id: 7,
-      name: "Parque Eólico Rio do Fogo",
-      lat: -5.3757,
-      lng: -37.3439,
-      type: "wind",
-    },
-    {
-      id: 8,
-      name: "Complexo Solar Pirapora",
-      lat: -17.3406,
-      lng: -44.9361,
-      type: "solar",
-    },
-  ];
 
   const handleLocationSelect = (location: {
     lat: number;
@@ -464,6 +489,44 @@ const Statistics = () => {
       lng: location.lng,
       type: "custom",
     });
+  };
+
+  const handleClearSelection = () => {
+    setSelectedLocation(null);
+    setHistoricalData([]);
+    setStatistics(null);
+    clearLocation();
+    setLocationSearchKey((k) => k + 1);
+    setSelectedParameters(DEFAULT_SELECTED_PARAMETERS);
+    setActiveChartParameters([]);
+  };
+
+  useEffect(() => {
+    setActiveChartParameters((prev) => {
+      const filtered = prev.filter((id) => selectedParameters.includes(id));
+      if (filtered.length > 0 || selectedParameters.length === 0)
+        return filtered;
+      return [selectedParameters[0]];
+    });
+  }, [selectedParameters]);
+
+  const toggleChartParameter = (paramId: string) => {
+    setActiveChartParameters((prev) =>
+      prev.includes(paramId)
+        ? prev.filter((id) => id !== paramId)
+        : [...prev, paramId],
+    );
+  };
+
+  const handleGoToLocationInput = () => {
+    const container = locationSearchContainerRef.current;
+    if (!container) return;
+
+    container.scrollIntoView({ behavior: "smooth", block: "center" });
+    window.setTimeout(() => {
+      const input = container.querySelector("input");
+      input?.focus();
+    }, 250);
   };
 
   const parameters = [
@@ -548,12 +611,10 @@ const Statistics = () => {
   };
 
   const getDateRange = () => {
-    // NASA POWER possui atraso de ~4 dias nos dados diários.
-    // Ajustamos a data final para hoje - 4 dias para garantir dados disponíveis.
-    const today = new Date();
-    const lastAvailable = subDays(today, 4);
+    // Sempre usa ontem como data final para evitar inconsistências de dados do dia atual.
+    const yesterday = subDays(new Date(), 1);
 
-    let endDate = lastAvailable;
+    let endDate = yesterday;
     let startDate: Date;
 
     switch (dateRange) {
@@ -571,8 +632,8 @@ const Statistics = () => {
         if (customStartDate && customEndDate) {
           const customStart = new Date(customStartDate);
           const customEnd = new Date(customEndDate);
-          // Clamp da data final para último disponível
-          endDate = customEnd > lastAvailable ? lastAvailable : customEnd;
+          // Evita data final no presente/futuro no intervalo personalizado.
+          endDate = customEnd > yesterday ? yesterday : customEnd;
           startDate = customStart;
         } else {
           startDate = subDays(endDate, 7 - 1);
@@ -659,108 +720,178 @@ const Statistics = () => {
     setStatistics(stats);
   };
 
-  const exportToExcel = () => {
+  const exportToExcel = async () => {
     if (!historicalData.length || !selectedLocation) return;
 
     setExporting(true);
     try {
-      // Prepare data for Excel
-      const exportData = historicalData.map((item) => {
-        const row: any = {
-          Data: format(item.date, "dd/MM/yyyy"),
-          Localização: selectedLocation.name,
-          Latitude: selectedLocation.lat.toFixed(4),
-          Longitude: selectedLocation.lng.toFixed(4),
-        };
+      const workbook = new ExcelJS.Workbook();
+      workbook.creator = "H2Maps";
+      workbook.created = new Date();
 
-        selectedParameters.forEach((param) => {
-          const paramConfig = parameters.find((p) => p.id === param);
-          if (paramConfig) {
-            const value = item[param as keyof HistoricalData] as number;
-            row[`${paramConfig.name} (${paramConfig.unit})`] = parseFloat(
-              value.toFixed(1),
-            );
-          }
+      const applyFixedWidthAndCenter = (worksheet: ExcelJS.Worksheet) => {
+        // ExcelJS column width is based on character units, not centimeters.
+        // 5cm is approximately 27 character width units.
+        const fixedColumnWidth = 27;
+
+        worksheet.columns?.forEach((column) => {
+          column.eachCell({ includeEmpty: true }, (cell) => {
+            cell.alignment = {
+              vertical: "middle",
+              horizontal: "center",
+            };
+          });
+          column.width = fixedColumnWidth;
         });
+      };
 
-        return row;
+      const selectedParamConfigs = parameters.filter((p) =>
+        selectedParameters.includes(p.id),
+      );
+
+      const mainSheetName = `Dados_${selectedLocation.name
+        .replace(/[^a-zA-Z0-9]/g, "_")
+        .slice(0, 25)}`;
+      const mainSheet = workbook.addWorksheet(mainSheetName);
+
+      const mainHeaders = ["Data", "Localização", "Latitude", "Longitude"];
+      selectedParamConfigs.forEach((param) => {
+        mainHeaders.push(
+          `${param.name}${param.unit ? ` (${param.unit})` : ""}`,
+        );
       });
 
-      // Add summary data
+      mainSheet.addRow(mainHeaders);
+      historicalData.forEach((item) => {
+        const rowValues: Array<string | number> = [
+          format(item.date, "dd/MM/yyyy"),
+          selectedLocation.name,
+          Number(selectedLocation.lat.toFixed(4)),
+          Number(selectedLocation.lng.toFixed(4)),
+        ];
+
+        selectedParamConfigs.forEach((param) => {
+          rowValues.push(
+            Number(
+              (item[param.id as keyof HistoricalData] as number).toFixed(2),
+            ),
+          );
+        });
+
+        mainSheet.addRow(rowValues);
+      });
+
+      const headerRow = mainSheet.getRow(1);
+      headerRow.eachCell((cell) => {
+        cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FF059669" },
+        };
+        cell.alignment = { vertical: "middle", horizontal: "center" };
+      });
+      headerRow.height = 22;
+
+      mainSheet.views = [{ state: "frozen", ySplit: 1 }];
+
       if (statistics) {
-        exportData.push({});
-        exportData.push({ Data: "RESUMO ESTATÍSTICO" });
-        exportData.push({
-          Data: "Média Temperatura (°C)",
-          Valor: statistics.avgTemperature,
+        mainSheet.addRow([]);
+        const summaryHeader = mainSheet.addRow(["RESUMO ESTATISTICO", "Valor"]);
+        summaryHeader.eachCell((cell) => {
+          cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+          cell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FF0EA5E9" },
+          };
         });
-        exportData.push({
-          Data: "Temperatura Máxima (°C)",
-          Valor: statistics.maxTemperature,
-        });
-        exportData.push({
-          Data: "Temperatura Mínima (°C)",
-          Valor: statistics.minTemperature,
-        });
-        exportData.push({
-          Data: "Desvio Padrão Temperatura (°C)",
-          Valor: statistics.tempStdDev,
-        });
-        exportData.push({
-          Data: "Média Umidade (%)",
-          Valor: statistics.avgHumidity,
-        });
-        exportData.push({
-          Data: "Média Velocidade Vento (m/s)",
-          Valor: statistics.avgWindSpeed,
-        });
-        exportData.push({
-          Data: "Velocidade Máxima Vento (m/s)",
-          Valor: statistics.maxWindSpeed,
-        });
-        exportData.push({
-          Data: "Desvio Padrão Vento (m/s)",
-          Valor: statistics.windSpeedStdDev,
-        });
-        exportData.push({
-          Data: "Precipitação Total (mm)",
-          Valor: statistics.totalRainfall,
-        });
-        exportData.push({
-          Data: "Média Irradiação Solar (W/m²)",
-          Valor: statistics.avgSolarIrradiance,
-        });
-        exportData.push({
-          Data: "Potencial Energético Diário (kWh/m²/dia)",
-          Valor: statistics.avgDailyEnergyPotential,
-        });
-        exportData.push({
-          Data: "Média Pressão (hPa)",
-          Valor: statistics.avgPressure,
-        });
-        exportData.push({
-          Data: "Média Índice UV",
-          Valor: statistics.avgUVIndex,
-        });
-        exportData.push({
-          Data: "Dias Ensolarados",
-          Valor: statistics.sunnyDays,
-        });
-        exportData.push({ Data: "Dias Chuvosos", Valor: statistics.rainyDays });
-        exportData.push({
-          Data: "Total de Pontos de Dados",
-          Valor: statistics.dataPoints,
+
+        const summaryRows: Array<[string, number]> = [
+          ["Media Temperatura (C)", statistics.avgTemperature],
+          ["Temperatura Maxima (C)", statistics.maxTemperature],
+          ["Temperatura Minima (C)", statistics.minTemperature],
+          ["Desvio Padrao Temperatura (C)", statistics.tempStdDev],
+          ["Media Umidade (%)", statistics.avgHumidity],
+          ["Media Velocidade Vento (m/s)", statistics.avgWindSpeed],
+          ["Velocidade Maxima Vento (m/s)", statistics.maxWindSpeed],
+          ["Desvio Padrao Vento (m/s)", statistics.windSpeedStdDev],
+          ["Precipitacao Total (mm)", statistics.totalRainfall],
+          ["Media Irradiacao Solar (W/m2)", statistics.avgSolarIrradiance],
+          [
+            "Potencial Energetico Diario (kWh/m2/dia)",
+            statistics.avgDailyEnergyPotential,
+          ],
+          ["Media Pressao (hPa)", statistics.avgPressure],
+          ["Media Indice UV", statistics.avgUVIndex],
+          ["Dias Ensolarados", statistics.sunnyDays],
+          ["Dias Chuvosos", statistics.rainyDays],
+          ["Total de Pontos de Dados", statistics.dataPoints],
+        ];
+
+        summaryRows.forEach(([label, value]) => {
+          mainSheet.addRow([label, value]);
         });
       }
 
-      // Create workbook
-      const ws = XLSX.utils.json_to_sheet(exportData);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(
-        wb,
-        ws,
-        `Dados_${selectedLocation.name.replace(/[^a-zA-Z0-9]/g, "_")}`,
+      applyFixedWidthAndCenter(mainSheet);
+
+      // Add a dedicated worksheet for chart series (used in the in-app chart).
+      const chartParamIds =
+        activeChartParameters.length > 0
+          ? activeChartParameters
+          : selectedParameters.length > 0
+            ? selectedParameters
+            : ["temperature"];
+
+      const chartParams = parameters.filter((p) =>
+        chartParamIds.includes(p.id),
       );
+
+      const chartSheet = workbook.addWorksheet("Grafico_Dados");
+      const chartHeaders = [
+        "Data",
+        ...chartParams.map(
+          (param) => `${param.name}${param.unit ? ` (${param.unit})` : ""}`,
+        ),
+      ];
+      chartSheet.addRow(chartHeaders);
+
+      historicalData.forEach((item) => {
+        const rowValues: Array<string | number> = [
+          format(item.date, "dd/MM/yyyy"),
+        ];
+        chartParams.forEach((param) => {
+          rowValues.push(
+            Number(
+              (item[param.id as keyof HistoricalData] as number).toFixed(2),
+            ),
+          );
+        });
+        chartSheet.addRow(rowValues);
+      });
+
+      const chartHeaderRow = chartSheet.getRow(1);
+      chartHeaderRow.eachCell((cell, colNumber) => {
+        cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+
+        let fillColor = "FF334155";
+        if (colNumber > 1) {
+          const param = chartParams[colNumber - 2];
+          if (param) {
+            fillColor = `FF${param.color.replace("#", "").toUpperCase()}`;
+          }
+        }
+
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: fillColor },
+        };
+      });
+
+      chartSheet.views = [{ state: "frozen", ySplit: 1 }];
+      applyFixedWidthAndCenter(chartSheet);
 
       // Generate filename with date range
       const { startDate, endDate } = getDateRange();
@@ -772,8 +903,16 @@ const Statistics = () => {
         "dd-MM-yyyy",
       )}.xlsx`;
 
-      // Download file
-      XLSX.writeFile(wb, filename);
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error exporting to Excel:", error);
     } finally {
@@ -803,6 +942,12 @@ const Statistics = () => {
 
     return { avg, max, min };
   };
+
+  const { startDate: selectedStartDate, endDate: selectedEndDate } =
+    getDateRange();
+  const selectedRangeDays =
+    differenceInCalendarDays(selectedEndDate, selectedStartDate) + 1;
+  const shouldRenderChart = selectedRangeDays <= 31;
 
   return (
     <>
@@ -838,22 +983,35 @@ const Statistics = () => {
 
             <div className="grid grid-cols-1 gap-4 sm:gap-6 mb-4 sm:mb-6">
               {/* Location Search */}
-              <div>
+              <div ref={locationSearchContainerRef}>
                 <label className="block text-sm font-medium text-slate-700 mb-1 sm:mb-2">
                   Localização
                 </label>
-                <LocationSearch
-                  onLocationSelect={handleLocationSelect}
-                  initialLocation={
-                    selectedLocation
-                      ? {
-                          lat: selectedLocation.lat,
-                          lng: selectedLocation.lng,
-                          name: selectedLocation.name,
-                        }
-                      : undefined
-                  }
-                />
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex-1">
+                    <LocationSearch
+                      key={locationSearchKey}
+                      onLocationSelect={handleLocationSelect}
+                      initialLocation={
+                        selectedLocation
+                          ? {
+                              lat: selectedLocation.lat,
+                              lng: selectedLocation.lng,
+                              name: selectedLocation.name,
+                            }
+                          : undefined
+                      }
+                    />
+                  </div>
+                  <button
+                    onClick={handleClearSelection}
+                    disabled={!selectedLocation}
+                    className="h-12 px-4 rounded-lg border border-slate-300 bg-white text-slate-700 hover:border-emerald-500 hover:text-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    <X className="w-4 h-4" />
+                    Limpar seleção
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -1042,80 +1200,6 @@ const Statistics = () => {
                 </div>
               </div>
 
-              {/* Advanced Statistics */}
-              <div className="border-t border-slate-200 pt-3 sm:pt-4">
-                <h3 className="text-sm font-semibold text-slate-900 mb-2 sm:mb-3">
-                  Análise Avançada
-                </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-                  <div className="p-2 sm:p-3 bg-slate-50 rounded-lg">
-                    <div className="flex items-center gap-1 sm:gap-2 mb-1">
-                      <Sun className="w-3 h-3 sm:w-4 sm:h-4 text-amber-600" />
-                      <span className="text-xs text-slate-600">
-                        Dias Ensolarados
-                      </span>
-                    </div>
-                    <div className="text-lg sm:text-xl font-bold text-slate-900">
-                      {statistics.sunnyDays}
-                    </div>
-                    <div className="text-xs text-slate-500">
-                      {(
-                        (statistics.sunnyDays / statistics.dataPoints) *
-                        100
-                      ).toFixed(1)}
-                      % do período
-                    </div>
-                  </div>
-
-                  <div className="p-2 sm:p-3 bg-slate-50 rounded-lg">
-                    <div className="flex items-center gap-1 sm:gap-2 mb-1">
-                      <CloudRain className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
-                      <span className="text-xs text-slate-600">
-                        Dias Chuvosos
-                      </span>
-                    </div>
-                    <div className="text-lg sm:text-xl font-bold text-slate-900">
-                      {statistics.rainyDays}
-                    </div>
-                    <div className="text-xs text-slate-500">
-                      {(
-                        (statistics.rainyDays / statistics.dataPoints) *
-                        100
-                      ).toFixed(1)}
-                      % do período
-                    </div>
-                  </div>
-
-                  <div className="p-2 sm:p-3 bg-slate-50 rounded-lg">
-                    <div className="flex items-center gap-1 sm:gap-2 mb-1">
-                      <Activity className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-600" />
-                      <span className="text-xs text-slate-600">
-                        Pontos de Dados
-                      </span>
-                    </div>
-                    <div className="text-lg sm:text-xl font-bold text-slate-900">
-                      {statistics.dataPoints}
-                    </div>
-                    <div className="text-xs text-slate-500">
-                      Registros analisados
-                    </div>
-                  </div>
-
-                  <div className="p-2 sm:p-3 bg-slate-50 rounded-lg">
-                    <div className="flex items-center gap-1 sm:gap-2 mb-1">
-                      <Gauge className="w-3 h-3 sm:w-4 sm:h-4 text-slate-600" />
-                      <span className="text-xs text-slate-600">
-                        Pressão Média
-                      </span>
-                    </div>
-                    <div className="text-lg sm:text-xl font-bold text-slate-900">
-                      {statistics.avgPressure}
-                    </div>
-                    <div className="text-xs text-slate-500">hPa</div>
-                  </div>
-                </div>
-              </div>
-
               {/* Energy Potential Analysis */}
               <div className="border-t border-slate-200 pt-3 sm:pt-4 mt-3 sm:mt-4">
                 <h3 className="text-sm font-semibold text-slate-900 mb-2 sm:mb-3">
@@ -1167,75 +1251,166 @@ const Statistics = () => {
             </div>
           )}
 
-          {/* Data Table */}
+          {/* Historical Charts */}
           {!loading && historicalData.length > 0 && (
             <div className="bg-white rounded-xl shadow-lg border border-emerald-100 p-4 sm:p-6">
               <h2 className="text-base sm:text-lg font-semibold text-slate-900 mb-3 sm:mb-4 flex items-center">
                 <Activity className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-emerald-600" />
-                Dados Históricos
+                Gráficos Históricos
               </h2>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs sm:text-sm">
-                  <thead>
-                    <tr className="border-b border-slate-200">
-                      <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-slate-900">
-                        Data
-                      </th>
-                      {selectedParameters.map((paramId) => {
-                        const param = parameters.find((p) => p.id === paramId);
-                        return param ? (
-                          <th
-                            key={paramId}
-                            className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-slate-900 min-w-[80px]"
-                          >
-                            <div className="truncate">{param.name}</div>
-                            <div className="text-xs text-slate-500">
-                              ({param.unit})
-                            </div>
-                          </th>
-                        ) : null;
-                      })}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {historicalData
-                      .slice(-10)
-                      .reverse()
-                      .map((item, index) => (
-                        <tr
-                          key={index}
-                          className="border-b border-slate-100 hover:bg-slate-50"
-                        >
-                          <td className="py-2 sm:py-3 px-2 sm:px-4 font-medium text-slate-900">
-                            {format(item.date, "dd/MM/yyyy")}
-                          </td>
-                          {selectedParameters.map((paramId) => {
-                            const param = parameters.find(
-                              (p) => p.id === paramId,
-                            );
-                            const value = item[
-                              paramId as keyof HistoricalData
-                            ] as number;
-                            return param ? (
-                              <td
-                                key={paramId}
-                                className="py-2 sm:py-3 px-2 sm:px-4 text-slate-700"
-                              >
-                                {parseFloat(value.toFixed(1))}
-                              </td>
-                            ) : null;
-                          })}
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
+              <div className="mb-4 flex flex-wrap gap-2">
+                {selectedParameters.map((paramId) => {
+                  const param = parameters.find((p) => p.id === paramId);
+                  if (!param) return null;
+
+                  return (
+                    <button
+                      key={paramId}
+                      onClick={() => toggleChartParameter(paramId)}
+                      className={`px-3 py-2 rounded-lg border text-sm transition-colors ${
+                        activeChartParameters.includes(paramId)
+                          ? "bg-emerald-600 text-white border-emerald-600"
+                          : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
+                      }`}
+                    >
+                      {param.name}
+                    </button>
+                  );
+                })}
               </div>
 
-              {historicalData.length > 10 && (
-                <div className="mt-3 sm:mt-4 text-center text-xs sm:text-sm text-slate-600">
-                  Mostrando últimos 10 registros de {historicalData.length}{" "}
-                  totais
+              {activeChartParameters.length > 0 ? (
+                shouldRenderChart ? (
+                  (() => {
+                    const activeParams = parameters.filter((p) =>
+                      activeChartParameters.includes(p.id),
+                    );
+
+                    if (!activeParams.length) return null;
+
+                    const chartData = historicalData.map((item) => {
+                      const base: Record<string, string | number> = {
+                        date: format(item.date, "dd/MM"),
+                        fullDate: format(item.date, "dd/MM/yyyy"),
+                      };
+
+                      for (const param of activeParams) {
+                        base[param.id] = Number(
+                          (
+                            item[param.id as keyof HistoricalData] as number
+                          ).toFixed(2),
+                        );
+                      }
+
+                      return base;
+                    });
+
+                    const chartConfig = activeParams.reduce(
+                      (acc, param) => {
+                        acc[param.id] = {
+                          label: param.name,
+                          color: param.color,
+                        };
+                        return acc;
+                      },
+                      {} as Record<string, { label: string; color: string }>,
+                    );
+
+                    return (
+                      <>
+                        <p className="text-sm text-slate-600 mb-3">
+                          Visualizando: <strong>{activeParams.length}</strong>{" "}
+                          parâmetro(s) sobreposto(s)
+                        </p>
+                        <div>
+                          <ChartContainer
+                            config={chartConfig}
+                            className="h-[320px] w-full"
+                          >
+                            <RechartsBarChart data={chartData}>
+                              <CartesianGrid vertical={false} />
+                              <XAxis
+                                dataKey="date"
+                                tickLine={false}
+                                axisLine={false}
+                                minTickGap={24}
+                              />
+                              <YAxis
+                                tickLine={false}
+                                axisLine={false}
+                                width={56}
+                              />
+                              <ChartTooltip
+                                content={
+                                  <ChartTooltipContent
+                                    labelFormatter={(_, payload) =>
+                                      payload?.[0]?.payload?.fullDate || ""
+                                    }
+                                    formatter={(value, name) => {
+                                      const param = activeParams.find(
+                                        (p) => p.id === String(name),
+                                      );
+                                      if (!param)
+                                        return [String(value), String(name)];
+                                      return [
+                                        `${value} ${param.unit}`.trim(),
+                                        param.name,
+                                      ];
+                                    }}
+                                  />
+                                }
+                              />
+                              {activeParams.map((param) => (
+                                <Bar
+                                  key={param.id}
+                                  dataKey={param.id}
+                                  name={param.id}
+                                  fill={`var(--color-${param.id})`}
+                                  radius={[3, 3, 0, 0]}
+                                >
+                                  <LabelList
+                                    dataKey={param.id}
+                                    position="top"
+                                    formatter={(value: number) =>
+                                      Number(value).toFixed(1)
+                                    }
+                                    style={{ fill: "#334155", fontSize: 10 }}
+                                  />
+                                </Bar>
+                              ))}
+                            </RechartsBarChart>
+                          </ChartContainer>
+                        </div>
+                        <div className="mt-4 flex flex-wrap items-center gap-3">
+                          {activeParams.map((param) => (
+                            <div
+                              key={`legend-${param.id}`}
+                              className="flex items-center gap-2 text-xs text-slate-700"
+                            >
+                              <span
+                                className="inline-block w-3 h-3 rounded-sm"
+                                style={{ backgroundColor: param.color }}
+                              />
+                              <span>
+                                {param.name}
+                                {param.unit ? ` (${param.unit})` : ""}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    );
+                  })()
+                ) : (
+                  <div className="text-sm text-slate-600 bg-amber-50 border border-amber-200 rounded-lg p-4">
+                    Intervalos acima de 31 dias não geram gráfico, pois ele
+                    ficaria muito desconfigurado para ser exibido.
+                  </div>
+                )
+              ) : (
+                <div className="text-sm text-slate-600">
+                  Selecione ao menos um parâmetro para exibir o gráfico.
                 </div>
               )}
             </div>
@@ -1249,14 +1424,14 @@ const Statistics = () => {
                 Nenhum Dado Disponível
               </h3>
               <p className="text-slate-600 mb-4">
-                Selecione uma localização e período para visualizar as
-                estatísticas
+                Selecione uma localização, período e parâmetro para visualizar
+                as estatísticas
               </p>
               <button
-                onClick={() => setSelectedLocation(locations[0])}
+                onClick={handleGoToLocationInput}
                 className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
               >
-                Selecionar São Paulo
+                Ir para busca de localidade
               </button>
             </div>
           )}
