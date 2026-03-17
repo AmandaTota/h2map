@@ -7,8 +7,6 @@ import {
   Droplets,
   Wind,
   Gauge,
-  Sunrise,
-  Sunset,
   Loader2,
   Cloud,
   CloudRain,
@@ -238,41 +236,6 @@ const WeatherForecastComponent = ({ location }: WeatherForecastProps) => {
             <p className="text-xs text-slate-500">hPa</p>
           </div>
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
-          <div className="bg-white/60 backdrop-blur rounded-lg p-2 flex items-center gap-2">
-            <Sunrise className="w-5 h-5 sm:w-6 sm:h-6 text-orange-500 flex-shrink-0" />
-            <div>
-              <p className="text-xs text-slate-600">Nascer do Sol</p>
-              <p className="text-sm font-semibold text-slate-900">
-                {new Date(forecast.current.sunrise * 1000).toLocaleTimeString(
-                  "pt-BR",
-                  {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    timeZone: "America/Sao_Paulo",
-                  },
-                )}
-              </p>
-            </div>
-          </div>
-          <div className="bg-white/60 backdrop-blur rounded-lg p-2 flex items-center gap-2">
-            <Sunset className="w-5 h-5 sm:w-6 sm:h-6 text-purple-500 flex-shrink-0" />
-            <div>
-              <p className="text-xs text-slate-600">Pôr do Sol</p>
-              <p className="text-sm font-semibold text-slate-900">
-                {new Date(forecast.current.sunset * 1000).toLocaleTimeString(
-                  "pt-BR",
-                  {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    timeZone: "America/Sao_Paulo",
-                  },
-                )}
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* 5-Day Forecast */}
@@ -286,7 +249,7 @@ const WeatherForecastComponent = ({ location }: WeatherForecastProps) => {
                 sm:grid-cols-3       /* mantém 1 coluna no sm */
                 md:grid-cols-3        /* melhora o visual em tablets */
                 lg:grid-cols-5        /* full grid em desktop */
-                gap-4"
+          gap-4 items-stretch"
         >
           {forecast.forecast.map((day, index) => (
             <motion.div
@@ -297,7 +260,7 @@ const WeatherForecastComponent = ({ location }: WeatherForecastProps) => {
               className="bg-gradient-to-br from-slate-50 to-slate-100
                  rounded-md p-3 sm:p-4 border border-slate-200
                  hover:shadow-md transition-shadow
-                 aspect-square flex flex-col justify-between"
+                  min-h-[220px] sm:min-h-[240px] flex flex-col justify-between"
             >
               <div className="text-center mb-2">
                 <p className="text-xs sm:text-sm font-semibold text-slate-900 truncate">
@@ -335,14 +298,18 @@ const WeatherForecastComponent = ({ location }: WeatherForecastProps) => {
                     {day.windSpeed.toFixed(1)} m/s
                   </span>
                 </div>
-                {day.rainfall > 0 && (
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-500">Chuva:</span>
-                    <span className="font-semibold text-blue-600">
-                      {day.rainfall.toFixed(1)} mm
-                    </span>
-                  </div>
-                )}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-500">Chuva:</span>
+                  <span
+                    className={`font-semibold ${
+                      day.rainfall > 0 ? "text-blue-600" : "text-slate-900"
+                    }`}
+                  >
+                    {day.rainfall > 0
+                      ? `${day.rainfall.toFixed(1)} mm`
+                      : "0.0 mm"}
+                  </span>
+                </div>
               </div>
             </motion.div>
           ))}
