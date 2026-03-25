@@ -60,10 +60,10 @@ export default function Index() {
                 Conservação
               </a>
               <Link
-                to="/informacoes"
+                to="/fontes"
                 className="text-slate-600 hover:text-emerald-600 transition-colors"
               >
-                Dados Verdes
+                Fontes do Projeto
               </Link>
               <Link
                 to="/feasibility"
@@ -102,10 +102,10 @@ export default function Index() {
                 Conservação
               </a>
               <Link
-                to="/informacoes"
+                to="/fontes"
                 className="block px-3 py-2 text-slate-600 hover:text-emerald-600"
               >
-                Dados Verdes
+                Fontes do Projeto
               </Link>
 
               <Link

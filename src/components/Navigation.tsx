@@ -43,7 +43,7 @@ const Navigation = () => {
     { path: "/feasibility", label: "Análise de Viabilidade", icon: BarChart3 },
     { path: "/statistics", label: "Estatísticas", icon: LineChart },
     { path: "/dashboard", label: "Previsão do Tempo", icon: ThermometerSun },
-    { path: "/informacoes", label: "Dados Verdes", icon: FileText },
+    { path: "/fontes", label: "Fontes do Projeto", icon: FileText },
   ];
 
   const isActive = (path: string) => location.pathname === path;

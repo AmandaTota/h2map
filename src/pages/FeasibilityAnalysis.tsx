@@ -218,6 +218,8 @@ const FeasibilityAnalysis = () => {
   const [mapKeyA, setMapKeyA] = useState<number>(0);
   const [mapKeyB, setMapKeyB] = useState<number>(0);
   const [locationSearchKey, setLocationSearchKey] = useState<number>(0);
+  const [attemptedStartWithoutLocation, setAttemptedStartWithoutLocation] =
+    useState(false);
 
   const UF_SIGLA: Record<string, string> = {
     "11": "RO",
@@ -461,6 +463,7 @@ const FeasibilityAnalysis = () => {
   }) => {
     setLocalLocation(location);
     setSelectedLocation(location);
+    setAttemptedStartWithoutLocation(false);
   };
 
   const startAnalysisFor = async (loc: {
@@ -486,6 +489,17 @@ const FeasibilityAnalysis = () => {
   };
 
   const handleStartAnalysis = async () => {
+    // Validar se uma localização foi selecionada
+    if (
+      localLocation.lat === DEFAULT_CITY_LOCATION.lat &&
+      localLocation.lng === DEFAULT_CITY_LOCATION.lng &&
+      localLocation.name === DEFAULT_CITY_LOCATION.name
+    ) {
+      setAttemptedStartWithoutLocation(true);
+      toast.error("Selecione uma cidade para iniciar a análise");
+      return;
+    }
+    setAttemptedStartWithoutLocation(false);
     await startAnalysisFor(localLocation);
   };
 
@@ -493,6 +507,7 @@ const FeasibilityAnalysis = () => {
     clearLocation();
     setLocalLocation(DEFAULT_CITY_LOCATION);
     setAnalyzedLocation(DEFAULT_CITY_LOCATION);
+    setAttemptedStartWithoutLocation(false);
     setAnalysisStarted(false);
     setWeatherData(null);
     setTopographyData(null);
@@ -1870,6 +1885,34 @@ const FeasibilityAnalysis = () => {
                 </div>
               </Card>
             )}
+
+            {/* Alerta de localização não selecionada */}
+            {mode === "cidade" &&
+              attemptedStartWithoutLocation &&
+              localLocation.lat === DEFAULT_CITY_LOCATION.lat &&
+              localLocation.lng === DEFAULT_CITY_LOCATION.lng &&
+              localLocation.name === DEFAULT_CITY_LOCATION.name && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-4"
+                >
+                  <Card className="p-4 bg-red-50 border-red-200 border-l-4 border-l-red-500">
+                    <div className="flex items-start gap-3">
+                      <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h4 className="font-semibold text-red-900">
+                          Localização não selecionada
+                        </h4>
+                        <p className="text-sm text-red-700 mt-1">
+                          Pesquise e selecione uma cidade no campo acima para
+                          iniciar a análise de viabilidade.
+                        </p>
+                      </div>
+                    </div>
+                  </Card>
+                </motion.div>
+              )}
           </motion.div>
 
           {mode === "cidade" ? (
