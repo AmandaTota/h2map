@@ -49,10 +49,9 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import {
-  Bar,
-  BarChart as RechartsBarChart,
   CartesianGrid,
-  LabelList,
+  Line,
+  LineChart as RechartsLineChart,
   XAxis,
   YAxis,
 } from "recharts";
@@ -504,18 +503,14 @@ const Statistics = () => {
   useEffect(() => {
     setActiveChartParameters((prev) => {
       const filtered = prev.filter((id) => selectedParameters.includes(id));
-      if (filtered.length > 0 || selectedParameters.length === 0)
-        return filtered;
+      if (filtered.length > 0) return [filtered[0]];
+      if (selectedParameters.length === 0) return [];
       return [selectedParameters[0]];
     });
   }, [selectedParameters]);
 
   const toggleChartParameter = (paramId: string) => {
-    setActiveChartParameters((prev) =>
-      prev.includes(paramId)
-        ? prev.filter((id) => id !== paramId)
-        : [...prev, paramId],
-    );
+    setActiveChartParameters((prev) => (prev[0] === paramId ? [] : [paramId]));
   };
 
   const handleGoToLocationInput = () => {
@@ -745,8 +740,91 @@ const Statistics = () => {
         });
       };
 
-      const selectedParamConfigs = parameters.filter((p) =>
-        selectedParameters.includes(p.id),
+      const applyBordersAndStripedRows = (
+        worksheet: ExcelJS.Worksheet,
+        startRow: number,
+        endRow: number,
+        skipStripedRows: Set<number> = new Set(),
+      ) => {
+        for (let rowIndex = startRow; rowIndex <= endRow; rowIndex++) {
+          const row = worksheet.getRow(rowIndex);
+          row.eachCell({ includeEmpty: false }, (cell) => {
+            cell.alignment = {
+              vertical: "middle",
+              horizontal: "center",
+            };
+            cell.border = {
+              top: { style: "thin", color: { argb: "FFE2E8F0" } },
+              left: { style: "thin", color: { argb: "FFE2E8F0" } },
+              bottom: { style: "thin", color: { argb: "FFE2E8F0" } },
+              right: { style: "thin", color: { argb: "FFE2E8F0" } },
+            };
+          });
+
+          if (
+            rowIndex > 1 &&
+            rowIndex % 2 === 0 &&
+            !skipStripedRows.has(rowIndex)
+          ) {
+            row.eachCell({ includeEmpty: false }, (cell) => {
+              cell.fill = {
+                type: "pattern",
+                pattern: "solid",
+                fgColor: { argb: "FFF8FAFC" },
+              };
+            });
+          }
+        }
+      };
+
+      const getParamNumberFormat = (paramId: string) => {
+        switch (paramId) {
+          case "temperature":
+          case "windSpeed":
+          case "solarIrradiance":
+          case "uvIndex":
+          case "visibility":
+            return "0.0";
+          case "rainfall":
+            return "0.00";
+          case "humidity":
+          case "pressure":
+            return "0";
+          default:
+            return "0.00";
+        }
+      };
+
+      const getSummaryValueFormat = (label: string) => {
+        const normalized = label.toLowerCase();
+
+        if (
+          normalized.includes("dias") ||
+          normalized.includes("total de pontos")
+        ) {
+          return "0";
+        }
+
+        if (normalized.includes("potencial energetico")) {
+          return "0.00";
+        }
+
+        if (normalized.includes("pressao") || normalized.includes("umidade")) {
+          return "0";
+        }
+
+        return "0.0";
+      };
+
+      const chartParamIds = Array.from(
+        new Set([...selectedParameters, ...activeChartParameters]),
+      );
+
+      const finalChartParamIds =
+        chartParamIds.length > 0 ? chartParamIds : ["temperature"];
+
+      const exportParamConfigs = parameters.filter((p) =>
+        finalChartParamIds.includes(p.id),
       );
 
       const mainSheetName = `Dados_${selectedLocation.name
@@ -754,8 +832,8 @@ const Statistics = () => {
         .slice(0, 25)}`;
       const mainSheet = workbook.addWorksheet(mainSheetName);
 
-      const mainHeaders = ["Data", "Localização", "Latitude", "Longitude"];
-      selectedParamConfigs.forEach((param) => {
+      const mainHeaders = ["Data", "Localização"];
+      exportParamConfigs.forEach((param) => {
         mainHeaders.push(
           `${param.name}${param.unit ? ` (${param.unit})` : ""}`,
         );
@@ -766,11 +844,9 @@ const Statistics = () => {
         const rowValues: Array<string | number> = [
           format(item.date, "dd/MM/yyyy"),
           selectedLocation.name,
-          Number(selectedLocation.lat.toFixed(4)),
-          Number(selectedLocation.lng.toFixed(4)),
         ];
 
-        selectedParamConfigs.forEach((param) => {
+        exportParamConfigs.forEach((param) => {
           rowValues.push(
             Number(
               (item[param.id as keyof HistoricalData] as number).toFixed(2),
@@ -779,6 +855,19 @@ const Statistics = () => {
         });
 
         mainSheet.addRow(rowValues);
+      });
+
+      // Formata colunas numéricas da tabela principal por tipo de parâmetro.
+      exportParamConfigs.forEach((param, index) => {
+        const columnIndex = 3 + index;
+        const numberFormat = getParamNumberFormat(param.id);
+        for (
+          let rowIndex = 2;
+          rowIndex <= historicalData.length + 1;
+          rowIndex++
+        ) {
+          mainSheet.getCell(rowIndex, columnIndex).numFmt = numberFormat;
+        }
       });
 
       const headerRow = mainSheet.getRow(1);
@@ -795,16 +884,25 @@ const Statistics = () => {
 
       mainSheet.views = [{ state: "frozen", ySplit: 1 }];
 
+      const lastColumnLetter = mainSheet.getRow(1).cellCount
+        ? String.fromCharCode(64 + mainSheet.getRow(1).cellCount)
+        : "A";
+      mainSheet.autoFilter = `A1:${lastColumnLetter}1`;
+
+      let summaryHeaderRowIndex: number | null = null;
+
       if (statistics) {
         mainSheet.addRow([]);
         const summaryHeader = mainSheet.addRow(["RESUMO ESTATISTICO", "Valor"]);
+        summaryHeaderRowIndex = summaryHeader.number;
         summaryHeader.eachCell((cell) => {
           cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
           cell.fill = {
             type: "pattern",
             pattern: "solid",
-            fgColor: { argb: "FF0EA5E9" },
+            fgColor: { argb: "FF059669" },
           };
+          cell.alignment = { vertical: "middle", horizontal: "center" };
         });
 
         const summaryRows: Array<[string, number]> = [
@@ -832,66 +930,30 @@ const Statistics = () => {
         summaryRows.forEach(([label, value]) => {
           mainSheet.addRow([label, value]);
         });
+
+        const summaryValuesStartRow = summaryHeader.number + 1;
+        const summaryValuesEndRow = mainSheet.rowCount;
+
+        for (
+          let rowIndex = summaryValuesStartRow;
+          rowIndex <= summaryValuesEndRow;
+          rowIndex++
+        ) {
+          const labelCellValue = String(
+            mainSheet.getCell(rowIndex, 1).value || "",
+          );
+          mainSheet.getCell(rowIndex, 2).numFmt =
+            getSummaryValueFormat(labelCellValue);
+        }
       }
 
-      applyFixedWidthAndCenter(mainSheet);
-
-      // Add a dedicated worksheet for chart series (used in the in-app chart).
-      const chartParamIds =
-        activeChartParameters.length > 0
-          ? activeChartParameters
-          : selectedParameters.length > 0
-            ? selectedParameters
-            : ["temperature"];
-
-      const chartParams = parameters.filter((p) =>
-        chartParamIds.includes(p.id),
+      applyBordersAndStripedRows(
+        mainSheet,
+        1,
+        mainSheet.rowCount,
+        summaryHeaderRowIndex ? new Set([summaryHeaderRowIndex]) : new Set(),
       );
-
-      const chartSheet = workbook.addWorksheet("Grafico_Dados");
-      const chartHeaders = [
-        "Data",
-        ...chartParams.map(
-          (param) => `${param.name}${param.unit ? ` (${param.unit})` : ""}`,
-        ),
-      ];
-      chartSheet.addRow(chartHeaders);
-
-      historicalData.forEach((item) => {
-        const rowValues: Array<string | number> = [
-          format(item.date, "dd/MM/yyyy"),
-        ];
-        chartParams.forEach((param) => {
-          rowValues.push(
-            Number(
-              (item[param.id as keyof HistoricalData] as number).toFixed(2),
-            ),
-          );
-        });
-        chartSheet.addRow(rowValues);
-      });
-
-      const chartHeaderRow = chartSheet.getRow(1);
-      chartHeaderRow.eachCell((cell, colNumber) => {
-        cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
-
-        let fillColor = "FF334155";
-        if (colNumber > 1) {
-          const param = chartParams[colNumber - 2];
-          if (param) {
-            fillColor = `FF${param.color.replace("#", "").toUpperCase()}`;
-          }
-        }
-
-        cell.fill = {
-          type: "pattern",
-          pattern: "solid",
-          fgColor: { argb: fillColor },
-        };
-      });
-
-      chartSheet.views = [{ state: "frozen", ySplit: 1 }];
-      applyFixedWidthAndCenter(chartSheet);
+      applyFixedWidthAndCenter(mainSheet);
 
       // Generate filename with date range
       const { startDate, endDate } = getDateRange();
@@ -947,7 +1009,7 @@ const Statistics = () => {
     getDateRange();
   const selectedRangeDays =
     differenceInCalendarDays(selectedEndDate, selectedStartDate) + 1;
-  const shouldRenderChart = selectedRangeDays <= 31;
+  const shouldRenderChart = selectedRangeDays <= 30;
 
   return (
     <>
@@ -1321,14 +1383,14 @@ const Statistics = () => {
                       <>
                         <p className="text-sm text-slate-600 mb-3">
                           Visualizando: <strong>{activeParams.length}</strong>{" "}
-                          parâmetro(s) sobreposto(s)
+                          parâmetro selecionado
                         </p>
                         <div>
                           <ChartContainer
                             config={chartConfig}
                             className="h-[320px] w-full"
                           >
-                            <RechartsBarChart data={chartData}>
+                            <RechartsLineChart data={chartData}>
                               <CartesianGrid vertical={false} />
                               <XAxis
                                 dataKey="date"
@@ -1362,24 +1424,18 @@ const Statistics = () => {
                                 }
                               />
                               {activeParams.map((param) => (
-                                <Bar
+                                <Line
                                   key={param.id}
                                   dataKey={param.id}
                                   name={param.id}
-                                  fill={`var(--color-${param.id})`}
-                                  radius={[3, 3, 0, 0]}
-                                >
-                                  <LabelList
-                                    dataKey={param.id}
-                                    position="top"
-                                    formatter={(value: number) =>
-                                      Number(value).toFixed(1)
-                                    }
-                                    style={{ fill: "#334155", fontSize: 10 }}
-                                  />
-                                </Bar>
+                                  type="monotone"
+                                  stroke={`var(--color-${param.id})`}
+                                  strokeWidth={2}
+                                  dot={false}
+                                  activeDot={{ r: 4 }}
+                                />
                               ))}
-                            </RechartsBarChart>
+                            </RechartsLineChart>
                           </ChartContainer>
                         </div>
                         <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -1404,8 +1460,8 @@ const Statistics = () => {
                   })()
                 ) : (
                   <div className="text-sm text-slate-600 bg-amber-50 border border-amber-200 rounded-lg p-4">
-                    Intervalos acima de 31 dias não geram gráfico, pois ele
-                    ficaria muito desconfigurado para ser exibido.
+                    Intervalo impossibilita a geração de gráfico, dados serão
+                    exportados no excel
                   </div>
                 )
               ) : (
