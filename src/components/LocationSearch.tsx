@@ -22,7 +22,6 @@ interface Municipality {
 interface LocationSearchProps {
   onLocationSelect: (location: Location) => void;
   initialLocation?: Location;
-  startEmpty?: boolean;
 }
 
 // Mapeamento de código UF para sigla
@@ -66,19 +65,15 @@ interface SuggestionItem {
 const LocationSearch = ({
   onLocationSelect,
   initialLocation,
-  startEmpty = false,
 }: LocationSearchProps) => {
-  const [searchTerm, setSearchTerm] = useState(
-    startEmpty ? "" : initialLocation?.name || "",
-  );
+  const [searchTerm, setSearchTerm] = useState(initialLocation?.name || "");
 
   // Sincroniza o input quando initialLocation mudar (ex: Minha Localização)
   useEffect(() => {
-    if (startEmpty) return;
     if (initialLocation?.name && initialLocation.name !== searchTerm) {
       setSearchTerm(initialLocation.name);
     }
-  }, [initialLocation?.name, startEmpty]);
+  }, [initialLocation?.name]);
   const [suggestions, setSuggestions] = useState<SuggestionItem[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -264,12 +259,11 @@ const LocationSearch = ({
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 " />
         <Input
-          type="text"
+          type="text opacity-50"
           placeholder="Digite o nome da cidade..."
           value={searchTerm}
           onChange={(e) => handleSearch(e.target.value)}
           onFocus={() => setIsSearching(true)}
-          autoComplete="off"
           className="pl-10 pr-4 h-12 text-base border-emerald-200 focus:border-emerald-500 bg-white text-opacity-50"
         />
       </div>

@@ -21,67 +21,84 @@ export default function NewsSidebar({
   title = "Notícias Recentes",
   maxItems = 4,
 }: Props) {
-  const [loading, setLoading] = useState(true);
-  const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loading] = useState(false);
+
+  // Placeholder sample news — swap for real data fetching later
+  const sampleNews: NewsItem[] = [
+    {
+      id: "1",
+      title: "Frente fria traz instabilidade para o sul do país",
+      category: "Clima",
+      time: "2h",
+      url: "https://example.com/noticias/frente-fria-sul",
+      summary:
+        "Previsões apontam chuvas e queda de temperatura nas próximas 48 horas.",
+    },
+    {
+      id: "2",
+      title: "Projeto de energia solar avança no interior",
+      category: "Energia",
+      time: "6h",
+      url: "https://example.com/noticias/energia-solar-interno",
+      summary: "Nova usina comunitária deve reduzir custo energético local.",
+    },
+    {
+      id: "3",
+      title: "Proteção de áreas verdes recebe investimento",
+      category: "Ambiente",
+      time: "1d",
+      url: "https://example.com/noticias/areas-verdes-investimento",
+      summary:
+        "Recursos irão para recuperação de nascentes e restauração florestal.",
+    },
+    {
+      id: "4",
+      title: "Pesquisadores monitoram mudanças climáticas regionais",
+      category: "Clima",
+      time: "2d",
+      url: "https://example.com/noticias/pesquisa-mudancas-climaticas",
+      summary: "Estudo aponta tendências de seca em áreas específicas.",
+    },
+    {
+      id: "5",
+      title: "Iniciativa de eficiência energética em prédios públicos",
+      category: "Energia",
+      time: "3d",
+      url: "https://example.com/noticias/eficiencia-energetica-predios",
+      summary: "Programa piloto deve reduzir consumo em até 20%.",
+    },
+  ];
+
+  const [newsItems, setNewsItems] = useState<NewsItem[]>(
+    sampleNews.slice(0, maxItems)
+  );
   const itemsToShow = newsItems.slice(0, maxItems);
 
   useEffect(() => {
     let mounted = true;
-    const feedSources = [
-      {
-        category: "Clima",
-        url: "https://g1.globo.com/rss/g1/meio-ambiente/",
-      },
-      {
-        category: "Clima",
-        url: "https://feeds.bbci.co.uk/news/science_and_environment/rss.xml",
-      },
-      {
-        category: "Energia",
-        url: "https://www.eia.gov/rss/todayinenergy.xml",
-      },
+    const rssProxies = [
+      // try multiple portals via a simple http proxy that returns the URL content
+      "https://r.jina.ai/http://g1.globo.com/index.xml",
+      "https://r.jina.ai/http://feeds.bbci.co.uk/news/rss.xml",
+      "https://r.jina.ai/http://rss.cnn.com/rss/edition.rss",
     ];
 
-    const stripHtml = (value: string) =>
-      value
-        .replace(/<[^>]+>/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-
     async function fetchFeeds() {
-      if (mounted) {
-        setLoading(true);
-        setLoadError(null);
-      }
-
       try {
-        const aggregatedItems: NewsItem[] = [];
-
-        for (const source of feedSources) {
+        for (const src of rssProxies) {
           try {
-            // Usa proxy para evitar bloqueios CORS em feeds RSS públicos.
-            const proxiedUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(source.url)}`;
-            const res = await fetch(proxiedUrl);
-            if (!res.ok) {
-              continue;
-            }
-
+            const res = await fetch(src);
+            if (!res.ok) continue;
             const text = await res.text();
             const parser = new DOMParser();
             const xml = parser.parseFromString(text, "application/xml");
-
-            if (xml.querySelector("parsererror")) {
-              continue;
-            }
-
             const items = Array.from(xml.querySelectorAll("item")).map(
               (it, i) => {
                 const link = it.querySelector("link")?.textContent || "";
                 const guid =
                   it.querySelector("guid")?.textContent ||
                   link ||
-                  `${source.url}-${i}`;
+                  `${src}-${i}`;
                 const title =
                   it.querySelector("title")?.textContent || "Sem título";
                 const desc =
@@ -94,50 +111,27 @@ export default function NewsSidebar({
                 return {
                   id: guid,
                   title: title,
-                  category: category || source.category,
-                  time: pub
-                    ? new Date(pub).toLocaleString("pt-BR", {
-                        dateStyle: "short",
-                        timeStyle: "short",
-                      })
-                    : "",
-                  summary: stripHtml(desc),
+                  category: category || "Notícia",
+                  time: pub ? new Date(pub).toLocaleString() : "",
+                  summary: desc.replace(/<[^>]+>/g, "").trim(),
                   url: link,
                 } as NewsItem;
-              },
+              }
             );
 
-            aggregatedItems.push(...items);
+            if (items.length > 0) {
+              if (mounted) setNewsItems(items.slice(0, maxItems));
+              return;
+            }
           } catch (err) {
+            // try next source
             continue;
-          }
-        }
-
-        const uniqueByUrl = new Map<string, NewsItem>();
-        for (const item of aggregatedItems) {
-          if (!item.url || uniqueByUrl.has(item.url)) {
-            continue;
-          }
-          uniqueByUrl.set(item.url, item);
-        }
-
-        const finalItems = Array.from(uniqueByUrl.values()).slice(0, maxItems);
-
-        if (mounted) {
-          setNewsItems(finalItems);
-          if (finalItems.length === 0) {
-            setLoadError("Não foi possível carregar notícias no momento.");
           }
         }
       } catch (err) {
-        if (mounted) {
-          setNewsItems([]);
-          setLoadError("Não foi possível carregar notícias no momento.");
-        }
+        // ignore and fallback
       } finally {
-        if (mounted) {
-          setLoading(false);
-        }
+        // if nothing loaded, keep sampleNews (already set)
       }
     }
 
@@ -162,9 +156,6 @@ export default function NewsSidebar({
           {/* Scrollable content */}
           <div className="p-4 max-h-[72vh] overflow-auto">
             {loading && <p className="text-sm text-slate-500">Carregando...</p>}
-            {!loading && loadError && (
-              <p className="text-sm text-slate-500">{loadError}</p>
-            )}
 
             <div className="space-y-4">
               {itemsToShow.length === 0 && (
@@ -220,9 +211,6 @@ export default function NewsSidebar({
         {/* Scrollable list */}
         <div className="p-3 sm:p-4 max-h-[40vh] overflow-auto">
           {loading && <p className="text-sm text-slate-500">Carregando...</p>}
-          {!loading && loadError && (
-            <p className="text-sm text-slate-500">{loadError}</p>
-          )}
 
           <div className="space-y-3">
             {itemsToShow.length === 0 && (
