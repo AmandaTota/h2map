@@ -10,6 +10,7 @@ import Statistics from "./pages/Statistics";
 import FeasibilityAnalysis from "./pages/FeasibilityAnalysis";
 import ImportMunicipalities from "./pages/ImportMunicipalities";
 import Informacoes from "./pages/Informacoes";
+import Metodologia from "./pages/Metodologia";
 import NotFound from "./pages/NotFound";
 import Previsao from "./pages/Previsao";
 import H2DemandSliders from "./pages/H2DemandSliders";
@@ -24,6 +25,7 @@ function App() {
         <Route path="/informacoes" element={<Informacoes />} />
         <Route path="/previsao" element={<Previsao />} />
         <Route path="/statistics" element={<Statistics />} />
+        <Route path="/metodologia" element={<Metodologia />} />
         <Route path="/feasibility" element={<FeasibilityAnalysis />} />
         <Route path="/h2-demand-sliders" element={<H2DemandSliders />} />
         <Route

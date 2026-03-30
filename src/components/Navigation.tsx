@@ -6,6 +6,7 @@ import {
   ThermometerSun,
   BarChart3,
   LineChart,
+  Calculator,
   LogOut,
   FileText,
 } from "lucide-react";
@@ -44,6 +45,7 @@ const Navigation = () => {
     { path: "/statistics", label: "Estatísticas", icon: LineChart },
     { path: "/dashboard", label: "Previsão do Tempo", icon: ThermometerSun },
     { path: "/informacoes", label: "Dados Verdes", icon: FileText },
+    { path: "/metodologia", label: "Cálculos e Fontes", icon: Calculator },
   ];
 
   const isActive = (path: string) => location.pathname === path;
