@@ -36,6 +36,14 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import Navigation from "@/components/Navigation";
 import LocationSearch from "@/components/LocationSearch";
 import RegionFilters from "@/components/RegionFilters";
@@ -151,12 +159,22 @@ const formatCurrency = (value: number, decimals: number = 2): string => {
   return formatted;
 };
 
+const formatViabilityNumber = (value: number, decimals: number = 0): string =>
+  value.toLocaleString("pt-BR", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+
 const FeasibilityAnalysis = () => {
   const { selectedLocation, setSelectedLocation, clearLocation } =
     useLocationStore();
   const [localLocation, setLocalLocation] = useState(
     selectedLocation || DEFAULT_CITY_LOCATION,
   );
+  const [hasSelectedLocation, setHasSelectedLocation] = useState(
+    selectedLocation !== null,
+  );
+  const [locationAlertOpen, setLocationAlertOpen] = useState(false);
   const [analysisStarted, setAnalysisStarted] = useState(false);
   const [analyzedLocation, setAnalyzedLocation] = useState(localLocation);
   const [loading, setLoading] = useState(false);
@@ -290,7 +308,11 @@ const FeasibilityAnalysis = () => {
   useEffect(() => {
     if (selectedLocation) {
       setLocalLocation(selectedLocation);
+      setHasSelectedLocation(true);
+      return;
     }
+
+    setHasSelectedLocation(false);
   }, [selectedLocation]);
 
   // Buscar coordenadas das regiões intermediárias quando mudarem
@@ -461,6 +483,7 @@ const FeasibilityAnalysis = () => {
   }) => {
     setLocalLocation(location);
     setSelectedLocation(location);
+    setHasSelectedLocation(true);
   };
 
   const startAnalysisFor = async (loc: {
@@ -486,12 +509,18 @@ const FeasibilityAnalysis = () => {
   };
 
   const handleStartAnalysis = async () => {
+    if (!hasSelectedLocation) {
+      setLocationAlertOpen(true);
+      return;
+    }
+
     await startAnalysisFor(localLocation);
   };
 
   const handleClearCitySelection = () => {
     clearLocation();
     setLocalLocation(DEFAULT_CITY_LOCATION);
+    setHasSelectedLocation(false);
     setAnalyzedLocation(DEFAULT_CITY_LOCATION);
     setAnalysisStarted(false);
     setWeatherData(null);
@@ -1810,11 +1839,17 @@ const FeasibilityAnalysis = () => {
                   </h1>
                   {mode === "cidade" && (
                     <div className="flex items-center gap-3 mt-1">
-                      <p className="text-slate-600">
-                        Local: {localLocation.name} | Coordenadas:{" "}
-                        {localLocation.lat.toFixed(4)},{" "}
-                        {localLocation.lng.toFixed(4)}
-                      </p>
+                      {hasSelectedLocation ? (
+                        <p className="text-slate-600">
+                          Local: {localLocation.name} | Coordenadas:{" "}
+                          {localLocation.lat.toFixed(4)},{" "}
+                          {localLocation.lng.toFixed(4)}
+                        </p>
+                      ) : (
+                        <p className="text-slate-600">
+                          Nenhuma localização selecionada
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>
@@ -1953,20 +1988,26 @@ const FeasibilityAnalysis = () => {
                                   <Card className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
                                     <p className="text-sm text-slate-700 mb-2">
                                       ☀️ <strong>Irradiância Solar:</strong>{" "}
-                                      {Math.ceil(
-                                        energyCalc1Year.solarIrradiance,
+                                      {formatViabilityNumber(
+                                        Math.ceil(
+                                          energyCalc1Year.solarIrradiance,
+                                        ),
                                       )}{" "}
                                       W/m²
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
                                       📐 <strong>Área dos Painéis:</strong>{" "}
-                                      {energyCalc1Year.solarPanelArea.toLocaleString()}{" "}
+                                      {energyCalc1Year.solarPanelArea.toLocaleString(
+                                        "pt-BR",
+                                      )}{" "}
                                       m²
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
                                       ⚡ <strong>Eficiência:</strong>{" "}
-                                      {Math.ceil(
-                                        energyCalc1Year.solarEfficiency * 100,
+                                      {formatViabilityNumber(
+                                        Math.ceil(
+                                          energyCalc1Year.solarEfficiency * 100,
+                                        ),
                                       )}
                                       %
                                     </p>
@@ -1975,7 +2016,10 @@ const FeasibilityAnalysis = () => {
                                       <sub>solar</sub> = G × A × η
                                     </p>
                                     <p className="text-2xl font-bold text-amber-600 mt-3">
-                                      {Math.ceil(energyCalc1Year.solarPower)} kW
+                                      {formatViabilityNumber(
+                                        Math.ceil(energyCalc1Year.solarPower),
+                                      )}{" "}
+                                      kW
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       Potência Solar Gerada
@@ -1985,17 +2029,24 @@ const FeasibilityAnalysis = () => {
                                   <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
                                     <p className="text-sm text-slate-700 mb-2">
                                       💨 <strong>Velocidade do Vento:</strong>{" "}
-                                      {Math.ceil(energyCalc1Year.windSpeed)} m/s
+                                      {formatViabilityNumber(
+                                        Math.ceil(energyCalc1Year.windSpeed),
+                                      )}{" "}
+                                      m/s
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
                                       📐 <strong>Área Varrida:</strong>{" "}
-                                      {energyCalc1Year.windTurbineArea.toLocaleString()}{" "}
+                                      {energyCalc1Year.windTurbineArea.toLocaleString(
+                                        "pt-BR",
+                                      )}{" "}
                                       m²
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
                                       ⚡ <strong>Eficiência:</strong>{" "}
-                                      {Math.ceil(
-                                        energyCalc1Year.windEfficiency * 100,
+                                      {formatViabilityNumber(
+                                        Math.ceil(
+                                          energyCalc1Year.windEfficiency * 100,
+                                        ),
                                       )}
                                       %
                                     </p>
@@ -2004,7 +2055,10 @@ const FeasibilityAnalysis = () => {
                                       <sub>eólica</sub> = ½ × ρ × A × v³ × η
                                     </p>
                                     <p className="text-2xl font-bold text-blue-600 mt-3">
-                                      {Math.ceil(energyCalc1Year.windPower)} kW
+                                      {formatViabilityNumber(
+                                        Math.ceil(energyCalc1Year.windPower),
+                                      )}{" "}
+                                      kW
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       Potência Eólica Gerada
@@ -2025,7 +2079,9 @@ const FeasibilityAnalysis = () => {
                                       Potência Total
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {Math.ceil(energyCalc1Year.totalPower)}
+                                      {formatViabilityNumber(
+                                        Math.ceil(energyCalc1Year.totalPower),
+                                      )}
                                     </p>
                                     <p className="text-xs text-slate-600">kW</p>
                                   </Card>
@@ -2035,7 +2091,9 @@ const FeasibilityAnalysis = () => {
                                       Energia Diária
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {Math.ceil(energyCalc1Year.dailyEnergy)}
+                                      {formatViabilityNumber(
+                                        Math.ceil(energyCalc1Year.dailyEnergy),
+                                      )}
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       kWh/dia
@@ -2047,8 +2105,10 @@ const FeasibilityAnalysis = () => {
                                       Energia Anual
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {Math.ceil(
-                                        energyCalc1Year.annualEnergy / 1000,
+                                      {formatViabilityNumber(
+                                        Math.ceil(
+                                          energyCalc1Year.annualEnergy / 1000,
+                                        ),
                                       )}
                                     </p>
                                     <p className="text-xs text-slate-600">
@@ -2071,12 +2131,16 @@ const FeasibilityAnalysis = () => {
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
                                       {energyCalc1Year.dailyH2Production >= 1000
-                                        ? Math.ceil(
-                                            energyCalc1Year.dailyH2Production /
-                                              1000,
+                                        ? formatViabilityNumber(
+                                            Math.ceil(
+                                              energyCalc1Year.dailyH2Production /
+                                                1000,
+                                            ),
                                           ) + " t/dia"
-                                        : Math.ceil(
-                                            energyCalc1Year.dailyH2Production,
+                                        : formatViabilityNumber(
+                                            Math.ceil(
+                                              energyCalc1Year.dailyH2Production,
+                                            ),
                                           ) + " kg/dia"}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
@@ -2094,8 +2158,10 @@ const FeasibilityAnalysis = () => {
                                       📊 <strong>Produção Anual:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {Math.ceil(
-                                        energyCalc1Year.annualH2Production,
+                                      {formatViabilityNumber(
+                                        Math.ceil(
+                                          energyCalc1Year.annualH2Production,
+                                        ),
                                       )}{" "}
                                       Ton/ano
                                     </p>
@@ -2121,20 +2187,28 @@ const FeasibilityAnalysis = () => {
                                   <Card className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
                                     <p className="text-sm text-slate-700 mb-2">
                                       ☀️ <strong>Irradiância Solar:</strong>{" "}
-                                      {energyCalc3Years.solarIrradiance.toFixed(
-                                        0,
-                                      )}{" "}
+                                      {energyCalc3Years.solarIrradiance
+                                        .toFixed(0)
+                                        .replace(
+                                          /\B(?=(\d{3})+(?!\d))/g,
+                                          ".",
+                                        )}{" "}
                                       W/m²
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
                                       📐 <strong>Área dos Painéis:</strong>{" "}
-                                      {energyCalc3Years.solarPanelArea.toLocaleString()}{" "}
+                                      {energyCalc3Years.solarPanelArea.toLocaleString(
+                                        "pt-BR",
+                                      )}{" "}
                                       m²
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
                                       ⚡ <strong>Eficiência:</strong>{" "}
-                                      {Math.ceil(
-                                        energyCalc3Years.solarEfficiency * 100,
+                                      {formatViabilityNumber(
+                                        Math.ceil(
+                                          energyCalc3Years.solarEfficiency *
+                                            100,
+                                        ),
                                       )}
                                       %
                                     </p>
@@ -2143,7 +2217,9 @@ const FeasibilityAnalysis = () => {
                                       <sub>solar</sub> = G × A × η
                                     </p>
                                     <p className="text-2xl font-bold text-amber-600 mt-3">
-                                      {Math.ceil(energyCalc3Years.solarPower)}{" "}
+                                      {formatViabilityNumber(
+                                        Math.ceil(energyCalc3Years.solarPower),
+                                      )}{" "}
                                       kW
                                     </p>
                                     <p className="text-xs text-slate-600">
@@ -2154,18 +2230,24 @@ const FeasibilityAnalysis = () => {
                                   <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
                                     <p className="text-sm text-slate-700 mb-2">
                                       💨 <strong>Velocidade do Vento:</strong>{" "}
-                                      {Math.ceil(energyCalc3Years.windSpeed)}{" "}
+                                      {formatViabilityNumber(
+                                        Math.ceil(energyCalc3Years.windSpeed),
+                                      )}{" "}
                                       m/s
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
                                       📐 <strong>Área Varrida:</strong>{" "}
-                                      {energyCalc3Years.windTurbineArea.toLocaleString()}{" "}
+                                      {energyCalc3Years.windTurbineArea.toLocaleString(
+                                        "pt-BR",
+                                      )}{" "}
                                       m²
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
                                       ⚡ <strong>Eficiência:</strong>{" "}
-                                      {Math.ceil(
-                                        energyCalc3Years.windEfficiency * 100,
+                                      {formatViabilityNumber(
+                                        Math.ceil(
+                                          energyCalc3Years.windEfficiency * 100,
+                                        ),
                                       )}
                                       %
                                     </p>
@@ -2174,7 +2256,10 @@ const FeasibilityAnalysis = () => {
                                       <sub>eólica</sub> = ½ × ρ × A × v³ × η
                                     </p>
                                     <p className="text-2xl font-bold text-blue-600 mt-3">
-                                      {Math.ceil(energyCalc3Years.windPower)} kW
+                                      {formatViabilityNumber(
+                                        Math.ceil(energyCalc3Years.windPower),
+                                      )}{" "}
+                                      kW
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       Potência Eólica Gerada
@@ -2195,7 +2280,9 @@ const FeasibilityAnalysis = () => {
                                       Potência Total
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {Math.ceil(energyCalc3Years.totalPower)}
+                                      {formatViabilityNumber(
+                                        Math.ceil(energyCalc3Years.totalPower),
+                                      )}
                                     </p>
                                     <p className="text-xs text-slate-600">kW</p>
                                   </Card>
@@ -2205,7 +2292,9 @@ const FeasibilityAnalysis = () => {
                                       Energia Diária
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {Math.ceil(energyCalc3Years.dailyEnergy)}
+                                      {formatViabilityNumber(
+                                        Math.ceil(energyCalc3Years.dailyEnergy),
+                                      )}
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       kWh/dia
@@ -2217,8 +2306,10 @@ const FeasibilityAnalysis = () => {
                                       Energia Anual
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {Math.ceil(
-                                        energyCalc3Years.annualEnergy / 1000,
+                                      {formatViabilityNumber(
+                                        Math.ceil(
+                                          energyCalc3Years.annualEnergy / 1000,
+                                        ),
                                       )}
                                     </p>
                                     <p className="text-xs text-slate-600">
@@ -2242,12 +2333,16 @@ const FeasibilityAnalysis = () => {
                                     <p className="text-3xl font-bold text-emerald-600">
                                       {energyCalc3Years.dailyH2Production >=
                                       1000
-                                        ? Math.ceil(
-                                            energyCalc3Years.dailyH2Production /
-                                              1000,
+                                        ? formatViabilityNumber(
+                                            Math.ceil(
+                                              energyCalc3Years.dailyH2Production /
+                                                1000,
+                                            ),
                                           ) + " t/dia"
-                                        : Math.ceil(
-                                            energyCalc3Years.dailyH2Production,
+                                        : formatViabilityNumber(
+                                            Math.ceil(
+                                              energyCalc3Years.dailyH2Production,
+                                            ),
                                           ) + " kg/dia"}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
@@ -2265,8 +2360,10 @@ const FeasibilityAnalysis = () => {
                                       📊 <strong>Produção Anual:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {Math.ceil(
-                                        energyCalc3Years.annualH2Production,
+                                      {formatViabilityNumber(
+                                        Math.ceil(
+                                          energyCalc3Years.annualH2Production,
+                                        ),
                                       )}{" "}
                                       Toneladas/ano
                                     </p>
@@ -2292,20 +2389,28 @@ const FeasibilityAnalysis = () => {
                                   <Card className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
                                     <p className="text-sm text-slate-700 mb-2">
                                       ☀️ <strong>Irradiância Solar:</strong>{" "}
-                                      {energyCalc5Years.solarIrradiance.toFixed(
-                                        0,
-                                      )}{" "}
+                                      {energyCalc5Years.solarIrradiance
+                                        .toFixed(0)
+                                        .replace(
+                                          /\B(?=(\d{3})+(?!\d))/g,
+                                          ".",
+                                        )}{" "}
                                       W/m²
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
                                       📐 <strong>Área dos Painéis:</strong>{" "}
-                                      {energyCalc5Years.solarPanelArea.toLocaleString()}{" "}
+                                      {energyCalc5Years.solarPanelArea.toLocaleString(
+                                        "pt-BR",
+                                      )}{" "}
                                       m²
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
                                       ⚡ <strong>Eficiência:</strong>{" "}
-                                      {Math.ceil(
-                                        energyCalc5Years.solarEfficiency * 100,
+                                      {formatViabilityNumber(
+                                        Math.ceil(
+                                          energyCalc5Years.solarEfficiency *
+                                            100,
+                                        ),
                                       )}
                                       %
                                     </p>
@@ -2314,7 +2419,9 @@ const FeasibilityAnalysis = () => {
                                       <sub>solar</sub> = G × A × η
                                     </p>
                                     <p className="text-2xl font-bold text-amber-600 mt-3">
-                                      {Math.ceil(energyCalc5Years.solarPower)}{" "}
+                                      {formatViabilityNumber(
+                                        Math.ceil(energyCalc5Years.solarPower),
+                                      )}{" "}
                                       kW
                                     </p>
                                     <p className="text-xs text-slate-600">
@@ -2325,18 +2432,24 @@ const FeasibilityAnalysis = () => {
                                   <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
                                     <p className="text-sm text-slate-700 mb-2">
                                       💨 <strong>Velocidade do Vento:</strong>{" "}
-                                      {Math.ceil(energyCalc5Years.windSpeed)}{" "}
+                                      {formatViabilityNumber(
+                                        Math.ceil(energyCalc5Years.windSpeed),
+                                      )}{" "}
                                       m/s
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
                                       📐 <strong>Área Varrida:</strong>{" "}
-                                      {energyCalc5Years.windTurbineArea.toLocaleString()}{" "}
+                                      {energyCalc5Years.windTurbineArea.toLocaleString(
+                                        "pt-BR",
+                                      )}{" "}
                                       m²
                                     </p>
                                     <p className="text-sm text-slate-700 mb-2">
                                       ⚡ <strong>Eficiência:</strong>{" "}
-                                      {Math.ceil(
-                                        energyCalc5Years.windEfficiency * 100,
+                                      {formatViabilityNumber(
+                                        Math.ceil(
+                                          energyCalc5Years.windEfficiency * 100,
+                                        ),
                                       )}
                                       %
                                     </p>
@@ -2345,7 +2458,10 @@ const FeasibilityAnalysis = () => {
                                       <sub>eólica</sub> = ½ × ρ × A × v³ × η
                                     </p>
                                     <p className="text-2xl font-bold text-blue-600 mt-3">
-                                      {Math.ceil(energyCalc5Years.windPower)} kW
+                                      {formatViabilityNumber(
+                                        Math.ceil(energyCalc5Years.windPower),
+                                      )}{" "}
+                                      kW
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       Potência Eólica Gerada
@@ -2366,7 +2482,9 @@ const FeasibilityAnalysis = () => {
                                       Potência Total
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {Math.ceil(energyCalc5Years.totalPower)}
+                                      {formatViabilityNumber(
+                                        Math.ceil(energyCalc5Years.totalPower),
+                                      )}
                                     </p>
                                     <p className="text-xs text-slate-600">kW</p>
                                   </Card>
@@ -2376,7 +2494,9 @@ const FeasibilityAnalysis = () => {
                                       Energia Diária
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {Math.ceil(energyCalc5Years.dailyEnergy)}
+                                      {formatViabilityNumber(
+                                        Math.ceil(energyCalc5Years.dailyEnergy),
+                                      )}
                                     </p>
                                     <p className="text-xs text-slate-600">
                                       kWh/dia
@@ -2388,8 +2508,10 @@ const FeasibilityAnalysis = () => {
                                       Energia Anual
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {Math.ceil(
-                                        energyCalc5Years.annualEnergy / 1000,
+                                      {formatViabilityNumber(
+                                        Math.ceil(
+                                          energyCalc5Years.annualEnergy / 1000,
+                                        ),
                                       )}
                                     </p>
                                     <p className="text-xs text-slate-600">
@@ -2413,12 +2535,16 @@ const FeasibilityAnalysis = () => {
                                     <p className="text-3xl font-bold text-emerald-600">
                                       {energyCalc5Years.dailyH2Production >=
                                       1000
-                                        ? Math.ceil(
-                                            energyCalc5Years.dailyH2Production /
-                                              1000,
+                                        ? formatViabilityNumber(
+                                            Math.ceil(
+                                              energyCalc5Years.dailyH2Production /
+                                                1000,
+                                            ),
                                           ) + " t/dia"
-                                        : Math.ceil(
-                                            energyCalc5Years.dailyH2Production,
+                                        : formatViabilityNumber(
+                                            Math.ceil(
+                                              energyCalc5Years.dailyH2Production,
+                                            ),
                                           ) + " kg/dia"}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2 p-2 bg-white/50 rounded">
@@ -2436,8 +2562,10 @@ const FeasibilityAnalysis = () => {
                                       📊 <strong>Produção Anual:</strong>
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {Math.ceil(
-                                        energyCalc5Years.annualH2Production,
+                                      {formatViabilityNumber(
+                                        Math.ceil(
+                                          energyCalc5Years.annualH2Production,
+                                        ),
                                       )}{" "}
                                       Toneladas/ano
                                     </p>
@@ -2544,9 +2672,11 @@ const FeasibilityAnalysis = () => {
                                       🔋 Energia Consumida
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {Math.ceil(
-                                        simulationResults.oneYear
-                                          .totalEnergyConsumed / 1000,
+                                      {formatViabilityNumber(
+                                        Math.ceil(
+                                          simulationResults.oneYear
+                                            .totalEnergyConsumed / 1000,
+                                        ),
                                       )}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
@@ -2559,9 +2689,11 @@ const FeasibilityAnalysis = () => {
                                       💧 Produção H₂
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {Math.ceil(
-                                        simulationResults.oneYear.h2Production /
-                                          1000,
+                                      {formatViabilityNumber(
+                                        Math.ceil(
+                                          simulationResults.oneYear
+                                            .h2Production / 1000,
+                                        ),
                                       )}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
@@ -2577,7 +2709,9 @@ const FeasibilityAnalysis = () => {
                                       ⏰ Horas de Operação
                                     </p>
                                     <p className="text-2xl font-bold text-amber-600">
-                                      {simulationResults.oneYear.operatingHours.toLocaleString()}
+                                      {simulationResults.oneYear.operatingHours.toLocaleString(
+                                        "pt-BR",
+                                      )}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
                                       Horas/ano de{" "}
@@ -2591,9 +2725,11 @@ const FeasibilityAnalysis = () => {
                                       ⚠️ Curtailment
                                     </p>
                                     <p className="text-2xl font-bold text-red-600">
-                                      {Math.ceil(
-                                        simulationResults.oneYear.curtailment /
-                                          1000,
+                                      {formatViabilityNumber(
+                                        Math.ceil(
+                                          simulationResults.oneYear
+                                            .curtailment / 1000,
+                                        ),
                                       )}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
@@ -2692,9 +2828,11 @@ const FeasibilityAnalysis = () => {
                                       🔋 Energia Consumida
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {Math.ceil(
-                                        simulationResults.threeYears!
-                                          .totalEnergyConsumed / 1000,
+                                      {formatViabilityNumber(
+                                        Math.ceil(
+                                          simulationResults.threeYears!
+                                            .totalEnergyConsumed / 1000,
+                                        ),
                                       )}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
@@ -2706,9 +2844,11 @@ const FeasibilityAnalysis = () => {
                                       💧 Produção H₂
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {Math.ceil(
-                                        simulationResults.threeYears!
-                                          .h2Production / 1000,
+                                      {formatViabilityNumber(
+                                        Math.ceil(
+                                          simulationResults.threeYears!
+                                            .h2Production / 1000,
+                                        ),
                                       )}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
@@ -2724,7 +2864,9 @@ const FeasibilityAnalysis = () => {
                                       ⏰ Horas de Operação
                                     </p>
                                     <p className="text-2xl font-bold text-amber-600">
-                                      {simulationResults.threeYears!.operatingHours.toLocaleString()}
+                                      {simulationResults.threeYears!.operatingHours.toLocaleString(
+                                        "pt-BR",
+                                      )}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
                                       horas/ano de{" "}
@@ -2738,9 +2880,11 @@ const FeasibilityAnalysis = () => {
                                       ⚠️ Curtailment
                                     </p>
                                     <p className="text-2xl font-bold text-red-600">
-                                      {Math.ceil(
-                                        simulationResults.threeYears!
-                                          .curtailment / 1000,
+                                      {formatViabilityNumber(
+                                        Math.ceil(
+                                          simulationResults.threeYears!
+                                            .curtailment / 1000,
+                                        ),
                                       )}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
@@ -2839,9 +2983,11 @@ const FeasibilityAnalysis = () => {
                                       🔋 Energia Consumida
                                     </p>
                                     <p className="text-3xl font-bold text-purple-600">
-                                      {Math.ceil(
-                                        simulationResults.fiveYears!
-                                          .totalEnergyConsumed / 1000,
+                                      {formatViabilityNumber(
+                                        Math.ceil(
+                                          simulationResults.fiveYears!
+                                            .totalEnergyConsumed / 1000,
+                                        ),
                                       )}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
@@ -2853,9 +2999,11 @@ const FeasibilityAnalysis = () => {
                                       💧 Produção H₂
                                     </p>
                                     <p className="text-3xl font-bold text-emerald-600">
-                                      {Math.ceil(
-                                        simulationResults.fiveYears!
-                                          .h2Production / 1000,
+                                      {formatViabilityNumber(
+                                        Math.ceil(
+                                          simulationResults.fiveYears!
+                                            .h2Production / 1000,
+                                        ),
                                       )}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
@@ -2871,7 +3019,9 @@ const FeasibilityAnalysis = () => {
                                       ⏰ Horas de Operação
                                     </p>
                                     <p className="text-2xl font-bold text-amber-600">
-                                      {simulationResults.fiveYears!.operatingHours.toLocaleString()}
+                                      {simulationResults.fiveYears!.operatingHours.toLocaleString(
+                                        "pt-BR",
+                                      )}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
                                       horas/ano de{" "}
@@ -2885,9 +3035,11 @@ const FeasibilityAnalysis = () => {
                                       ⚠️ Curtailment
                                     </p>
                                     <p className="text-2xl font-bold text-red-600">
-                                      {Math.ceil(
-                                        simulationResults.fiveYears!
-                                          .curtailment / 1000,
+                                      {formatViabilityNumber(
+                                        Math.ceil(
+                                          simulationResults.fiveYears!
+                                            .curtailment / 1000,
+                                        ),
                                       )}
                                     </p>
                                     <p className="text-xs text-slate-600 mt-2">
@@ -3095,7 +3247,8 @@ const FeasibilityAnalysis = () => {
                                     </span>
                                   </div>
                                   <p className="text-3xl font-bold text-slate-900">
-                                    {simulationResults.oneYear.h2Production.toFixed(
+                                    {formatViabilityNumber(
+                                      simulationResults.oneYear.h2Production,
                                       2,
                                     )}
                                   </p>
@@ -3256,7 +3409,9 @@ const FeasibilityAnalysis = () => {
                                     </span>
                                   </div>
                                   <p className="text-3xl font-bold text-slate-900">
-                                    {simulationResults.threeYears!.h2Production.toFixed(
+                                    {formatViabilityNumber(
+                                      simulationResults.threeYears!
+                                        .h2Production,
                                       2,
                                     )}
                                   </p>
@@ -3417,7 +3572,8 @@ const FeasibilityAnalysis = () => {
                                     </span>
                                   </div>
                                   <p className="text-3xl font-bold text-slate-900">
-                                    {simulationResults.fiveYears!.h2Production.toFixed(
+                                    {formatViabilityNumber(
+                                      simulationResults.fiveYears!.h2Production,
                                       2,
                                     )}
                                   </p>
@@ -3731,13 +3887,17 @@ const FeasibilityAnalysis = () => {
                                     </h3>
                                     <p className="text-sm text-slate-700">
                                       Produção anual estimada de{" "}
-                                      {Math.ceil(
-                                        simulationResults.oneYear.h2Production /
-                                          1000,
+                                      {formatViabilityNumber(
+                                        Math.ceil(
+                                          simulationResults.oneYear
+                                            .h2Production / 1000,
+                                        ),
                                       )}{" "}
                                       kg de H₂ verde no cenário de 100 kW.
                                       Potencial de expansão para{" "}
-                                      {simulationResults.fiveYears!.h2Production.toFixed(
+                                      {formatViabilityNumber(
+                                        simulationResults.fiveYears!
+                                          .h2Production,
                                         2,
                                       )}{" "}
                                       kg/ano com eletrolisador de 500 kW.
@@ -3904,9 +4064,11 @@ const FeasibilityAnalysis = () => {
                                     </h3>
                                     <p className="text-sm text-slate-700">
                                       Produção anual estimada de{" "}
-                                      {Math.ceil(
-                                        simulationResults.threeYears!
-                                          .h2Production / 1000,
+                                      {formatViabilityNumber(
+                                        Math.ceil(
+                                          simulationResults.threeYears!
+                                            .h2Production / 1000,
+                                        ),
                                       )}{" "}
                                       toneladas de H₂ verde no cenário de 300
                                       kW. Este eletrolisador de média capacidade
@@ -4078,9 +4240,11 @@ const FeasibilityAnalysis = () => {
                                     </h3>
                                     <p className="text-sm text-slate-700">
                                       Produção anual estimada de{" "}
-                                      {Math.ceil(
-                                        simulationResults.fiveYears!
-                                          .h2Production / 1000,
+                                      {formatViabilityNumber(
+                                        Math.ceil(
+                                          simulationResults.fiveYears!
+                                            .h2Production / 1000,
+                                        ),
                                       )}{" "}
                                       toneladas de H₂ verde no cenário de 500
                                       kW. Este eletrolisador de grande
@@ -4246,7 +4410,9 @@ const FeasibilityAnalysis = () => {
                                   <p className="text-slate-700">
                                     <strong>Buscar Incentivos Fiscais:</strong>{" "}
                                     LCOH alto (R${" "}
-                                    {Math.ceil(simulationResults.oneYear.lcoh)}
+                                    {formatViabilityNumber(
+                                      Math.ceil(simulationResults.oneYear.lcoh),
+                                    )}
                                     /kg). Projeto pode se beneficiar
                                     significativamente de programas como PNME,
                                     créditos de carbono e financiamento BNDES.
@@ -5520,6 +5686,24 @@ const FeasibilityAnalysis = () => {
           )}
         </div>
       </div>
+
+      <Dialog open={locationAlertOpen} onOpenChange={setLocationAlertOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-amber-700">
+              <AlertTriangle className="h-5 w-5" />
+              Localização obrigatória
+            </DialogTitle>
+            <DialogDescription>
+              Para iniciar a análise, selecione uma cidade no campo de busca de
+              localização.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => setLocationAlertOpen(false)}>Entendi</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
